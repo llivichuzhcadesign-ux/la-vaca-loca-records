@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin — La Vaca Loca Records</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0b0b0b;--panel:#141414;--line:#2a2a2a;--text:#f5f2ea;--muted:#aaa79f;--accent:#d8ff36}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}header{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid var(--line)}h1,h2,h3{font-family:'Archivo Black',sans-serif;margin:0}.brand{font-size:18px;line-height:.9}.brand span{color:var(--accent)}main{padding:32px 5vw 70px}.eyebrow{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:800}.hero{display:flex;justify-content:space-between;align-items:end;gap:30px;margin-bottom:28px}.hero h1{font-size:clamp(40px,6vw,76px);letter-spacing:-.045em}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}.stat{background:var(--panel);border:1px solid var(--line);padding:18px}.stat strong{display:block;font-size:28px}.stat span{color:var(--muted);font-size:12px}.toolbar{display:flex;gap:10px;justify-content:space-between;margin:24px 0}.toolbar input{flex:1;max-width:380px;background:#101010;border:1px solid var(--line);color:var(--text);padding:12px 14px}.button{background:var(--accent);color:#111;border:0;padding:12px 16px;font-weight:800;cursor:pointer}.table-wrap{overflow:auto;border:1px solid var(--line)}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:14px 16px;border-bottom:1px solid var(--line)}th{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}td{font-size:14px}.cover{width:44px;height:44px;background:radial-gradient(circle,#111 0 10%,var(--accent) 10% 18%,#050505 18% 100%)}.status{display:inline-block;padding:5px 8px;border-radius:999px;border:1px solid var(--line);font-size:10px}.low{color:#ffdb70}.sold{color:#ff7e7e}.live{color:var(--accent)}.muted{color:var(--muted)}footer{padding:24px 5vw;border-top:1px solid var(--line);color:var(--muted);font-size:12px}@media(max-width:760px){.hero{align-items:start;flex-direction:column}.stats{grid-template-columns:1fr 1fr}.toolbar{align-items:stretch;flex-direction:column}.toolbar input{max-width:none}}
+  </style>
+</head>
+<body>
+  <header><div class="brand">LA VACA LOCA<br><span>ADMIN</span></div><a href="../index.html" style="color:#aaa">Ver tienda ↗</a></header>
+  <main>
+    <section class="hero"><div><p class="eyebrow">Inventory control</p><h1>DASHBOARD</h1></div><p class="muted">Prototype · data connection comes next</p></section>
+    <section class="stats"><div class="stat"><strong id="totalProducts">0</strong><span>Productos</span></div><div class="stat"><strong id="lowStock">0</strong><span>Stock bajo</span></div><div class="stat"><strong id="soldOut">0</strong><span>Agotados</span></div><div class="stat"><strong>0</strong><span>Pedidos</span></div></section>
+    <div class="toolbar"><input id="search" placeholder="Buscar artista, release o género…"><button class="button" type="button">+ Agregar disco</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Cover</th><th>Release</th><th>Género</th><th>Precio</th><th>Stock</th><th>Estado</th></tr></thead><tbody id="inventoryBody"></tbody></table></div>
+  </main>
+  <footer>La Vaca Loca Records · Admin prototype</footer>
+  <script src="../data.js"></script>
+  <script>
+    const body=document.getElementById('inventoryBody');
+    const rows=window.RECORDS;
+    function render(list){body.innerHTML=list.map(r=>`<tr><td><div class="cover"></div></td><td><strong>${r.artist}</strong><br><span class="muted">${r.title}</span></td><td>${r.genre}</td><td>$${r.price}</td><td>${r.stock}</td><td><span class="status ${r.stock===0?'sold':r.stock<=1?'low':'live'}">${r.stock===0?'SOLD OUT':r.stock<=1?'LOW STOCK':'LIVE'}</span></td></tr>`).join('')}
+    document.getElementById('totalProducts').textContent=rows.length;
+    document.getElementById('lowStock').textContent=rows.filter(r=>r.stock>0&&r.stock<=1).length;
+    document.getElementById('soldOut').textContent=rows.filter(r=>r.stock===0).length;
+    document.getElementById('search').addEventListener('input',e=>{const q=e.target.value.toLowerCase();render(rows.filter(r=>`${r.artist} ${r.title} ${r.genre}`.toLowerCase().includes(q)))})
+    render(rows);
+  </script>
+</body>
+</html>
