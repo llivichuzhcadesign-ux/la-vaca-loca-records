@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>La Vaca Loca Records</title>
+  <meta name="description" content="Vinilos, sonidos raros y música para gente que cava profundo." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="La Vaca Loca Records">LA VACA LOCA<br><span>RECORDS</span></a>
+    <nav class="main-nav" aria-label="Principal">
+      <a href="#shop">Tienda</a>
+      <a href="#dig">Dig</a>
+      <a href="#how">Cómo comprar</a>
+      <a href="#archive">Archivo</a>
+    </nav>
+    <button class="cart-button" id="cartButton" type="button">Bag <span id="cartCount">0</span></button>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Quito · Ecuador · Worldwide digging</p>
+        <h1>VINYL FOR<br>STRANGE HOURS.</h1>
+        <p class="hero-text">Una tienda para DJs, coleccionistas y curiosos. Nuevos drops, rarezas, preventas y música que merece otra escucha.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#shop">Explorar discos</a>
+          <a class="button ghost" href="#dig">Entrar a Dig Mode</a>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="record-disc"></div>
+        <div class="record-sleeve">
+          <span>LA VACA</span>
+          <strong>LOCA</strong>
+          <small>REC_001</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="ticker" aria-label="Características">
+      <div>NEW DROPS ✦ PREORDERS ✦ HOUSE ✦ TECHNO ✦ BREAKS ✦ AMBIENT ✦ RARE PRESSINGS ✦</div>
+    </section>
+
+    <section class="shop-section" id="shop">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Just in</p>
+          <h2>ÚLTIMOS DISCOS</h2>
+        </div>
+        <div class="filters" id="filters">
+          <button class="filter active" data-filter="all">Todo</button>
+          <button class="filter" data-filter="House">House</button>
+          <button class="filter" data-filter="Techno">Techno</button>
+          <button class="filter" data-filter="Breaks">Breaks</button>
+          <button class="filter" data-filter="Ambient">Ambient</button>
+        </div>
+      </div>
+      <div class="record-grid" id="recordGrid"></div>
+    </section>
+
+    <section class="dig-section" id="dig">
+      <div class="dig-copy">
+        <p class="eyebrow">Signature feature</p>
+        <h2>DIG MODE</h2>
+        <p>Explora por energía, no sólo por género. Oscuro, profundo, peak-time, afterhours, psicodélico o funky.</p>
+      </div>
+      <div class="mood-grid">
+        <button>🌑 Dark</button><button>🌊 Deep</button><button>⚡ Peak Time</button><button>🌅 Afterhours</button><button>🌀 Psychedelic</button><button>☀️ Funky</button>
+      </div>
+    </section>
+
+    <section class="how-section" id="how">
+      <div>
+        <p class="eyebrow">Simple checkout</p>
+        <h2>CÓMO COMPRAR</h2>
+      </div>
+      <ol>
+        <li><span>01</span> Elige tus discos y agrégalos al bag.</li>
+        <li><span>02</span> Revisa stock, precio y disponibilidad.</li>
+        <li><span>03</span> Envía el pedido por WhatsApp con un toque.</li>
+        <li><span>04</span> Coordinamos pago, retiro o envío.</li>
+      </ol>
+    </section>
+
+    <section class="archive-section" id="archive">
+      <p class="eyebrow">Sold out ≠ forgotten</p>
+      <h2>ARCHIVO</h2>
+      <p>Los discos agotados permanecen visibles. Los clientes podrán marcar <strong>“Lo quiero”</strong> y el admin verá cuáles vale la pena volver a traer.</p>
+    </section>
+  </main>
+
+  <aside class="cart-panel" id="cartPanel" aria-hidden="true">
+    <div class="cart-head">
+      <h3>YOUR BAG</h3>
+      <button id="closeCart" type="button">Cerrar</button>
+    </div>
+    <div id="cartItems" class="cart-items"></div>
+    <div class="cart-footer">
+      <div class="cart-total"><span>Total</span><strong id="cartTotal">$0</strong></div>
+      <a id="whatsappCheckout" class="button primary full" href="#" target="_blank" rel="noopener">Ordenar por WhatsApp</a>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <div class="player" id="player">
+    <button id="playerToggle" type="button">▶</button>
+    <div class="player-meta"><span>NOW DIGGING</span><strong id="playerTitle">Selecciona un disco para escuchar</strong></div>
+    <div class="player-line"><span></span></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
