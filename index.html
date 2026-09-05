@@ -1,120 +1,15 @@
 <!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>La Vaca Loca Records</title>
-  <meta name="description" content="Vinilos, sonidos raros y música para gente que cava profundo." />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <header class="site-header">
-    <a class="brand" href="#top" aria-label="La Vaca Loca Records">LA VACA LOCA<br><span>RECORDS</span></a>
-    <nav class="main-nav" aria-label="Principal">
-      <a href="#shop">Tienda</a>
-      <a href="#dig">Dig</a>
-      <a href="#how">Cómo comprar</a>
-      <a href="#archive">Archivo</a>
-    </nav>
-    <button class="cart-button" id="cartButton" type="button">Bag <span id="cartCount">0</span></button>
-  </header>
-
-  <main id="top">
-    <section class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">Quito · Ecuador · Worldwide digging</p>
-        <h1>VINYL FOR<br>STRANGE HOURS.</h1>
-        <p class="hero-text">Una tienda para DJs, coleccionistas y curiosos. Nuevos drops, rarezas, preventas y música que merece otra escucha.</p>
-        <div class="hero-actions">
-          <a class="button primary" href="#shop">Explorar discos</a>
-          <a class="button ghost" href="#dig">Entrar a Dig Mode</a>
-        </div>
-      </div>
-      <div class="hero-art" aria-hidden="true">
-        <div class="record-disc"></div>
-        <div class="record-sleeve">
-          <span>LA VACA</span>
-          <strong>LOCA</strong>
-          <small>REC_001</small>
-        </div>
-      </div>
-    </section>
-
-    <section class="ticker" aria-label="Características">
-      <div>NEW DROPS ✦ PREORDERS ✦ HOUSE ✦ TECHNO ✦ BREAKS ✦ AMBIENT ✦ RARE PRESSINGS ✦</div>
-    </section>
-
-    <section class="shop-section" id="shop">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Just in</p>
-          <h2>ÚLTIMOS DISCOS</h2>
-        </div>
-        <div class="filters" id="filters">
-          <button class="filter active" data-filter="all">Todo</button>
-          <button class="filter" data-filter="House">House</button>
-          <button class="filter" data-filter="Techno">Techno</button>
-          <button class="filter" data-filter="Breaks">Breaks</button>
-          <button class="filter" data-filter="Ambient">Ambient</button>
-        </div>
-      </div>
-      <div class="record-grid" id="recordGrid"></div>
-    </section>
-
-    <section class="dig-section" id="dig">
-      <div class="dig-copy">
-        <p class="eyebrow">Signature feature</p>
-        <h2>DIG MODE</h2>
-        <p>Explora por energía, no sólo por género. Oscuro, profundo, peak-time, afterhours, psicodélico o funky.</p>
-      </div>
-      <div class="mood-grid">
-        <button>🌑 Dark</button><button>🌊 Deep</button><button>⚡ Peak Time</button><button>🌅 Afterhours</button><button>🌀 Psychedelic</button><button>☀️ Funky</button>
-      </div>
-    </section>
-
-    <section class="how-section" id="how">
-      <div>
-        <p class="eyebrow">Simple checkout</p>
-        <h2>CÓMO COMPRAR</h2>
-      </div>
-      <ol>
-        <li><span>01</span> Elige tus discos y agrégalos al bag.</li>
-        <li><span>02</span> Revisa stock, precio y disponibilidad.</li>
-        <li><span>03</span> Envía el pedido por WhatsApp con un toque.</li>
-        <li><span>04</span> Coordinamos pago, retiro o envío.</li>
-      </ol>
-    </section>
-
-    <section class="archive-section" id="archive">
-      <p class="eyebrow">Sold out ≠ forgotten</p>
-      <h2>ARCHIVO</h2>
-      <p>Los discos agotados permanecen visibles. Los clientes podrán marcar <strong>“Lo quiero”</strong> y el admin verá cuáles vale la pena volver a traer.</p>
-    </section>
-  </main>
-
-  <aside class="cart-panel" id="cartPanel" aria-hidden="true">
-    <div class="cart-head">
-      <h3>YOUR BAG</h3>
-      <button id="closeCart" type="button">Cerrar</button>
-    </div>
-    <div id="cartItems" class="cart-items"></div>
-    <div class="cart-footer">
-      <div class="cart-total"><span>Total</span><strong id="cartTotal">$0</strong></div>
-      <a id="whatsappCheckout" class="button primary full" href="#" target="_blank" rel="noopener">Ordenar por WhatsApp</a>
-    </div>
-  </aside>
-  <div class="scrim" id="scrim"></div>
-
-  <div class="player" id="player">
-    <button id="playerToggle" type="button">▶</button>
-    <div class="player-meta"><span>NOW DIGGING</span><strong id="playerTitle">Selecciona un disco para escuchar</strong></div>
-    <div class="player-line"><span></span></div>
-  </div>
-
-  <script src="data.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>La Vaca Loca Records — Gualaceo</title><meta name="description" content="Discos, sonido y cultura desde Gualaceo, Ecuador."><link rel="stylesheet" href="styles.css"></head><body>
+<header class="site-header"><a class="brand" href="#top"><strong>LA VACA LOCA</strong><small>RECORD STORE · GUALACEO</small></a><nav class="main-nav"><a href="#shop">TIENDA</a><a href="#dig">DIG MODE</a><a href="#culture">CULTURA</a><a href="#how">CÓMO COMPRAR</a></nav><button class="cart-button" id="cartButton">BAG <span id="cartCount">0</span></button></header>
+<main id="top">
+<section class="hero"><div class="hero-stamp">GUALACEO<br>AZUAY<br>ECUADOR</div><div class="hero-copy"><p class="eyebrow">RECORD STORE / HI-FI / COMMUNITY</p><h1>DISCOS.<br>SONIDO.<br><i>CULTURA.</i></h1><p class="hero-text">Vinilos para DJs, coleccionistas y oídos curiosos. Seleccionados desde Gualaceo para cualquier parte.</p><div class="hero-actions"><a class="button primary" href="#shop">VER DISCOS →</a><a class="text-link" href="#dig">DIG MODE ↘</a></div></div><div class="hero-poster"><span>LA VACA</span><b>LOCA</b><div class="poster-cow">✦</div><small>RECORD STORE<br>VÍA CUENCA · GUALACEO</small></div></section>
+<section class="ticker"><div>NEW IN ★ PREORDERS ★ HOUSE ★ TECHNO ★ ELECTRO ★ BREAKS ★ AMBIENT ★ GUALACEO ★ ECUADOR ★ </div></section>
+<section class="shop-section" id="shop"><div class="section-heading"><div><p class="eyebrow">01 / NUEVO INGRESO</p><h2>ÚLTIMOS<br>DISCOS</h2></div><p class="section-note">Una selección en movimiento.<br>Escucha. Encuentra. Llévatelo.</p></div><div class="filters" id="filters"><button class="filter active" data-filter="all">TODO</button><button class="filter" data-filter="House">HOUSE</button><button class="filter" data-filter="Techno">TECHNO</button><button class="filter" data-filter="Breaks">BREAKS</button><button class="filter" data-filter="Ambient">AMBIENT</button></div><div class="record-grid" id="recordGrid"></div></section>
+<section class="culture-break" id="culture"><div class="culture-type"><small>02 / EN LA VACA</small><h2>NO ES SÓLO<br>UNA <em>TIENDA.</em></h2></div><div class="culture-card"><span>SESIONES / HI-FI / AMIGXS / FIESTAS</span><p>La música también se encuentra fuera del catálogo. Escuchas, sesiones y encuentros desde Gualaceo.</p><a href="#">VER LO QUE PASA →</a></div></section>
+<section class="dig-section" id="dig"><div class="dig-copy"><p class="eyebrow">03 / CRATE DIGGING</p><h2>DIG<br>MODE</h2><p>No busques por nombre. Busca por sensación. Una forma distinta de encontrar el próximo disco.</p></div><div class="mood-grid"><button>OSCURO ↗</button><button>PROFUNDO ↗</button><button>PEAK TIME ↗</button><button>AFTERHOURS ↗</button><button>PSICODÉLICO ↗</button><button>FUNKY ↗</button></div></section>
+<section class="how-section" id="how"><div><p class="eyebrow">04 / FÁCIL</p><h2>CÓMO<br>COMPRAR</h2></div><ol><li><span>01</span> ELIGE TUS DISCOS.</li><li><span>02</span> AGRÉGALOS AL BAG.</li><li><span>03</span> ENVÍA TU PEDIDO POR WHATSAPP.</li><li><span>04</span> COORDINAMOS PAGO, RETIRO O ENVÍO.</li></ol></section>
+<section class="archive-section" id="archive"><p class="eyebrow">05 / SOLD OUT ≠ FORGOTTEN</p><h2>ARCHIVO</h2><p>Lo que pasó por La Vaca no desaparece. Explora discos agotados y dinos cuál quieres que vuelva.</p><a href="#">ENTRAR AL ARCHIVO →</a></section>
+</main>
+<aside class="cart-panel" id="cartPanel" aria-hidden="true"><div class="cart-head"><h3>YOUR BAG</h3><button id="closeCart">CERRAR ×</button></div><div id="cartItems" class="cart-items"></div><div class="cart-footer"><div class="cart-total"><span>TOTAL</span><strong id="cartTotal">$0</strong></div><a id="whatsappCheckout" class="button primary full" href="#" target="_blank" rel="noopener">ORDENAR POR WHATSAPP →</a></div></aside><div class="scrim" id="scrim"></div>
+<div class="player" id="player"><button id="playerToggle">▶</button><div class="player-meta"><span>NOW PLAYING / LA VACA LOCA</span><strong id="playerTitle">Selecciona un disco para escuchar</strong></div><div class="player-line"><span></span></div></div>
+<script src="data.js"></script><script src="app.js"></script></body></html>
