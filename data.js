@@ -2,7 +2,13 @@ window.SITE_CONTENT = {
   settings: {
     brandName: 'La Vaca Loca Records',
     location: 'Gualaceo, Ecuador',
+    whatsappNumber: '',
     whatsappText: 'Hola! Quiero hacer este pedido de La Vaca Loca Records:',
+    orderFooter: 'Nombre:\nCiudad:\nEntrega o retiro:',
+    pickupNotes: 'Retiro y entrega se confirman por WhatsApp.',
+    deliveryNotes: 'Consulta disponibilidad de entrega según ciudad.',
+    businessHours: 'Horario por confirmar',
+    instagramUrl: '',
     currency: '$'
   },
   homepage: {
@@ -53,3 +59,24 @@ window.RECORDS = window.SITE_CONTENT.records;
 window.SESSIONS = window.SITE_CONTENT.sessions;
 window.EVENTS = window.SITE_CONTENT.events;
 window.ARCHIVE_ITEMS = window.SITE_CONTENT.archiveItems;
+
+(function setupWhatsAppRouting(){
+  const settings=window.SITE_CONTENT&&window.SITE_CONTENT.settings?window.SITE_CONTENT.settings:{};
+  const cleanNumber=String(settings.whatsappNumber||'').replace(/\D/g,'');
+  const footer=String(settings.orderFooter||'').trim();
+  function routedHref(currentHref){
+    let text='';
+    try{text=new URL(currentHref,window.location.href).searchParams.get('text')||''}catch{text=''}
+    if(footer&&text&&!text.includes(footer))text=`${text}\n\n${footer}`;
+    const base=cleanNumber?`https://wa.me/${cleanNumber}`:'https://wa.me/';
+    return `${base}?text=${encodeURIComponent(text)}`;
+  }
+  function route(){
+    const link=document.getElementById('whatsappCheckout');
+    if(!link||!link.href)return;
+    link.href=routedHref(link.href);
+  }
+  window.addEventListener('load',route);
+  document.addEventListener('click',()=>setTimeout(route,0));
+  setInterval(route,1000);
+})();
