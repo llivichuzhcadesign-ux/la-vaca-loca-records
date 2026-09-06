@@ -1,9 +1,25 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>La Vaca Loca Records — Gualaceo</title><meta name="description" content="Discos, sonido y cultura desde Gualaceo, Ecuador."><link rel="stylesheet" href="styles.css"><style>
-.ticker{overflow:hidden;white-space:nowrap}
-.ticker .ticker-track{display:flex;width:max-content;min-width:0;text-align:left;animation:lvlTicker 18s linear infinite;will-change:transform}
-.ticker .ticker-track span{display:block;flex:0 0 auto;padding-right:2.5rem}
+/* compact endless ticker */
+.ticker{overflow:hidden;white-space:nowrap;padding:7px 0;font-size:9px;line-height:1;letter-spacing:.055em}
+.ticker .ticker-track{display:flex;width:max-content;min-width:0;text-align:left;animation:lvlTicker 20s linear infinite;will-change:transform}
+.ticker .ticker-track span{display:block;flex:0 0 auto;padding-right:2rem}
 @keyframes lvlTicker{from{transform:translate3d(0,0,0)}to{transform:translate3d(-25%,0,0)}}
+/* a little more depth in the hero while scrolling */
+.hero.in-view .hero-poster{transform:translate3d(0,calc(var(--section-progress) * -36px),0) rotate(calc(2.5deg + (var(--section-progress) * 2deg))) scale(calc(1 + (var(--section-progress) * .018)))}
+.hero.in-view .featured-vinyl{transform:translate3d(calc(var(--section-progress) * -34px),calc(var(--section-progress) * 10px),0) rotate(calc(var(--section-progress) * 38deg))}
+@media(max-width:800px){
+  .hero{min-height:auto;padding:42px 20px 46px;gap:38px}
+  .hero-poster{width:86%}
+  .ticker{padding:6px 0;font-size:8px}
+}
+@media(max-width:520px){
+  .hero{padding-top:34px;padding-bottom:38px;gap:32px}
+  .hero-poster{width:88%}
+  .ticker{padding:5px 0;font-size:7.5px}
+  .ticker .ticker-track span{padding-right:1.5rem}
+}
+@media(prefers-reduced-motion:reduce){.ticker .ticker-track{animation:none}}
 </style></head><body>
 <header class="site-header"><a class="brand" href="#top"><strong>LA VACA LOCA</strong><small>RECORD STORE · GUALACEO</small></a><nav class="main-nav"><a href="#shop">TIENDA</a><a href="#dig">DIG MODE</a><a href="#culture">CULTURA</a><a href="#how">CÓMO COMPRAR</a></nav><button class="cart-button" id="cartButton">BAG <span id="cartCount">0</span></button></header>
 <main id="top">
