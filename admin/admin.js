@@ -16,18 +16,18 @@ function resetDraft(){
   refreshAll();
 }
 function byId(id){return document.getElementById(id)}
-function escapeText(value=''){return String(value).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[char]))}
+function escapeText(value=''){return String(value).replace(/[&<>'\"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','\"':'&quot;'}[char]))}
 function setValue(path,value){
   const parts=path.split('.');
   let target=draft;
   while(parts.length>1)target=target[parts.shift()];
   target[parts[0]]=value;
 }
-function field(path,label,value,type='text'){
+function field(path,label,value,type='text',hint=''){
   const tag=type==='textarea'?'textarea':'input';
   const attr=tag==='input'?`type="${type}" value="${escapeText(value??'')}"`:'';
   const body=tag==='textarea'?`${escapeText(value??'')}`:'';
-  return `<div class="field ${type==='textarea'?'full':''}"><label>${label}</label><${tag} ${attr} data-path="${path}">${body}</${tag}></div>`;
+  return `<div class="field ${type==='textarea'?'full':''}"><label>${label}</label><${tag} ${attr} data-path="${path}">${body}</${tag}>${hint?`<small>${hint}</small>`:''}</div>`;
 }
 function card(collection,index,title,subtitle,status,fields){
   return `<details class="editor-card"><summary><div class="summary-title"><strong>${escapeText(title)}</strong><small>${escapeText(subtitle)}</small></div><span class="summary-status">${escapeText(status||'draft')}</span></summary><div class="field-grid">${fields}</div><div class="card-actions"><button class="admin-action" data-save-draft>Save draft</button><button class="admin-action danger" data-remove="${collection}.${index}">Remove</button></div></details>`;
@@ -69,8 +69,25 @@ function renderArchive(){
   ])).join(''):'<div class="empty">No archive items yet.</div>';
 }
 function renderSettings(){
-  const s=draft.settings||{};
-  byId('settingsForm').innerHTML=`<div class="field-grid">${field('settings.brandName','Brand name',s.brandName)}${field('settings.location','Location',s.location)}${field('settings.currency','Currency',s.currency)}${field('settings.whatsappText','WhatsApp intro',s.whatsappText,'textarea')}</div><div class="card-actions"><button class="admin-action" data-save-draft>Save draft</button></div>`;
+  draft.settings=draft.settings||{};
+  const s=draft.settings;
+  const clean=String(s.whatsappNumber||'').replace(/\D/g,'');
+  const preview=clean?`https://wa.me/${clean}`:'Waiting for number';
+  byId('settingsForm').innerHTML=`
+    <div class="settings-note"><strong>WhatsApp routing</strong><span>${preview}</span><p>Use country code and number only. Ecuador example: 593999999999. USA example: 19175551212.</p></div>
+    <div class="field-grid">
+      ${field('settings.brandName','Brand name',s.brandName)}
+      ${field('settings.location','Location',s.location)}
+      ${field('settings.currency','Currency',s.currency)}
+      ${field('settings.whatsappNumber','WhatsApp number',s.whatsappNumber,'tel','Country code + number, no plus sign needed.')}
+      ${field('settings.instagramUrl','Instagram link',s.instagramUrl,'url')}
+      ${field('settings.businessHours','Business hours',s.businessHours)}
+      ${field('settings.pickupNotes','Pickup notes',s.pickupNotes,'textarea')}
+      ${field('settings.deliveryNotes','Delivery notes',s.deliveryNotes,'textarea')}
+      ${field('settings.whatsappText','WhatsApp intro',s.whatsappText,'textarea')}
+      ${field('settings.orderFooter','Order message footer',s.orderFooter,'textarea','Customer fields added after the bag total.')}
+    </div>
+    <div class="card-actions"><button class="admin-action" data-save-draft>Save draft</button></div>`;
 }
 function renderExport(){byId('jsonOutput').value=JSON.stringify(draft,null,2)}
 function refreshAll(){renderStats();renderRecords();renderSessions();renderEvents();renderArchive();renderSettings();renderExport()}
