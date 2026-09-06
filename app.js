@@ -11,22 +11,114 @@ const playerSub=document.getElementById('playerSub');
 const playerToggle=document.getElementById('playerToggle');
 const whatsapp=document.getElementById('whatsappCheckout');
 
+const SESSIONS=[
+ {id:'S01',title:'Hi-Fi Listening Room',type:'Escucha guiada',detail:'Selecciones profundas, sonido cálido y conversación alrededor del disco.',status:'Próximamente'},
+ {id:'S02',title:'Selectors de Gualaceo',type:'Invitados',detail:'DJs, coleccionistas y amigos compartiendo música desde la tienda.',status:'En archivo'},
+ {id:'S03',title:'La Vaca Afterhours',type:'Set grabado',detail:'Sesiones nocturnas para conectar la tienda con la escena local.',status:'En preparación'}
+];
+const EVENTS=[
+ {id:'E01',title:'Fiesta Caliente',date:'26.06.2026',place:'Cuenca',detail:'Poster cultural, música y comunidad. El archivo de eventos crecerá desde aquí.'},
+ {id:'E02',title:'Listening Weekend',date:'Próximo anuncio',place:'Gualaceo',detail:'Entrada futura para sesiones de escucha, lanzamientos de discos e invitados.'}
+];
+const ARCHIVE_ITEMS=[
+ {id:'A01',title:'La Casa',tag:'Espacio / Hi-Fi',detail:'Interior, sistema, madera, plantas y detalles de la tienda.'},
+ {id:'A02',title:'Sessions',tag:'Records / Cultura',detail:'Momentos de sets, invitados y conversaciones alrededor de la música.'},
+ {id:'A03',title:'Posters',tag:'Eventos / Memoria',detail:'Gráfica cultural, flyers y anuncios que construyen la identidad visual.'}
+];
+
+function money(value){return `$${value}`}
+function getRecord(id){return window.RECORDS.find(x=>x.id===id)}
+function escapeText(value=''){return String(value).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[char]))}
+
 function renderRecords(filter='all'){
  const records=window.RECORDS.filter(r=>filter==='all'||r.genre===filter);
- grid.innerHTML=records.map((r,index)=>`<article class="record-card reveal-item" style="--delay:${Math.min(index,7)*55}ms" data-id="${r.id}"><div class="cover"><span class="badge">${r.status}</span><span class="cover-code">${r.id} / ${r.genre.toUpperCase()}</span></div><div class="record-meta"><div class="topline"><div><h3>${r.artist}</h3><p>${r.title} · ${r.genre}</p></div><strong>$${r.price}</strong></div><div class="record-actions"><button data-listen="${r.id}"><span class="mini-play" aria-hidden="true"></span> ESCUCHAR</button><button data-add="${r.id}" ${r.stock===0?'disabled':''}>${r.stock===0?'LO QUIERO':'+ BAG'}</button></div></div></article>`).join('');
+ grid.innerHTML=records.map((r,index)=>`<article class="record-card reveal-item" style="--delay:${Math.min(index,7)*55}ms" data-id="${r.id}" tabindex="0" role="button" aria-label="Abrir detalles de ${escapeText(r.artist)} - ${escapeText(r.title)}"><div class="cover"><span class="badge">${r.status}</span><span class="cover-code">${r.id} / ${r.genre.toUpperCase()}</span></div><div class="record-meta"><div class="topline"><div><h3>${r.artist}</h3><p>${r.title} · ${r.genre}</p></div><strong>${money(r.price)}</strong></div><div class="record-actions"><button data-listen="${r.id}"><span class="mini-play" aria-hidden="true"></span> ESCUCHAR</button><button data-detail="${r.id}">DETALLES</button><button data-add="${r.id}" ${r.stock===0?'disabled':''}>${r.stock===0?'LO QUIERO':'+ BAG'}</button></div></div></article>`).join('');
  requestAnimationFrame(()=>document.querySelectorAll('.reveal-item').forEach(el=>el.classList.add('is-visible')));
 }
-function addToCart(id){const r=window.RECORDS.find(x=>x.id===id);if(!r||r.stock===0)return;state.cart.push(r);renderCart()}
-function renderCart(){cartCount.textContent=state.cart.length;cartItems.innerHTML=state.cart.length?state.cart.map((r,i)=>`<div class="cart-item"><div><strong>${r.artist}</strong><br><small>${r.title}</small></div><div><strong>$${r.price}</strong><br><button data-remove="${i}" style="background:none;border:0;color:#777;cursor:pointer">remove</button></div></div>`).join(''):'<p style="color:#777">Tu bag está vacío.</p>';const total=state.cart.reduce((s,r)=>s+r.price,0);cartTotal.textContent=`$${total}`;const lines=state.cart.map(r=>`1x ${r.artist} — ${r.title} — $${r.price}`);whatsapp.href=`https://wa.me/?text=${encodeURIComponent(`Hola! Quiero hacer este pedido de La Vaca Loca Records:\n\n${lines.join('\n')}\n\nTotal: $${total}`)}`}
+function addToCart(id){const r=getRecord(id);if(!r||r.stock===0)return;state.cart.push(r);renderCart();openCart()}
+function renderCart(){cartCount.textContent=state.cart.length;cartItems.innerHTML=state.cart.length?state.cart.map((r,i)=>`<div class="cart-item"><div><strong>${r.artist}</strong><br><small>${r.title}</small></div><div><strong>${money(r.price)}</strong><br><button data-remove="${i}" style="background:none;border:0;color:#777;cursor:pointer">remove</button></div></div>`).join(''):'<p style="color:#777">Tu bag está vacío.</p>';const total=state.cart.reduce((s,r)=>s+r.price,0);cartTotal.textContent=money(total);const lines=state.cart.map(r=>`1x ${r.artist} — ${r.title} — ${money(r.price)}`);whatsapp.href=`https://wa.me/?text=${encodeURIComponent(`Hola! Quiero hacer este pedido de La Vaca Loca Records:\n\n${lines.join('\n')}\n\nTotal: ${money(total)}`)}`}
 function openCart(){cartPanel.classList.add('open');scrim.classList.add('show');cartPanel.setAttribute('aria-hidden','false')}
 function closeCart(){cartPanel.classList.remove('open');scrim.classList.remove('show');cartPanel.setAttribute('aria-hidden','true')}
 function updatePlayerControl(){playerToggle.classList.toggle('is-playing',state.playing);playerToggle.setAttribute('aria-label',state.playing?'Pausar':'Reproducir');player.classList.toggle('playing',state.playing)}
 function selectRecord(r,autoplay=true){if(!r)return;state.current=r;state.playing=autoplay;playerTitle.textContent=`${r.artist} — ${r.title}`;playerSub.textContent=`${r.genre.toUpperCase()} · ${r.id} · GUALACEO`;updatePlayerControl()}
 function randomRecord(){return window.RECORDS[Math.floor(Math.random()*window.RECORDS.length)]}
-function dig(mood){document.querySelectorAll('[data-mood]').forEach(b=>b.classList.toggle('active',b.dataset.mood===mood));const r=randomRecord();selectRecord(r,true);player.animate([{transform:'translateY(8px)'},{transform:'translateY(0)'}],{duration:260,easing:'cubic-bezier(.2,.8,.2,1)'});}
+function dig(mood){document.querySelectorAll('[data-mood]').forEach(b=>b.classList.toggle('active',b.dataset.mood===mood));const r=randomRecord();selectRecord(r,true);openRecordModal(r);player.animate([{transform:'translateY(8px)'},{transform:'translateY(0)'}],{duration:260,easing:'cubic-bezier(.2,.8,.2,1)'});}
 
-document.addEventListener('click',e=>{const add=e.target.closest('[data-add]');if(add)addToCart(add.dataset.add);const listen=e.target.closest('[data-listen]');if(listen)selectRecord(window.RECORDS.find(x=>x.id===listen.dataset.listen),true);const remove=e.target.closest('[data-remove]');if(remove){state.cart.splice(Number(remove.dataset.remove),1);renderCart()}const filter=e.target.closest('[data-filter]');if(filter){document.querySelectorAll('.filter').forEach(b=>b.classList.remove('active'));filter.classList.add('active');renderRecords(filter.dataset.filter)}const mood=e.target.closest('[data-mood]');if(mood)dig(mood.dataset.mood)});
-document.getElementById('cartButton').addEventListener('click',openCart);document.getElementById('closeCart').addEventListener('click',closeCart);scrim.addEventListener('click',closeCart);document.getElementById('digRandom').addEventListener('click',()=>dig(''));
+function createRecordModal(){
+ const modal=document.createElement('div');
+ modal.className='record-modal';
+ modal.setAttribute('aria-hidden','true');
+ modal.innerHTML='<div class="record-modal-card" role="dialog" aria-modal="true" aria-label="Detalle del disco"><button class="modal-close" data-close-modal>CERRAR</button><div class="modal-cover"><span></span></div><div class="modal-copy" id="modalCopy"></div></div>';
+ document.body.appendChild(modal);
+ modal.addEventListener('click',e=>{if(e.target===modal||e.target.closest('[data-close-modal]'))closeRecordModal()});
+ window.addEventListener('keydown',e=>{if(e.key==='Escape')closeRecordModal()});
+ return modal;
+}
+const recordModal=createRecordModal();
+const modalCopy=document.getElementById('modalCopy');
+function openRecordModal(record){
+ const r=typeof record==='string'?getRecord(record):record;
+ if(!r)return;
+ modalCopy.innerHTML=`<p class="eyebrow">${r.id} / ${r.genre}</p><h3>${r.artist}</h3><h4>${r.title}</h4><p>Una ficha rápida para explorar el disco antes de pedirlo. Más adelante esta pantalla podrá incluir fotos reales, audio, notas del selector, sello, año y condición.</p><div class="modal-facts"><span>${r.status}</span><span>${r.stock>0?`${r.stock} disponible(s)`:'Agotado'}</span><span>${money(r.price)}</span></div><div class="modal-actions"><button data-listen="${r.id}">ESCUCHAR</button><button data-add="${r.id}" ${r.stock===0?'disabled':''}>${r.stock===0?'LO QUIERO':'AGREGAR AL BAG'}</button></div>`;
+ recordModal.classList.add('open');
+ recordModal.setAttribute('aria-hidden','false');
+}
+function closeRecordModal(){recordModal.classList.remove('open');recordModal.setAttribute('aria-hidden','true')}
+
+function enhancePublicSite(){
+ const sessionsCopy=document.querySelector('.sessions-copy');
+ if(sessionsCopy&&!document.querySelector('.session-cards')){
+  sessionsCopy.insertAdjacentHTML('beforeend',`<div class="session-cards">${SESSIONS.map(item=>`<button class="session-card" data-session="${item.id}"><small>${item.type}</small><strong>${item.title}</strong><span>${item.status}</span></button>`).join('')}</div>`);
+ }
+ const gallery=document.getElementById('gallery');
+ if(gallery&&!document.querySelector('.archive-index')){
+  gallery.insertAdjacentHTML('afterend',`<section class="archive-index motion-section"><p class="eyebrow">ARCHIVO / ENTRADAS</p><div class="archive-index-grid">${ARCHIVE_ITEMS.map(item=>`<article class="archive-index-card"><small>${item.tag}</small><strong>${item.title}</strong><p>${item.detail}</p></article>`).join('')}</div></section>`);
+ }
+ const archiveSection=document.querySelector('.archive-section');
+ if(archiveSection&&!document.querySelector('.events-section')){
+  archiveSection.insertAdjacentHTML('beforebegin',`<section class="events-section motion-section" id="events"><div class="events-copy motion-copy"><p class="eyebrow">06 / AGENDA</p><h2>EVENTOS<br>Y POSTERS</h2><p>Una entrada clara para futuras fiestas, listening sessions, lanzamientos y posters culturales.</p></div><div class="event-list motion-object">${EVENTS.map(event=>`<article class="event-card" data-event="${event.id}"><small>${event.date} · ${event.place}</small><strong>${event.title}</strong><p>${event.detail}</p><a href="#how">PREGUNTAR POR WHATSAPP</a></article>`).join('')}</div></section>`);
+ }
+ if(!document.querySelector('.site-footer')){
+  document.querySelector('main').insertAdjacentHTML('afterend',`<footer class="site-footer"><div><strong>LA VACA LOCA RECORDS</strong><span>Gualaceo, Ecuador · discos · sessions · cultura</span></div><nav><a href="#shop">Discos</a><a href="#sessions">Sessions</a><a href="#events">Eventos</a><a href="#archive">Archivo</a><a href="#how">Comprar</a></nav></footer>`);
+ }
+ const nav=document.querySelector('.main-nav');
+ if(nav&&!nav.querySelector('[href="#events"]'))nav.insertAdjacentHTML('beforeend','<a href="#events">EVENTOS</a>');
+}
+function showSessionDetail(id){
+ const item=SESSIONS.find(x=>x.id===id);
+ const card=document.querySelector('.sessions-photo-card');
+ if(!item||!card)return;
+ card.innerHTML=`<span>${item.type.toUpperCase()} / ${item.status.toUpperCase()}</span><strong>${item.title.toUpperCase()}</strong><span>${item.detail}</span><br><a class="sessions-button" href="#archive">VER ARCHIVO →</a>`;
+ card.animate([{transform:'translateY(10px)',opacity:.7},{transform:'translateY(0)',opacity:1}],{duration:240,easing:'ease-out'});
+}
+function injectInteractionStyles(){
+ const style=document.createElement('style');
+ style.textContent=`
+.record-card{cursor:pointer}.record-card:focus{outline:2px solid var(--pink);outline-offset:5px}.record-actions{display:flex;flex-wrap:wrap;gap:8px}.record-actions button[data-detail]{background:transparent;color:var(--ink)}
+.record-modal{position:fixed;inset:0;z-index:80;background:rgba(9,9,7,.72);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)}.record-modal.open{display:flex}.record-modal-card{position:relative;width:min(900px,100%);background:var(--paper);color:var(--ink);display:grid;grid-template-columns:.86fr 1.14fr;border:1.5px solid var(--ink);box-shadow:12px 12px 0 var(--pink);max-height:86vh;overflow:auto}.modal-close{position:absolute;right:12px;top:12px;z-index:3;background:var(--ink);color:var(--paper);border:0;padding:9px 11px;font-size:10px;font-weight:900}.modal-cover{min-height:420px;background:linear-gradient(135deg,#1a1713,#6d4027 50%,#ff5aa7);display:flex;align-items:flex-end;padding:24px}.modal-cover span{display:block;width:62%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,var(--paper) 0 8%,var(--ink) 9% 52%,#2d2d2d 53% 61%,var(--ink) 62%)}.modal-copy{padding:56px 32px 32px}.modal-copy h3{font-size:clamp(40px,6vw,78px);line-height:.82;letter-spacing:-.06em;margin:0}.modal-copy h4{font-size:clamp(24px,3vw,42px);line-height:.9;margin:8px 0 20px}.modal-copy p{line-height:1.55;color:#54483c}.modal-facts{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0}.modal-facts span{border:1px solid var(--ink);padding:8px 10px;font-size:10px;font-weight:900}.modal-actions{display:flex;gap:10px;flex-wrap:wrap}.modal-actions button{background:var(--pink);border:1.5px solid var(--ink);padding:12px 14px;font-size:10px;font-weight:900}.modal-actions button:first-child{background:var(--ink);color:var(--paper)}
+.session-cards{display:grid;gap:10px;margin-top:28px;max-width:560px}.session-card{text-align:left;background:rgba(238,229,211,.08);color:var(--paper);border:1px solid rgba(238,229,211,.25);padding:14px 15px;cursor:pointer}.session-card small,.session-card span{display:block;font-size:9px;font-weight:900;letter-spacing:.08em;color:var(--pink)}.session-card strong{display:block;margin:5px 0;font-size:19px;line-height:.95}.session-card:hover{background:var(--pink);color:var(--ink);border-color:var(--pink)}.session-card:hover small,.session-card:hover span{color:var(--ink)}
+.archive-index{padding:42px 4vw;background:var(--ink);color:var(--paper)}.archive-index-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.archive-index-card{border:1px solid rgba(238,229,211,.22);padding:20px;min-height:170px;background:#11100d}.archive-index-card small{font-size:9px;color:var(--pink);font-weight:900;letter-spacing:.09em}.archive-index-card strong{display:block;margin:12px 0;font-size:30px;line-height:.88}.archive-index-card p{font-size:13px;line-height:1.45;color:#cfc4b2}
+.events-section{display:grid;grid-template-columns:.86fr 1.14fr;background:var(--paper);color:var(--ink);border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}.events-copy{padding:72px 5vw}.events-copy h2{font-size:clamp(56px,7vw,110px);line-height:.78;letter-spacing:-.08em}.events-copy p:last-child{max-width:480px;line-height:1.5}.event-list{display:grid;grid-template-columns:1fr 1fr}.event-card{min-height:360px;padding:28px;border-left:1.5px solid var(--ink);display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(140deg,#e5532e,#eee5d3 62%)}.event-card:nth-child(2){background:linear-gradient(140deg,#321d13,#6d4027);color:var(--paper)}.event-card small{font-size:10px;font-weight:900;letter-spacing:.08em}.event-card strong{display:block;font-size:clamp(34px,4vw,62px);line-height:.82;letter-spacing:-.06em;margin:16px 0}.event-card p{line-height:1.45}.event-card a{align-self:flex-start;margin-top:12px;background:var(--pink);color:var(--ink);padding:10px 12px;font-size:10px;font-weight:900}
+.site-footer{background:var(--ink);color:var(--paper);padding:30px 4vw 104px;display:flex;justify-content:space-between;gap:20px;border-top:1px solid rgba(238,229,211,.24)}.site-footer strong,.site-footer span{display:block}.site-footer span{font-size:12px;color:#cfc4b2;margin-top:6px}.site-footer nav{display:flex;gap:14px;flex-wrap:wrap}.site-footer a{font-size:11px;font-weight:900;color:var(--paper)}
+@media(max-width:900px){.record-modal-card{grid-template-columns:1fr}.modal-cover{min-height:240px}.archive-index-grid,.event-list{grid-template-columns:1fr}.events-section{grid-template-columns:1fr}.site-footer{display:block}.site-footer nav{margin-top:18px}.main-nav{overflow:auto;white-space:nowrap}}
+@media(max-width:560px){.record-modal{padding:12px}.record-modal-card{box-shadow:7px 7px 0 var(--pink)}.modal-copy{padding:48px 20px 24px}.archive-index{padding:34px 18px}.events-copy{padding:54px 18px}.event-card{min-height:290px;padding:22px}.site-footer{padding:26px 18px 104px}}
+`;
+ document.head.appendChild(style);
+}
+
+document.addEventListener('click',e=>{
+ const add=e.target.closest('[data-add]');if(add){e.stopPropagation();addToCart(add.dataset.add)}
+ const listen=e.target.closest('[data-listen]');if(listen){e.stopPropagation();selectRecord(getRecord(listen.dataset.listen),true)}
+ const detail=e.target.closest('[data-detail]');if(detail){e.stopPropagation();openRecordModal(detail.dataset.detail)}
+ const card=e.target.closest('.record-card');if(card&&!e.target.closest('button'))openRecordModal(card.dataset.id);
+ const remove=e.target.closest('[data-remove]');if(remove){state.cart.splice(Number(remove.dataset.remove),1);renderCart()}
+ const filter=e.target.closest('[data-filter]');if(filter){document.querySelectorAll('.filter').forEach(b=>b.classList.remove('active'));filter.classList.add('active');renderRecords(filter.dataset.filter)}
+ const mood=e.target.closest('[data-mood]');if(mood)dig(mood.dataset.mood);
+ const session=e.target.closest('[data-session]');if(session)showSessionDetail(session.dataset.session);
+});
+document.addEventListener('keydown',e=>{const card=e.target.closest&&e.target.closest('.record-card');if(card&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openRecordModal(card.dataset.id)}});
+document.addEventListener('click',e=>{const link=e.target.closest('a[href^="#"]');if(!link)return;const target=document.querySelector(link.getAttribute('href'));if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'})}});
+document.getElementById('cartButton').addEventListener('click',openCart);document.getElementById('closeCart').addEventListener('click',closeCart);scrim.addEventListener('click',()=>{closeCart();closeRecordModal()});document.getElementById('digRandom').addEventListener('click',()=>dig(''));
 playerToggle.addEventListener('click',()=>{if(!state.current){selectRecord(randomRecord(),true);return}state.playing=!state.playing;updatePlayerControl()});
 
 const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -59,4 +151,6 @@ if(brand){
  document.head.appendChild(brandStyle);
 }
 
+injectInteractionStyles();
+enhancePublicSite();
 renderRecords();renderCart();
