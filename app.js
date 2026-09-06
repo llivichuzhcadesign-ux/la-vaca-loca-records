@@ -1,4 +1,12 @@
+const content=window.SITE_CONTENT||{};
 const state={cart:[],current:null,playing:false};
+const recordsSource=content.records||window.RECORDS||[];
+const settings=content.settings||{};
+const SESSIONS=content.sessions||window.SESSIONS||[];
+const EVENTS=content.events||window.EVENTS||[];
+const ARCHIVE_ITEMS=content.archiveItems||window.ARCHIVE_ITEMS||[];
+window.RECORDS=recordsSource;
+
 const grid=document.getElementById('recordGrid');
 const cartPanel=document.getElementById('cartPanel');
 const scrim=document.getElementById('scrim');
@@ -11,22 +19,7 @@ const playerSub=document.getElementById('playerSub');
 const playerToggle=document.getElementById('playerToggle');
 const whatsapp=document.getElementById('whatsappCheckout');
 
-const SESSIONS=[
- {id:'S01',title:'Hi-Fi Listening Room',type:'Escucha guiada',detail:'Selecciones profundas, sonido cálido y conversación alrededor del disco.',status:'Próximamente'},
- {id:'S02',title:'Selectors de Gualaceo',type:'Invitados',detail:'DJs, coleccionistas y amigos compartiendo música desde la tienda.',status:'En archivo'},
- {id:'S03',title:'La Vaca Afterhours',type:'Set grabado',detail:'Sesiones nocturnas para conectar la tienda con la escena local.',status:'En preparación'}
-];
-const EVENTS=[
- {id:'E01',title:'Fiesta Caliente',date:'26.06.2026',place:'Cuenca',detail:'Poster cultural, música y comunidad. El archivo de eventos crecerá desde aquí.'},
- {id:'E02',title:'Listening Weekend',date:'Próximo anuncio',place:'Gualaceo',detail:'Entrada futura para sesiones de escucha, lanzamientos de discos e invitados.'}
-];
-const ARCHIVE_ITEMS=[
- {id:'A01',title:'La Casa',tag:'Espacio / Hi-Fi',detail:'Interior, sistema, madera, plantas y detalles de la tienda.'},
- {id:'A02',title:'Sessions',tag:'Records / Cultura',detail:'Momentos de sets, invitados y conversaciones alrededor de la música.'},
- {id:'A03',title:'Posters',tag:'Eventos / Memoria',detail:'Gráfica cultural, flyers y anuncios que construyen la identidad visual.'}
-];
-
-function money(value){return `$${value}`}
+function money(value){return `${settings.currency||'$'}${value}`}
 function getRecord(id){return window.RECORDS.find(x=>x.id===id)}
 function escapeText(value=''){return String(value).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[char]))}
 
@@ -36,11 +29,11 @@ function renderRecords(filter='all'){
  requestAnimationFrame(()=>document.querySelectorAll('.reveal-item').forEach(el=>el.classList.add('is-visible')));
 }
 function addToCart(id){const r=getRecord(id);if(!r||r.stock===0)return;state.cart.push(r);renderCart();openCart()}
-function renderCart(){cartCount.textContent=state.cart.length;cartItems.innerHTML=state.cart.length?state.cart.map((r,i)=>`<div class="cart-item"><div><strong>${r.artist}</strong><br><small>${r.title}</small></div><div><strong>${money(r.price)}</strong><br><button data-remove="${i}" style="background:none;border:0;color:#777;cursor:pointer">remove</button></div></div>`).join(''):'<p style="color:#777">Tu bag está vacío.</p>';const total=state.cart.reduce((s,r)=>s+r.price,0);cartTotal.textContent=money(total);const lines=state.cart.map(r=>`1x ${r.artist} — ${r.title} — ${money(r.price)}`);whatsapp.href=`https://wa.me/?text=${encodeURIComponent(`Hola! Quiero hacer este pedido de La Vaca Loca Records:\n\n${lines.join('\n')}\n\nTotal: ${money(total)}`)}`}
+function renderCart(){cartCount.textContent=state.cart.length;cartItems.innerHTML=state.cart.length?state.cart.map((r,i)=>`<div class="cart-item"><div><strong>${r.artist}</strong><br><small>${r.title}</small></div><div><strong>${money(r.price)}</strong><br><button data-remove="${i}" style="background:none;border:0;color:#777;cursor:pointer">remove</button></div></div>`).join(''):'<p style="color:#777">Tu bag está vacío.</p>';const total=state.cart.reduce((s,r)=>s+r.price,0);cartTotal.textContent=money(total);const lines=state.cart.map(r=>`1x ${r.artist} — ${r.title} — ${money(r.price)}`);whatsapp.href=`https://wa.me/?text=${encodeURIComponent(`${settings.whatsappText||'Hola! Quiero hacer este pedido de La Vaca Loca Records:'}\n\n${lines.join('\n')}\n\nTotal: ${money(total)}`)}`}
 function openCart(){cartPanel.classList.add('open');scrim.classList.add('show');cartPanel.setAttribute('aria-hidden','false')}
 function closeCart(){cartPanel.classList.remove('open');if(!recordModal.classList.contains('open'))scrim.classList.remove('show');cartPanel.setAttribute('aria-hidden','true')}
 function updatePlayerControl(){playerToggle.classList.toggle('is-playing',state.playing);playerToggle.setAttribute('aria-label',state.playing?'Pausar':'Reproducir');player.classList.toggle('playing',state.playing);player.classList.toggle('has-current',!!state.current)}
-function selectRecord(r,autoplay=true){if(!r)return;state.current=r;state.playing=autoplay;playerTitle.textContent=`${r.artist} — ${r.title}`;playerSub.textContent=`${r.genre.toUpperCase()} · ${r.id} · GUALACEO`;updatePlayerControl();player.animate([{transform:'translateY(8px)'},{transform:'translateY(0)'}],{duration:260,easing:'cubic-bezier(.2,.8,.2,1)'});document.querySelectorAll('[data-listen]').forEach(btn=>{btn.classList.toggle('is-active',btn.dataset.listen===r.id)})}
+function selectRecord(r,autoplay=true){if(!r)return;state.current=r;state.playing=autoplay;playerTitle.textContent=`${r.artist} — ${r.title}`;playerSub.textContent=`${r.genre.toUpperCase()} · ${r.id} · ${settings.location||'GUALACEO'}`;updatePlayerControl();player.animate([{transform:'translateY(8px)'},{transform:'translateY(0)'}],{duration:260,easing:'cubic-bezier(.2,.8,.2,1)'});document.querySelectorAll('[data-listen]').forEach(btn=>{btn.classList.toggle('is-active',btn.dataset.listen===r.id)})}
 function randomRecord(){return window.RECORDS[Math.floor(Math.random()*window.RECORDS.length)]}
 function dig(mood){document.querySelectorAll('[data-mood]').forEach(b=>b.classList.toggle('active',b.dataset.mood===mood));const r=randomRecord();selectRecord(r,true);openRecordModal(r)}
 
@@ -59,7 +52,9 @@ const modalCopy=document.getElementById('modalCopy');
 function openRecordModal(record){
  const r=typeof record==='string'?getRecord(record):record;
  if(!r)return;
- modalCopy.innerHTML=`<p class="eyebrow">${r.id} / ${r.genre}</p><h3>${r.artist}</h3><h4>${r.title}</h4><p>Una ficha rápida para explorar el disco antes de pedirlo. Más adelante esta pantalla podrá incluir fotos reales, audio, notas del selector, sello, año y condición.</p><div class="modal-facts"><span>${r.status}</span><span>${r.stock>0?`${r.stock} disponible(s)`:'Agotado'}</span><span>${money(r.price)}</span></div><div class="modal-actions"><button data-listen="${r.id}">${state.current&&state.current.id===r.id&&state.playing?'REPRODUCIENDO':'ESCUCHAR'}</button><button data-add="${r.id}" ${r.stock===0?'disabled':''}>${r.stock===0?'LO QUIERO':'AGREGAR AL BAG'}</button></div>`;
+ const description=r.description||'Una ficha rápida para explorar el disco antes de pedirlo. Más adelante esta pantalla podrá incluir fotos reales, audio, notas del selector, sello, año y condición.';
+ const facts=[r.status,r.stock>0?`${r.stock} disponible(s)`:'Agotado',money(r.price),r.condition,r.label,r.year].filter(Boolean);
+ modalCopy.innerHTML=`<p class="eyebrow">${r.id} / ${r.genre}</p><h3>${r.artist}</h3><h4>${r.title}</h4><p>${description}</p><div class="modal-facts">${facts.map(f=>`<span>${escapeText(f)}</span>`).join('')}</div><div class="modal-actions"><button data-listen="${r.id}">${state.current&&state.current.id===r.id&&state.playing?'REPRODUCIENDO':'ESCUCHAR'}</button><button data-add="${r.id}" ${r.stock===0?'disabled':''}>${r.stock===0?'LO QUIERO':'AGREGAR AL BAG'}</button></div>`;
  recordModal.classList.add('open');
  recordModal.setAttribute('aria-hidden','false');
  scrim.classList.remove('show');
@@ -75,14 +70,14 @@ function enhancePublicSite(){
  }
  const gallery=document.getElementById('gallery');
  if(gallery&&!document.querySelector('.archive-index')){
-  gallery.insertAdjacentHTML('afterend',`<section class="archive-index motion-section"><p class="eyebrow">ARCHIVO / ENTRADAS</p><div class="archive-index-grid">${ARCHIVE_ITEMS.map(item=>`<article class="archive-index-card"><small>${item.tag}</small><strong>${item.title}</strong><p>${item.detail}</p></article>`).join('')}</div></section>`);
+  gallery.insertAdjacentHTML('afterend',`<section class="archive-index motion-section"><p class="eyebrow">ARCHIVO / ENTRADAS</p><div class="archive-index-grid">${ARCHIVE_ITEMS.map(item=>`<article class="archive-index-card"><small>${item.category||item.tag}</small><strong>${item.title}</strong><p>${item.detail}</p></article>`).join('')}</div></section>`);
  }
  const archiveSection=document.querySelector('.archive-section');
  if(archiveSection&&!document.querySelector('.events-section')){
   archiveSection.insertAdjacentHTML('beforebegin',`<section class="events-section motion-section" id="events"><div class="events-copy motion-copy"><p class="eyebrow">06 / AGENDA</p><h2>EVENTOS<br>Y POSTERS</h2><p>Una entrada clara para futuras fiestas, listening sessions, lanzamientos y posters culturales.</p></div><div class="event-list motion-object">${EVENTS.map(event=>`<article class="event-card" data-event="${event.id}"><small>${event.date} · ${event.place}</small><strong>${event.title}</strong><p>${event.detail}</p><a href="#how">PREGUNTAR POR WHATSAPP</a></article>`).join('')}</div></section>`);
  }
  if(!document.querySelector('.site-footer')){
-  document.querySelector('main').insertAdjacentHTML('afterend',`<footer class="site-footer"><div><strong>LA VACA LOCA RECORDS</strong><span>Gualaceo, Ecuador · discos · sessions · cultura</span></div><nav><a href="#shop">Discos</a><a href="#sessions">Sessions</a><a href="#events">Eventos</a><a href="#archive">Archivo</a><a href="#how">Comprar</a></nav></footer>`);
+  document.querySelector('main').insertAdjacentHTML('afterend',`<footer class="site-footer"><div><strong>${settings.brandName||'LA VACA LOCA RECORDS'}</strong><span>${settings.location||'Gualaceo, Ecuador'} · discos · sessions · cultura</span></div><nav><a href="#shop">Discos</a><a href="#sessions">Sessions</a><a href="#events">Eventos</a><a href="#archive">Archivo</a><a href="#how">Comprar</a></nav></footer>`);
  }
  const nav=document.querySelector('.main-nav');
  if(nav&&!nav.querySelector('[href="#events"]'))nav.insertAdjacentHTML('beforeend','<a href="#events">EVENTOS</a>');
