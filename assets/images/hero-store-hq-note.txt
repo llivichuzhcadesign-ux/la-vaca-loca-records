@@ -1,1 +1,0 @@
-Use assets/images/hero-store-hq.jpg as the full-resolution hero source.
