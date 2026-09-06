@@ -1,0 +1,12 @@
+/* iOS safe-area and fixed-player fixes */
+:root{--player-safe-height:calc(84px + env(safe-area-inset-bottom,0px))}
+body{padding-bottom:var(--player-safe-height)!important}
+.player{height:var(--player-safe-height)!important;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;z-index:160!important}
+.cart-panel{z-index:150!important;height:100dvh!important;max-height:100dvh!important;padding-bottom:calc(var(--player-safe-height) + 18px)!important}
+.cart-items{min-height:0;padding-bottom:14px!important}
+.cart-footer{position:sticky;bottom:0;background:var(--paper);padding-top:14px!important;padding-bottom:calc(var(--player-safe-height) + 14px)!important;border-top:1px solid rgba(9,9,7,.16);z-index:2}
+.cart-footer .primary,.cart-footer .full,#whatsappCheckout{display:flex!important;align-items:center;justify-content:center;min-height:48px;width:100%;position:relative;z-index:3}
+.scrim{z-index:120!important}
+.record-modal{padding-bottom:calc(var(--player-safe-height) + 24px)!important}
+@supports(height:100dvh){.cart-panel{height:100dvh!important}}
+@media(max-width:560px){:root{--player-safe-height:calc(92px + env(safe-area-inset-bottom,0px))}.cart-panel{padding:18px 16px calc(var(--player-safe-height) + 20px)!important}.cart-footer{padding-bottom:calc(var(--player-safe-height) + 16px)!important}.player{grid-template-columns:auto 42px 1fr!important;min-height:var(--player-safe-height)!important}}
