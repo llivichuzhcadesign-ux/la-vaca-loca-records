@@ -55,54 +55,9 @@ if(!reduceMotion){
 const brand=document.querySelector('.brand');
 if(brand){
  brand.innerHTML='<img src="assets/brand/horizontal-logo-black.svg" alt="La Vaca Loca Records">';
+ const brandStyle=document.createElement('style');
+ brandStyle.textContent='.brand{display:flex;align-items:center;height:100%;min-width:0}.brand img{display:block;width:min(270px,36vw);height:auto;max-height:52px;object-fit:contain;object-position:left center}@media(max-width:800px){.brand img{width:min(220px,48vw);max-height:46px}}@media(max-width:520px){.brand img{width:min(205px,56vw);max-height:42px}}';
+ document.head.appendChild(brandStyle);
 }
-
-// Bring the official fire mark into the poster rather than recreating branding in CSS.
-const toteLabel=document.querySelector('.tote-label');
-if(toteLabel){
- toteLabel.innerHTML='<img src="assets/brand/fire-mark-bw.svg" alt="" aria-hidden="true">';
-}
-
-const sessionsPanel=document.querySelector('.sessions-panel');
-if(sessionsPanel){
- const stamp=document.createElement('div');
- stamp.className='official-session-stamp';
- stamp.innerHTML='<img class="official-fire" src="assets/brand/fire-mark-bw.svg" alt=""><img class="official-wordmark" src="assets/brand/horizontal-logo-black.svg" alt="La Vaca Loca">';
- sessionsPanel.prepend(stamp);
-}
-
-const playerMeta=document.querySelector('.player-meta');
-if(playerMeta){
- const miniMark=document.createElement('img');
- miniMark.className='player-brand-mark';
- miniMark.src='assets/brand/fire-mark-bw.svg';
- miniMark.alt='';
- miniMark.setAttribute('aria-hidden','true');
- playerMeta.appendChild(miniMark);
-}
-
-const brandStyle=document.createElement('style');
-brandStyle.textContent=`
-.brand{display:flex;align-items:center;height:100%;min-width:0}
-.brand img{display:block;width:min(270px,36vw);height:auto;max-height:52px;object-fit:contain;object-position:left center}
-.tote-label{inset:auto 21% 17%;top:auto;border:0;padding:0;display:grid;place-items:center}
-.tote-label img{display:block;width:76%;height:auto;filter:invert(1);mix-blend-mode:screen}
-.official-session-stamp{display:flex;align-items:center;gap:11px;border-bottom:2px solid #0b0b0a;padding-bottom:13px;margin-bottom:15px}
-.official-fire{width:46px;height:46px;object-fit:contain;flex:0 0 auto}
-.official-wordmark{display:block;width:min(210px,68%);height:auto;max-height:48px;object-fit:contain;object-position:left center}
-.player-meta{position:relative;padding-right:38px}
-.player-brand-mark{position:absolute;right:0;top:50%;width:28px;height:28px;object-fit:contain;transform:translateY(-50%);filter:invert(1);opacity:.68}
-@media(max-width:800px){
- .brand img{width:min(220px,48vw);max-height:46px}
- .official-fire{width:40px;height:40px}.official-wordmark{width:min(190px,66%)}
-}
-@media(max-width:520px){
- .brand img{width:min(205px,56vw);max-height:42px}
- .tote-label img{width:82%}
- .official-session-stamp{gap:8px;padding-bottom:10px;margin-bottom:12px}
- .official-fire{width:34px;height:34px}.official-wordmark{width:min(165px,68%)}
- .player-brand-mark{display:none}.player-meta{padding-right:0}
-}`;
-document.head.appendChild(brandStyle);
 
 renderRecords();renderCart();
