@@ -51,7 +51,6 @@ if(!reduceMotion){
  document.querySelectorAll('.motion-section').forEach(section=>section.classList.add('in-view'));
 }
 
-// Official La Vaca Loca branding
 const brand=document.querySelector('.brand');
 if(brand){
  brand.innerHTML='<img src="assets/brand/horizontal-logo-black.svg" alt="La Vaca Loca Records">';
@@ -60,7 +59,6 @@ if(brand){
  document.head.appendChild(brandStyle);
 }
 
-// One higher-resolution binary JPEG is the single source for store photography.
 const reliableStorePhoto='assets/images/hero-store-hq.jpg?v=4';
 const heroPhoto=document.querySelector('.hero-photo');
 if(heroPhoto) heroPhoto.src=reliableStorePhoto;
