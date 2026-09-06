@@ -51,4 +51,13 @@ if(!reduceMotion){
  document.querySelectorAll('.motion-section').forEach(section=>section.classList.add('in-view'));
 }
 
+// Official La Vaca Loca branding
+const brand=document.querySelector('.brand');
+if(brand){
+ brand.innerHTML='<img src="assets/brand/horizontal-logo-black.svg" alt="La Vaca Loca Records">';
+ const brandStyle=document.createElement('style');
+ brandStyle.textContent='.brand{display:flex;align-items:center;height:100%;min-width:0}.brand img{display:block;width:min(270px,36vw);height:auto;max-height:52px;object-fit:contain;object-position:left center}@media(max-width:800px){.brand img{width:min(220px,48vw);max-height:46px}}@media(max-width:520px){.brand img{width:min(205px,56vw);max-height:42px}}';
+ document.head.appendChild(brandStyle);
+}
+
 renderRecords();renderCart();
