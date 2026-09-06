@@ -60,8 +60,8 @@ if(brand){
  document.head.appendChild(brandStyle);
 }
 
-// One validated binary JPEG is now the single source for store photography.
-const reliableStorePhoto='assets/images/hero-store-v3.jpg?v=3';
+// One higher-resolution binary JPEG is the single source for store photography.
+const reliableStorePhoto='assets/images/hero-store-hq.jpg?v=4';
 const heroPhoto=document.querySelector('.hero-photo');
 if(heroPhoto) heroPhoto.src=reliableStorePhoto;
 const photoFixStyle=document.createElement('style');
