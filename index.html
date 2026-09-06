@@ -1,5 +1,10 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>La Vaca Loca Records — Gualaceo</title><meta name="description" content="Discos, sonido y cultura desde Gualaceo, Ecuador."><link rel="stylesheet" href="styles.css"></head><body>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>La Vaca Loca Records — Gualaceo</title><meta name="description" content="Discos, sonido y cultura desde Gualaceo, Ecuador."><link rel="stylesheet" href="styles.css"><style>
+.ticker{overflow:hidden;white-space:nowrap}
+.ticker .ticker-track{display:flex;width:max-content;min-width:0;text-align:left;animation:lvlTicker 18s linear infinite;will-change:transform}
+.ticker .ticker-track span{display:block;flex:0 0 auto;padding-right:2.5rem}
+@keyframes lvlTicker{from{transform:translate3d(0,0,0)}to{transform:translate3d(-25%,0,0)}}
+</style></head><body>
 <header class="site-header"><a class="brand" href="#top"><strong>LA VACA LOCA</strong><small>RECORD STORE · GUALACEO</small></a><nav class="main-nav"><a href="#shop">TIENDA</a><a href="#dig">DIG MODE</a><a href="#culture">CULTURA</a><a href="#how">CÓMO COMPRAR</a></nav><button class="cart-button" id="cartButton">BAG <span id="cartCount">0</span></button></header>
 <main id="top">
 <section class="hero motion-section"><div class="hero-stamp">GUALACEO<br>AZUAY<br>ECUADOR</div><div class="hero-copy motion-copy"><p class="eyebrow">RECORD STORE / HI-FI / COMMUNITY</p><h1>DISCOS.<br>SONIDO.<br><i>CULTURA.</i></h1><p class="hero-text">Vinilos para DJs, coleccionistas y oídos curiosos. Seleccionados desde Gualaceo para cualquier parte.</p><div class="hero-actions"><a class="button primary" href="#shop">VER DISCOS</a><a class="text-link dig-link" href="#dig">DIG MODE <span class="css-arrow" aria-hidden="true"></span></a></div></div><div class="hero-poster motion-object"><div class="poster-copy"><span>LA VACA</span><b>LOCA</b></div><div class="featured-vinyl"><div class="vinyl-label">LVL</div></div><small>SELECCIÓN DE LA CASA<br>GUALACEO · ECUADOR</small></div></section>
