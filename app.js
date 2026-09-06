@@ -60,4 +60,19 @@ if(brand){
  document.head.appendChild(brandStyle);
 }
 
+// Use the validated embedded photo asset. The earlier JPEG upload was truncated,
+// which caused Chrome to paint the lower part of the hero as a flat gray block.
+const reliableStorePhoto='assets/images/hero-store-inline.svg';
+const heroPhoto=document.querySelector('.hero-photo');
+if(heroPhoto) heroPhoto.src=reliableStorePhoto;
+const photoFixStyle=document.createElement('style');
+photoFixStyle.textContent=`
+.sessions-hero:before{background-image:url('${reliableStorePhoto}')!important}
+.shop-section:before{background-image:linear-gradient(90deg,rgba(238,229,211,1),rgba(238,229,211,.70) 34%,rgba(238,229,211,.16)),url('${reliableStorePhoto}')!important}
+.visual-photo.room{background-image:linear-gradient(0deg,rgba(9,9,7,.55),transparent 55%),url('${reliableStorePhoto}')!important}
+.dig-section:before{background-image:linear-gradient(90deg,rgba(23,34,24,.92),rgba(13,16,13,.92)),url('${reliableStorePhoto}')!important}
+.archive-card.photo{background-image:linear-gradient(0deg,rgba(9,9,7,.75),transparent 62%),url('${reliableStorePhoto}')!important}
+`;
+document.head.appendChild(photoFixStyle);
+
 renderRecords();renderCart();
