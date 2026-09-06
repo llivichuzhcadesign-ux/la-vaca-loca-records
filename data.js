@@ -53,3 +53,20 @@ window.RECORDS = window.SITE_CONTENT.records;
 window.SESSIONS = window.SITE_CONTENT.sessions;
 window.EVENTS = window.SITE_CONTENT.events;
 window.ARCHIVE_ITEMS = window.SITE_CONTENT.archiveItems;
+
+(function applyIOSCheckoutSafeArea(){
+  const style=document.createElement('style');
+  style.textContent=`
+    :root{--player-safe-height:calc(84px + env(safe-area-inset-bottom,0px))}
+    body{padding-bottom:var(--player-safe-height)!important}
+    .player{height:var(--player-safe-height)!important;min-height:var(--player-safe-height)!important;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;z-index:160!important}
+    .cart-panel{z-index:150!important;height:100dvh!important;max-height:100dvh!important;padding-bottom:calc(var(--player-safe-height) + 18px)!important}
+    .cart-items{min-height:0;padding-bottom:14px!important}
+    .cart-footer{position:sticky!important;bottom:0!important;background:var(--paper)!important;padding-top:14px!important;padding-bottom:calc(var(--player-safe-height) + 14px)!important;border-top:1px solid rgba(9,9,7,.16);z-index:3!important}
+    .cart-footer .primary,.cart-footer .full,#whatsappCheckout{display:flex!important;align-items:center!important;justify-content:center!important;min-height:48px!important;width:100%!important;position:relative!important;z-index:4!important}
+    .scrim{z-index:120!important}
+    .record-modal{padding-bottom:calc(var(--player-safe-height) + 24px)!important}
+    @media(max-width:560px){:root{--player-safe-height:calc(92px + env(safe-area-inset-bottom,0px))}.cart-panel{padding:18px 16px calc(var(--player-safe-height) + 20px)!important}.cart-footer{padding-bottom:calc(var(--player-safe-height) + 16px)!important}.player{grid-template-columns:auto 42px 1fr!important}}
+  `;
+  document.head.appendChild(style);
+})();
