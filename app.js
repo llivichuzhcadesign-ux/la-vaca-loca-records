@@ -60,9 +60,8 @@ if(brand){
  document.head.appendChild(brandStyle);
 }
 
-// Use the validated embedded photo asset. The earlier JPEG upload was truncated,
-// which caused Chrome to paint the lower part of the hero as a flat gray block.
-const reliableStorePhoto='assets/images/hero-store-inline.svg';
+// One validated binary JPEG is now the single source for store photography.
+const reliableStorePhoto='assets/images/hero-store-v3.jpg?v=3';
 const heroPhoto=document.querySelector('.hero-photo');
 if(heroPhoto) heroPhoto.src=reliableStorePhoto;
 const photoFixStyle=document.createElement('style');
