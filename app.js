@@ -44,7 +44,7 @@ function createRecordModal(){
  modal.innerHTML='<div class="record-modal-card" role="dialog" aria-modal="true" aria-label="Detalle del disco"><button class="modal-close" data-close-modal>CERRAR</button><div class="modal-cover"><span></span></div><div class="modal-copy" id="modalCopy"></div></div>';
  document.body.appendChild(modal);
  modal.addEventListener('click',e=>{if(e.target===modal||e.target.closest('[data-close-modal]'))closeRecordModal()});
- window.addEventListener('keydown',e=>{if(e.key==='Escape')closeRecordModal()});
+ window.addEventListener('keydown',e=>{if(e.key==='Escape'){closeRecordModal();closeMobileNav()}});
  return modal;
 }
 const recordModal=createRecordModal();
@@ -74,13 +74,20 @@ function enhancePublicSite(){
  }
  const archiveSection=document.querySelector('.archive-section');
  if(archiveSection&&!document.querySelector('.events-section')){
-  archiveSection.insertAdjacentHTML('beforebegin',`<section class="events-section motion-section" id="events"><div class="events-copy motion-copy"><p class="eyebrow">06 / AGENDA</p><h2>EVENTOS<br>Y POSTERS</h2><p>Una entrada clara para futuras fiestas, listening sessions, lanzamientos y posters culturales.</p></div><div class="event-list motion-object">${EVENTS.map(event=>`<article class="event-card" data-event="${event.id}"><small>${event.date} · ${event.place}</small><strong>${event.title}</strong><p>${event.detail}</p><a href="#how">PREGUNTAR POR WHATSAPP</a></article>`).join('')}</div></section>`);
+  archiveSection.insertAdjacentHTML('beforebegin',`<section class="events-section motion-section" id="events"><div class="events-copy motion-copy"><p class="eyebrow">06 / AGENDA</p><h2>EVENTOS<br>Y POSTERS</h2><p>Una entrada clara para futuras fiestas, listening sessions, lanzamientos y posters culturales.</p></div><div class="event-list motion-object">${EVENTS.map(event=>`<article class="event-card" data-event="${event.id}"><small>${event.date} · ${event.place}</small><strong>${event.title}</strong><p>${event.detail}</p><a href="#buying">PREGUNTAR POR WHATSAPP</a></article>`).join('')}</div></section>`);
+ }
+ const howSection=document.getElementById('how')||document.querySelector('.how-section');
+ if(howSection&&!document.querySelector('.buying-section')){
+  howSection.insertAdjacentHTML('afterend',`<section class="buying-section motion-section" id="buying"><div class="buying-copy"><p class="eyebrow">07 / COMPRA DIRECTA</p><h2>PIDE EL DISCO<br>POR WHATSAPP</h2><p>La tienda todavía funciona como una conversación: agregas discos al bag, revisas el pedido y lo envías por WhatsApp para confirmar disponibilidad, entrega y pago.</p><a class="buying-primary" href="#shop">VER DISCOS</a></div><div class="buying-steps"><article><small>01</small><strong>Explora</strong><p>Filtra por género, abre detalles y escucha la ficha del disco.</p></article><article><small>02</small><strong>Agrega al bag</strong><p>El pedido se arma sin pago automático, listo para confirmar.</p></article><article><small>03</small><strong>Envía por WhatsApp</strong><p>La Vaca confirma stock, condición, entrega y forma de pago.</p></article></div></section>`);
  }
  if(!document.querySelector('.site-footer')){
-  document.querySelector('main').insertAdjacentHTML('afterend',`<footer class="site-footer"><div><strong>${settings.brandName||'LA VACA LOCA RECORDS'}</strong><span>${settings.location||'Gualaceo, Ecuador'} · discos · sessions · cultura</span></div><nav><a href="#shop">Discos</a><a href="#sessions">Sessions</a><a href="#events">Eventos</a><a href="#archive">Archivo</a><a href="#how">Comprar</a></nav></footer>`);
+  document.querySelector('main').insertAdjacentHTML('afterend',`<footer class="site-footer"><div><strong>${settings.brandName||'LA VACA LOCA RECORDS'}</strong><span>${settings.location||'Gualaceo, Ecuador'} · discos · sessions · cultura</span></div><nav><a href="#shop">Discos</a><a href="#sessions">Sessions</a><a href="#events">Eventos</a><a href="#archive">Archivo</a><a href="#buying">Comprar</a></nav></footer>`);
  }
  const nav=document.querySelector('.main-nav');
- if(nav&&!nav.querySelector('[href="#events"]'))nav.insertAdjacentHTML('beforeend','<a href="#events">EVENTOS</a>');
+ if(nav){
+  if(!nav.querySelector('[href="#events"]'))nav.insertAdjacentHTML('beforeend','<a href="#events">EVENTOS</a>');
+  if(!nav.querySelector('[href="#buying"]'))nav.insertAdjacentHTML('beforeend','<a href="#buying">COMPRAR</a>');
+ }
 }
 function showSessionDetail(id){
  const item=SESSIONS.find(x=>x.id===id);
@@ -88,6 +95,33 @@ function showSessionDetail(id){
  if(!item||!card)return;
  card.innerHTML=`<span>${item.type.toUpperCase()} / ${item.status.toUpperCase()}</span><strong>${item.title.toUpperCase()}</strong><span>${item.detail}</span><br><a class="sessions-button" href="#archive">VER ARCHIVO →</a>`;
  card.animate([{transform:'translateY(10px)',opacity:.7},{transform:'translateY(0)',opacity:1}],{duration:240,easing:'ease-out'});
+}
+function setupMobileNavigation(){
+ const header=document.querySelector('.site-header');
+ const nav=document.querySelector('.main-nav');
+ if(!header||!nav)return;
+ if(!document.querySelector('.mobile-menu-toggle')){
+  const button=document.createElement('button');
+  button.className='mobile-menu-toggle';
+  button.type='button';
+  button.setAttribute('aria-expanded','false');
+  button.setAttribute('aria-label','Abrir menú');
+  button.innerHTML='<span></span><span></span><span></span>';
+  header.insertBefore(button,nav);
+ }
+ const button=document.querySelector('.mobile-menu-toggle');
+ button.addEventListener('click',()=>{
+  const open=!document.body.classList.contains('nav-open');
+  document.body.classList.toggle('nav-open',open);
+  button.setAttribute('aria-expanded',open?'true':'false');
+  button.setAttribute('aria-label',open?'Cerrar menú':'Abrir menú');
+ });
+ nav.querySelectorAll('a').forEach(link=>link.addEventListener('click',closeMobileNav));
+}
+function closeMobileNav(){
+ const button=document.querySelector('.mobile-menu-toggle');
+ document.body.classList.remove('nav-open');
+ if(button){button.setAttribute('aria-expanded','false');button.setAttribute('aria-label','Abrir menú')}
 }
 function injectInteractionStyles(){
  const style=document.createElement('style');
@@ -97,9 +131,12 @@ function injectInteractionStyles(){
 .session-cards{display:grid;gap:10px;margin-top:28px;max-width:560px}.session-card{text-align:left;background:rgba(238,229,211,.08);color:var(--paper);border:1px solid rgba(238,229,211,.25);padding:14px 15px;cursor:pointer}.session-card small,.session-card span{display:block;font-size:9px;font-weight:900;letter-spacing:.08em;color:var(--pink)}.session-card strong{display:block;margin:5px 0;font-size:19px;line-height:.95}.session-card:hover{background:var(--pink);color:var(--ink);border-color:var(--pink)}.session-card:hover small,.session-card:hover span{color:var(--ink)}
 .archive-index{padding:42px 4vw;background:var(--ink);color:var(--paper)}.archive-index-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.archive-index-card{border:1px solid rgba(238,229,211,.22);padding:20px;min-height:170px;background:#11100d}.archive-index-card small{font-size:9px;color:var(--pink);font-weight:900;letter-spacing:.09em}.archive-index-card strong{display:block;margin:12px 0;font-size:30px;line-height:.88}.archive-index-card p{font-size:13px;line-height:1.45;color:#cfc4b2}
 .events-section{display:grid;grid-template-columns:.86fr 1.14fr;background:var(--paper);color:var(--ink);border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}.events-copy{padding:72px 5vw}.events-copy h2{font-size:clamp(56px,7vw,110px);line-height:.78;letter-spacing:-.08em}.events-copy p:last-child{max-width:480px;line-height:1.5}.event-list{display:grid;grid-template-columns:1fr 1fr}.event-card{min-height:360px;padding:28px;border-left:1.5px solid var(--ink);display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(140deg,#e5532e,#eee5d3 62%)}.event-card:nth-child(2){background:linear-gradient(140deg,#321d13,#6d4027);color:var(--paper)}.event-card small{font-size:10px;font-weight:900;letter-spacing:.08em}.event-card strong{display:block;font-size:clamp(34px,4vw,62px);line-height:.82;letter-spacing:-.06em;margin:16px 0}.event-card p{line-height:1.45}.event-card a{align-self:flex-start;margin-top:12px;background:var(--pink);color:var(--ink);padding:10px 12px;font-size:10px;font-weight:900}
+.buying-section{display:grid;grid-template-columns:.95fr 1.05fr;background:var(--ink);color:var(--paper);border-top:1px solid rgba(238,229,211,.22);border-bottom:1px solid rgba(238,229,211,.22)}.buying-copy{padding:76px 5vw}.buying-copy h2{font-size:clamp(54px,7vw,112px);line-height:.78;letter-spacing:-.08em}.buying-copy p:last-of-type{max-width:540px;color:#cfc4b2;line-height:1.55}.buying-primary{display:inline-block;margin-top:20px;background:var(--pink);color:var(--ink);padding:12px 14px;font-size:11px;font-weight:900;box-shadow:6px 6px 0 var(--paper)}.buying-steps{display:grid;grid-template-columns:repeat(3,1fr)}.buying-steps article{min-height:330px;padding:28px;border-left:1px solid rgba(238,229,211,.22);display:flex;flex-direction:column;justify-content:flex-end}.buying-steps small{color:var(--pink);font-size:11px;font-weight:900}.buying-steps strong{font-size:clamp(28px,3.2vw,50px);line-height:.86;margin:14px 0}.buying-steps p{font-size:13px;line-height:1.45;color:#cfc4b2}
 .site-footer{background:var(--ink);color:var(--paper);padding:30px 4vw 104px;display:flex;justify-content:space-between;gap:20px;border-top:1px solid rgba(238,229,211,.24)}.site-footer strong,.site-footer span{display:block}.site-footer span{font-size:12px;color:#cfc4b2;margin-top:6px}.site-footer nav{display:flex;gap:14px;flex-wrap:wrap}.site-footer a{font-size:11px;font-weight:900;color:var(--paper)}
-@media(max-width:900px){.record-modal-card{grid-template-columns:1fr}.modal-cover{min-height:240px}.archive-index-grid,.event-list{grid-template-columns:1fr}.events-section{grid-template-columns:1fr}.site-footer{display:block}.site-footer nav{margin-top:18px}.main-nav{overflow:auto;white-space:nowrap}}
-@media(max-width:560px){.record-modal{padding:12px 12px 108px}.record-modal-card{box-shadow:7px 7px 0 var(--pink);max-height:calc(84vh - 76px)}.modal-copy{padding:48px 20px 24px}.archive-index{padding:34px 18px}.events-copy{padding:54px 18px}.event-card{min-height:290px;padding:22px}.site-footer{padding:26px 18px 104px}}
+.mobile-menu-toggle{display:none;background:transparent;border:1px solid rgba(238,229,211,.55);width:42px;height:36px;align-items:center;justify-content:center;gap:4px;flex-direction:column}.mobile-menu-toggle span{display:block;width:18px;height:2px;background:var(--paper);transition:.22s}.nav-open .mobile-menu-toggle span:nth-child(1){transform:translateY(6px) rotate(45deg)}.nav-open .mobile-menu-toggle span:nth-child(2){opacity:0}.nav-open .mobile-menu-toggle span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+@media(max-width:900px){.record-modal-card{grid-template-columns:1fr}.modal-cover{min-height:240px}.archive-index-grid,.event-list{grid-template-columns:1fr}.events-section,.buying-section{grid-template-columns:1fr}.buying-steps{grid-template-columns:1fr}.buying-steps article{min-height:180px;border-left:0;border-top:1px solid rgba(238,229,211,.22)}.site-footer{display:block}.site-footer nav{margin-top:18px}.main-nav{overflow:auto;white-space:nowrap}}
+@media(max-width:800px){.mobile-menu-toggle{display:flex;position:relative;z-index:71}.site-header{gap:10px}.main-nav{position:fixed;z-index:70;left:0;right:0;top:68px;background:rgba(9,9,7,.98);border-bottom:1px solid rgba(238,229,211,.22);display:grid!important;gap:0;padding:0 18px 18px;max-height:0;overflow:hidden;transition:max-height .28s ease, padding .28s ease}.main-nav a{display:block;padding:15px 0;border-top:1px solid rgba(238,229,211,.16);font-size:13px}.nav-open .main-nav{max-height:380px;padding:4px 18px 18px}.cart-button{position:relative;z-index:71}.record-modal{padding-top:82px}.record-modal-card{max-height:calc(82vh - 76px)}}
+@media(max-width:560px){.record-modal{padding:82px 12px 108px}.record-modal-card{box-shadow:7px 7px 0 var(--pink);max-height:calc(82vh - 76px)}.modal-copy{padding:48px 20px 24px}.archive-index{padding:34px 18px}.events-copy,.buying-copy{padding:54px 18px}.event-card{min-height:290px;padding:22px}.buying-steps article{padding:24px 18px}.site-footer{padding:26px 18px 104px}}
 `;
  document.head.appendChild(style);
 }
@@ -115,8 +152,8 @@ document.addEventListener('click',e=>{
  const session=e.target.closest('[data-session]');if(session)showSessionDetail(session.dataset.session);
 });
 document.addEventListener('keydown',e=>{const card=e.target.closest&&e.target.closest('.record-card');if(card&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openRecordModal(card.dataset.id)}});
-document.addEventListener('click',e=>{const link=e.target.closest('a[href^="#"]');if(!link)return;const target=document.querySelector(link.getAttribute('href'));if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'})}});
-document.getElementById('cartButton').addEventListener('click',openCart);document.getElementById('closeCart').addEventListener('click',closeCart);scrim.addEventListener('click',()=>{closeCart();closeRecordModal()});document.getElementById('digRandom').addEventListener('click',()=>dig(''));
+document.addEventListener('click',e=>{const link=e.target.closest('a[href^="#"]');if(!link)return;const target=document.querySelector(link.getAttribute('href'));if(target){e.preventDefault();closeMobileNav();target.scrollIntoView({behavior:'smooth',block:'start'})}});
+document.getElementById('cartButton').addEventListener('click',openCart);document.getElementById('closeCart').addEventListener('click',closeCart);scrim.addEventListener('click',()=>{closeCart();closeRecordModal();closeMobileNav()});document.getElementById('digRandom').addEventListener('click',()=>dig(''));
 playerToggle.addEventListener('click',()=>{if(!state.current){selectRecord(randomRecord(),true);return}state.playing=!state.playing;updatePlayerControl()});
 
 const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -145,10 +182,11 @@ const brand=document.querySelector('.brand');
 if(brand){
  brand.innerHTML='<img src="assets/brand/horizontal-logo-black.svg" alt="La Vaca Loca Records">';
  const brandStyle=document.createElement('style');
- brandStyle.textContent='.brand{display:flex;align-items:center;height:100%;min-width:0}.brand img{display:block;width:min(270px,36vw);height:auto;max-height:52px;object-fit:contain;object-position:left center}@media(max-width:800px){.brand img{width:min(220px,48vw);max-height:46px}}@media(max-width:520px){.brand img{width:min(205px,56vw);max-height:42px}}';
+ brandStyle.textContent='.brand{display:flex;align-items:center;height:100%;min-width:0}.brand img{display:block;width:min(270px,36vw);height:auto;max-height:52px;object-fit:contain;object-position:left center}@media(max-width:800px){.brand img{width:min(220px,48vw);max-height:46px}}@media(max-width:520px){.brand img{width:min(190px,49vw);max-height:40px}}';
  document.head.appendChild(brandStyle);
 }
 
 injectInteractionStyles();
 enhancePublicSite();
+setupMobileNavigation();
 renderRecords();renderCart();
