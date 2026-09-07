@@ -23,8 +23,13 @@
       const record=byId(records,card.dataset.id);
       const url=mediaUrl(record,'coverImage','artwork');
       const cover=card.querySelector('.cover');
-      if(!url||!cover||cover.querySelector('.record-cover-image'))return;
+      if(!url||!cover)return;
       cover.classList.add('has-cover-image');
+      const existing=cover.querySelector('.record-cover-image');
+      if(existing){
+        if(existing.getAttribute('src')!==url)existing.setAttribute('src',url);
+        return;
+      }
       cover.insertAdjacentHTML('afterbegin',`<img class="record-cover-image" src="${escapeText(url)}" alt="${escapeText(record.artist||'Record')} ${escapeText(record.title||'cover')}" loading="lazy">`);
     });
   }
@@ -79,8 +84,16 @@
   },true);
   document.addEventListener('keydown',event=>{const card=event.target.closest&&event.target.closest('.record-card[data-id]');if(card&&(event.key==='Enter'||event.key===' ')){lastRecordId=card.dataset.id;setTimeout(()=>decorateModalImage(lastRecordId),30)}});
 
+  const grid=document.getElementById('recordGrid');
+  if(grid){
+    const observer=new MutationObserver(()=>decorateRecordImages());
+    observer.observe(grid,{childList:true,subtree:true});
+  }
+
   const style=document.createElement('style');
-  style.textContent=`.cover.has-cover-image{position:relative;background:#090907;overflow:hidden}.record-cover-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}.cover.has-cover-image .badge,.cover.has-cover-image .cover-code{position:relative;z-index:2}.cover.has-cover-image:after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(9,9,7,.58),transparent 48%);z-index:1}.modal-cover.has-cover-image{padding:0;background:#090907}.modal-cover.has-cover-image img{width:100%;height:100%;min-height:420px;object-fit:cover}.player-art.has-cover-image{overflow:hidden}.player-art.has-cover-image img{width:100%;height:100%;object-fit:cover;display:block}.event-card.has-event-poster{background-size:cover;background-position:center;color:var(--paper)}.event-card.has-event-poster a{position:relative;z-index:2}.youtube-link{margin-left:8px}.archive-index-card.has-archive-image{background-size:cover;background-position:center}.archive-index-card.has-archive-image>*{position:relative;z-index:2}`;
+  style.textContent=`.cover.has-cover-image{position:relative!important;background:#090907!important;overflow:hidden!important}.cover.has-cover-image:before{display:none!important}.cover.has-cover-image:after{content:''!important;position:absolute!important;inset:0!important;background:linear-gradient(0deg,rgba(9,9,7,.58),transparent 48%)!important;z-index:2!important;pointer-events:none!important}.record-cover-image{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;z-index:1!important;display:block!important;opacity:1!important;filter:none!important}.cover.has-cover-image .badge,.cover.has-cover-image .cover-code{position:relative!important;z-index:3!important}.modal-cover.has-cover-image{padding:0;background:#090907}.modal-cover.has-cover-image img{width:100%;height:100%;min-height:420px;object-fit:cover}.player-art.has-cover-image{overflow:hidden}.player-art.has-cover-image img{width:100%;height:100%;object-fit:cover;display:block}.event-card.has-event-poster{background-size:cover;background-position:center;color:var(--paper)}.event-card.has-event-poster a{position:relative;z-index:2}.youtube-link{margin-left:8px}.archive-index-card.has-archive-image{background-size:cover;background-position:center}.archive-index-card.has-archive-image>*{position:relative;z-index:2}`;
   document.head.appendChild(style);
   decorateAll();
+  requestAnimationFrame(decorateAll);
+  setTimeout(decorateAll,120);
 })();
