@@ -76,6 +76,12 @@ function openRecordModal(record){
 function closeRecordModal(){recordModal.classList.remove('open');recordModal.setAttribute('aria-hidden','true');document.body.classList.remove('modal-open')}
 
 function enhancePublicSite(){
+ document.querySelectorAll('#how,.how-section,.buying-section').forEach(section=>section.remove());
+ document.querySelectorAll('.main-nav a,.site-footer a').forEach(link=>{
+  const href=link.getAttribute('href')||'';
+  const label=(link.textContent||'').trim().toUpperCase();
+  if(href==='#how'||href==='#buying'||label==='COMPRAR'||label==='CÓMO COMPRAR'||label==='COMO COMPRAR')link.remove();
+ });
  const sessionsCopy=document.querySelector('.sessions-copy');
  if(sessionsCopy&&!document.querySelector('.session-cards')){
   sessionsCopy.insertAdjacentHTML('beforeend',`<div class="session-cards">${SESSIONS.map(item=>`<button class="session-card" data-session="${item.id}"><small>${item.type}</small><strong>${item.title}</strong><span>${item.status}</span></button>`).join('')}</div>`);
@@ -86,29 +92,23 @@ function enhancePublicSite(){
  }
  const archiveSection=document.querySelector('.archive-section');
  if(archiveSection&&!document.querySelector('.events-section')){
-  archiveSection.insertAdjacentHTML('beforebegin',`<section class="events-section motion-section" id="events"><div class="events-copy motion-copy"><p class="eyebrow">06 / AGENDA</p><h2>EVENTOS<br>Y POSTERS</h2><p>Una entrada clara para futuras fiestas, listening sessions, lanzamientos y posters culturales.</p></div><div class="event-list motion-object">${EVENTS.map(event=>`<article class="event-card" data-event="${event.id}"><small>${event.date} · ${event.place}</small><strong>${event.title}</strong><p>${event.detail}</p><a href="#shop">VER DISCOS</a></article>`).join('')}</div></section>`);
+  archiveSection.insertAdjacentHTML('beforebegin',`<section class="events-section motion-section" id="events"><div class="events-copy motion-copy"><p class="eyebrow">05 / AGENDA</p><h2>EVENTOS<br>Y POSTERS</h2><p>Una entrada clara para futuras fiestas, listening sessions, lanzamientos y posters culturales.</p></div><div class="event-list motion-object">${EVENTS.map(event=>`<article class="event-card" data-event="${event.id}"><small>${event.date} · ${event.place}</small><strong>${event.title}</strong><p>${event.detail}</p><a href="#shop">VER DISCOS</a></article>`).join('')}</div></section>`);
  }
- const howSection=document.getElementById('how')||document.querySelector('.how-section');
- if(howSection&&!howSection.classList.contains('compact-buy-flow')){
-  howSection.classList.add('compact-buy-flow');
-  const heading=howSection.querySelector('h2');
-  if(heading)heading.innerHTML='COMPRA<br>DIRECTA';
-  const eyebrow=howSection.querySelector('.eyebrow');
-  if(eyebrow)eyebrow.textContent='05 / BAG + WHATSAPP';
-  const list=howSection.querySelector('ol');
-  if(list)list.innerHTML='<li><span>01</span> ESCUCHA Y ABRE DETALLES.</li><li><span>02</span> AGREGA AL BAG.</li><li><span>03</span> ENVÍA EL PEDIDO POR WHATSAPP.</li>';
+ const panel=document.getElementById('cartPanel');
+ if(panel&&!panel.classList.contains('bag-experience')){
+  panel.classList.add('bag-experience');
+  const head=panel.querySelector('.cart-head');
+  if(head&&!head.querySelector('.bag-subtitle'))head.insertAdjacentHTML('beforeend','<p class="bag-subtitle">Revisa tu selección y envía el pedido directo por WhatsApp.</p>');
+  const footer=panel.querySelector('.cart-footer');
+  if(footer&&!footer.querySelector('.bag-checklist'))footer.insertAdjacentHTML('afterbegin','<div class="bag-checklist"><span>Stock se confirma por mensaje</span><span>Retiro / entrega se coordina después</span><span>Pago no automático todavía</span></div>');
+  const checkout=document.getElementById('whatsappCheckout');
+  if(checkout)checkout.textContent='ENVIAR BAG POR WHATSAPP';
  }
- document.querySelectorAll('.buying-section').forEach(section=>section.remove());
  if(!document.querySelector('.site-footer')){
-  document.querySelector('main').insertAdjacentHTML('afterend',`<footer class="site-footer"><div><strong>${settings.brandName||'LA VACA LOCA RECORDS'}</strong><span>${settings.location||'Gualaceo, Ecuador'} · discos · sessions · cultura</span></div><nav><a href="#shop">Discos</a><a href="#sessions">Sessions</a><a href="#events">Eventos</a><a href="#archive">Archivo</a><a href="#how">Comprar</a></nav></footer>`);
+  document.querySelector('main').insertAdjacentHTML('afterend',`<footer class="site-footer"><div><strong>${settings.brandName||'LA VACA LOCA RECORDS'}</strong><span>${settings.location||'Gualaceo, Ecuador'} · discos · sessions · cultura</span></div><nav><a href="#shop">Discos</a><a href="#sessions">Sessions</a><a href="#events">Eventos</a><a href="#archive">Archivo</a></nav></footer>`);
  }
  const nav=document.querySelector('.main-nav');
- if(nav){
-  if(!nav.querySelector('[href="#events"]'))nav.insertAdjacentHTML('beforeend','<a href="#events">EVENTOS</a>');
-  const buyLink=nav.querySelector('[href="#buying"]')||nav.querySelector('[href="#how"]:last-child');
-  if(buyLink){buyLink.setAttribute('href','#how');buyLink.textContent='COMPRAR'}
-  else nav.insertAdjacentHTML('beforeend','<a href="#how">COMPRAR</a>');
- }
+ if(nav&&!nav.querySelector('[href="#events"]'))nav.insertAdjacentHTML('beforeend','<a href="#events">EVENTOS</a>');
 }
 function showSessionDetail(id){
  const item=SESSIONS.find(x=>x.id===id);
@@ -162,7 +162,7 @@ function injectInteractionStyles(){
 .session-cards{display:grid;gap:10px;margin-top:28px;max-width:560px}.session-card{text-align:left;background:rgba(238,229,211,.08);color:var(--paper);border:1px solid rgba(238,229,211,.25);padding:14px 15px;cursor:pointer}.session-card small,.session-card span{display:block;font-size:9px;font-weight:900;letter-spacing:.08em;color:var(--pink)}.session-card strong{display:block;margin:5px 0;font-size:19px;line-height:.95}.session-card:hover{background:var(--pink);color:var(--ink);border-color:var(--pink)}.session-card:hover small,.session-card:hover span{color:var(--ink)}
 .archive-index{padding:42px 4vw;background:var(--ink);color:var(--paper)}.archive-index-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.archive-index-card{border:1px solid rgba(238,229,211,.22);padding:20px;min-height:170px;background:#11100d}.archive-index-card small{font-size:9px;color:var(--pink);font-weight:900;letter-spacing:.09em}.archive-index-card strong{display:block;margin:12px 0;font-size:30px;line-height:.88}.archive-index-card p{font-size:13px;line-height:1.45;color:#cfc4b2}
 .events-section{display:grid;grid-template-columns:.86fr 1.14fr;background:var(--paper);color:var(--ink);border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}.events-copy{padding:72px 5vw}.events-copy h2{font-size:clamp(56px,7vw,110px);line-height:.78;letter-spacing:-.08em}.events-copy p:last-child{max-width:480px;line-height:1.5}.event-list{display:grid;grid-template-columns:1fr 1fr}.event-card{min-height:360px;padding:28px;border-left:1.5px solid var(--ink);display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(140deg,#e5532e,#eee5d3 62%)}.event-card:nth-child(2){background:linear-gradient(140deg,#321d13,#6d4027);color:var(--paper)}.event-card small{font-size:10px;font-weight:900;letter-spacing:.08em}.event-card strong{display:block;font-size:clamp(34px,4vw,62px);line-height:.82;letter-spacing:-.06em;margin:16px 0}.event-card p{line-height:1.45}.event-card a{align-self:flex-start;margin-top:12px;background:var(--pink);color:var(--ink);padding:10px 12px;font-size:10px;font-weight:900}
-.compact-buy-flow{min-height:auto!important;padding-bottom:132px!important}.compact-buy-flow h2{font-size:clamp(52px,7vw,112px)!important;line-height:.78!important}.compact-buy-flow ol li{cursor:default}.compact-buy-flow ol li:nth-child(2){background:rgba(255,90,167,.08)}
+.bag-experience{box-shadow:-20px 0 50px rgba(9,9,7,.18)}.bag-subtitle{width:100%;margin:8px 0 0;color:#6a5c4d;font-size:11px;line-height:1.35;font-weight:800}.bag-checklist{display:grid;gap:7px;margin-bottom:14px;padding:12px;border:1px solid rgba(9,9,7,.16);background:rgba(255,90,167,.07)}.bag-checklist span{font-size:10px;font-weight:900;letter-spacing:.02em;text-transform:uppercase;color:#4c4036}.bag-checklist span:before{content:'• ';color:var(--pink);font-size:14px}.cart-footer .primary.full{font-size:12px;letter-spacing:.03em}
 .site-footer{background:var(--ink);color:var(--paper);padding:30px 4vw 104px;display:flex;justify-content:space-between;gap:20px;border-top:1px solid rgba(238,229,211,.24)}.site-footer strong,.site-footer span{display:block}.site-footer span{font-size:12px;color:#cfc4b2;margin-top:6px}.site-footer nav{display:flex;gap:14px;flex-wrap:wrap}.site-footer a{font-size:11px;font-weight:900;color:var(--paper)}
 .mobile-menu-toggle{display:none;background:transparent;border:1px solid rgba(238,229,211,.55);width:42px;height:36px;align-items:center;justify-content:center;gap:4px;flex-direction:column}.mobile-menu-toggle span{display:block;width:18px;height:2px;background:var(--paper);transition:.22s}.nav-open .mobile-menu-toggle span:nth-child(1){transform:translateY(6px) rotate(45deg)}.nav-open .mobile-menu-toggle span:nth-child(2){opacity:0}.nav-open .mobile-menu-toggle span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
 @media(max-width:900px){.record-modal-card{grid-template-columns:1fr}.modal-cover{min-height:240px}.archive-index-grid,.event-list{grid-template-columns:1fr}.events-section{grid-template-columns:1fr}.site-footer{display:block}.site-footer nav{margin-top:18px}.main-nav{overflow:auto;white-space:nowrap}}
@@ -184,7 +184,9 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('keydown',e=>{const card=e.target.closest&&e.target.closest('.record-card');if(card&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openRecordModal(card.dataset.id)}});
 document.addEventListener('click',e=>{const link=e.target.closest('a[href^="#"]');if(!link)return;const target=document.querySelector(link.getAttribute('href'));if(target){e.preventDefault();closeMobileNav();target.scrollIntoView({behavior:'smooth',block:'start'})}});
-document.getElementById('cartButton').addEventListener('click',openCart);document.getElementById('closeCart').addEventListener('click',closeCart);scrim.addEventListener('click',()=>{closeCart();closeRecordModal();closeMobileNav()});document.getElementById('digRandom').addEventListener('click',()=>dig(''));
+document.getElementById('cartButton').addEventListener('click',openCart);document.getElementById('closeCart').addEventListener('click',closeCart);scrim.addEventListener('click',()=>{closeCart();closeRecordModal();closeMobileNav()});
+const digRandomButton=document.getElementById('digRandom');
+if(digRandomButton)digRandomButton.addEventListener('click',()=>dig(''));
 playerToggle.addEventListener('click',()=>{if(!state.current){selectRecord(randomRecord(),true);return}state.playing=!state.playing;updatePlayerControl()});
 
 const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
