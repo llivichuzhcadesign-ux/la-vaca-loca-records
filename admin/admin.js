@@ -1,6 +1,8 @@
 const STORAGE_KEY='lvl-admin-draft-v1';
 const original=window.SITE_CONTENT||{};
 let draft=loadDraft();
+let dirty=false;
+let lastSavedAt=localStorage.getItem(`${STORAGE_KEY}-saved-at`)||'';
 
 const STATUS_OPTIONS={
   records:['DRAFT','IN STOCK','LAST COPY','SOLD OUT','COMING SOON','RESERVED','PRIVATE LISTING'],
@@ -10,11 +12,13 @@ const STATUS_OPTIONS={
 
 function clone(value){return JSON.parse(JSON.stringify(value||{}))}
 function loadDraft(){try{return clone(JSON.parse(localStorage.getItem(STORAGE_KEY))||original)}catch{return clone(original)}}
-function saveDraft(){localStorage.setItem(STORAGE_KEY,JSON.stringify(draft));refreshAll()}
-function resetDraft(){localStorage.removeItem(STORAGE_KEY);draft=clone(original);refreshAll()}
+function saveDraft(){localStorage.setItem(STORAGE_KEY,JSON.stringify(draft));lastSavedAt=new Date().toLocaleString();localStorage.setItem(`${STORAGE_KEY}-saved-at`,lastSavedAt);dirty=false;refreshAll();showToast('Draft saved')}
+function resetDraft(){localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(`${STORAGE_KEY}-saved-at`);draft=clone(original);lastSavedAt='';dirty=false;refreshAll();showToast('Local draft reset')}
 function byId(id){return document.getElementById(id)}
-function escapeText(value=''){return String(value).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[char]))}
-function setValue(path,value){const parts=path.split('.');let target=draft;while(parts.length>1)target=target[parts.shift()];target[parts[0]]=value}
+function escapeText(value=''){return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]))}
+function setValue(path,value){const parts=path.split('.');let target=draft;while(parts.length>1)target=target[parts.shift()];target[parts[0]]=value;markDirty()}
+function markDirty(){dirty=true;updatePublishStatus()}
+function showToast(message){const toast=byId('adminToast');if(!toast)return;toast.textContent=message;toast.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.classList.remove('show'),1800)}
 function field(path,label,value,type='text',hint=''){
   const tag=type==='textarea'?'textarea':'input';
   const attr=tag==='input'?`type="${type}" value="${escapeText(value??'')}"`:'';
@@ -30,10 +34,15 @@ function selectField(path,label,value,options){return `<div class="field"><label
 function toggleField(path,label,value,hint=''){return `<div class="field toggle-field"><label>${label}</label><button type="button" class="toggle ${value?'on':''}" data-toggle-path="${path}" aria-pressed="${value?'true':'false'}"><span>${value?'ON':'OFF'}</span></button>${hint?`<small>${hint}</small>`:''}</div>`}
 function card(collection,index,title,subtitle,status,fields,item={}){const state=item.hideFromPublic?'Hidden':(item.featured?'Featured':'Public');return `<details class="editor-card"><summary><div class="summary-title"><strong>${escapeText(title)}</strong><small>${escapeText(subtitle)}</small></div><span class="summary-status">${escapeText(status||'draft')} · ${state}</span></summary><div class="field-grid">${fields}</div><div class="card-actions"><button class="admin-action" data-save-draft>Save draft</button><button class="admin-action danger" data-remove="${collection}.${index}">Remove</button></div></details>`}
 function visibleCount(list=[]){return list.filter(item=>!item.hideFromPublic).length}
-function renderStats(){
+function counts(){
   const records=draft.records||[],sessions=draft.sessions||[],events=draft.events||[],archive=draft.archiveItems||[];
-  const mediaCount=[...records.map(r=>r.coverImage),...sessions.map(s=>s.heroImage),...events.map(e=>e.posterImage),...archive.map(a=>a.image)].filter(Boolean).length;
-  byId('stats').innerHTML=[['Records',`${visibleCount(records)} / ${records.length}`],['Sessions',`${visibleCount(sessions)} / ${sessions.length}`],['Events',`${visibleCount(events)} / ${events.length}`],['Media paths',mediaCount]].map(([label,value])=>`<article class="stat-card"><strong>${value}</strong><span>${label}</span></article>`).join('');
+  const media=[...records.map(r=>r.coverImage),...sessions.map(s=>s.heroImage),...events.map(e=>e.posterImage),...archive.map(a=>a.image)].filter(Boolean).length;
+  const hidden=[...records,...sessions,...events,...archive].filter(item=>item.hideFromPublic).length;
+  return {records,sessions,events,archive,media,hidden};
+}
+function renderStats(){
+  const c=counts();
+  byId('stats').innerHTML=[['Records',`${visibleCount(c.records)} / ${c.records.length}`],['Sessions',`${visibleCount(c.sessions)} / ${c.sessions.length}`],['Events',`${visibleCount(c.events)} / ${c.events.length}`],['Media paths',c.media]].map(([label,value])=>`<article class="stat-card"><strong>${value}</strong><span>${label}</span></article>`).join('');
 }
 function renderRecords(){
   const list=draft.records||[];
@@ -66,7 +75,16 @@ function renderSettings(){
   const preview=clean?`https://wa.me/${clean}`:'Waiting for number';
   byId('settingsForm').innerHTML=`<div class="settings-note"><strong>WhatsApp routing</strong><span>${preview}</span><p>Use country code and number only. Ecuador example: 593999999999. USA example: 19175551212.</p></div><div class="field-grid">${field('settings.brandName','Brand name',s.brandName)}${field('settings.location','Location',s.location)}${field('settings.currency','Currency',s.currency)}${field('settings.whatsappNumber','WhatsApp number',s.whatsappNumber,'tel','Country code + number, no plus sign needed.')}${field('settings.instagramUrl','Instagram link',s.instagramUrl,'url')}${field('settings.businessHours','Business hours',s.businessHours)}${field('settings.pickupNotes','Pickup notes',s.pickupNotes,'textarea')}${field('settings.deliveryNotes','Delivery notes',s.deliveryNotes,'textarea')}${field('settings.whatsappText','WhatsApp intro',s.whatsappText,'textarea')}${field('settings.orderFooter','Order message footer',s.orderFooter,'textarea','Customer fields added after the bag total.')}</div><div class="card-actions"><button class="admin-action" data-save-draft>Save draft</button></div>`;
 }
-function renderExport(){byId('jsonOutput').value=JSON.stringify(draft,null,2)}
+function makeDataJs(){return `window.SITE_CONTENT = ${JSON.stringify(draft,null,2)};\n\nwindow.RECORDS = window.SITE_CONTENT.records;\nwindow.SESSIONS = window.SITE_CONTENT.sessions;\nwindow.EVENTS = window.SITE_CONTENT.events;\nwindow.ARCHIVE_ITEMS = window.SITE_CONTENT.archiveItems;\n\n(function setupWhatsAppRouting(){\n  const settings=window.SITE_CONTENT&&window.SITE_CONTENT.settings?window.SITE_CONTENT.settings:{};\n  const cleanNumber=String(settings.whatsappNumber||'').replace(/\\D/g,'');\n  const footer=String(settings.orderFooter||'').trim();\n  function routedHref(currentHref){\n    let text='';\n    try{text=new URL(currentHref,window.location.href).searchParams.get('text')||''}catch{text=''}\n    if(footer&&text&&!text.includes(footer))text=\`${'${text}'}\\n\\n${'${footer}'}\`;\n    const base=cleanNumber?\`https://wa.me/${'${cleanNumber}'}\`:'https://wa.me/';\n    return \`${'${base}'}?text=${'${encodeURIComponent(text)}'}\`;\n  }\n  function route(){\n    const link=document.getElementById('whatsappCheckout');\n    if(!link||!link.href)return;\n    link.href=routedHref(link.href);\n  }\n  window.addEventListener('load',route);\n  document.addEventListener('click',()=>setTimeout(route,0));\n  setInterval(route,1000);\n})();\n`}
+function renderExport(){const out=byId('jsonOutput');if(out)out.value=makeDataJs();updatePublishStatus()}
+function updatePublishStatus(){
+  const c=counts();
+  const status=byId('draftStatus');
+  const summary=byId('publishSummary');
+  const label=dirty?'Unsaved changes':'Draft saved';
+  if(status){status.textContent=lastSavedAt&&!dirty?`Saved ${lastSavedAt}`:label;status.classList.toggle('dirty',dirty)}
+  if(summary){summary.innerHTML=`<article><strong>${dirty?'Needs save':'Ready'}</strong><span>Draft status</span></article><article><strong>${c.hidden}</strong><span>Hidden items</span></article><article><strong>${c.media}</strong><span>Media paths</span></article><article><strong>data.js</strong><span>Export target</span></article>`}
+}
 function refreshAll(){renderStats();renderRecords();renderSessions();renderEvents();renderArchive();renderSettings();renderExport()}
 function addItem(type){
   const templates={records:{id:`LVL${String((draft.records||[]).length+1).padStart(3,'0')}`,artist:'New Artist',title:'New Release',genre:'House',price:0,stock:1,status:'DRAFT',featured:false,featuredInPlayer:false,hideFromPublic:true,coverImage:'',audioPreview:'',description:'',condition:'',label:'',year:''},sessions:{id:`S${String((draft.sessions||[]).length+1).padStart(2,'0')}`,title:'New Session',type:'Escucha',date:'Próximamente',status:'Draft',featured:false,hideFromPublic:true,detail:'',heroImage:'',audio:'',video:'',relatedRecords:[]},events:{id:`E${String((draft.events||[]).length+1).padStart(2,'0')}`,title:'New Event',date:'Próximamente',place:'Gualaceo',status:'Draft',featured:false,hideFromPublic:true,posterImage:'',detail:''},archiveItems:{id:`A${String((draft.archiveItems||[]).length+1).padStart(2,'0')}`,title:'New Archive Item',category:'Archive',featured:false,hideFromPublic:true,image:'',detail:'',relatedSession:'',relatedEvent:''}};
@@ -74,9 +92,11 @@ function addItem(type){
 }
 function applyFieldChange(input){if(!input)return;let value=input.value;if(input.type==='number')value=Number(input.value);if(input.dataset.path&&input.dataset.path.endsWith('relatedRecords'))value=String(input.value).split(',').map(x=>x.trim()).filter(Boolean);setValue(input.dataset.path,value);renderStats();renderExport();updateMediaPreview(input)}
 function updateMediaPreview(input){const wrap=input.closest('.media-field');if(!wrap)return;const preview=wrap.querySelector('.media-preview');const value=input.value.trim();if(!preview)return;if(value){preview.className='media-preview has-image';preview.innerHTML=`<img src="${escapeText(value)}" alt="Media preview" onerror="this.parentElement.classList.add('broken')">`}else{preview.className='media-preview';preview.innerHTML='<span>No image yet</span>'}}
+function downloadDataJs(){const blob=new Blob([makeDataJs()],{type:'text/javascript'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='data.js';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);showToast('data.js downloaded')}
+async function copyDataJs(){try{await navigator.clipboard.writeText(makeDataJs());showToast('Full data.js copied')}catch{const out=byId('jsonOutput');out&&out.select();document.execCommand('copy');showToast('Full data.js selected/copied')}}
 function injectAdminEnhancements(){
   const style=document.createElement('style');
-  style.textContent=`.field select{width:100%;background:#090908;color:var(--paper);border:1px solid var(--line);padding:11px}.toggle{width:100%;background:#090908;color:var(--muted);border:1px solid var(--line);padding:11px;font-weight:900;cursor:pointer}.toggle.on{background:var(--pink);color:var(--ink);border-color:var(--pink)}.media-field{background:rgba(255,90,167,.045);border:1px solid rgba(255,90,167,.16);padding:14px}.media-row{display:grid;grid-template-columns:130px 1fr;gap:14px;align-items:stretch}.media-preview{min-height:130px;background:#090908;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);font-size:11px;text-transform:uppercase;font-weight:900;overflow:hidden}.media-preview img{width:100%;height:100%;object-fit:cover;display:block}.media-preview.broken{background:repeating-linear-gradient(45deg,#190b0b,#190b0b 8px,#2b1010 8px,#2b1010 16px)}.media-preview.broken:after{content:'Image not loading';color:#ffb5b5;background:#090908;padding:8px}.media-preview.broken img{display:none}.media-controls{display:flex;flex-direction:column;gap:8px}.media-controls input{margin:0}.media-controls .admin-action{align-self:flex-start}.copy-flash{outline:2px solid var(--pink)}@media(max-width:700px){.media-row{grid-template-columns:1fr}.media-preview{min-height:190px}}`;
+  style.textContent=`.admin-header-actions{display:flex;align-items:center;gap:10px}.admin-action.compact{padding:8px 10px}.status-pill.dirty{background:var(--pink);color:var(--ink);border-color:var(--pink)}.publish-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}.publish-bar article,.publish-card{background:var(--panel);border:1px solid var(--line);padding:16px}.publish-bar strong,.publish-card strong{display:block;font-size:22px;line-height:.95;letter-spacing:-.04em}.publish-bar span{display:block;color:var(--muted);font-size:10px;font-weight:900;text-transform:uppercase;margin-top:8px}.publish-card ol{margin:14px 0 0;padding-left:20px;color:var(--muted);line-height:1.65}.toast{position:fixed;right:18px;bottom:18px;z-index:90;background:var(--pink);color:var(--ink);padding:12px 14px;font-size:12px;font-weight:900;opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:none}.field select{width:100%;background:#090908;color:var(--paper);border:1px solid var(--line);padding:11px}.toggle{width:100%;background:#090908;color:var(--muted);border:1px solid var(--line);padding:11px;font-weight:900;cursor:pointer}.toggle.on{background:var(--pink);color:var(--ink);border-color:var(--pink)}.media-field{background:rgba(255,90,167,.045);border:1px solid rgba(255,90,167,.16);padding:14px}.media-row{display:grid;grid-template-columns:130px 1fr;gap:14px;align-items:stretch}.media-preview{min-height:130px;background:#090908;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);font-size:11px;text-transform:uppercase;font-weight:900;overflow:hidden}.media-preview img{width:100%;height:100%;object-fit:cover;display:block}.media-preview.broken{background:repeating-linear-gradient(45deg,#190b0b,#190b0b 8px,#2b1010 8px,#2b1010 16px)}.media-preview.broken:after{content:'Image not loading';color:#ffb5b5;background:#090908;padding:8px}.media-preview.broken img{display:none}.media-controls{display:flex;flex-direction:column;gap:8px}.media-controls input{margin:0}.media-controls .admin-action{align-self:flex-start}.copy-flash{outline:2px solid var(--pink)}@media(max-width:900px){.publish-bar{grid-template-columns:repeat(2,1fr)}.admin-header-actions{gap:6px}.admin-action.compact{font-size:10px}}@media(max-width:700px){.media-row,.publish-bar{grid-template-columns:1fr}.media-preview{min-height:190px}.admin-header{height:auto;min-height:68px;gap:10px}.admin-header-actions{flex-wrap:wrap;justify-content:flex-end}.status-pill{font-size:8px}}`;
   document.head.appendChild(style);
 }
 
@@ -86,12 +106,14 @@ document.addEventListener('click',e=>{
   const nav=e.target.closest('[data-panel]');
   if(nav){document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));nav.classList.add('active');document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===nav.dataset.panel));return}
   const copy=e.target.closest('[data-copy-path]');
-  if(copy){const input=copy.closest('.media-controls')?.querySelector('[data-path]');if(input){navigator.clipboard&&navigator.clipboard.writeText(input.value);copy.classList.add('copy-flash');setTimeout(()=>copy.classList.remove('copy-flash'),500)}return}
+  if(copy){const input=copy.closest('.media-controls')?.querySelector('[data-path]');if(input){navigator.clipboard&&navigator.clipboard.writeText(input.value);copy.classList.add('copy-flash');setTimeout(()=>copy.classList.remove('copy-flash'),500);showToast('Path copied')}return}
   const toggle=e.target.closest('[data-toggle-path]');
   if(toggle){const path=toggle.dataset.togglePath;const next=toggle.getAttribute('aria-pressed')!=='true';setValue(path,next);toggle.classList.toggle('on',next);toggle.setAttribute('aria-pressed',next?'true':'false');toggle.querySelector('span').textContent=next?'ON':'OFF';renderStats();renderExport();return}
+  if(e.target.closest('[data-copy-datajs]')){copyDataJs();return}
+  if(e.target.closest('[data-download-datajs]')){downloadDataJs();return}
   if(e.target.closest('[data-save-draft]')){saveDraft();return}
   if(e.target.closest('[data-reset-draft]')){resetDraft();return}
-  if(e.target.closest('[data-refresh-json]')){renderExport();return}
+  if(e.target.closest('[data-refresh-json]')){renderExport();showToast('data.js refreshed');return}
   if(e.target.closest('[data-add-record]')){addItem('records');return}
   if(e.target.closest('[data-add-session]')){addItem('sessions');return}
   if(e.target.closest('[data-add-event]')){addItem('events');return}
