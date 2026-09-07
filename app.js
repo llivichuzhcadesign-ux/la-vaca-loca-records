@@ -1,10 +1,22 @@
+const ADMIN_DRAFT_KEY='lvl-admin-draft-v1';
+const previewMode=new URLSearchParams(window.location.search).get('preview')==='admin-draft';
+if(previewMode){
+ try{
+  const savedDraft=JSON.parse(localStorage.getItem(ADMIN_DRAFT_KEY)||'null');
+  if(savedDraft&&typeof savedDraft==='object'){
+   window.SITE_CONTENT=savedDraft;
+   document.documentElement.classList.add('draft-preview');
+  }
+ }catch(error){console.warn('Admin draft preview could not load',error)}
+}
 const content=window.SITE_CONTENT||{};
 const state={cart:[],current:null,playing:false};
-const recordsSource=content.records||window.RECORDS||[];
+const visibleItems=list=>(list||[]).filter(item=>!item.hideFromPublic);
+const recordsSource=visibleItems(content.records||window.RECORDS||[]);
 const settings=content.settings||{};
-const SESSIONS=content.sessions||window.SESSIONS||[];
-const EVENTS=content.events||window.EVENTS||[];
-const ARCHIVE_ITEMS=content.archiveItems||window.ARCHIVE_ITEMS||[];
+const SESSIONS=visibleItems(content.sessions||window.SESSIONS||[]);
+const EVENTS=visibleItems(content.events||window.EVENTS||[]);
+const ARCHIVE_ITEMS=visibleItems(content.archiveItems||window.ARCHIVE_ITEMS||[]);
 window.RECORDS=recordsSource;
 
 const grid=document.getElementById('recordGrid');
@@ -123,6 +135,16 @@ function closeMobileNav(){
  document.body.classList.remove('nav-open');
  if(button){button.setAttribute('aria-expanded','false');button.setAttribute('aria-label','Abrir menú')}
 }
+function setupDraftPreviewBanner(){
+ if(!previewMode)return;
+ const banner=document.createElement('div');
+ banner.className='draft-preview-banner';
+ banner.innerHTML='<strong>ADMIN DRAFT PREVIEW</strong><span>This view is using the saved browser draft. It is not published.</span><a href="admin/">Back to admin</a>';
+ document.body.appendChild(banner);
+ const style=document.createElement('style');
+ style.textContent='.draft-preview-banner{position:fixed;z-index:999;left:16px;bottom:92px;max-width:360px;background:var(--pink,#ff5aa7);color:var(--ink,#090907);padding:12px 14px;box-shadow:7px 7px 0 rgba(9,9,7,.85);font-size:11px;font-weight:900}.draft-preview-banner strong,.draft-preview-banner span,.draft-preview-banner a{display:block}.draft-preview-banner span{font-weight:700;margin:4px 0 7px}.draft-preview-banner a{text-decoration:underline}@media(max-width:560px){.draft-preview-banner{left:12px;right:12px;bottom:88px;max-width:none}}';
+ document.head.appendChild(style);
+}
 function injectInteractionStyles(){
  const style=document.createElement('style');
  style.textContent=`
@@ -187,6 +209,7 @@ if(brand){
 }
 
 injectInteractionStyles();
+setupDraftPreviewBanner();
 enhancePublicSite();
 setupMobileNavigation();
 renderRecords();renderCart();
