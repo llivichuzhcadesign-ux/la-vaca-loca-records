@@ -61,7 +61,30 @@
     }
     note.textContent=actionFor(record).note;
   }
-  function decorateAll(){decorateCards();decorateModal()}
+  function removeBuySection(){
+    document.querySelectorAll('#how,.how-section,.buying-section').forEach(section=>section.remove());
+    document.querySelectorAll('.main-nav a,.site-footer a').forEach(link=>{
+      const href=link.getAttribute('href')||'';
+      const label=(link.textContent||'').trim().toUpperCase();
+      if(href==='#how'||href==='#buying'||label==='COMPRAR'||label==='CÓMO COMPRAR'||label==='COMO COMPRAR')link.remove();
+    });
+  }
+  function enhanceBag(){
+    const panel=document.getElementById('cartPanel');
+    if(!panel)return;
+    panel.classList.add('bag-experience');
+    const head=panel.querySelector('.cart-head');
+    if(head&&!head.querySelector('.bag-subtitle')){
+      head.insertAdjacentHTML('beforeend','<p class="bag-subtitle">Revisa tu selección y envía el pedido directo por WhatsApp.</p>');
+    }
+    const footer=panel.querySelector('.cart-footer');
+    if(footer&&!footer.querySelector('.bag-checklist')){
+      footer.insertAdjacentHTML('afterbegin','<div class="bag-checklist"><span>Stock se confirma por mensaje</span><span>Retiro / entrega se coordina después</span><span>Pago no automático todavía</span></div>');
+    }
+    const checkout=document.getElementById('whatsappCheckout');
+    if(checkout)checkout.textContent='ENVIAR BAG POR WHATSAPP';
+  }
+  function decorateAll(){removeBuySection();enhanceBag();decorateCards();decorateModal()}
   function openInquiry(record){
     const message=`Hola! Quiero preguntar por este disco:\n\n${record.artist} — ${record.title}\n${record.id} / ${record.genre}\nStatus: ${record.status}\nPrecio: ${money(record.price)}\n\n¿Está disponible o puede conseguirse?`;
     window.open(whatsappHref(message),'_blank','noopener');
@@ -79,7 +102,7 @@
   },true);
 
   const style=document.createElement('style');
-  style.textContent=`.record-shop-note,.modal-stock-note{margin:10px 0 12px;font-size:10px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;color:#6a5c4d}.record-card[data-stock-state="last-copy"] .record-shop-note,.modal-stock-note{color:var(--pink)}.record-card[data-stock-state="sold-out"]{opacity:.76}.record-card[data-stock-state="sold-out"] .cover{filter:grayscale(.35)}.record-actions button.inquiry-action,.modal-actions button.inquiry-action{background:var(--ink)!important;color:var(--paper)!important;border-color:var(--ink)!important}.record-actions button.inquiry-action:hover,.modal-actions button.inquiry-action:hover{background:var(--pink)!important;color:var(--ink)!important;border-color:var(--pink)!important}`;
+  style.textContent=`.record-shop-note,.modal-stock-note{margin:10px 0 12px;font-size:10px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;color:#6a5c4d}.record-card[data-stock-state="last-copy"] .record-shop-note,.modal-stock-note{color:var(--pink)}.record-card[data-stock-state="sold-out"]{opacity:.76}.record-card[data-stock-state="sold-out"] .cover{filter:grayscale(.35)}.record-actions button.inquiry-action,.modal-actions button.inquiry-action{background:var(--ink)!important;color:var(--paper)!important;border-color:var(--ink)!important}.record-actions button.inquiry-action:hover,.modal-actions button.inquiry-action:hover{background:var(--pink)!important;color:var(--ink)!important;border-color:var(--pink)!important}.bag-experience{box-shadow:-20px 0 50px rgba(9,9,7,.18)}.bag-subtitle{width:100%;margin:8px 0 0;color:#6a5c4d;font-size:11px;line-height:1.35;font-weight:800}.bag-checklist{display:grid;gap:7px;margin-bottom:14px;padding:12px;border:1px solid rgba(9,9,7,.16);background:rgba(255,90,167,.07)}.bag-checklist span{font-size:10px;font-weight:900;letter-spacing:.02em;text-transform:uppercase;color:#4c4036}.bag-checklist span:before{content:'• ';color:var(--pink);font-size:14px}.cart-footer .primary.full{font-size:12px;letter-spacing:.03em}`;
   document.head.appendChild(style);
 
   decorateAll();
@@ -87,4 +110,6 @@
   if(grid)new MutationObserver(decorateCards).observe(grid,{childList:true,subtree:true});
   const modalObserver=new MutationObserver(decorateModal);
   modalObserver.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+  const bodyObserver=new MutationObserver(()=>{removeBuySection();enhanceBag()});
+  bodyObserver.observe(document.body,{childList:true,subtree:true});
 })();
