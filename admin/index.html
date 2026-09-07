@@ -9,7 +9,11 @@
 <body>
 <header class="admin-header">
   <a class="brand" href="../index.html">La Vaca Loca Records</a>
-  <div class="status-pill">Admin prototype</div>
+  <div class="admin-header-actions">
+    <span class="status-pill" id="draftStatus">Draft saved</span>
+    <button class="admin-action compact" type="button" data-save-draft>Save</button>
+    <a class="admin-action compact secondary" href="../index.html" target="_blank" rel="noopener">Preview</a>
+  </div>
 </header>
 <main class="admin-shell">
   <aside class="admin-sidebar" aria-label="Admin navigation">
@@ -26,9 +30,10 @@
     <section class="panel active" id="dashboard">
       <p class="eyebrow">01 / Overview</p>
       <h1>Content dashboard</h1>
-      <p class="intro">This is the first admin layer. It reads the same SITE_CONTENT structure used by the public site, saves local drafts in this browser, and prepares the future publishing workflow.</p>
+      <p class="intro">This admin layer reads the same SITE_CONTENT structure used by the public site, saves local drafts in this browser, and prepares the publishing workflow.</p>
+      <div class="publish-bar" id="publishSummary"></div>
       <div class="stat-grid" id="stats"></div>
-      <div class="notice"><strong>Current stage:</strong> prototype only. Changes save locally in the browser and can be exported as JSON, but they do not publish to the live public site yet.</div>
+      <div class="notice"><strong>Current stage:</strong> prototype only. Changes save locally in the browser and can be exported as a complete data.js file, but they do not publish automatically yet.</div>
     </section>
 
     <section class="panel" id="records">
@@ -60,16 +65,29 @@
     <section class="panel" id="export">
       <p class="eyebrow">07 / Publish preparation</p>
       <h2>Export content</h2>
-      <p class="intro">For now this creates a clean JSON version of the content. Later, this screen will publish directly to the database or storage backend.</p>
+      <p class="intro">This creates a complete replacement for <strong>data.js</strong>. Save the draft, copy or download the file, then publish it manually until we connect the admin to GitHub or storage.</p>
+      <div class="publish-card">
+        <strong>Publishing workflow</strong>
+        <ol>
+          <li>Edit records, sessions, events, archive, and settings.</li>
+          <li>Save the local draft.</li>
+          <li>Copy or download the generated data.js file.</li>
+          <li>Replace data.js in the repo or connect automatic publishing later.</li>
+        </ol>
+      </div>
       <div class="export-actions">
         <button class="admin-action" data-save-draft>Save draft</button>
         <button class="admin-action secondary" data-reset-draft>Reset local draft</button>
-        <button class="admin-action" data-refresh-json>Refresh JSON</button>
+        <button class="admin-action" data-refresh-json>Refresh data.js</button>
+        <button class="admin-action" data-copy-datajs>Copy full data.js</button>
+        <button class="admin-action" data-download-datajs>Download data.js</button>
+        <a class="admin-action secondary" href="../index.html" target="_blank" rel="noopener">Open public preview</a>
       </div>
       <textarea id="jsonOutput" spellcheck="false"></textarea>
     </section>
   </section>
 </main>
+<div class="toast" id="adminToast" role="status" aria-live="polite"></div>
 <script src="../data.js"></script>
 <script src="admin.js"></script>
 </body>
