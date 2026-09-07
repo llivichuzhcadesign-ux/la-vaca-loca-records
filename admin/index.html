@@ -90,6 +90,14 @@
 </main>
 <div class="toast" id="adminToast" role="status" aria-live="polite"></div>
 <script src="../data.js"></script>
+<script>
+document.addEventListener('click',function(event){
+  const previewLink=event.target.closest('a[href*="preview=admin-draft"]');
+  if(!previewLink)return;
+  const saveButton=document.querySelector('[data-save-draft]');
+  if(saveButton)saveButton.click();
+});
+</script>
 <script src="admin.js"></script>
 </body>
 </html>
