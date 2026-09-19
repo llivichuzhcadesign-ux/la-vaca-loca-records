@@ -224,3 +224,12 @@ setupDraftPreviewBanner();
 enhancePublicSite();
 setupMobileNavigation();
 renderRecords();renderCart();
+
+(function addDesignCredit(){
+ const footer=document.querySelector(".site-footer");
+ if(!footer||footer.querySelector(".design-credit"))return;
+ footer.insertAdjacentHTML("beforeend",'<p class="design-credit"><a href="https://www.instagram.com/semiotice/" target="_blank" rel="noopener noreferrer">Website Design by Sebastian Llivichuzhca</a></p>');
+ const style=document.createElement("style");
+ style.textContent=".site-footer{flex-wrap:wrap}.site-footer .design-credit{flex-basis:100%;margin:24px 0 0;padding-top:18px;border-top:1px solid rgba(238,229,211,.24);text-align:center;line-height:1.6}.site-footer .design-credit a{display:inline-block;padding:8px 0;font-weight:400;color:#cfc4b2;text-underline-offset:4px}.site-footer .design-credit a:hover{text-decoration:underline;color:var(--paper)}.site-footer .design-credit a:focus-visible{outline:2px solid var(--pink);outline-offset:4px}";
+ document.head.appendChild(style);
+})();
