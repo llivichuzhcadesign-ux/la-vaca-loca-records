@@ -1,0 +1,38 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const api=require('../calendar-content.js'),cal=require('../eventos.js');
+assert.equal(api.storedDate('2028-02-29'),'29.02.2028');
+assert.equal(api.dateInput('26.06.2026'),'2026-06-26');
+assert.equal(api.storedDate(''),'Próximo anuncio');
+assert.equal(cal.parseDate('31.02.2026'),null);
+assert.equal(cal.monthCells(2028,1).filter(Boolean).length,29);
+for(const status of ['Draft','Hidden'])assert.equal(api.visibleEvent({status}),false);
+assert.equal(api.visibleEvent({status:'Live',hideFromPublic:true}),false);
+assert.equal(api.visibleEvent({status:'Cancelled'}),true);
+assert.equal(api.imageUrl('javascript:alert(1)'), '');
+assert.equal(api.imageUrl('data:text/html,hello'),'');
+assert.equal(api.imageUrl('assets/a.jpg','https://site.test/'),'https://site.test/assets/a.jpg');
+assert.equal(api.artwork({calendar:{image:''}}).image,'');
+const nodes=new Map();const element=id=>{if(!nodes.has(id))nodes.set(id,{innerHTML:'',value:'',textContent:'',classList:{add(){},remove(){},toggle(){}},appendChild(){}});return nodes.get(id);};
+const memory=new Map();
+const context={window:{SITE_CONTENT:{settings:{},records:[],sessions:[],archiveItems:[],events:[{id:'E1',title:'Existing',date:'26.06.2026',status:'Live'}]}},CalendarContent:api,URL,localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v),removeItem:k=>memory.delete(k)},document:{baseURI:'https://site.test/admin/',getElementById:element,addEventListener(){},createElement:()=>element('style'),head:{appendChild(){}}},setTimeout:()=>0,clearTimeout(){},console,confirm:()=>true};
+vm.createContext(context);
+vm.runInContext(fs.readFileSync('admin/admin.js','utf8'),context);
+vm.runInContext("applyFieldChange({value:'2026-10-12',type:'date',dataset:{path:'events.0.date'},closest:()=>null});setValue('events.0.time','21:30');setValue('settings.calendar.image','data:image/jpeg;base64,YWJj');saveDraft()",context);
+let saved=JSON.parse(memory.get('lvl-admin-draft-v1'));
+assert.equal(saved.events[0].date,'12.10.2026');assert.equal(saved.events[0].time,'21:30');
+assert.equal(saved.settings.calendar.image,'data:image/jpeg;base64,YWJj');
+const exported=vm.runInContext('makeDataJs()',context);
+const publicContext={window:{addEventListener(){}},document:{addEventListener(){}},setInterval(){}};
+vm.runInNewContext(exported,publicContext);
+assert.equal(publicContext.window.SITE_CONTENT.settings.calendar.image,saved.settings.calendar.image);
+vm.runInContext("clearMedia('settings.calendar.image')",context);
+assert.equal(JSON.parse(memory.get('lvl-admin-draft-v1')).settings.calendar.image,'');
+context.localStorage.setItem=()=>{throw new Error('quota');};
+assert.equal(vm.runInContext('saveDraft()',context),false);
+for(const preview of [false,true]){
+ const live={settings:{},events:[{id:'LIVE'}]}, callbacks=[];
+ const ctx={window:{SITE_CONTENT:live},document:{addEventListener:(event,fn)=>callbacks.push(fn)},location:{search:preview?'?preview=admin-draft':''},localStorage:{getItem:()=>JSON.stringify(saved)},URL,URLSearchParams,console};
+ vm.runInNewContext(fs.readFileSync('calendar-content.js','utf8'),ctx);
+ assert.equal(ctx.window.SITE_CONTENT.events[0].id,preview?'E1':'LIVE');
+}
+console.log('PASS: event dates, leap years, visibility, safe image URLs, admin edits, save/export, image removal, storage-full handling, isolated draft preview');

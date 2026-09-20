@@ -88,7 +88,7 @@ function enhancePublicSite(){
  }
  const archiveSection=document.querySelector('.archive-section');
  if(archiveSection&&!document.querySelector('.events-section')){
-  archiveSection.insertAdjacentHTML('beforebegin',`<section class="events-section motion-section" id="events"><div class="events-copy motion-copy"><p class="eyebrow">05 / AGENDA</p><h2>EVENTOS</h2><p>Buenas noches. Discos, encuentros y fechas para recordar.</p><a href="eventos.html" style="display:inline-block;margin-top:24px;font-weight:900;text-underline-offset:6px">ABRIR EL CALENDARIO ↗</a></div><a href="eventos.html" aria-label="Explorar el calendario de eventos" style="display:block;overflow:hidden"><img src="assets/images/events/calendar-pinup.jpg" alt="Pin-up vintage en una tienda de discos" loading="lazy" width="1536" height="1024" style="display:block;width:100%;height:100%;object-fit:cover"></a></section>`);
+  archiveSection.insertAdjacentHTML('beforebegin',`<section class="events-section motion-section" id="events"><div class="events-copy motion-copy"><p class="eyebrow">05 / AGENDA</p><h2>EVENTOS</h2><p>Buenas noches. Discos, encuentros y fechas para recordar.</p><a href="eventos.html" style="display:inline-block;margin-top:24px;font-weight:900;text-underline-offset:6px">ABRIR EL CALENDARIO ↗</a></div><a href="eventos.html" aria-label="Explorar el calendario de eventos" style="display:block;overflow:hidden"><img data-calendar-image src="assets/images/events/calendar-pinup.jpg" alt="Pin-up vintage en una tienda de discos" loading="lazy" width="1536" height="1024" style="display:block;width:100%;height:100%;object-fit:cover"></a></section>`);
  }
  const panel=document.getElementById('cartPanel');
  if(panel&&!panel.classList.contains('bag-experience')){

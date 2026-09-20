@@ -1,5 +1,6 @@
 window.SITE_CONTENT = {
   settings: {
+    calendar: {image:'assets/images/events/calendar-pinup.jpg',imageAlt:'Ilustración pin-up vintage en una tienda de discos',showTitle:true},
     brandName: 'La Vaca Loca Records',
     location: 'Gualaceo, Ecuador',
     whatsappNumber: '',

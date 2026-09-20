@@ -48,6 +48,9 @@
 
     <section class="panel" id="events">
       <div class="panel-head"><div><p class="eyebrow">04 / Agenda</p><h2>Events</h2></div><button class="admin-action" data-add-event>Add event</button></div>
+      <p class="notice">Save a local draft, then preview the calendar. Draft / Hidden events are never public. Leave a date empty for “Próximo anuncio”. Export data.js to publish through GitHub.</p>
+      <div class="form-card" id="calendarSettings"></div>
+      <p><a class="admin-action secondary" href="../eventos.html?preview=admin-draft" target="_blank" rel="noopener">Save & preview calendar</a></p>
       <div class="editor-list" id="eventsList"></div>
     </section>
 
@@ -94,10 +97,10 @@
 document.addEventListener('click',function(event){
   const previewLink=event.target.closest('a[href*="preview=admin-draft"]');
   if(!previewLink)return;
-  const saveButton=document.querySelector('[data-save-draft]');
-  if(saveButton)saveButton.click();
+  if(!saveDraft())event.preventDefault();
 });
 </script>
+<script src="../calendar-content.js"></script>
 <script src="admin.js"></script>
 <script src="audio-upload.js"></script>
 </body>
