@@ -88,7 +88,7 @@ function enhancePublicSite(){
  }
  const archiveSection=document.querySelector('.archive-section');
  if(archiveSection&&!document.querySelector('.events-section')){
-  archiveSection.insertAdjacentHTML('beforebegin',`<section class="events-section motion-section" id="events"><div class="events-copy motion-copy"><p class="eyebrow">05 / AGENDA</p><h2>EVENTOS<br>Y POSTERS</h2><p>Una entrada clara para futuras fiestas, listening sessions, lanzamientos y posters culturales.</p></div><div class="event-list motion-object">${EVENTS.map(event=>`<article class="event-card" data-event="${event.id}"><small>${event.date} · ${event.place}</small><strong>${event.title}</strong><p>${event.detail}</p><a href="#shop">VER DISCOS</a></article>`).join('')}</div></section>`);
+  archiveSection.insertAdjacentHTML('beforebegin',`<section class="events-section motion-section" id="events"><div class="events-copy motion-copy"><p class="eyebrow">05 / AGENDA</p><h2>EVENTOS</h2><p>Buenas noches. Discos, encuentros y fechas para recordar.</p><a href="eventos.html" style="display:inline-block;margin-top:24px;font-weight:900;text-underline-offset:6px">ABRIR EL CALENDARIO ↗</a></div><a href="eventos.html" aria-label="Explorar el calendario de eventos" style="display:block;overflow:hidden"><img src="assets/images/events/calendar-pinup.jpg" alt="Pin-up vintage en una tienda de discos" loading="lazy" width="1536" height="1024" style="display:block;width:100%;height:100%;object-fit:cover"></a></section>`);
  }
  const panel=document.getElementById('cartPanel');
  if(panel&&!panel.classList.contains('bag-experience')){
@@ -101,10 +101,10 @@ function enhancePublicSite(){
   if(checkout)checkout.textContent='ENVIAR BAG POR WHATSAPP';
  }
  if(!document.querySelector('.site-footer')){
-  document.querySelector('main').insertAdjacentHTML('afterend',`<footer class="site-footer"><div><strong>${settings.brandName||'LA VACA LOCA RECORDS'}</strong><span>${settings.location||'Gualaceo, Ecuador'} · discos · sessions · cultura</span></div><nav><a href="#shop">Discos</a><a href="sessions.html">Sessions</a><a href="#events">Eventos</a><a href="archivo.html">Archivo</a></nav></footer>`);
+  document.querySelector('main').insertAdjacentHTML('afterend',`<footer class="site-footer"><div><strong>${settings.brandName||'LA VACA LOCA RECORDS'}</strong><span>${settings.location||'Gualaceo, Ecuador'} · discos · sessions · cultura</span></div><nav><a href="#shop">Discos</a><a href="sessions.html">Sessions</a><a href="eventos.html">Eventos</a><a href="archivo.html">Archivo</a></nav></footer>`);
  }
  const nav=document.querySelector('.main-nav');
- if(nav&&!nav.querySelector('[href="#events"]'))nav.insertAdjacentHTML('beforeend','<a href="#events">EVENTOS</a>');
+ if(nav&&!nav.querySelector('[href="eventos.html"]'))nav.insertAdjacentHTML('beforeend','<a href="eventos.html">EVENTOS</a>');
 }
 function showSessionDetail(id){
  const item=SESSIONS.find(x=>x.id===id);

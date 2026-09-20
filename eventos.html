@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eventos — La Vaca Loca Records</title>
+<meta name="description" content="El calendario de La Vaca Loca: música, encuentros y noches para recordar.">
+<link rel="stylesheet" href="editorial.css"><link rel="stylesheet" href="eventos.css">
+<script src="data.js" defer></script><script src="eventos.js" defer></script>
+</head>
+<body data-page="eventos">
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<header class="editorial-header"><a class="brand" href="index.html"><img src="assets/brand/horizontal-logo-black.svg" alt="La Vaca Loca Records — Inicio"></a><nav aria-label="Principal"><a href="index.html#shop">Discos</a><a href="sessions.html">Sessions</a><a href="eventos.html" aria-current="page">Eventos</a><a href="archivo.html">Archivo</a></nav></header>
+<main id="contenido">
+<div class="calendar-topline"><a href="index.html">← Inicio</a><span>GUALACEO, ECUADOR · MÚSICA & ENCUENTROS</span></div>
+<article class="wall-calendar">
+<div class="calendar-art"><img src="assets/images/events/calendar-pinup.jpg" alt="Ilustración pin-up vintage de una mujer adulta con un disco de vinilo en una tienda de música." width="1536" height="1024" fetchpriority="high"><div class="art-title"><p>LA VACA LOCA RECORDS PRESENTA</p><h1>Buenas<br>noches.</h1><span>Discos, encuentros<br>y fechas para recordar.</span></div><span class="art-stamp">EL CALENDARIO<br>DE LA VACA</span></div>
+<section class="calendar-paper" aria-label="Calendario de eventos">
+<div class="calendar-heading"><div><p class="calendar-kicker">AGENDA / EVENTOS</p><h2 id="monthTitle"></h2></div><div class="calendar-controls"><button id="previousMonth" aria-label="Mes anterior">←</button><button id="todayMonth">Hoy</button><button id="nextMonth" aria-label="Mes siguiente">→</button></div></div>
+<p class="calendar-hint">Las fechas marcadas tienen historia. Toca una para ver el evento.</p>
+<div id="calendarGrid" aria-live="polite"></div>
+<div class="calendar-legend"><span>● Evento</span><span>○ Hoy</span><span>HECHO PARA SALIR. HECHO PARA ESCUCHAR.</span></div>
+<div id="monthNote" class="month-note"></div>
+</section>
+</article>
+<section class="agenda-section"><div><p class="calendar-kicker">NOS VEMOS AQUÍ</p><h2>En la agenda.</h2><p>Lo que viene y lo que ya vivimos.</p></div><div id="eventAgenda"></div></section>
+<a class="archive-strip" href="archivo.html#A03"><span>LAS NOCHES PASAN. LOS POSTERS QUEDAN.</span><strong>Explora el archivo ↗</strong></a>
+<noscript><p>Activa JavaScript para explorar el calendario de eventos.</p></noscript>
+</main>
+<dialog id="eventDialog" aria-labelledby="eventTitle"><button id="closeEvent" aria-label="Cerrar evento">Cerrar ×</button><div id="eventDetails"></div></dialog>
+<footer class="editorial-footer"><div><strong>La Vaca Loca Records</strong><p>Gualaceo, Ecuador · discos · sessions · cultura</p></div><nav aria-label="Pie de página"><a href="sessions.html">Sessions</a><a href="archivo.html">Archivo</a><a href="index.html#shop">Discos</a></nav><p class="design-credit"><a href="https://www.instagram.com/semiotice/" target="_blank" rel="noopener noreferrer">Website Design by Sebastian Llivichuzhca</a></p></footer>
+</body></html>
