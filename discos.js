@@ -9,7 +9,7 @@ if(typeof document==='undefined')return;
 const $=id=>document.getElementById(id),content=window.SITE_CONTENT||{},settings=content.settings||{},records=(content.records||[]).filter(visible);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const audio=$('recordAudio'),deck=$('turntable'),gallery=$('discGallery');
-let selected=null,results=records,selection=0,rx=27,ry=-8;
+let selected=null,results=records,selection=0,rx=27,ry=-8,demoPlaying=false;
 audio.volume=.7;
 const price=r=>(settings.currency||'$')+Number(r.price||0).toFixed(2);
 const cover=r=>window.CalendarContent.imageUrl(r.coverImage||r.media?.artwork?.url||r.media?.artwork?.path,document.baseURI);
@@ -25,7 +25,7 @@ function renderGallery(){
  $('previousRecord').disabled=$('nextRecord').disabled=results.length<2;
 }
 function select(r){
- if(!r)return;selection++;selected=r;audio.pause();audio.removeAttribute('src');audio.load();playing(false);
+ if(!r)return;selection++;selected=r;demoPlaying=false;audio.pause();audio.removeAttribute('src');audio.load();playing(false);
  deck.classList.add('loaded');$('seek').value=0;$('seek').disabled=true;$('elapsed').textContent='0:00 / 0:00';
  $('recordTitle').textContent=r.title;$('recordArtist').textContent=r.artist;
  $('recordInfo').textContent=[r.genre,r.label,r.year,r.condition].filter(Boolean).join(' / ');
@@ -34,15 +34,15 @@ function select(r){
  const label=document.querySelector('.disc-label');label.style.backgroundImage='';
  const src=cover(r),version=selection;
  if(src){const image=new Image();image.onload=()=>{if(version===selection){label.style.backgroundImage='url('+JSON.stringify(src)+')';$('discLabel').textContent='';}};image.src=src;}
- const sound=audioUrl(r,document.baseURI);$('playRecord').disabled=!sound;if(sound)audio.src=sound;
- notice(sound?'Pulsa Escuchar para cargar el preview.':'Este disco todavía no tiene un preview de audio.');
+ const sound=audioUrl(r,document.baseURI);$('playRecord').disabled=false;if(sound)audio.src=sound;
+ notice(sound?'Pulsa Escuchar para cargar el preview.':'Sin audio todavía. Pulsa Escuchar para ver el tocadiscos en modo visual.');
  const phone=String(settings.whatsappNumber||'').replace(/\D/g,''),link=$('recordInquiry');
  link.hidden=!phone;link.textContent=Number(r.stock)===0?'Consultar disponibilidad ↗':'Consultar este disco ↗';
  if(phone)link.href='https://wa.me/'+phone+'?text='+encodeURIComponent('Hola! Me interesa '+r.artist+' — '+r.title+' ('+r.id+'). ¿Está disponible?');
  renderGallery();
 }
-$('playRecord').onclick=async()=>{if(!selected)return;if(!audio.paused){audio.pause();return;}const version=selection;notice('Cargando preview…');try{await audio.play();if(version===selection)notice('Escuchando '+selected.artist+' — '+selected.title);}catch{if(version===selection){playing(false);notice('No se pudo reproducir el preview. Comprueba el archivo de audio en Admin → Records.');}}};
-audio.addEventListener('playing',()=>playing(true));audio.addEventListener('pause',()=>playing(false));
+$('playRecord').onclick=async()=>{if(!selected)return;const sound=audioUrl(selected,document.baseURI);if(!sound){demoPlaying=!demoPlaying;playing(demoPlaying);notice(demoPlaying?'Modo visual: el plato está girando y la aguja está sobre el disco.':'Modo visual en pausa.');return;}demoPlaying=false;if(!audio.paused){audio.pause();return;}const version=selection;notice('Cargando preview…');try{await audio.play();if(version===selection)notice('Escuchando '+selected.artist+' — '+selected.title);}catch{if(version===selection){playing(false);notice('No se pudo reproducir el preview. Comprueba el archivo de audio en Admin → Records.');}}};
+audio.addEventListener('playing',()=>{demoPlaying=false;playing(true)});audio.addEventListener('pause',()=>playing(false));
 audio.addEventListener('ended',()=>{playing(false);notice('Preview terminado. Sigue explorando la colección.');});
 audio.addEventListener('error',()=>{if(!audio.getAttribute('src'))return;playing(false);notice('Preview no disponible. El archivo de audio puede faltar o no ser compatible.');});
 audio.addEventListener('loadedmetadata',()=>{$('seek').disabled=!Number.isFinite(audio.duration)||audio.duration<=0;});
