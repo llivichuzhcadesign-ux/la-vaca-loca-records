@@ -17,7 +17,7 @@
   if(new URLSearchParams(location.search).get('preview')==='admin-draft'){
     try{const saved=JSON.parse(localStorage.getItem('lvl-admin-draft-v1')||'null');if(saved&&Array.isArray(saved.events)){root.SITE_CONTENT=saved;root.EVENTS=saved.events;
       document.addEventListener('DOMContentLoaded',()=>{if(!document.querySelector('.calendar-preview-note')){const note=document.createElement('p');note.className='calendar-preview-note';note.textContent='Vista previa del borrador — estos cambios aún no están publicados.';note.style.cssText='padding:14px;background:#ffdc88;color:#201e19;margin:0;text-align:center;font:14px Arial';document.body.prepend(note);}
-      document.querySelectorAll('a[href="eventos.html"],a[href="index.html"]').forEach(a=>a.search='?preview=admin-draft');
+      document.querySelectorAll('a[href="eventos.html"],a[href="index.html"],a[href="discos.html"]').forEach(a=>a.search='?preview=admin-draft');
     });}}catch{console.warn('No se pudo cargar el borrador del calendario.');}
   }
   document.addEventListener('DOMContentLoaded',()=>{

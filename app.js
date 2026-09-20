@@ -101,7 +101,7 @@ function enhancePublicSite(){
   if(checkout)checkout.textContent='ENVIAR BAG POR WHATSAPP';
  }
  if(!document.querySelector('.site-footer')){
-  document.querySelector('main').insertAdjacentHTML('afterend',`<footer class="site-footer"><div><strong>${settings.brandName||'LA VACA LOCA RECORDS'}</strong><span>${settings.location||'Gualaceo, Ecuador'} · discos · sessions · cultura</span></div><nav><a href="#shop">Discos</a><a href="sessions.html">Sessions</a><a href="eventos.html">Eventos</a><a href="archivo.html">Archivo</a></nav></footer>`);
+  document.querySelector('main').insertAdjacentHTML('afterend',`<footer class="site-footer"><div><strong>${settings.brandName||'LA VACA LOCA RECORDS'}</strong><span>${settings.location||'Gualaceo, Ecuador'} · discos · sessions · cultura</span></div><nav><a href="discos.html">Discos</a><a href="sessions.html">Sessions</a><a href="eventos.html">Eventos</a><a href="archivo.html">Archivo</a></nav></footer>`);
  }
  const nav=document.querySelector('.main-nav');
  if(nav&&!nav.querySelector('[href="eventos.html"]'))nav.insertAdjacentHTML('beforeend','<a href="eventos.html">EVENTOS</a>');
