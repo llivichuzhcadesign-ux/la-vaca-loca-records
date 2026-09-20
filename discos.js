@@ -41,10 +41,10 @@ function select(r){
  if(phone)link.href='https://wa.me/'+phone+'?text='+encodeURIComponent('Hola! Me interesa '+r.artist+' — '+r.title+' ('+r.id+'). ¿Está disponible?');
  renderGallery();
 }
-$('playRecord').onclick=async()=>{if(!selected)return;const sound=audioUrl(selected,document.baseURI);if(!sound){demoPlaying=!demoPlaying;playing(demoPlaying);notice(demoPlaying?'Modo visual: el plato está girando y la aguja está sobre el disco.':'Modo visual en pausa.');return;}demoPlaying=false;if(!audio.paused){audio.pause();return;}const version=selection;notice('Cargando preview…');try{await audio.play();if(version===selection)notice('Escuchando '+selected.artist+' — '+selected.title);}catch{if(version===selection){playing(false);notice('No se pudo reproducir el preview. Comprueba el archivo de audio en Admin → Records.');}}};
+$('playRecord').onclick=async()=>{if(!selected)return;if(demoPlaying){demoPlaying=false;playing(false);notice('Modo visual en pausa.');return;}const sound=audioUrl(selected,document.baseURI);if(!sound){demoPlaying=true;playing(true);notice('Modo visual: el plato está girando y la aguja está sobre el disco.');return;}if(!audio.paused){audio.pause();return;}const version=selection;notice('Cargando preview…');try{await audio.play();if(version===selection)notice('Escuchando '+selected.artist+' — '+selected.title);}catch{if(version===selection){demoPlaying=true;playing(true);notice('El preview aún no está disponible. Tocadiscos en modo visual.');}}};
 audio.addEventListener('playing',()=>{demoPlaying=false;playing(true)});audio.addEventListener('pause',()=>playing(false));
 audio.addEventListener('ended',()=>{playing(false);notice('Preview terminado. Sigue explorando la colección.');});
-audio.addEventListener('error',()=>{if(!audio.getAttribute('src'))return;playing(false);notice('Preview no disponible. El archivo de audio puede faltar o no ser compatible.');});
+audio.addEventListener('error',()=>{if(!audio.getAttribute('src')||demoPlaying)return;notice('Preview no disponible. Cambiando a modo visual.');});
 audio.addEventListener('loadedmetadata',()=>{$('seek').disabled=!Number.isFinite(audio.duration)||audio.duration<=0;});
 audio.addEventListener('timeupdate',()=>{$('elapsed').textContent=time(audio.currentTime)+' / '+time(audio.duration);if(Number.isFinite(audio.duration)&&audio.duration>0)$('seek').value=audio.currentTime/audio.duration*100;});
 $('seek').oninput=()=>{if(Number.isFinite(audio.duration))audio.currentTime=audio.duration*Number($('seek').value)/100;};
