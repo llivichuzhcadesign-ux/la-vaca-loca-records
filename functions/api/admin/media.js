@@ -45,7 +45,7 @@ export async function onRequestPost(context){
   return Response.json({
     ok:true,
     key,
-    url:`/media/${key}`,
+    url:new URL(`/media/${key}`,context.request.url).href,
     name:file.name||originalName,
     type:file.type||'',
     size:file.size,
