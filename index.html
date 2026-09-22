@@ -34,10 +34,8 @@ body{background:var(--paper);color:var(--ink)}
 /* LVL landing hero */
 .lvl-hero{position:relative;width:100%;min-height:min(820px,calc(100vh - 78px));overflow:hidden;background:#090907;color:var(--paper)}
 .lvl-gallery{position:absolute;inset:0;z-index:0;background:#090907}
-.lvl-slide{position:absolute;inset:-2%;background-size:cover;background-position:center;opacity:0;transform:scale(1.035);animation:lvlHeroCrossfade 18s ease-in-out infinite;will-change:opacity,transform}
-.lvl-slide-1{background-image:url('assets/images/site/hero/lvl-hero-01.webp');background-position:center 48%;animation-delay:0s}
-.lvl-slide-2{background-image:url('assets/images/site/hero/lvl-hero-02.webp');background-position:center 56%;animation-delay:6s}
-.lvl-slide-3{background-image:url('assets/images/site/hero/lvl-hero-03.webp');background-position:center 48%;animation-delay:12s}
+.lvl-slide{position:absolute;inset:-2%;background-size:cover;background-position:center;opacity:0;transform:scale(1.045);transition:opacity 1.45s ease,transform 7s ease;will-change:opacity,transform}
+.lvl-slide.is-active{opacity:1;transform:scale(1.015)}
 .lvl-hero-shade{position:absolute;z-index:1;inset:0;background:linear-gradient(90deg,rgba(9,9,7,.93) 0%,rgba(9,9,7,.78) 27%,rgba(9,9,7,.34) 54%,rgba(9,9,7,.12) 78%,rgba(9,9,7,.30) 100%),linear-gradient(0deg,rgba(9,9,7,.60),transparent 42%)}
 .lvl-hero-content{position:relative;z-index:3;min-height:min(820px,calc(100vh - 78px));display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:8vh 4vw 9vh;max-width:900px}
 .lvl-kicker{margin:0 0 20px;font-size:10px;font-weight:900;letter-spacing:.16em;color:rgba(238,229,211,.78)}
@@ -49,32 +47,32 @@ body{background:var(--paper);color:var(--ink)}
 .lvl-secondary-link{background:rgba(9,9,7,.36);color:var(--paper);backdrop-filter:blur(6px)}
 .lvl-hero-index{position:absolute;z-index:4;right:4vw;bottom:30px;display:flex;align-items:center;gap:10px;color:rgba(238,229,211,.82);font-size:9px;font-weight:900;letter-spacing:.12em}
 .lvl-hero-index i{display:block;width:64px;height:1px;background:rgba(238,229,211,.55)}
-@keyframes lvlHeroCrossfade{0%{opacity:0;transform:scale(1.055)}6%{opacity:1}29%{opacity:1}36%{opacity:0;transform:scale(1.015)}100%{opacity:0;transform:scale(1.015)}}
+
 @media(max-width:800px){.lvl-hero,.lvl-hero-content{min-height:calc(100vh - 68px)}.lvl-hero-content{padding:9vh 18px 10vh}.lvl-hero-shade{background:linear-gradient(90deg,rgba(9,9,7,.88),rgba(9,9,7,.44) 72%,rgba(9,9,7,.34)),linear-gradient(0deg,rgba(9,9,7,.72),transparent 48%)}.lvl-mark{font-size:clamp(120px,34vw,230px)}.lvl-hero-copy{font-size:22px}.lvl-hero-index{right:18px;bottom:22px}.lvl-slide-1{background-position:center 40%}}
 @media(max-width:560px){.lvl-kicker{max-width:250px;line-height:1.45}.lvl-mark{font-size:39vw}.lvl-hero-copy{margin-top:26px;max-width:300px;font-size:20px}.lvl-hero-actions{margin-top:24px}.lvl-primary-link,.lvl-secondary-link{padding:11px 12px;font-size:9px}.lvl-hero-index i{width:42px}}
-@media(prefers-reduced-motion:reduce){.ticker .ticker-track{animation:none}.lvl-slide{animation:none;opacity:0;transform:none}.lvl-slide-1{opacity:1}}
+@media(prefers-reduced-motion:reduce){.ticker .ticker-track{animation:none}.lvl-slide{transition:none;transform:none}.lvl-slide.is-active{opacity:1}}
 </style>
 </head>
 <body>
 <header class="site-header"><a class="brand" href="#top"><strong>LA VACA LOCA</strong><small>RECORD STORE · GUALACEO</small></a><nav class="main-nav"><a href="discos.html">DISCOS</a><a href="sessions.html">SESSIONS</a><a href="eventos.html">EVENTOS</a><a href="archivo.html">ARCHIVO</a></nav><button class="cart-button" id="cartButton">BAG <span id="cartCount">0</span></button></header>
 <main id="top">
 <section class="hero motion-section"><div class="lvl-hero">
-<div class="lvl-gallery" aria-hidden="true">
-  <div class="lvl-slide lvl-slide-1"></div>
-  <div class="lvl-slide lvl-slide-2"></div>
-  <div class="lvl-slide lvl-slide-3"></div>
+<div class="lvl-gallery" id="lvlHeroGallery" aria-hidden="true">
+  <div class="lvl-slide is-active" style="background-image:url('assets/images/site/hero/lvl-hero-01.webp');background-position:center 48%"></div>
+  <div class="lvl-slide" style="background-image:url('assets/images/site/hero/lvl-hero-02.webp');background-position:center 56%"></div>
+  <div class="lvl-slide" style="background-image:url('assets/images/site/hero/lvl-hero-03.webp');background-position:center 48%"></div>
 </div>
 <div class="lvl-hero-shade" aria-hidden="true"></div>
 <div class="lvl-hero-content">
-  <p class="lvl-kicker">LA VACA LOCA RECORDS · GUALACEO, ECUADOR</p>
-  <h1 class="lvl-mark" aria-label="LVL">LVL</h1>
-  <p class="lvl-hero-copy">Discos, sonido, sesiones y cultura.</p>
+  <p class="lvl-kicker" id="lvlHeroKicker">LA VACA LOCA RECORDS · GUALACEO, ECUADOR</p>
+  <h1 class="lvl-mark" id="lvlHeroTitle" aria-label="LVL">LVL</h1>
+  <p class="lvl-hero-copy" id="lvlHeroTagline">Discos, sonido, sesiones y cultura.</p>
   <div class="lvl-hero-actions">
-    <a class="lvl-primary-link" href="discos.html">EXPLORAR DISCOS</a>
-    <a class="lvl-secondary-link" href="sessions.html">SESSIONS</a>
+    <a class="lvl-primary-link" id="lvlHeroPrimary" href="discos.html">EXPLORAR DISCOS</a>
+    <a class="lvl-secondary-link" id="lvlHeroSecondary" href="sessions.html">SESSIONS</a>
   </div>
 </div>
-<div class="lvl-hero-index" aria-hidden="true"><span>01</span><i></i><span>03</span></div>
+<div class="lvl-hero-index" aria-hidden="true"><span id="lvlHeroCurrent">01</span><i></i><span id="lvlHeroTotal">03</span></div>
 </div></section>
 <section class="ticker" aria-label="Categorías de la tienda"><div class="ticker-track"><span>NEW IN · PREORDERS · HOUSE · TECHNO · ELECTRO · BREAKS · AMBIENT · GUALACEO · ECUADOR · LATIN · EXPERIMENTAL · JAZZ · SOUL · </span><span aria-hidden="true">NEW IN · PREORDERS · HOUSE · TECHNO · ELECTRO · BREAKS · AMBIENT · GUALACEO · ECUADOR · LATIN · EXPERIMENTAL · JAZZ · SOUL · </span><span aria-hidden="true">NEW IN · PREORDERS · HOUSE · TECHNO · ELECTRO · BREAKS · AMBIENT · GUALACEO · ECUADOR · LATIN · EXPERIMENTAL · JAZZ · SOUL · </span></div></section>
 <section class="shop-section motion-section" id="shop"><div class="section-heading"><div><p class="eyebrow">01 / DISCOS</p><h2>ÚLTIMOS<br>DISCOS</h2></div><a class="shop-link-tag" href="discos.html">BROWSE →</a></div><div class="filters" id="filters"><button class="filter active" data-filter="all">TODO</button><button class="filter" data-filter="House">HOUSE</button><button class="filter" data-filter="Techno">TECHNO</button><button class="filter" data-filter="Breaks">BREAKS</button><button class="filter" data-filter="Ambient">AMBIENT</button></div><div class="shop-dig motion-object"><div><p class="eyebrow">DIG MODE</p><h3>BUSCA POR<br>SENSACIÓN</h3><p>Elige un mood o deja que La Vaca te tire un disco del crate.</p></div><div><button class="dig-random" id="digRandom">SORPRÉNDEME</button><div class="mood-grid"><button data-mood="OSCURO">OSCURO</button><button data-mood="PROFUNDO">PROFUNDO</button><button data-mood="PEAK TIME">PEAK TIME</button><button data-mood="AFTERHOURS">AFTERHOURS</button><button data-mood="PSICODÉLICO">PSICODÉLICO</button><button data-mood="FUNKY">FUNKY</button></div></div></div><div class="record-grid" id="recordGrid"></div></section>
