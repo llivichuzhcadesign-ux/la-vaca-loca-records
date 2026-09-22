@@ -35,6 +35,45 @@ function money(value){return `${settings.currency||'$'}${value}`}
 function getRecord(id){return window.RECORDS.find(x=>x.id===id)}
 function escapeText(value=''){return String(value).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[char]))}
 
+const HERO_MEDIA_DB='lvl-admin-media-v1';
+const HERO_MEDIA_STORE='files';
+const heroObjectUrls=[];
+function openHeroMediaDb(){return new Promise((resolve,reject)=>{const request=indexedDB.open(HERO_MEDIA_DB,1);request.onupgradeneeded=()=>{const db=request.result;if(!db.objectStoreNames.contains(HERO_MEDIA_STORE))db.createObjectStore(HERO_MEDIA_STORE)};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error||new Error('Could not open draft media'))})}
+async function getHeroDraftBlob(key){if(!key)return null;const db=await openHeroMediaDb();return new Promise((resolve,reject)=>{const tx=db.transaction(HERO_MEDIA_STORE,'readonly');const request=tx.objectStore(HERO_MEDIA_STORE).get(key);request.onsuccess=()=>{db.close();resolve(request.result||null)};request.onerror=()=>{db.close();reject(request.error||new Error('Could not load draft media'))}})}
+function setHeroText(id,value){const el=document.getElementById(id);if(el&&value!==undefined&&value!==null)el.textContent=String(value)}
+async function setupHomepageHero(){
+ const gallery=document.getElementById('lvlHeroGallery');if(!gallery)return;
+ const hero=content.homepage?.hero||{};
+ setHeroText('lvlHeroKicker',hero.kicker);
+ setHeroText('lvlHeroTitle',hero.title||'LVL');
+ setHeroText('lvlHeroTagline',hero.tagline);
+ const primary=document.getElementById('lvlHeroPrimary');if(primary){if(hero.primaryLabel)primary.textContent=hero.primaryLabel;if(hero.primaryHref)primary.href=hero.primaryHref}
+ const secondary=document.getElementById('lvlHeroSecondary');if(secondary){if(hero.secondaryLabel)secondary.textContent=hero.secondaryLabel;if(hero.secondaryHref)secondary.href=hero.secondaryHref}
+ const slides=(Array.isArray(hero.slides)?hero.slides:[]).filter(slide=>slide&&(slide.src||slide.draftBlobKey));
+ if(!slides.length)return;
+ gallery.innerHTML='';
+ const slideEls=slides.map((slide,index)=>{
+  const el=document.createElement('div');el.className='lvl-slide'+(index===0?' is-active':'');el.style.backgroundPosition=slide.position||'center center';
+  if(slide.src)el.style.backgroundImage=`url("${String(slide.src).replace(/"/g,'\\\"')}")`;
+  gallery.appendChild(el);return el;
+ });
+ const current=document.getElementById('lvlHeroCurrent');const total=document.getElementById('lvlHeroTotal');
+ if(total)total.textContent=String(slides.length).padStart(2,'0');
+ let active=0;
+ const show=index=>{active=index;slideEls.forEach((el,i)=>el.classList.toggle('is-active',i===active));if(current)current.textContent=String(active+1).padStart(2,'0')};
+ show(0);
+ if(previewMode){
+  slides.forEach(async(slide,index)=>{
+   if(!slide.draftBlobKey)return;
+   try{const blob=await getHeroDraftBlob(slide.draftBlobKey);if(!blob)return;const url=URL.createObjectURL(blob);heroObjectUrls.push(url);slideEls[index].style.backgroundImage=`url("${url}")`}catch(error){console.warn('Hero draft image could not load',error)}
+  });
+ }
+ const reduceHeroMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const interval=Math.max(2,Number(hero.intervalSeconds)||6)*1000;
+ if(!reduceHeroMotion&&slideEls.length>1)setInterval(()=>show((active+1)%slideEls.length),interval);
+}
+window.addEventListener('beforeunload',()=>heroObjectUrls.forEach(url=>URL.revokeObjectURL(url)));
+
 function renderRecords(filter='all'){
  const records=window.RECORDS.filter(r=>filter==='all'||r.genre===filter);
  grid.innerHTML=records.map((r,index)=>`<article class="record-card reveal-item" style="--delay:${Math.min(index,7)*55}ms" data-id="${r.id}" tabindex="0" role="button" aria-label="Abrir detalles de ${escapeText(r.artist)} - ${escapeText(r.title)}"><div class="cover"><span class="badge">${r.status}</span><span class="cover-code">${r.id} / ${r.genre.toUpperCase()}</span></div><div class="record-meta"><div class="topline"><div><h3>${r.artist}</h3><p>${r.title} · ${r.genre}</p></div><strong>${money(r.price)}</strong></div><div class="record-actions"><button data-listen="${r.id}"><span class="mini-play" aria-hidden="true"></span> ESCUCHAR</button><button data-detail="${r.id}">DETALLES</button><button data-add="${r.id}" ${r.stock===0?'disabled':''}>${r.stock===0?'LO QUIERO':'+ BAG'}</button></div></div></article>`).join('');
@@ -217,6 +256,7 @@ if(brand){
 
 injectInteractionStyles();
 setupDraftPreviewBanner();
+setupHomepageHero();
 enhancePublicSite();
 setupMobileNavigation();
 renderRecords();renderCart();
