@@ -23,14 +23,19 @@ window.SITE_CONTENT = {
   },
   homepage: {
     hero: {
-      title: 'SESSIONS',
-      feature: 'La Vaca Loca Records',
-      primaryEntry: 'ENTRAR A SESSIONS',
-      secondaryEntry: '+ RECORD SHOP',
-      libraryEntry: '+ ARCHIVO SESSIONS',
-      media: {
-        image: {source: 'local', path: 'assets/images/site/hero-store.jpg', url: '', alt: 'Interior de La Vaca Loca Records'}
-      }
+      kicker: 'LA VACA LOCA RECORDS · GUALACEO, ECUADOR',
+      title: 'LVL',
+      tagline: 'Discos, sonido, sesiones y cultura.',
+      primaryLabel: 'EXPLORAR DISCOS',
+      primaryHref: 'discos.html',
+      secondaryLabel: 'SESSIONS',
+      secondaryHref: 'sessions.html',
+      intervalSeconds: 6,
+      slides: [
+        {id:'hero-01',src:'assets/images/site/hero/lvl-hero-01.webp',alt:'La Vaca Loca Records sign and DJ',position:'center 48%',draftBlobKey:''},
+        {id:'hero-02',src:'assets/images/site/hero/lvl-hero-02.webp',alt:'La Vaca Loca Records listening room and speakers',position:'center 56%',draftBlobKey:''},
+        {id:'hero-03',src:'assets/images/site/hero/lvl-hero-03.webp',alt:'La Vaca Loca Records full listening room',position:'center 48%',draftBlobKey:''}
+      ]
     },
     ticker: ['DISCOS','SESSIONS','GUALACEO','HI-FI','CULTURA','VINYL','ARCHIVO']
   },
