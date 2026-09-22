@@ -10,8 +10,10 @@
 <header class="admin-header">
   <a class="brand" href="../index.html">La Vaca Loca Records</a>
   <div class="admin-header-actions">
+    <span class="status-pill" id="cloudStatus">Cloudflare checking…</span>
     <span class="status-pill" id="draftStatus">Draft saved</span>
     <button class="admin-action compact" type="button" data-save-draft>Save</button>
+    <button class="admin-action compact" type="button" data-cloud-publish>Publish live</button>
     <a class="admin-action compact secondary" href="../index.html?preview=admin-draft" target="_blank" rel="noopener">Draft preview</a>
   </div>
 </header>
@@ -34,7 +36,13 @@
       <p class="intro">This admin layer reads the same SITE_CONTENT structure used by the public site, saves local drafts in this browser, and prepares the publishing workflow.</p>
       <div class="publish-bar" id="publishSummary"></div>
       <div class="stat-grid" id="stats"></div>
-      <div class="notice"><strong>Current stage:</strong> prototype only. Changes save locally in the browser and can be previewed with <strong>?preview=admin-draft</strong>, then exported as a complete data.js file. They do not publish automatically yet.</div>
+      <div class="notice"><strong>Cloudflare publishing:</strong> edits can still be saved as a local draft. Once the R2 binding and admin secret are configured, original images upload to Cloudflare unchanged and <strong>Publish live</strong> updates the production content without editing GitHub files.</div>
+      <div class="publish-card cloud-connect-card">
+        <strong>Cloudflare admin connection</strong>
+        <p>Enter the admin key configured as the Cloudflare secret <code>ADMIN_API_KEY</code>. It is kept only for this browser tab.</p>
+        <div class="cloud-key-row"><input id="cloudAdminKey" type="password" autocomplete="off" placeholder="Admin API key"><button class="admin-action" type="button" data-cloud-connect>Connect</button></div>
+        <small id="cloudSetupHint">Checking Pages Functions, R2, and publishing status…</small>
+      </div>
     </section>
 
     <section class="panel" id="homepage">
@@ -103,6 +111,7 @@
 </main>
 <div class="toast" id="adminToast" role="status" aria-live="polite"></div>
 <script src="../data.js"></script>
+<script src="../api/content"></script>
 <script>
 document.addEventListener('click',function(event){
   const previewLink=event.target.closest('a[href*="preview=admin-draft"]');
