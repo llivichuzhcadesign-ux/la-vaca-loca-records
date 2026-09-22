@@ -18,6 +18,7 @@
 <main class="admin-shell">
   <aside class="admin-sidebar" aria-label="Admin navigation">
     <button class="nav-item active" data-panel="dashboard">Dashboard</button>
+    <button class="nav-item" data-panel="homepage">Homepage</button>
     <button class="nav-item" data-panel="records">Records</button>
     <button class="nav-item" data-panel="sessions">Sessions</button>
     <button class="nav-item" data-panel="events">Events</button>
@@ -34,6 +35,14 @@
       <div class="publish-bar" id="publishSummary"></div>
       <div class="stat-grid" id="stats"></div>
       <div class="notice"><strong>Current stage:</strong> prototype only. Changes save locally in the browser and can be previewed with <strong>?preview=admin-draft</strong>, then exported as a complete data.js file. They do not publish automatically yet.</div>
+    </section>
+
+    <section class="panel" id="homepage">
+      <div class="panel-head"><div><p class="eyebrow">02 / Landing page</p><h2>Homepage hero</h2></div><button class="admin-action" type="button" data-add-hero-slide>Add image</button></div>
+      <p class="intro">Manage the LVL landing hero here. Hero uploads are stored as the original file in this browser for draft preview — no resize, compression, or format conversion.</p>
+      <div class="notice"><strong>Draft media:</strong> uploaded originals stay in this browser until permanent media storage/publishing is connected. The published site is not overwritten by a local draft.</div>
+      <p><a class="admin-action secondary" href="../index.html?preview=admin-draft" target="_blank" rel="noopener">Save & preview homepage</a></p>
+      <div id="homepageHeroEditor"></div>
     </section>
 
     <section class="panel" id="records">
