@@ -33,7 +33,7 @@
     <section class="panel active" id="dashboard">
       <p class="eyebrow">01 / Overview</p>
       <h1>Content dashboard</h1>
-      <p class="intro">This admin layer reads the same SITE_CONTENT structure used by the public site, saves local drafts in this browser, and prepares the publishing workflow.</p>
+      <p class="intro">Manage the live site from one place. Save locally while editing, upload original media to Cloudflare, preview changes, then Publish Live when ready.</p>
       <div class="publish-bar" id="publishSummary"></div>
       <div class="stat-grid" id="stats"></div>
       <div class="notice"><strong>Cloudflare publishing:</strong> edits can still be saved as a local draft. Once the R2 binding and admin secret are configured, original images upload to Cloudflare unchanged and <strong>Publish live</strong> updates the production content without editing GitHub files.</div>
@@ -47,8 +47,8 @@
 
     <section class="panel" id="homepage">
       <div class="panel-head"><div><p class="eyebrow">02 / Landing page</p><h2>Homepage hero</h2></div><button class="admin-action" type="button" data-add-hero-slide>Add image</button></div>
-      <p class="intro">Manage the LVL landing hero here. Hero uploads are stored as the original file in this browser for draft preview — no resize, compression, or format conversion.</p>
-      <div class="notice"><strong>Draft media:</strong> uploaded originals stay in this browser until permanent media storage/publishing is connected. The published site is not overwritten by a local draft.</div>
+      <p class="intro">Manage the LVL landing hero here. Connected uploads go to Cloudflare R2 as the original file — no resize, compression, or format conversion.</p>
+      <div class="notice"><strong>Media:</strong> with Cloudflare connected, hero originals are stored permanently in R2. Save Draft is private to this browser; Publish Live updates production.</div>
       <p><a class="admin-action secondary" href="../index.html?preview=admin-draft" target="_blank" rel="noopener">Save & preview homepage</a></p>
       <div id="homepageHeroEditor"></div>
     </section>
@@ -61,12 +61,13 @@
 
     <section class="panel" id="sessions">
       <div class="panel-head"><div><p class="eyebrow">03 / Library</p><h2>Sessions</h2></div><button class="admin-action" data-add-session>Add session</button></div>
+      <p><a class="admin-action secondary" href="../sessions.html?preview=admin-draft" target="_blank" rel="noopener">Save & preview sessions</a></p>
       <div class="editor-list" id="sessionsList"></div>
     </section>
 
     <section class="panel" id="events">
       <div class="panel-head"><div><p class="eyebrow">04 / Agenda</p><h2>Events</h2></div><button class="admin-action" data-add-event>Add event</button></div>
-      <p class="notice">Save a local draft, then preview the calendar. Draft / Hidden events are never public. Leave a date empty for “Próximo anuncio”. Export data.js to publish through GitHub.</p>
+      <p class="notice">Save a local draft, then preview the calendar. Draft / Hidden events are never public. Leave a date empty for “Próximo anuncio”. Use Publish Live when the calendar is ready.</p>
       <div class="form-card" id="calendarSettings"></div>
       <p><a class="admin-action secondary" href="../eventos.html?preview=admin-draft" target="_blank" rel="noopener">Save & preview calendar</a></p>
       <div class="editor-list" id="eventsList"></div>
@@ -74,6 +75,7 @@
 
     <section class="panel" id="archive">
       <div class="panel-head"><div><p class="eyebrow">05 / Visual memory</p><h2>Archive</h2></div><button class="admin-action" data-add-archive>Add archive item</button></div>
+      <p><a class="admin-action secondary" href="../archivo.html?preview=admin-draft" target="_blank" rel="noopener">Save & preview archive</a></p>
       <div class="editor-list" id="archiveList"></div>
     </section>
 
@@ -84,17 +86,17 @@
     </section>
 
     <section class="panel" id="export">
-      <p class="eyebrow">07 / Publish preparation</p>
+      <p class="eyebrow">07 / Backup</p>
       <h2>Export content</h2>
-      <p class="intro">This creates a complete replacement for <strong>data.js</strong>. Save the draft, preview it on the public site, copy or download the file, then publish it manually until we connect the admin to GitHub or storage.</p>
+      <p class="intro">Cloudflare is now the normal publishing path. This section remains as a portable backup of the content model in case you ever need to restore or migrate the site.</p>
       <div class="publish-card">
-        <strong>Publishing workflow</strong>
+        <strong>Normal workflow</strong>
         <ol>
-          <li>Edit records, sessions, events, archive, and settings.</li>
-          <li>Save the local draft.</li>
-          <li>Open draft preview to see the public site using saved admin content.</li>
-          <li>Copy or download the generated data.js file.</li>
-          <li>Replace data.js in the repo or connect automatic publishing later.</li>
+          <li>Edit content and upload media.</li>
+          <li>Save Draft while you work.</li>
+          <li>Preview the relevant public page.</li>
+          <li>Press Publish Live when ready.</li>
+          <li>Use this data.js export only as a backup or migration copy.</li>
         </ol>
       </div>
       <div class="export-actions">
