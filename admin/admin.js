@@ -280,6 +280,13 @@ document.addEventListener('click',e=>{
   if(e.target.closest('[data-add-archive]')){addItem('archiveItems');return}
   const remove=e.target.closest('[data-remove]');if(remove){const [collection,index]=remove.dataset.remove.split('.');if(confirm('Remove this item from your draft?')){draft[collection].splice(Number(index),1);saveDraft()}}
 });
+window.LVLAdminCloud={
+  uploadOriginalToCloudflare,
+  cloudAdminKey,
+  saveDraft,
+  setValue,
+  showToast
+};
 injectAdminEnhancements();
 injectHomepageAdminStyles();
 refreshAll();
