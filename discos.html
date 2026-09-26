@@ -61,11 +61,19 @@
 <div class="library-column">
   <aside class="listening-panel">
     <div class="now-playing-head"><p class="eyebrow">EN EL PLATO</p><span id="recordInfo"></span></div>
-    <div class="now-playing-copy">
-      <div><h2 id="recordTitle">Elige un disco</h2><p id="recordArtist"></p></div>
-      <div class="record-buy"><strong id="recordPrice"></strong><a id="recordInquiry" hidden target="_blank" rel="noopener noreferrer">Consultar ↗</a></div>
+    <div class="selected-record">
+      <div class="selected-artwork" id="selectedArtwork" aria-hidden="true">
+        <span id="selectedArtworkFallback">LVL</span>
+        <img id="selectedArtworkImage" alt="" hidden>
+      </div>
+      <div class="selected-record-copy">
+        <div class="now-playing-copy">
+          <div><h2 id="recordTitle">Elige un disco</h2><p id="recordArtist"></p></div>
+          <div class="record-buy"><strong id="recordPrice"></strong><a id="recordInquiry" hidden target="_blank" rel="noopener noreferrer">Consultar ↗</a></div>
+        </div>
+        <p id="recordDescription"></p>
+      </div>
     </div>
-    <p id="recordDescription"></p>
     <div class="transport"><button id="previousRecord" aria-label="Disco anterior">←</button><button id="playRecord" disabled>Escuchar ▶</button><button id="nextRecord" aria-label="Disco siguiente">→</button></div>
     <div class="player-sliders">
       <div><label class="seek-label" for="seek">Preview <span id="elapsed">0:00 / 0:00</span></label><input id="seek" type="range" min="0" max="100" value="0" disabled aria-label="Posición del audio"></div>
