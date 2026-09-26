@@ -295,11 +295,12 @@ async function animateDiscTransfer(r){
 
   const animation=transportDisc.animate([
     {left:startX+'px',top:startY+'px',transform:'translate(-50%,-50%) scale(1) rotate(0deg)',offset:0},
-    {left:midX+'px',top:midY+'px',transform:'translate(-50%,-50%) scale('+(1+endScale)*.55+') rotate(135deg)',offset:.54},
-    {left:endX+'px',top:endY+'px',transform:'translate(-50%,-50%) scale('+endScale+') rotate(315deg)',offset:1}
+    {left:(startX+(midX-startX)*.58)+'px',top:(startY-72)+'px',transform:'translate(-50%,-50%) scale(1.08) rotate(72deg)',offset:.24},
+    {left:midX+'px',top:midY+'px',transform:'translate(-50%,-50%) scale('+(endScale*.78)+') rotate(176deg)',offset:.63},
+    {left:endX+'px',top:endY+'px',transform:'translate(-50%,-50%) scale('+endScale+') rotate(324deg)',offset:1}
   ],{
-    duration:920,
-    easing:'cubic-bezier(.18,.78,.18,1)',
+    duration:1120,
+    easing:'cubic-bezier(.16,.78,.18,1)',
     fill:'forwards'
   });
 
@@ -318,19 +319,30 @@ async function loadFromLibrary(r){
 
   isLoadingDisc=true;
   if(deckPlay)deckPlay.disabled=true;
+
+  // 1. Stop the current record and visibly return the arm to rest.
   stopCurrentForSwap();
+  deck.classList.add('disc-unloading');
+
+  // 2. Update the jacket while Biblioteca drops away.
   updateSelectedInfo(r);
   focusRecordView(true);
 
-  // Let the library drawer finish dropping before the jacket opens.
-  if(window.matchMedia('(min-width:951px)').matches)await wait(540);
+  if(window.matchMedia('(min-width:951px)').matches){
+    await wait(620);
+  }else{
+    await wait(260);
+  }
 
+  // 3. Eject the vinyl from its jacket and carry it to the spindle.
   await animateDiscTransfer(r);
-  mountRecord(r,true,true);
 
-  deck.classList.remove('disc-loading');
+  // 4. Mount the new record only after the flying disc reaches the platter.
+  mountRecord(r,true,true);
+  deck.classList.remove('disc-unloading','disc-loading');
   deck.classList.add('disc-arrived');
-  setTimeout(()=>deck.classList.remove('disc-arrived'),460);
+
+  setTimeout(()=>deck.classList.remove('disc-arrived'),520);
   if(deckPlay)deckPlay.disabled=false;
   isLoadingDisc=false;
 }
