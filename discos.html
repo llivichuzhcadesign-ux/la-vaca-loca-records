@@ -57,7 +57,34 @@
 
     <button class="deck-reset-control" id="resetView" type="button" aria-label="Restablecer ángulo del tocadiscos">↺</button>
   </div>
-</div></div><aside class="listening-panel"><p class="eyebrow">EN EL PLATO</p><h2 id="recordTitle">Elige un disco</h2><p id="recordArtist"></p><p id="recordInfo"></p><p id="recordDescription"></p><div class="transport"><button id="previousRecord" aria-label="Disco anterior">←</button><button id="playRecord" disabled>Escuchar ▶</button><button id="nextRecord" aria-label="Disco siguiente">→</button></div><label class="seek-label" for="seek">Preview <span id="elapsed">0:00 / 0:00</span></label><input id="seek" type="range" min="0" max="100" value="0" disabled aria-label="Posición del audio"><label class="volume-label" for="volume">Volumen<input id="volume" type="range" min="0" max="1" step=".05" value=".7"></label><p id="playerNotice" class="sr-only" role="status" aria-live="polite"></p><div class="record-buy"><strong id="recordPrice"></strong><a id="recordInquiry" hidden target="_blank" rel="noopener noreferrer">Consultar este disco ↗</a></div></aside></div></section>
-<section class="collection" id="coleccion"><div class="collection-heading"><div><p class="eyebrow">EL ARTE DE BUSCAR</p><h2>Entre surcos.</h2></div><p id="resultCount" aria-live="polite"></p></div><div class="browse-tools"><label>Buscar discos<input id="recordSearch" type="search" placeholder="Artista, título o sello…"></label><label>Género<select id="genreFilter"><option value="">Todos los géneros</option></select></label></div><div id="discGallery" class="disc-gallery"></div><noscript>Activa JavaScript para explorar la colección y escuchar los previews.</noscript></section></main>
+</div></div>
+<div class="library-column">
+  <aside class="listening-panel">
+    <div class="now-playing-head"><p class="eyebrow">EN EL PLATO</p><span id="recordInfo"></span></div>
+    <div class="now-playing-copy">
+      <div><h2 id="recordTitle">Elige un disco</h2><p id="recordArtist"></p></div>
+      <div class="record-buy"><strong id="recordPrice"></strong><a id="recordInquiry" hidden target="_blank" rel="noopener noreferrer">Consultar ↗</a></div>
+    </div>
+    <p id="recordDescription"></p>
+    <div class="transport"><button id="previousRecord" aria-label="Disco anterior">←</button><button id="playRecord" disabled>Escuchar ▶</button><button id="nextRecord" aria-label="Disco siguiente">→</button></div>
+    <div class="player-sliders">
+      <div><label class="seek-label" for="seek">Preview <span id="elapsed">0:00 / 0:00</span></label><input id="seek" type="range" min="0" max="100" value="0" disabled aria-label="Posición del audio"></div>
+      <label class="volume-label" for="volume"><span>Volumen</span><input id="volume" type="range" min="0" max="1" step=".05" value=".7"></label>
+    </div>
+    <p id="playerNotice" class="sr-only" role="status" aria-live="polite"></p>
+  </aside>
+
+  <section class="collection" id="coleccion">
+    <div class="library-toolbar">
+      <div class="library-label"><p class="eyebrow">BIBLIOTECA</p><p id="resultCount" aria-live="polite"></p></div>
+      <div class="browse-tools">
+        <label>Buscar<input id="recordSearch" type="search" placeholder="Artista, título o sello…"></label>
+        <label>Género<select id="genreFilter"><option value="">Todos</option></select></label>
+      </div>
+    </div>
+    <div id="discGallery" class="disc-gallery"></div>
+    <noscript>Activa JavaScript para explorar la colección y escuchar los previews.</noscript>
+  </section>
+</div></div></section></main>
 <audio id="recordAudio" preload="none"></audio>
 <footer class="editorial-footer"><div><strong>La Vaca Loca Records</strong><p>Gualaceo, Ecuador · discos · sessions · cultura</p></div><nav aria-label="Pie de página"><a href="sessions.html">Sessions</a><a href="eventos.html">Eventos</a><a href="archivo.html">Archivo</a></nav><p class="design-credit"><a href="https://www.instagram.com/semiotice/" target="_blank" rel="noopener noreferrer">Website Design by Sebastian Llivichuzhca</a></p></footer></body></html>
