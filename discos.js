@@ -9,7 +9,7 @@ if(typeof document==='undefined')return;
 const $=id=>document.getElementById(id),content=window.SITE_CONTENT||{},settings=content.settings||{},records=(content.records||[]).filter(visible);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const audio=$('recordAudio'),deck=$('turntable'),gallery=$('discGallery');
-let selected=null,results=records,selection=0,rx=27,ry=-8,demoPlaying=false;
+let selected=null,results=records,selection=0,rx=8,ry=0,demoPlaying=false;
 audio.volume=.7;
 const price=r=>(settings.currency||'$')+Number(r.price||0).toFixed(2);
 const cover=r=>window.CalendarContent.imageUrl(r.coverImage||r.media?.artwork?.url||r.media?.artwork?.path,document.baseURI);
@@ -56,9 +56,9 @@ $('recordSearch').oninput=renderGallery;$('genreFilter').onchange=renderGallery;
 function angle(){deck.style.setProperty('--rx',rx+'deg');deck.style.setProperty('--ry',ry+'deg');}
 const stage=$('deckStage');let drag=null;
 stage.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY,rx,ry};stage.setPointerCapture(e.pointerId);});
-stage.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;ry=Math.max(-30,Math.min(30,drag.ry+(e.clientX-drag.x)*.15));rx=Math.max(5,Math.min(48,drag.rx-(e.clientY-drag.y)*.15));angle();});
+stage.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;ry=Math.max(-18,Math.min(18,drag.ry+(e.clientX-drag.x)*.12));rx=Math.max(-2,Math.min(24,drag.rx-(e.clientY-drag.y)*.12));angle();});
 ['pointerup','pointercancel','lostpointercapture'].forEach(name=>stage.addEventListener(name,()=>drag=null));
-stage.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();if(e.key==='ArrowLeft')ry-=3;if(e.key==='ArrowRight')ry+=3;if(e.key==='ArrowUp')rx+=3;if(e.key==='ArrowDown')rx-=3;ry=Math.max(-30,Math.min(30,ry));rx=Math.max(5,Math.min(48,rx));angle();});
-$('resetView').onclick=()=>{rx=27;ry=-8;angle();};
+stage.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();if(e.key==='ArrowLeft')ry-=3;if(e.key==='ArrowRight')ry+=3;if(e.key==='ArrowUp')rx+=3;if(e.key==='ArrowDown')rx-=3;ry=Math.max(-18,Math.min(18,ry));rx=Math.max(-2,Math.min(24,rx));angle();});
+$('resetView').onclick=()=>{rx=8;ry=0;angle();};
 if(records.length)select(records[0]);else{renderGallery();notice('La colección estará disponible próximamente.');}
 })();
