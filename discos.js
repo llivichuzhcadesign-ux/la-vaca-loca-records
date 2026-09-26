@@ -8,14 +8,26 @@ if(typeof module!=='undefined')module.exports={visible,filterRecords,audioUrl,ti
 if(typeof document==='undefined')return;
 const $=id=>document.getElementById(id),content=window.SITE_CONTENT||{},settings=content.settings||{},records=(content.records||[]).filter(visible);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const audio=$('recordAudio'),deck=$('turntable'),gallery=$('discGallery'),libraryColumn=document.querySelector('.library-column'),libraryToggle=$('libraryToggle');
+const audio=$('recordAudio'),deck=$('turntable'),gallery=$('discGallery'),libraryColumn=document.querySelector('.library-column'),libraryToggle=$('libraryToggle'),tempoFader=$('tempoFader'),tempoValue=$('tempoValue'),tempoReset=$('tempoReset'),tempoModule=$('tempoFaderModule');
 const colors=['#864833','#35493f','#827451','#493d57','#a25439','#394c5a'];
-let selected=null,results=records,selection=0,rx=8,ry=0,demoPlaying=false;
+let selected=null,results=records,selection=0,rx=8,ry=0,demoPlaying=false,tempoPercent=0;
 audio.volume=.7;
 const price=r=>(settings.currency||'$')+Number(r.price||0).toFixed(2);
 const cover=r=>window.CalendarContent.imageUrl(r.coverImage||r.media?.artwork?.url||r.media?.artwork?.path,document.baseURI);
 function notice(text){$('playerNotice').textContent=text;}
 function playing(on){deck.classList.toggle('playing',on);$('playRecord').textContent=on?'Pausar Ⅱ':'Escuchar ▶';$('playRecord').setAttribute('aria-pressed',String(on));}
+function applyTempo(value){
+ tempoPercent=Math.max(-8,Math.min(8,Number(value)||0));
+ const rate=1+(tempoPercent/100);
+ audio.playbackRate=rate;
+ if('preservesPitch' in audio)audio.preservesPitch=false;
+ if('mozPreservesPitch' in audio)audio.mozPreservesPitch=false;
+ if('webkitPreservesPitch' in audio)audio.webkitPreservesPitch=false;
+ deck.style.setProperty('--spin-duration',(1.8/rate).toFixed(4)+'s');
+ if(tempoFader)tempoFader.value=String(tempoPercent);
+ if(tempoValue)tempoValue.textContent=(tempoPercent>0?'+':'')+tempoPercent.toFixed(1)+'%';
+ if(tempoModule)tempoModule.classList.toggle('is-center',Math.abs(tempoPercent)<.05);
+}
 function focusRecordView(on){
  const allow=window.matchMedia('(min-width:951px)').matches;
  const active=!!on&&allow;
@@ -35,7 +47,7 @@ function renderGallery(){
  $('previousRecord').disabled=$('nextRecord').disabled=results.length<2;
 }
 function select(r,focusView=false){
- if(!r)return;selection++;selected=r;demoPlaying=false;audio.pause();audio.removeAttribute('src');audio.load();playing(false);
+ if(!r)return;selection++;selected=r;demoPlaying=false;audio.pause();audio.removeAttribute('src');audio.load();applyTempo(tempoPercent);playing(false);
  deck.classList.add('loaded');$('seek').value=0;$('seek').disabled=true;$('elapsed').textContent='0:00 / 0:00';
  $('recordTitle').textContent=r.title;$('recordArtist').textContent=r.artist;
  $('recordInfo').textContent=[r.genre,r.label,r.year,r.condition].filter(Boolean).join(' / ');
@@ -74,6 +86,9 @@ audio.addEventListener('loadedmetadata',()=>{$('seek').disabled=!Number.isFinite
 audio.addEventListener('timeupdate',()=>{$('elapsed').textContent=time(audio.currentTime)+' / '+time(audio.duration);if(Number.isFinite(audio.duration)&&audio.duration>0)$('seek').value=audio.currentTime/audio.duration*100;});
 $('seek').oninput=()=>{if(Number.isFinite(audio.duration))audio.currentTime=audio.duration*Number($('seek').value)/100;};
 $('volume').oninput=()=>audio.volume=Number($('volume').value);
+if(tempoFader)tempoFader.oninput=e=>applyTempo(e.target.value);
+if(tempoReset)tempoReset.onclick=e=>{e.stopPropagation();applyTempo(0);tempoFader?.focus();};
+applyTempo(0);
 function step(dir){if(!results.length)return;const i=results.indexOf(selected);select(results[(i+dir+results.length)%results.length],libraryColumn?.classList.contains('record-focus'));}
 $('previousRecord').onclick=()=>step(-1);$('nextRecord').onclick=()=>step(1);
 [...new Set(records.map(r=>r.genre).filter(Boolean))].sort().forEach(genre=>{const option=document.createElement('option');option.value=genre;option.textContent=genre;$('genreFilter').append(option);});
@@ -82,10 +97,10 @@ if(libraryToggle)libraryToggle.onclick=()=>focusRecordView(false);
 window.addEventListener('resize',()=>{if(window.innerWidth<=950)focusRecordView(false)});
 function angle(){deck.style.setProperty('--rx',rx+'deg');deck.style.setProperty('--ry',ry+'deg');}
 const stage=$('deckStage');let drag=null;
-stage.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY,rx,ry};stage.setPointerCapture(e.pointerId);});
+stage.addEventListener('pointerdown',e=>{if(e.target.closest('input,button,a'))return;if(e.pointerType==='mouse'&&e.button!==0)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY,rx,ry};stage.setPointerCapture(e.pointerId);});
 stage.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;ry=Math.max(-18,Math.min(18,drag.ry+(e.clientX-drag.x)*.12));rx=Math.max(-2,Math.min(24,drag.rx-(e.clientY-drag.y)*.12));angle();});
 ['pointerup','pointercancel','lostpointercapture'].forEach(name=>stage.addEventListener(name,()=>drag=null));
-stage.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();if(e.key==='ArrowLeft')ry-=3;if(e.key==='ArrowRight')ry+=3;if(e.key==='ArrowUp')rx+=3;if(e.key==='ArrowDown')rx-=3;ry=Math.max(-18,Math.min(18,ry));rx=Math.max(-2,Math.min(24,rx));angle();});
+stage.addEventListener('keydown',e=>{if(e.target!==stage)return;if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();if(e.key==='ArrowLeft')ry-=3;if(e.key==='ArrowRight')ry+=3;if(e.key==='ArrowUp')rx+=3;if(e.key==='ArrowDown')rx-=3;ry=Math.max(-18,Math.min(18,ry));rx=Math.max(-2,Math.min(24,rx));angle();});
 $('resetView').onclick=()=>{rx=8;ry=0;angle();};
 if(records.length)select(records[0],false);else{renderGallery();notice('La colección estará disponible próximamente.');}
 })();
