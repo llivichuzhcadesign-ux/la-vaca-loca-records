@@ -2,7 +2,79 @@
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Discos — La Vaca Loca Records</title><meta name="description" content="Entra a nuestra sala de escucha. Explora discos y prueba sus previews en el tocadiscos."><link rel="stylesheet" href="editorial.css"><link rel="stylesheet" href="discos.css"><script src="data.js" defer></script><script src="api/content" defer></script><script src="draft-preview.js" defer></script><script src="calendar-content.js" defer></script><script src="discos.js" defer></script></head>
 <body data-page="discos"><a class="skip-link" href="#contenido">Saltar al contenido</a><header class="editorial-header"><a class="brand" href="index.html"><img src="assets/brand/horizontal-logo-black.svg" alt="La Vaca Loca Records — Inicio"></a><nav aria-label="Principal"><a href="discos.html" aria-current="page">Discos</a><a href="sessions.html">Sessions</a><a href="eventos.html">Eventos</a><a href="archivo.html">Archivo</a></nav></header>
 <main id="contenido"><section class="listening-room"><div class="room-heading"><p class="eyebrow">LA VACA LOCA / SALA DE ESCUCHA</p><h1>Un disco.<br>Todo un mundo.</h1><p>Elige una portada. Pon la aguja. Quédate un rato.</p></div>
-<div class="room-layout"><div class="deck-area"><div class="deck-stage" id="deckStage" tabindex="0" role="group" aria-label="Tocadiscos 3D. Arrastra o usa las flechas para cambiar el ángulo."><div class="turntable" id="turntable"><div class="wood-base"><div class="motor"></div><div class="platter"><div class="vinyl" id="vinyl"><div class="disc-label"><span id="discLabel">LA VACA<br>LOCA</span></div></div><i class="spindle"></i></div><div class="arm-base"></div><div class="tonearm"><i class="arm-weight"></i><i class="arm-shaft"></i><i class="cartridge"></i></div><div class="power-plate"><i></i><span>LVL / HI-FI</span></div></div></div></div><div class="deck-caption"><span>WALNUT SERIES · 33⅓ RPM</span><button id="resetView">Restablecer vista ↺</button></div><p class="angle-hint">Arrastra el tocadiscos para explorar su ángulo.</p></div>
+<div class="room-layout"><div class="deck-area"><div class="deck-stage" id="deckStage" tabindex="0" role="group" aria-label="Tocadiscos 3D estilo profesional. Arrastra o usa las flechas para cambiar el ángulo."><div class="turntable" id="turntable">
+<div class="wood-base plx-base">
+  <div class="deck-bevel" aria-hidden="true"></div>
+  <div class="rear-adapter" aria-hidden="true"><span></span></div>
+
+  <div class="left-controls" aria-hidden="true">
+    <div class="start-button"><span>START<br>STOP</span></div>
+    <div class="speed-knob"><i></i></div>
+    <div class="speed-readout"><span>33</span><span>45</span></div>
+    <div class="quartz-mark">QUARTZ</div>
+  </div>
+
+  <div class="platter">
+    <div class="platter-dots" aria-hidden="true"></div>
+    <div class="platter-mat" aria-hidden="true"><span class="plx-wordmark">Pioneer</span></div>
+    <div class="vinyl" id="vinyl"><div class="disc-label"><span id="discLabel">LA VACA<br>LOCA</span></div></div>
+    <i class="spindle"></i>
+  </div>
+
+  <div class="arm-base" aria-hidden="true">
+    <span class="arm-ring outer"></span>
+    <span class="arm-ring inner"></span>
+    <span class="arm-pivot"></span>
+    <span class="anti-skate">ANTI<br>SKATE</span>
+  </div>
+
+  <div class="tonearm" aria-hidden="true">
+    <svg class="tonearm-svg" viewBox="0 0 420 520" focusable="false">
+      <defs>
+        <linearGradient id="armMetal" x1="0" x2="1">
+          <stop offset="0" stop-color="#6e7173"/>
+          <stop offset=".25" stop-color="#fafafa"/>
+          <stop offset=".48" stop-color="#a9abad"/>
+          <stop offset=".7" stop-color="#f2f2f2"/>
+          <stop offset="1" stop-color="#686b6d"/>
+        </linearGradient>
+        <linearGradient id="shellMetal" x1="0" x2="1">
+          <stop offset="0" stop-color="#26282a"/>
+          <stop offset=".18" stop-color="#d5d7d8"/>
+          <stop offset=".48" stop-color="#fbfbfb"/>
+          <stop offset=".8" stop-color="#777a7c"/>
+          <stop offset="1" stop-color="#26282a"/>
+        </linearGradient>
+      </defs>
+      <path class="arm-shadow-path" d="M349 78 C321 102 292 132 271 168 C245 212 228 264 193 304 C161 340 119 365 85 397"/>
+      <path class="arm-metal-path" d="M349 78 C321 102 292 132 271 168 C245 212 228 264 193 304 C161 340 119 365 85 397"/>
+      <g class="headshell" transform="translate(42 377) rotate(-23)">
+        <path d="M12 4 H96 L118 26 L104 55 H18 L4 39 Z" fill="url(#shellMetal)" stroke="#111" stroke-width="4"/>
+        <path d="M26 16 H77" stroke="#303234" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="90" cy="27" r="7" fill="#171819" stroke="#ddd" stroke-width="2"/>
+        <rect x="17" y="46" width="78" height="14" rx="3" fill="#111315"/>
+        <rect x="22" y="58" width="55" height="8" rx="2" fill="#bfc1c2"/>
+        <path d="M68 65 L66 82" stroke="#d8d8d8" stroke-width="3"/>
+      </g>
+    </svg>
+    <i class="arm-weight"></i>
+    <i class="arm-lock"></i>
+  </div>
+
+  <div class="pitch-module" aria-hidden="true">
+    <div class="tempo-display"><b>+6</b><b>+3</b><b>0</b><b>-3</b></div>
+    <span class="tempo-label">TEMPO<br>TUNING</span>
+    <div class="pitch-scale"><span>+8</span><i></i><span>+4</span><i></i><span>0</span><i></i><span>-4</span><i></i><span>-8</span></div>
+    <div class="pitch-slot"><i class="pitch-handle"></i></div>
+    <span class="pitch-word">TEMPO</span>
+  </div>
+
+  <div class="reset-button" aria-hidden="true"><i></i><span>RESET</span></div>
+  <div class="deck-jack" aria-hidden="true"></div>
+  <div class="deck-branding" aria-hidden="true"><strong>Pioneer</strong><span>PROFESSIONAL TURNTABLE · PLX-1000</span></div>
+  <div class="front-foot foot-left" aria-hidden="true"></div>
+  <div class="front-foot foot-right" aria-hidden="true"></div>
+</div></div></div><div class="deck-caption"><span>DIRECT DRIVE · 33⅓ / 45 RPM · QUARTZ LOCK</span><button id="resetView">Restablecer vista ↺</button></div><p class="angle-hint">Arrastra el tocadiscos para explorar su ángulo.</p></div>
 <aside class="listening-panel"><p class="eyebrow">EN EL PLATO</p><h2 id="recordTitle">Elige un disco</h2><p id="recordArtist"></p><p id="recordInfo"></p><p id="recordDescription"></p><div class="transport"><button id="previousRecord" aria-label="Disco anterior">←</button><button id="playRecord" disabled>Escuchar ▶</button><button id="nextRecord" aria-label="Disco siguiente">→</button></div><label class="seek-label" for="seek">Preview <span id="elapsed">0:00 / 0:00</span></label><input id="seek" type="range" min="0" max="100" value="0" disabled aria-label="Posición del audio"><label class="volume-label" for="volume">Volumen<input id="volume" type="range" min="0" max="1" step=".05" value=".7"></label><p id="playerNotice" role="status" aria-live="polite">Selecciona un disco de la colección.</p><div class="record-buy"><strong id="recordPrice"></strong><a id="recordInquiry" hidden target="_blank" rel="noopener noreferrer">Consultar este disco ↗</a></div></aside></div></section>
 <section class="collection" id="coleccion"><div class="collection-heading"><div><p class="eyebrow">EL ARTE DE BUSCAR</p><h2>Entre surcos.</h2></div><p id="resultCount" aria-live="polite"></p></div><div class="browse-tools"><label>Buscar discos<input id="recordSearch" type="search" placeholder="Artista, título o sello…"></label><label>Género<select id="genreFilter"><option value="">Todos los géneros</option></select></label></div><div id="discGallery" class="disc-gallery"></div><noscript>Activa JavaScript para explorar la colección y escuchar los previews.</noscript></section></main>
 <audio id="recordAudio" preload="none"></audio>
