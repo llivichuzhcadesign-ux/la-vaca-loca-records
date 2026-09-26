@@ -8,7 +8,7 @@ if(typeof module!=='undefined')module.exports={visible,filterRecords,audioUrl,ti
 if(typeof document==='undefined')return;
 const $=id=>document.getElementById(id),content=window.SITE_CONTENT||{},settings=content.settings||{},records=(content.records||[]).filter(visible);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const audio=$('recordAudio'),deck=$('turntable'),gallery=$('discGallery'),libraryColumn=document.querySelector('.library-column'),libraryToggle=$('libraryToggle'),tempoFader=$('tempoFader'),tempoValue=$('tempoValue'),tempoReset=$('tempoReset'),tempoModule=$('tempoFaderModule'),deckPlay=$('deckPlay'),deckStop=$('deckStop');
+const audio=$('recordAudio'),deck=$('turntable'),gallery=$('discGallery'),libraryColumn=document.querySelector('.library-column'),libraryToggle=$('libraryToggle'),tempoFader=$('tempoFader'),tempoValue=$('tempoValue'),tempoReset=$('tempoReset'),tempoModule=$('tempoFaderModule'),deckPlay=$('deckPlay'),deckLight=$('deckLight');
 const colors=['#864833','#35493f','#827451','#493d57','#a25439','#394c5a'];
 let selected=null,results=records,selection=0,rx=8,ry=0,demoPlaying=false,tempoPercent=0;
 audio.volume=.7;
@@ -21,7 +21,7 @@ function playing(on){
  $('playRecord').setAttribute('aria-pressed',String(on));
  if(deckPlay){
   deckPlay.setAttribute('aria-pressed',String(on));
-  deckPlay.setAttribute('aria-label',on?'Pausar disco':'Reproducir disco');
+  deckPlay.setAttribute('aria-label',on?'Pausar disco':'Iniciar disco');
  }
 }
 function applyTempo(value){
@@ -78,7 +78,7 @@ function select(r,focusView=false){
   image.onerror=()=>{if(version===selection&&selectedImage){selectedImage.hidden=true;selectedImage.removeAttribute('src');}};
   image.src=src;
  }
- const sound=audioUrl(r,document.baseURI);$('playRecord').disabled=false;if(deckPlay)deckPlay.disabled=false;if(deckStop)deckStop.disabled=false;if(sound)audio.src=sound;
+ const sound=audioUrl(r,document.baseURI);$('playRecord').disabled=false;if(deckPlay)deckPlay.disabled=false;if(sound)audio.src=sound;
  notice(sound?'Pulsa Escuchar para cargar el preview.':'Sin audio todavía. Pulsa Escuchar para ver el tocadiscos en modo visual.');
  const phone=String(settings.whatsappNumber||'').replace(/\D/g,''),link=$('recordInquiry');
  link.hidden=!phone;link.textContent=Number(r.stock)===0?'Consultar disponibilidad ↗':'Consultar este disco ↗';
@@ -118,19 +118,15 @@ async function togglePlayback(){
   }
  }
 }
-function stopPlayback(){
- if(!selected)return;
- demoPlaying=false;
- audio.pause();
- try{audio.currentTime=0;}catch{}
- playing(false);
- $('seek').value=0;
- $('elapsed').textContent='0:00 / '+time(audio.duration);
- notice('Disco detenido.');
-}
 $('playRecord').onclick=togglePlayback;
 if(deckPlay)deckPlay.onclick=togglePlayback;
-if(deckStop)deckStop.onclick=stopPlayback;
+if(deckLight)deckLight.onclick=e=>{
+ e.stopPropagation();
+ const on=!deck.classList.contains('light-on');
+ deck.classList.toggle('light-on',on);
+ deckLight.setAttribute('aria-pressed',String(on));
+ deckLight.setAttribute('aria-label',on?'Apagar luz del plato':'Encender luz del plato');
+};
 audio.addEventListener('playing',()=>{demoPlaying=false;playing(true)});audio.addEventListener('pause',()=>playing(false));
 audio.addEventListener('ended',()=>{playing(false);notice('Preview terminado. Sigue explorando la colección.');});
 audio.addEventListener('error',()=>{if(!audio.getAttribute('src')||demoPlaying)return;notice('Preview no disponible. Cambiando a modo visual.');});
@@ -154,5 +150,5 @@ stage.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;
 ['pointerup','pointercancel','lostpointercapture'].forEach(name=>stage.addEventListener(name,()=>drag=null));
 stage.addEventListener('keydown',e=>{if(e.target!==stage)return;if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();if(e.key==='ArrowLeft')ry-=3;if(e.key==='ArrowRight')ry+=3;if(e.key==='ArrowUp')rx+=3;if(e.key==='ArrowDown')rx-=3;ry=Math.max(-18,Math.min(18,ry));rx=Math.max(-2,Math.min(24,rx));angle();});
 $('resetView').onclick=()=>{rx=8;ry=0;angle();};
-if(records.length)select(records[0],false);else{if(deckPlay)deckPlay.disabled=true;if(deckStop)deckStop.disabled=true;renderGallery();notice('La colección estará disponible próximamente.');}
+if(records.length)select(records[0],false);else{if(deckPlay)deckPlay.disabled=true;renderGallery();notice('La colección estará disponible próximamente.');}
 })();
