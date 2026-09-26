@@ -83,7 +83,10 @@
 
   <section class="collection" id="coleccion">
     <div class="library-toolbar">
-      <div class="library-label"><p class="eyebrow">BIBLIOTECA</p><p id="resultCount" aria-live="polite"></p></div>
+      <button class="library-label" id="libraryToggle" type="button" aria-expanded="true" aria-controls="discGallery">
+        <span class="eyebrow">BIBLIOTECA</span>
+        <span class="library-state"><span id="resultCount" aria-live="polite"></span><i aria-hidden="true">⌄</i></span>
+      </button>
       <div class="browse-tools">
         <label>Buscar<input id="recordSearch" type="search" placeholder="Artista, título o sello…"></label>
         <label>Género<select id="genreFilter"><option value="">Todos</option></select></label>
