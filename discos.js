@@ -56,7 +56,7 @@ function renderGallery(){
 }
 function select(r,focusView=false){
  if(!r)return;selection++;selected=r;demoPlaying=false;audio.pause();audio.removeAttribute('src');audio.load();applyTempo(tempoPercent);playing(false);
- deck.classList.add('loaded');$('seek').value=0;$('seek').disabled=true;$('elapsed').textContent='0:00 / 0:00';
+ deck.classList.add('loaded');$('seek').value=0;$('seek').disabled=true;$('seek').style.setProperty('--seek-progress','0%');$('deckCurrent').textContent='0:00';$('deckDuration').textContent='0:00';
  $('recordTitle').textContent=r.title;$('recordArtist').textContent=r.artist;
  $('recordInfo').textContent=[r.genre,r.label,r.year,r.condition].filter(Boolean).join(' / ');
  $('recordDescription').textContent=r.description||'';$('recordPrice').textContent=price(r);
@@ -130,9 +130,31 @@ if(deckLight)deckLight.onclick=e=>{
 audio.addEventListener('playing',()=>{demoPlaying=false;playing(true)});audio.addEventListener('pause',()=>playing(false));
 audio.addEventListener('ended',()=>{playing(false);notice('Preview terminado. Sigue explorando la colección.');});
 audio.addEventListener('error',()=>{if(!audio.getAttribute('src')||demoPlaying)return;notice('Preview no disponible. Cambiando a modo visual.');});
-audio.addEventListener('loadedmetadata',()=>{$('seek').disabled=!Number.isFinite(audio.duration)||audio.duration<=0;});
-audio.addEventListener('timeupdate',()=>{$('elapsed').textContent=time(audio.currentTime)+' / '+time(audio.duration);if(Number.isFinite(audio.duration)&&audio.duration>0)$('seek').value=audio.currentTime/audio.duration*100;});
-$('seek').oninput=()=>{if(Number.isFinite(audio.duration))audio.currentTime=audio.duration*Number($('seek').value)/100;};
+function syncDeckTimeline(){
+ const duration=Number.isFinite(audio.duration)&&audio.duration>0?audio.duration:0;
+ const current=Number.isFinite(audio.currentTime)?audio.currentTime:0;
+ const progress=duration?Math.max(0,Math.min(100,current/duration*100)):0;
+ $('deckCurrent').textContent=time(current);
+ $('deckDuration').textContent=time(duration);
+ $('seek').value=progress;
+ $('seek').style.setProperty('--seek-progress',progress+'%');
+}
+audio.addEventListener('loadedmetadata',()=>{
+ const ready=Number.isFinite(audio.duration)&&audio.duration>0;
+ $('seek').disabled=!ready;
+ syncDeckTimeline();
+});
+audio.addEventListener('timeupdate',syncDeckTimeline);
+audio.addEventListener('durationchange',syncDeckTimeline);
+$('seek').oninput=()=>{
+ const duration=Number.isFinite(audio.duration)&&audio.duration>0?audio.duration:0;
+ const progress=Number($('seek').value);
+ $('seek').style.setProperty('--seek-progress',progress+'%');
+ if(duration){
+  audio.currentTime=duration*progress/100;
+  $('deckCurrent').textContent=time(audio.currentTime);
+ }
+};
 $('volume').oninput=()=>audio.volume=Number($('volume').value);
 if(tempoFader)tempoFader.oninput=e=>applyTempo(e.target.value);
 if(tempoReset)tempoReset.onclick=e=>{e.stopPropagation();applyTempo(0);tempoFader?.focus();};
@@ -149,6 +171,5 @@ stage.addEventListener('pointerdown',e=>{if(e.target.closest('input,button,a'))r
 stage.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;ry=Math.max(-18,Math.min(18,drag.ry+(e.clientX-drag.x)*.12));rx=Math.max(-2,Math.min(24,drag.rx-(e.clientY-drag.y)*.12));angle();});
 ['pointerup','pointercancel','lostpointercapture'].forEach(name=>stage.addEventListener(name,()=>drag=null));
 stage.addEventListener('keydown',e=>{if(e.target!==stage)return;if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();if(e.key==='ArrowLeft')ry-=3;if(e.key==='ArrowRight')ry+=3;if(e.key==='ArrowUp')rx+=3;if(e.key==='ArrowDown')rx-=3;ry=Math.max(-18,Math.min(18,ry));rx=Math.max(-2,Math.min(24,rx));angle();});
-$('resetView').onclick=()=>{rx=8;ry=0;angle();};
 if(records.length)select(records[0],false);else{if(deckPlay)deckPlay.disabled=true;renderGallery();notice('La colección estará disponible próximamente.');}
 })();
