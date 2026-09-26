@@ -84,22 +84,25 @@
 </div></div>
 <div class="library-column">
   <aside class="listening-panel">
-    <div class="now-playing-head"><p class="eyebrow">EN EL PLATO</p><span id="recordInfo"></span></div>
+    <div class="now-playing-head"><p class="eyebrow">SELECCIÓN</p><span id="recordInfo"></span></div>
     <div class="selected-record">
-      <div class="selected-artwork" id="selectedArtwork" aria-hidden="true">
-        <img id="selectedArtworkImage" alt="" hidden>
+      <div class="sleeve-zone" id="sleeveZone">
+        <div class="sleeve-disc-preview" id="sleeveDiscPreview" aria-hidden="true"><span id="sleeveDiscLabel"></span></div>
+        <div class="selected-artwork" id="selectedArtwork" aria-hidden="true">
+          <img id="selectedArtworkImage" alt="" hidden>
+        </div>
       </div>
       <div class="selected-record-copy">
         <div class="now-playing-copy">
           <div><h2 id="recordTitle">Elige un disco</h2><p id="recordArtist"></p></div>
-          <div class="record-buy"><strong id="recordPrice"></strong><a id="recordInquiry" hidden target="_blank" rel="noopener noreferrer">Consultar ↗</a></div>
+          <div class="record-buy">
+            <strong id="recordPrice"></strong>
+            <span class="record-stock" id="recordStock"></span>
+            <a id="recordInquiry" hidden target="_blank" rel="noopener noreferrer">Consultar ↗</a>
+          </div>
         </div>
         <p id="recordDescription"></p>
       </div>
-    </div>
-    <div class="transport"><button id="previousRecord" aria-label="Disco anterior">←</button><button id="playRecord" disabled>Escuchar ▶</button><button id="nextRecord" aria-label="Disco siguiente">→</button></div>
-    <div class="player-sliders">
-      <label class="volume-label" for="volume"><span>Volumen</span><input id="volume" type="range" min="0" max="1" step=".05" value=".7"></label>
     </div>
     <p id="playerNotice" class="sr-only" role="status" aria-live="polite"></p>
   </aside>
@@ -119,5 +122,6 @@
     <noscript>Activa JavaScript para explorar la colección y escuchar los previews.</noscript>
   </section>
 </div></div></section></main>
+<div class="transport-disc" id="transportDisc" aria-hidden="true"><span id="transportDiscLabel"></span></div>
 <audio id="recordAudio" preload="none"></audio>
 <footer class="editorial-footer"><div><strong>La Vaca Loca Records</strong><p>Gualaceo, Ecuador · discos · sessions · cultura</p></div><nav aria-label="Pie de página"><a href="sessions.html">Sessions</a><a href="eventos.html">Eventos</a><a href="archivo.html">Archivo</a></nav><p class="design-credit"><a href="https://www.instagram.com/semiotice/" target="_blank" rel="noopener noreferrer">Website Design by Sebastian Llivichuzhca</a></p></footer></body></html>
