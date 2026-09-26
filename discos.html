@@ -45,11 +45,19 @@
       </div>
     </div>
 
-    <div class="player-controls">
-      <button class="deck-transport-button deck-play power-control" id="deckPlay" type="button" aria-label="Reproducir disco" aria-pressed="false" disabled><i></i><span>PLAY</span></button>
-      <div class="control-knob speed-control" aria-hidden="true"><i></i><span>33 / 45</span></div>
-      <button class="deck-transport-button deck-stop cue-control" id="deckStop" type="button" aria-label="Detener disco" disabled><i></i><span>STOP</span></button>
+    <div class="deck-hardware">
+      <button class="start-stop-control" id="deckPlay" type="button" aria-label="Iniciar disco" aria-pressed="false" disabled>
+        <span class="start-stop-ring"><i></i></span>
+        <span class="hardware-label">START / STOP</span>
+      </button>
+
+      <button class="deck-light-control" id="deckLight" type="button" aria-label="Encender luz del plato" aria-pressed="false">
+        <span class="light-post"><i></i></span>
+        <span class="hardware-label">LIGHT</span>
+      </button>
     </div>
+
+    <div class="stylus-light" aria-hidden="true"><i></i></div>
 
     <div class="tempo-fader" id="tempoFaderModule">
       <div class="tempo-heading"><span>TEMPO</span><output id="tempoValue" for="tempoFader">0.0%</output></div>
@@ -57,8 +65,12 @@
         <div class="tempo-scale" aria-hidden="true"><span>+8</span><span>+4</span><span>0</span><span>-4</span><span>-8</span></div>
         <input id="tempoFader" class="tempo-range" type="range" min="-8" max="8" step="0.1" value="0" aria-label="Tempo, menos 8 a más 8 por ciento">
       </div>
-      <button class="tempo-reset" id="tempoReset" type="button">RESET</button>
     </div>
+
+    <button class="pitch-reset-control" id="tempoReset" type="button" aria-label="Restablecer tempo a cero">
+      <span></span>
+      <small>RESET</small>
+    </button>
 
     <div class="deck-branding" aria-hidden="true">
       <img src="assets/brand/horizontal-logo-black.svg" alt="">
