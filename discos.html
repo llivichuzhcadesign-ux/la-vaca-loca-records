@@ -71,11 +71,15 @@
       <small>RESET</small>
     </button>
 
+    <div class="deck-playback-timeline">
+      <span class="deck-time" id="deckCurrent">0:00</span>
+      <input id="seek" class="deck-seek" type="range" min="0" max="100" value="0" disabled aria-label="Posición del audio">
+      <span class="deck-time" id="deckDuration">0:00</span>
+    </div>
+
     <div class="deck-branding" aria-hidden="true">
       <img src="assets/brand/horizontal-logo-black.svg" alt="">
     </div>
-
-    <button class="deck-reset-control" id="resetView" type="button" aria-label="Restablecer ángulo del tocadiscos">↺</button>
   </div>
 </div></div>
 <div class="library-column">
@@ -95,7 +99,6 @@
     </div>
     <div class="transport"><button id="previousRecord" aria-label="Disco anterior">←</button><button id="playRecord" disabled>Escuchar ▶</button><button id="nextRecord" aria-label="Disco siguiente">→</button></div>
     <div class="player-sliders">
-      <div><label class="seek-label" for="seek">Preview <span id="elapsed">0:00 / 0:00</span></label><input id="seek" type="range" min="0" max="100" value="0" disabled aria-label="Posición del audio"></div>
       <label class="volume-label" for="volume"><span>Volumen</span><input id="volume" type="range" min="0" max="1" step=".05" value=".7"></label>
     </div>
     <p id="playerNotice" class="sr-only" role="status" aria-live="polite"></p>
