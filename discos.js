@@ -39,6 +39,11 @@ const transportDisc=$('transportDisc');
 const transportDiscLabel=$('transportDiscLabel');
 const platter=document.querySelector('.platter');
 
+if(sleeveZone){
+  sleeveZone.tabIndex=0;
+  sleeveZone.setAttribute('role','button');
+}
+
 const colors=['#864833','#35493f','#827451','#493d57','#a25439','#394c5a'];
 
 let selected=null;
@@ -142,13 +147,28 @@ function setSleeveDiscVisual(r){
   const src=cover(r);
   const color=recordColor(r);
   if(sleeveZone)sleeveZone.style.setProperty('--sleeve-label',color);
-  if(transportDisc)transportDisc.style.setProperty('--transport-label',color);
   if(sleeveDiscLabel){
     sleeveDiscLabel.style.backgroundImage=src?'url('+JSON.stringify(src)+')':'';
   }
+}
+
+function setTransportDiscVisual(r){
+  const src=cover(r);
+  const color=recordColor(r);
+  if(transportDisc)transportDisc.style.setProperty('--transport-label',color);
   if(transportDiscLabel){
     transportDiscLabel.style.backgroundImage=src?'url('+JSON.stringify(src)+')':'';
   }
+}
+
+function syncSleeveReadyState(){
+  if(!sleeveZone)return;
+  const ready=!!pendingRecord&&pendingRecord!==selected&&!isLoadingDisc;
+  sleeveZone.classList.toggle('is-ready',ready);
+  sleeveZone.setAttribute('aria-disabled',String(!ready));
+  sleeveZone.setAttribute('aria-label',ready
+    ?'Colocar '+pendingRecord.artist+' — '+pendingRecord.title+' en el tocadiscos'
+    :selected?'Disco actual: '+selected.artist+' — '+selected.title:'Disco no disponible');
 }
 
 function updateSelectedInfo(r){
@@ -171,9 +191,10 @@ function updateSelectedInfo(r){
   }
 
   if(sleeveZone){
-    sleeveZone.classList.remove('disc-on-deck','is-ejecting','is-flying');
+    sleeveZone.classList.remove('disc-on-deck','is-ejecting','is-flying','is-swapping');
   }
   setSleeveDiscVisual(r);
+  syncSleeveReadyState();
 
   const src=cover(r);
   if(src){
@@ -207,11 +228,12 @@ function renderGallery(){
   gallery.innerHTML=results.map((r,i)=>{
     const detail=[r.genre,r.year].filter(Boolean).join(' · ');
     const status=String(r.status||'').trim();
-    return '<button class="sleeve" data-index="'+records.indexOf(r)+'" aria-pressed="'+(r===selected)+'" aria-label="Seleccionar '+escape(r.artist+' — '+r.title)+'"><span class="sleeve-art" style="--sleeve-color:'+colors[i%colors.length]+'"><span class="fallback-type">'+escape(r.title)+'</span><span class="fallback-code">'+escape(r.id)+' / LVL RECORDS</span>'+(cover(r)?'<img src="'+escape(cover(r))+'" alt="" loading="lazy">':'')+'</span><span class="sleeve-meta"><strong>'+escape(r.artist)+'</strong><small>'+escape(r.title)+'</small><span class="sleeve-footer"><span class="sleeve-detail">'+escape(detail)+'</span><span class="sleeve-price">'+(status?'<i class="sleeve-status-dot" title="'+escape(status)+'"></i>':'')+escape(price(r))+'</span></span></span></button>';
+    const active=pendingRecord||selected;
+    return '<button class="sleeve" data-index="'+records.indexOf(r)+'" aria-pressed="'+(r===active)+'" aria-label="Seleccionar '+escape(r.artist+' — '+r.title)+'"><span class="sleeve-art" style="--sleeve-color:'+colors[i%colors.length]+'"><span class="fallback-type">'+escape(r.title)+'</span><span class="fallback-code">'+escape(r.id)+' / LVL RECORDS</span>'+(cover(r)?'<img src="'+escape(cover(r))+'" alt="" loading="lazy">':'')+'</span><span class="sleeve-meta"><strong>'+escape(r.artist)+'</strong><small>'+escape(r.title)+'</small><span class="sleeve-footer"><span class="sleeve-detail">'+escape(detail)+'</span><span class="sleeve-price">'+(status?'<i class="sleeve-status-dot" title="'+escape(status)+'"></i>':'')+escape(price(r))+'</span></span></span></button>';
   }).join('')||'<p>No hay discos con estos filtros.</p>';
   gallery.querySelectorAll('img').forEach(img=>img.onerror=()=>img.remove());
   gallery.querySelectorAll('[data-index]').forEach(button=>{
-    button.onclick=()=>loadFromLibrary(records[+button.dataset.index]);
+    button.onclick=()=>stageFromLibrary(records[+button.dataset.index]);
   });
 }
 
@@ -258,9 +280,10 @@ function mountRecord(r,focusView=false,infoReady=false){
   notice('Disco listo en el plato.');
 
   if(sleeveZone){
-    sleeveZone.classList.remove('is-ejecting','is-flying');
+    sleeveZone.classList.remove('is-ejecting','is-flying','is-swapping');
     sleeveZone.classList.add('disc-on-deck');
   }
+  syncSleeveReadyState();
 
   renderGallery();
   if(focusView)focusRecordView(true);
@@ -268,6 +291,7 @@ function mountRecord(r,focusView=false,infoReady=false){
 
 async function animateDiscTransfer(r){
   if(!sleeveZone||!sleeveDiscPreview||!transportDisc||!platter)return;
+  setTransportDiscVisual(r);
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
 
   sleeveZone.classList.remove('disc-on-deck');
@@ -310,41 +334,152 @@ async function animateDiscTransfer(r){
   sleeveZone.classList.remove('is-ejecting','is-flying');
 }
 
-async function loadFromLibrary(r){
+function stageFromLibrary(r){
   if(!r||isLoadingDisc)return;
-  if(r===selected){
-    focusRecordView(true);
-    return;
-  }
 
-  isLoadingDisc=true;
-  if(deckPlay)deckPlay.disabled=true;
-
-  // 1. Stop the current record and visibly return the arm to rest.
-  stopCurrentForSwap();
-  deck.classList.add('disc-unloading');
-
-  // 2. Update the jacket while Biblioteca drops away.
   updateSelectedInfo(r);
   focusRecordView(true);
 
-  if(window.matchMedia('(min-width:951px)').matches){
-    await wait(620);
+  if(r===selected){
+    pendingRecord=null;
+    if(sleeveZone)sleeveZone.classList.add('disc-on-deck');
+    syncSleeveReadyState();
+    notice('Este disco ya está en el plato.');
   }else{
-    await wait(260);
+    notice('Disco seleccionado. Pasa sobre la funda y presiónala para colocarlo en el plato.');
   }
 
-  // 3. Eject the vinyl from its jacket and carry it to the spindle.
-  await animateDiscTransfer(r);
+  renderGallery();
+}
 
-  // 4. Mount the new record only after the flying disc reaches the platter.
-  mountRecord(r,true,true);
-  deck.classList.remove('disc-unloading','disc-loading');
+function createReturnSleeveGhost(r,rect){
+  const ghost=document.createElement('div');
+  ghost.className='return-sleeve-ghost';
+  ghost.style.left=rect.left+'px';
+  ghost.style.top=rect.top+'px';
+  ghost.style.width=rect.width+'px';
+  ghost.style.height=rect.height+'px';
+  ghost.style.setProperty('--ghost-color',recordColor(r));
+
+  const src=cover(r);
+  if(src){
+    const img=document.createElement('img');
+    img.alt='';
+    img.src=src;
+    ghost.append(img);
+  }
+
+  document.body.append(ghost);
+  requestAnimationFrame(()=>ghost.classList.add('is-visible'));
+  return ghost;
+}
+
+async function animateDiscReturn(r){
+  if(!r||!transportDisc||!platter||!sleeveZone)return;
+
+  const jacket=$('selectedArtwork');
+  if(!jacket)return;
+
+  const from=platter.getBoundingClientRect();
+  const to=jacket.getBoundingClientRect();
+  if(!from.width||!to.width)return;
+
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ghost=createReturnSleeveGhost(r,to);
+
+  if(reduced){
+    await wait(80);
+    ghost.remove();
+    return;
+  }
+
+  setTransportDiscVisual(r);
+
+  const baseWidth=to.width*.86;
+  const startX=from.left+from.width/2;
+  const startY=from.top+from.height/2;
+  const targetX=to.left+to.width*.76;
+  const targetY=to.top+to.height*.51;
+  const midX=(startX+targetX)/2;
+  const midY=Math.min(startY,targetY)-78;
+  const startScale=Math.max(1,(from.width*.91)/baseWidth);
+
+  transportDisc.style.width=baseWidth+'px';
+  transportDisc.style.left=startX+'px';
+  transportDisc.style.top=startY+'px';
+  transportDisc.classList.add('is-visible');
+  deck.classList.add('disc-unloading');
+
+  const returnFlight=transportDisc.animate([
+    {left:startX+'px',top:startY+'px',transform:'translate(-50%,-50%) scale('+startScale+') rotate(0deg)',opacity:1,offset:0},
+    {left:midX+'px',top:midY+'px',transform:'translate(-50%,-50%) scale('+(Math.max(1,startScale*.64))+') rotate(-142deg)',opacity:1,offset:.58},
+    {left:targetX+'px',top:targetY+'px',transform:'translate(-50%,-50%) scale(1) rotate(-286deg)',opacity:1,offset:1}
+  ],{
+    duration:900,
+    easing:'cubic-bezier(.2,.72,.18,1)',
+    fill:'forwards'
+  });
+
+  try{await returnFlight.finished}catch{}
+
+  const tuck=transportDisc.animate([
+    {left:targetX+'px',top:targetY+'px',transform:'translate(-50%,-50%) scale(1) rotate(-286deg)',opacity:1},
+    {left:(to.left+to.width*.54)+'px',top:targetY+'px',transform:'translate(-50%,-50%) scale(.9) rotate(-302deg)',opacity:0}
+  ],{
+    duration:310,
+    easing:'cubic-bezier(.4,0,.2,1)',
+    fill:'forwards'
+  });
+
+  try{await tuck.finished}catch{}
+
+  returnFlight.cancel();
+  tuck.cancel();
+  transportDisc.classList.remove('is-visible');
+  deck.classList.remove('disc-unloading');
+
+  ghost.classList.remove('is-visible');
+  await wait(190);
+  ghost.remove();
+}
+
+async function commitPendingRecord(){
+  const next=pendingRecord;
+  const current=selected;
+  if(!next||next===current||isLoadingDisc)return;
+
+  isLoadingDisc=true;
+  syncSleeveReadyState();
+  if(deckPlay)deckPlay.disabled=true;
+  if(sleeveZone)sleeveZone.classList.add('is-swapping');
+
+  // Stop first; the tonearm must visibly return before the record is touched.
+  stopCurrentForSwap();
+  deck.classList.add('arm-returning');
+
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    await wait(980);
+  }
+
+  // Return the record currently on the platter to its own jacket.
+  await animateDiscReturn(current);
+  deck.classList.remove('arm-returning');
+
+  // Reveal the staged jacket again, then let its record come out.
+  if(sleeveZone)sleeveZone.classList.remove('is-swapping');
+  setSleeveDiscVisual(next);
+  await wait(180);
+
+  await animateDiscTransfer(next);
+  mountRecord(next,true,true);
+
+  deck.classList.remove('disc-unloading','disc-loading','arm-returning');
   deck.classList.add('disc-arrived');
-
   setTimeout(()=>deck.classList.remove('disc-arrived'),520);
-  if(deckPlay)deckPlay.disabled=false;
+
   isLoadingDisc=false;
+  syncSleeveReadyState();
+  if(deckPlay)deckPlay.disabled=false;
 }
 
 async function togglePlayback(){
@@ -381,6 +516,15 @@ async function togglePlayback(){
       notice('Preview no disponible. Tocadiscos en modo visual.');
     }
   }
+}
+
+if(sleeveZone){
+  sleeveZone.addEventListener('click',()=>commitPendingRecord());
+  sleeveZone.addEventListener('keydown',e=>{
+    if(!['Enter',' '].includes(e.key))return;
+    e.preventDefault();
+    commitPendingRecord();
+  });
 }
 
 if(deckPlay)deckPlay.onclick=togglePlayback;
