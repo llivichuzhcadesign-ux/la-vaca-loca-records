@@ -436,7 +436,6 @@ async function animateDiscReturn(r){
   returnFlight.cancel();
   tuck.cancel();
   transportDisc.classList.remove('is-visible');
-  deck.classList.remove('disc-unloading');
 
   ghost.classList.remove('is-visible');
   await wait(190);
