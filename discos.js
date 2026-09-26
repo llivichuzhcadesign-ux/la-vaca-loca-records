@@ -10,7 +10,7 @@ const $=id=>document.getElementById(id),content=window.SITE_CONTENT||{},settings
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const audio=$('recordAudio'),deck=$('turntable'),gallery=$('discGallery'),libraryColumn=document.querySelector('.library-column'),libraryToggle=$('libraryToggle'),tempoFader=$('tempoFader'),tempoValue=$('tempoValue'),tempoReset=$('tempoReset'),tempoModule=$('tempoFaderModule'),deckPlay=$('deckPlay'),deckLight=$('deckLight');
 const colors=['#864833','#35493f','#827451','#493d57','#a25439','#394c5a'];
-let selected=null,results=records,selection=0,rx=8,ry=0,demoPlaying=false,tempoPercent=0;
+let selected=null,results=records,selection=0,rx=8,ry=0,demoPlaying=false,tempoPercent=0,demoTime=0,demoDuration=30,demoFrame=0,demoLast=0;
 audio.volume=.7;
 const price=r=>(settings.currency||'$')+Number(r.price||0).toFixed(2);
 const cover=r=>window.CalendarContent.imageUrl(r.coverImage||r.media?.artwork?.url||r.media?.artwork?.path,document.baseURI);
@@ -36,6 +36,45 @@ function applyTempo(value){
  if(tempoValue)tempoValue.textContent=(tempoPercent>0?'+':'')+tempoPercent.toFixed(1)+'%';
  if(tempoModule)tempoModule.classList.toggle('is-center',Math.abs(tempoPercent)<.05);
 }
+function setTimeline(current,duration){
+ const safeDuration=Number.isFinite(duration)&&duration>0?duration:0;
+ const safeCurrent=Math.max(0,Math.min(Number.isFinite(current)?current:0,safeDuration||0));
+ const progress=safeDuration?safeCurrent/safeDuration*100:0;
+ $('deckCurrent').textContent=time(safeCurrent);
+ $('deckDuration').textContent=time(safeDuration);
+ $('seek').value=progress;
+ $('seek').style.setProperty('--seek-progress',progress+'%');
+}
+function stopDemoClock(){
+ if(demoFrame){cancelAnimationFrame(demoFrame);demoFrame=0;}
+ demoLast=0;
+}
+function demoTick(now){
+ if(!demoPlaying)return stopDemoClock();
+ if(!demoLast)demoLast=now;
+ const delta=(now-demoLast)/1000;
+ demoLast=now;
+ demoTime+=delta*(1+tempoPercent/100);
+ if(demoTime>=demoDuration){
+  demoTime=demoDuration;
+  demoPlaying=false;
+  playing(false);
+  setTimeline(demoTime,demoDuration);
+  stopDemoClock();
+  return;
+ }
+ setTimeline(demoTime,demoDuration);
+ demoFrame=requestAnimationFrame(demoTick);
+}
+function startDemoClock(){
+ $('seek').disabled=false;
+ if(demoTime>=demoDuration)demoTime=0;
+ setTimeline(demoTime,demoDuration);
+ stopDemoClock();
+ demoPlaying=true;
+ playing(true);
+ demoFrame=requestAnimationFrame(demoTick);
+}
 function focusRecordView(on){
  const allow=window.matchMedia('(min-width:951px)').matches;
  const active=!!on&&allow;
@@ -55,8 +94,8 @@ function renderGallery(){
  $('previousRecord').disabled=$('nextRecord').disabled=results.length<2;
 }
 function select(r,focusView=false){
- if(!r)return;selection++;selected=r;demoPlaying=false;audio.pause();audio.removeAttribute('src');audio.load();applyTempo(tempoPercent);playing(false);
- deck.classList.add('loaded');$('seek').value=0;$('seek').disabled=true;$('seek').style.setProperty('--seek-progress','0%');$('deckCurrent').textContent='0:00';$('deckDuration').textContent='0:00';
+ if(!r)return;selection++;selected=r;demoPlaying=false;stopDemoClock();demoTime=0;audio.pause();audio.removeAttribute('src');audio.load();applyTempo(tempoPercent);playing(false);
+ deck.classList.add('loaded');$('seek').disabled=true;setTimeline(0,0);
  $('recordTitle').textContent=r.title;$('recordArtist').textContent=r.artist;
  $('recordInfo').textContent=[r.genre,r.label,r.year,r.condition].filter(Boolean).join(' / ');
  $('recordDescription').textContent=r.description||'';$('recordPrice').textContent=price(r);
@@ -90,14 +129,14 @@ async function togglePlayback(){
  if(!selected)return;
  if(demoPlaying){
   demoPlaying=false;
+  stopDemoClock();
   playing(false);
   notice('Modo visual en pausa.');
   return;
  }
  const sound=audioUrl(selected,document.baseURI);
  if(!sound){
-  demoPlaying=true;
-  playing(true);
+  startDemoClock();
   notice('Modo visual: el plato está girando y la aguja está sobre el disco.');
   return;
  }
@@ -112,8 +151,7 @@ async function togglePlayback(){
   if(version===selection)notice('Escuchando '+selected.artist+' — '+selected.title);
  }catch{
   if(version===selection){
-   demoPlaying=true;
-   playing(true);
+   startDemoClock();
    notice('El preview aún no está disponible. Tocadiscos en modo visual.');
   }
  }
@@ -127,17 +165,13 @@ if(deckLight)deckLight.onclick=e=>{
  deckLight.setAttribute('aria-pressed',String(on));
  deckLight.setAttribute('aria-label',on?'Apagar luz del plato':'Encender luz del plato');
 };
-audio.addEventListener('playing',()=>{demoPlaying=false;playing(true)});audio.addEventListener('pause',()=>playing(false));
+audio.addEventListener('playing',()=>{demoPlaying=false;stopDemoClock();playing(true)});audio.addEventListener('pause',()=>{if(!demoPlaying)playing(false)});
 audio.addEventListener('ended',()=>{playing(false);notice('Preview terminado. Sigue explorando la colección.');});
 audio.addEventListener('error',()=>{if(!audio.getAttribute('src')||demoPlaying)return;notice('Preview no disponible. Cambiando a modo visual.');});
 function syncDeckTimeline(){
  const duration=Number.isFinite(audio.duration)&&audio.duration>0?audio.duration:0;
  const current=Number.isFinite(audio.currentTime)?audio.currentTime:0;
- const progress=duration?Math.max(0,Math.min(100,current/duration*100)):0;
- $('deckCurrent').textContent=time(current);
- $('deckDuration').textContent=time(duration);
- $('seek').value=progress;
- $('seek').style.setProperty('--seek-progress',progress+'%');
+ setTimeline(current,duration);
 }
 audio.addEventListener('loadedmetadata',()=>{
  const ready=Number.isFinite(audio.duration)&&audio.duration>0;
@@ -147,13 +181,15 @@ audio.addEventListener('loadedmetadata',()=>{
 audio.addEventListener('timeupdate',syncDeckTimeline);
 audio.addEventListener('durationchange',syncDeckTimeline);
 $('seek').oninput=()=>{
- const duration=Number.isFinite(audio.duration)&&audio.duration>0?audio.duration:0;
  const progress=Number($('seek').value);
- $('seek').style.setProperty('--seek-progress',progress+'%');
- if(duration){
-  audio.currentTime=duration*progress/100;
-  $('deckCurrent').textContent=time(audio.currentTime);
+ const realDuration=Number.isFinite(audio.duration)&&audio.duration>0?audio.duration:0;
+ if(realDuration){
+  audio.currentTime=realDuration*progress/100;
+  setTimeline(audio.currentTime,realDuration);
+  return;
  }
+ demoTime=demoDuration*progress/100;
+ setTimeline(demoTime,demoDuration);
 };
 $('volume').oninput=()=>audio.volume=Number($('volume').value);
 if(tempoFader)tempoFader.oninput=e=>applyTempo(e.target.value);
