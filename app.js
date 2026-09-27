@@ -13,7 +13,7 @@ async function setupHomepageIntro(){
  const loader=document.getElementById('lvlIntroLoader');
  if(!loader)return;
 
- const SESSION_KEY='lvl-home-intro-laser-v7';
+ const SESSION_KEY='lvl-home-intro-laser-v8';
  let seen=false;
  try{seen=sessionStorage.getItem(SESSION_KEY)==='1'}catch(error){}
  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -37,7 +37,7 @@ async function setupHomepageIntro(){
  }
 
  try{
-  const response=await fetch('assets/brand/lvl-laser-logo.svg?v=eyes-1',{cache:'force-cache'});
+  const response=await fetch('assets/brand/lvl-laser-logo.svg?v=full-art-20260927',{cache:'force-cache'});
   if(!response.ok)throw new Error('Intro SVG could not load');
   const svgText=await response.text();
   wrap.innerHTML=svgText;
@@ -47,6 +47,14 @@ async function setupHomepageIntro(){
   svg.setAttribute('preserveAspectRatio','xMidYMid meet');
   svg.removeAttribute('width');
   svg.removeAttribute('height');
+
+  // The original SVG layers raster shading and the heart tail over its vector
+  // shapes. Keep those layers hidden during tracing, then reveal them together.
+  const details=[...svg.querySelectorAll('use')];
+  details.forEach(el=>{
+   el.classList.add('lvl-logo-detail');
+   el.style.opacity='0';
+  });
 
   // Keep the laser in the artwork's coordinate space. Mobile Safari can report
   // screen coordinates differently while the outer artwork is transforming.
@@ -285,6 +293,7 @@ async function setupHomepageIntro(){
   });
 
   loader.classList.add('is-complete');
+  requestAnimationFrame(()=>details.forEach(el=>el.style.removeProperty('opacity')));
   await delay(2200);
   finishIntro();
  }catch(error){
@@ -298,6 +307,7 @@ async function setupHomepageIntro(){
    el.style.removeProperty('stroke-opacity');
   });
   wrap.querySelectorAll('.lvl-cow-eye').forEach(el=>el.classList.remove('lvl-cow-eye'));
+  wrap.querySelectorAll('.lvl-logo-detail').forEach(el=>el.style.removeProperty('opacity'));
   wrap.style.opacity='1';
   await delay(500);
   finishIntro(false);

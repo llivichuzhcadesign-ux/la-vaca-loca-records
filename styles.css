@@ -113,6 +113,9 @@ body.intro-active{overflow:hidden}
 .lvl-intro-mark-wrap .lvl-laser-done{
   filter:none;
 }
+.lvl-intro-mark-wrap .lvl-logo-detail{
+  transition:opacity .62s cubic-bezier(.2,.7,.2,1);
+}
 .lvl-intro-mark-wrap .lvl-cow-eye{opacity:0}
 .lvl-intro-mark-wrap .lvl-cow-eye.is-visible{
   animation:lvlCowEyeOpen .38s cubic-bezier(.18,.78,.24,1) both;
