@@ -13,7 +13,7 @@ async function setupHomepageIntro(){
  const loader=document.getElementById('lvlIntroLoader');
  if(!loader)return;
 
- const SESSION_KEY='lvl-home-intro-laser-v6';
+ const SESSION_KEY='lvl-home-intro-laser-v7';
  let seen=false;
  try{seen=sessionStorage.getItem(SESSION_KEY)==='1'}catch(error){}
  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -62,6 +62,28 @@ async function setupHomepageIntro(){
    glow.appendChild(stop);
   }
   defs.appendChild(glow);
+  // A few fading motes follow the tracing tip, in the same SVG coordinates as
+  // the beam. Reuse the circles instead of adding nodes on every frame.
+  const smokeGradient=document.createElementNS(svgNS,'radialGradient');
+  smokeGradient.id='lvlIntroLaserSmoke';
+  for(const [offset,color,opacity] of [['0','#f7e8dd','.65'],['.48','#d5aa9a','.28'],['1','#d5aa9a','0']]){
+   const stop=document.createElementNS(svgNS,'stop');
+   stop.setAttribute('offset',offset);
+   stop.setAttribute('stop-color',color);
+   stop.setAttribute('stop-opacity',opacity);
+   smokeGradient.appendChild(stop);
+  }
+  defs.appendChild(smokeGradient);
+  const smoke=document.createElementNS(svgNS,'g');
+  smoke.setAttribute('class','lvl-laser-smoke');
+  const smokeMotes=Array.from({length:8},(_,index)=>{
+   const circle=document.createElementNS(svgNS,'circle');
+   circle.setAttribute('fill','url(#lvlIntroLaserSmoke)');
+   smoke.appendChild(circle);
+   return {circle,index,birth:-Infinity,x:0,y:0};
+  });
+  svg.appendChild(smoke);
+
   const beam=document.createElementNS(svgNS,'g');
   beam.setAttribute('class','lvl-intro-beam');
   const tail=document.createElementNS(svgNS,'line');
@@ -76,39 +98,6 @@ async function setupHomepageIntro(){
   beam.append(tail,halo,core);
   svg.appendChild(beam);
 
-  const smokeGradient=document.createElementNS(svgNS,'linearGradient');
-  smokeGradient.id='lvlIntroSmokeGradient';
-  for(const [name,value] of [['gradientUnits','userSpaceOnUse'],['x1','62'],['y1','158'],['x2','28'],['y2','96']]){
-   smokeGradient.setAttribute(name,value);
-  }
-  for(const [offset,color,opacity] of [['0','#d99a87','.82'],['.55','#f0d9ca','.67'],['1','#eee5d3','.12']]){
-   const stop=document.createElementNS(svgNS,'stop');
-   stop.setAttribute('offset',offset);
-   stop.setAttribute('stop-color',color);
-   stop.setAttribute('stop-opacity',opacity);
-   smokeGradient.appendChild(stop);
-  }
-  defs.appendChild(smokeGradient);
-  const smoke=document.createElementNS(svgNS,'g');
-  smoke.setAttribute('class','lvl-intro-smoke');
-  for(const d of [
-   'M54 154 C43 151 37 144 39 136 C41 128 30 125 32 115 C34 107 27 103 28 96',
-   'M65 158 C58 151 54 148 56 139 C59 129 47 126 48 118 C49 112 45 108 46 103'
-  ]){
-   const plume=document.createElementNS(svgNS,'g');
-   plume.setAttribute('class','lvl-smoke-plume');
-   for(const className of ['lvl-smoke-haze','lvl-smoke-thread']){
-    const path=document.createElementNS(svgNS,'path');
-    path.setAttribute('class',className);
-    path.setAttribute('d',d);
-    path.setAttribute('pathLength','100');
-    if(className==='lvl-smoke-thread')path.setAttribute('stroke','url(#lvlIntroSmokeGradient)');
-    plume.appendChild(path);
-   }
-   smoke.appendChild(plume);
-  }
-  svg.appendChild(smoke);
-
   const nearEye=[svg.querySelector('#lvl-cow-eye-near'),svg.querySelector('#lvl-cow-eye-near-outline')];
   const farEye=svg.querySelector('#lvl-cow-eye-far');
   if(nearEye.some(el=>!el)||!farEye)throw new Error('Intro SVG eye shapes missing');
@@ -117,7 +106,7 @@ async function setupHomepageIntro(){
 
   const drawableSelector='path,circle,ellipse,rect,line,polyline,polygon';
   const shapes=[...svg.querySelectorAll(drawableSelector)].filter(el=>{
-   if(el.closest('defs,clipPath,mask,pattern,.lvl-intro-beam,.lvl-intro-smoke')||eyeShapes.has(el))return false;
+   if(el.closest('defs,clipPath,mask,pattern,.lvl-intro-beam,.lvl-laser-smoke')||eyeShapes.has(el))return false;
    if(typeof el.getTotalLength!=='function')return false;
    try{return el.getTotalLength()>.35}catch(error){return false}
   });
@@ -204,6 +193,26 @@ async function setupHomepageIntro(){
   const startTime=performance.now();
   let previousPoint=null;
   let previousSegment=null;
+  let lastSmokeAt=-Infinity;
+  let smokeIndex=0;
+
+  function updateLaserSmoke(now,point){
+   if(point&&now-lastSmokeAt>=82){
+    const mote=smokeMotes[smokeIndex++%smokeMotes.length];
+    mote.birth=now;
+    mote.x=point.x;
+    mote.y=point.y;
+    lastSmokeAt=now;
+   }
+   for(const mote of smokeMotes){
+    const age=(now-mote.birth)/640;
+    if(age<0||age>=1){mote.circle.style.opacity='0';continue}
+    mote.circle.setAttribute('cx',mote.x+(mote.index%2 ? 1 : -1)*age*3);
+    mote.circle.setAttribute('cy',mote.y-age*7);
+    mote.circle.setAttribute('r',2.8+age*3.4);
+    mote.circle.style.opacity=String(.68*Math.pow(1-age,1.4));
+   }
+  }
 
   await new Promise(resolve=>{
    function frame(now){
@@ -250,12 +259,14 @@ async function setupHomepageIntro(){
      beam.style.opacity='0';
      previousPoint=null;
     }
+    updateLaserSmoke(now,point);
 
     if(elapsed<TRACE_DURATION){
      requestAnimationFrame(frame);
     }else{
      segments.forEach(completeSegment);
      beam.style.opacity='0';
+     smoke.style.opacity='0';
      resolve();
     }
    }
@@ -275,8 +286,6 @@ async function setupHomepageIntro(){
 
   loader.classList.add('is-complete');
   await delay(2200);
-  loader.classList.add('is-smoking');
-  await delay(520);
   finishIntro();
  }catch(error){
   console.warn('LVL laser intro could not run',error);
