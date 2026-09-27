@@ -13,8 +13,9 @@ async function setupHomepageIntro(){
  const loader=document.getElementById('lvlIntroLoader');
  if(!loader)return;
 
+ const SESSION_KEY='lvl-home-intro-character-v1';
  let seen=false;
- try{seen=sessionStorage.getItem('lvl-home-intro-seen')==='1'}catch(error){}
+ try{seen=sessionStorage.getItem(SESSION_KEY)==='1'}catch(error){}
  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  const skip=seen||reduceMotion||previewMode||document.documentElement.classList.contains('lvl-intro-skip');
 
@@ -28,26 +29,108 @@ async function setupHomepageIntro(){
  const mark=document.getElementById('lvlIntroMark');
  const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
+ async function waitForSvg(){
+  if(!mark)return;
+  try{
+   if(mark.contentDocument?.documentElement)return;
+  }catch(error){}
+  await Promise.race([
+   new Promise(resolve=>mark.addEventListener('load',resolve,{once:true})),
+   delay(1800)
+  ]);
+ }
+
+ await waitForSvg();
+
+ let svgRoot=null;
  try{
-  if(mark&&typeof mark.decode==='function'){
-   await Promise.race([mark.decode().catch(()=>{}),delay(650)]);
-  }else{
-   await delay(120);
+  const svgDoc=mark?.contentDocument;
+  svgRoot=svgDoc?.documentElement||null;
+  if(svgDoc&&svgRoot){
+   const style=svgDoc.createElementNS('http://www.w3.org/2000/svg','style');
+   style.textContent=`
+svg{overflow:visible}
+#BG{opacity:0!important}
+#LOMO,#LEGS,#BORRACHITO,#VACA,#Cuete_1,#Cuete_2{
+  opacity:0;
+  transform-box:fill-box;
+  transform-origin:center;
+  will-change:transform,opacity,filter;
+}
+.lvl-character-boot #LOMO{
+  animation:lvlLomoIn .82s cubic-bezier(.16,.84,.18,1) .18s forwards;
+}
+.lvl-character-boot #LEGS{
+  animation:lvlLegsIn .78s cubic-bezier(.18,.82,.2,1) .46s forwards;
+}
+.lvl-character-boot #BORRACHITO{
+  animation:lvlBorrachoIn .82s cubic-bezier(.16,.82,.18,1) .67s forwards;
+}
+.lvl-character-boot #VACA{
+  animation:lvlVacaIn .88s cubic-bezier(.14,.84,.18,1) .90s forwards;
+}
+.lvl-character-boot #Cuete_1{
+  animation:lvlCueteOne .72s cubic-bezier(.12,.86,.18,1) 1.40s forwards,lvlCueteGlow .95s ease 2.28s 1;
+}
+.lvl-character-boot #Cuete_2{
+  animation:lvlCueteTwo .72s cubic-bezier(.12,.86,.18,1) 1.63s forwards,lvlCueteGlow .95s ease 2.42s 1;
+}
+@keyframes lvlLomoIn{
+  0%{opacity:0;transform:translate(42px,8px) scale(.86);filter:blur(10px)}
+  68%{opacity:1;transform:translate(-3px,0) scale(1.018);filter:blur(0)}
+  100%{opacity:1;transform:translate(0,0) scale(1);filter:blur(0)}
+}
+@keyframes lvlLegsIn{
+  0%{opacity:0;transform:translate(0,54px) rotate(5deg) scale(.93);filter:blur(7px)}
+  72%{opacity:1;transform:translate(0,-3px) rotate(-.8deg) scale(1.012);filter:blur(0)}
+  100%{opacity:1;transform:translate(0,0) rotate(0) scale(1);filter:blur(0)}
+}
+@keyframes lvlBorrachoIn{
+  0%{opacity:0;transform:translate(-38px,28px) rotate(12deg) scale(.90);filter:blur(8px)}
+  70%{opacity:1;transform:translate(3px,-2px) rotate(-1.2deg) scale(1.015);filter:blur(0)}
+  100%{opacity:1;transform:translate(0,0) rotate(0) scale(1);filter:blur(0)}
+}
+@keyframes lvlVacaIn{
+  0%{opacity:0;transform:translate(-46px,-18px) rotate(-7deg) scale(.87);filter:blur(9px)}
+  68%{opacity:1;transform:translate(5px,1px) rotate(1.4deg) scale(1.028);filter:blur(0)}
+  100%{opacity:1;transform:translate(0,0) rotate(0) scale(1);filter:blur(0)}
+}
+@keyframes lvlCueteOne{
+  0%{opacity:0;transform:translate(18px,34px) scale(.12) rotate(-18deg);filter:blur(12px) drop-shadow(0 0 0 rgba(255,90,167,0))}
+  64%{opacity:1;transform:translate(-2px,-3px) scale(1.14) rotate(2deg);filter:blur(0) drop-shadow(0 0 18px rgba(255,90,167,.42))}
+  100%{opacity:1;transform:translate(0,0) scale(1) rotate(0);filter:blur(0) drop-shadow(0 0 8px rgba(255,90,167,.16))}
+}
+@keyframes lvlCueteTwo{
+  0%{opacity:0;transform:translate(-24px,30px) scale(.10) rotate(17deg);filter:blur(12px) drop-shadow(0 0 0 rgba(255,90,167,0))}
+  64%{opacity:1;transform:translate(2px,-3px) scale(1.15) rotate(-2deg);filter:blur(0) drop-shadow(0 0 19px rgba(255,90,167,.44))}
+  100%{opacity:1;transform:translate(0,0) scale(1) rotate(0);filter:blur(0) drop-shadow(0 0 8px rgba(255,90,167,.16))}
+}
+@keyframes lvlCueteGlow{
+  0%,100%{filter:drop-shadow(0 0 8px rgba(255,90,167,.16))}
+  46%{filter:drop-shadow(0 0 28px rgba(255,90,167,.54))}
+}
+`;
+   svgRoot.appendChild(style);
   }
- }catch(error){}
+ }catch(error){
+  console.warn('LVL intro SVG groups could not be animated',error);
+ }
 
  requestAnimationFrame(()=>{
-  requestAnimationFrame(()=>loader.classList.add('is-running'));
+  requestAnimationFrame(()=>{
+   if(svgRoot)svgRoot.classList.add('lvl-character-boot');
+   loader.classList.add('is-running');
+  });
  });
 
- const RUN_DURATION=3900;
+ const RUN_DURATION=4300;
  await delay(RUN_DURATION);
 
  loader.classList.add('is-exiting');
  document.body.classList.remove('intro-active');
- try{sessionStorage.setItem('lvl-home-intro-seen','1')}catch(error){}
+ try{sessionStorage.setItem(SESSION_KEY,'1')}catch(error){}
 
- await delay(900);
+ await delay(920);
  loader.remove();
 }
 
