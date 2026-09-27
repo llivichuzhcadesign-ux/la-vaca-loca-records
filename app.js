@@ -13,7 +13,7 @@ async function setupHomepageIntro(){
  const loader=document.getElementById('lvlIntroLoader');
  if(!loader)return;
 
- const SESSION_KEY='lvl-home-intro-laser-v3';
+ const SESSION_KEY='lvl-home-intro-laser-v4';
  let seen=false;
  try{seen=sessionStorage.getItem(SESSION_KEY)==='1'}catch(error){}
  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -37,7 +37,7 @@ async function setupHomepageIntro(){
  }
 
  try{
-  const response=await fetch('assets/brand/lvl-laser-logo.svg?v=horn-1',{cache:'force-cache'});
+  const response=await fetch('assets/brand/lvl-laser-logo.svg?v=eyes-1',{cache:'force-cache'});
   if(!response.ok)throw new Error('Intro SVG could not load');
   const svgText=await response.text();
   wrap.innerHTML=svgText;
@@ -76,9 +76,15 @@ async function setupHomepageIntro(){
   beam.append(tail,halo,core);
   svg.appendChild(beam);
 
+  const nearEye=[svg.querySelector('#lvl-cow-eye-near'),svg.querySelector('#lvl-cow-eye-near-outline')];
+  const farEye=svg.querySelector('#lvl-cow-eye-far');
+  if(nearEye.some(el=>!el)||!farEye)throw new Error('Intro SVG eye shapes missing');
+  const eyeShapes=new Set([...nearEye,farEye]);
+  eyeShapes.forEach(el=>el.classList.add('lvl-cow-eye'));
+
   const drawableSelector='path,circle,ellipse,rect,line,polyline,polygon';
   const shapes=[...svg.querySelectorAll(drawableSelector)].filter(el=>{
-   if(el.closest('defs,clipPath,mask,pattern'))return false;
+   if(el.closest('defs,clipPath,mask,pattern,.lvl-intro-beam')||eyeShapes.has(el))return false;
    if(typeof el.getTotalLength!=='function')return false;
    try{return el.getTotalLength()>.35}catch(error){return false}
   });
@@ -127,12 +133,24 @@ async function setupHomepageIntro(){
    seg.matrix=matrix ? rootInverse.multiply(matrix) : null;
   }
 
+  // Give the eyes their own timing envelope, independent of the SVG source
+  // order. The second opens after the first has settled.
+  let eyeSequence=null;
+  async function revealEyes(){
+   await delay(90);
+   nearEye.forEach(el=>el.classList.add('is-visible'));
+   await delay(440);
+   farEye.classList.add('is-visible');
+   await delay(380);
+  }
+
   function completeSegment(seg){
    if(seg.done)return;
    seg.done=true;
    seg.el.style.strokeDashoffset='0';
    seg.el.classList.add('lvl-laser-done');
    requestAnimationFrame(()=>{seg.el.style.fillOpacity='1'});
+   if(seg.el===head&&!eyeSequence)eyeSequence=revealEyes();
   }
 
   function pointOn(seg,fraction){
@@ -209,6 +227,9 @@ async function setupHomepageIntro(){
    requestAnimationFrame(frame);
   });
 
+  if(!eyeSequence)eyeSequence=revealEyes();
+  await eyeSequence;
+
   // Restore the artwork's original vector strokes once the laser has completed them.
   await delay(260);
   segments.forEach(({el})=>{
@@ -230,6 +251,7 @@ async function setupHomepageIntro(){
    el.style.removeProperty('fill-opacity');
    el.style.removeProperty('stroke-opacity');
   });
+  wrap.querySelectorAll('.lvl-cow-eye').forEach(el=>el.classList.remove('lvl-cow-eye'));
   wrap.style.opacity='1';
   await delay(500);
   finishIntro(false);
