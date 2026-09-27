@@ -11,7 +11,7 @@
 /* Events visibility fix */
 .events-section{min-height:0!important;padding:78px 5vw!important;background:var(--paper)!important}.events-section .events-copy,.events-section .event-list{opacity:1!important;transform:none!important;filter:none!important}.events-section h2{font-size:clamp(56px,8vw,110px)!important;line-height:.78!important}.event-list{min-height:260px!important}@media(max-width:800px){.events-section{padding:58px 18px!important}}
 
-/* Homepage cinematic boot intro */
+/* Homepage laser-draw boot intro */
 html.lvl-intro-skip .lvl-intro-loader{display:none!important}
 html.lvl-intro-skip body.intro-active{overflow:auto}
 body.intro-active{overflow:hidden}
@@ -23,7 +23,7 @@ body.intro-active{overflow:hidden}
   display:grid;
   place-items:center;
   overflow:hidden;
-  background:#040303;
+  background:#050303;
   opacity:1;
   visibility:visible;
   pointer-events:auto;
@@ -32,11 +32,11 @@ body.intro-active{overflow:hidden}
 .lvl-intro-loader:before{
   content:"";
   position:absolute;
-  inset:-12%;
+  inset:-10%;
   background:
-    radial-gradient(circle at 50% 48%,rgba(119,37,32,.22) 0 15%,rgba(73,18,17,.10) 31%,transparent 61%),
-    radial-gradient(circle at 50% 54%,rgba(238,229,211,.035),transparent 46%),
-    #040303;
+    radial-gradient(circle at 50% 48%,rgba(116,31,29,.28) 0 16%,rgba(76,18,18,.12) 31%,transparent 61%),
+    radial-gradient(circle at 50% 54%,rgba(238,229,211,.04),transparent 44%),
+    linear-gradient(180deg,#050303,#090403 58%,#030202);
   opacity:0;
   transform:scale(1.08);
 }
@@ -45,158 +45,192 @@ body.intro-active{overflow:hidden}
   position:absolute;
   inset:0;
   pointer-events:none;
-  opacity:0;
   background:
-    linear-gradient(rgba(255,255,255,.012) 50%,transparent 50%),
-    radial-gradient(circle at center,transparent 28%,rgba(0,0,0,.58) 92%);
+    linear-gradient(rgba(255,255,255,.011) 50%,transparent 50%),
+    radial-gradient(circle at center,transparent 28%,rgba(0,0,0,.62) 92%);
   background-size:100% 4px,100% 100%;
+  opacity:0;
   mix-blend-mode:screen;
 }
 .lvl-intro-ambient{
   position:absolute;
   left:50%;
   top:50%;
-  width:min(88vw,880px);
+  width:min(90vw,900px);
   aspect-ratio:1;
   border-radius:50%;
-  transform:translate(-50%,-50%) scale(.45);
+  transform:translate(-50%,-50%) scale(.42);
   opacity:0;
-  background:radial-gradient(circle,rgba(183,74,67,.16) 0 18%,rgba(111,34,31,.10) 32%,transparent 69%);
-  filter:blur(26px);
+  background:radial-gradient(circle,rgba(193,80,67,.18) 0 15%,rgba(116,33,30,.11) 31%,transparent 69%);
+  filter:blur(28px);
 }
 .lvl-intro-orbit{
   position:absolute;
   left:50%;
   top:50%;
-  width:min(58vw,610px);
+  width:min(62vw,650px);
   aspect-ratio:1;
   border:1px solid rgba(238,229,211,.045);
   border-radius:50%;
-  transform:translate(-50%,-50%) scale(.68) rotate(-10deg);
+  transform:translate(-50%,-50%) scale(.72) rotate(-11deg);
   opacity:0;
-  box-shadow:0 0 42px rgba(238,229,211,.018),inset 0 0 42px rgba(238,229,211,.012);
 }
 .lvl-intro-stage{
   position:relative;
   z-index:2;
-  width:min(62vw,650px);
+  width:min(67vw,700px);
   display:grid;
   place-items:center;
   perspective:1400px;
-  transform-style:preserve-3d;
 }
 .lvl-intro-mark-wrap{
   position:relative;
   width:100%;
   display:grid;
   place-items:center;
-  transform-style:preserve-3d;
+  opacity:0;
+  transform-origin:center;
+  will-change:transform,opacity;
 }
-.lvl-intro-mark{
+.lvl-intro-mark-wrap svg{
   display:block;
   width:100%;
-  aspect-ratio:478.29/399.78;
-  border:0;
-  overflow:hidden;
-  pointer-events:none;
-  opacity:0;
-  transform:perspective(1400px) translateZ(-120px) scale(.86);
-  transform-origin:center;
-  filter:blur(7px) saturate(.82) drop-shadow(0 18px 38px rgba(0,0,0,.46));
-  will-change:transform,opacity,filter;
+  height:auto;
+  overflow:visible;
+  filter:drop-shadow(0 18px 40px rgba(0,0,0,.48));
 }
-.lvl-intro-flare{
+.lvl-intro-mark-wrap .lvl-laser-draw{
+  transition:fill-opacity .24s ease,stroke-opacity .3s ease,filter .24s ease;
+}
+.lvl-intro-mark-wrap .lvl-laser-draw:not(.lvl-laser-done){
+  fill:transparent!important;
+  stroke:#f4dfbd!important;
+  stroke-width:1.35!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+  vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 0 2px rgba(255,255,255,.82)) drop-shadow(0 0 7px rgba(255,118,82,.58));
+}
+.lvl-intro-mark-wrap .lvl-laser-done{
+  filter:none;
+}
+.lvl-intro-laser{
   position:absolute;
-  z-index:-1;
+  z-index:8;
   left:50%;
-  top:47%;
-  width:72%;
-  aspect-ratio:1;
+  top:50%;
+  width:10px;
+  height:10px;
   border-radius:50%;
-  opacity:0;
-  transform:translate(-50%,-50%) scale(.4);
-  background:radial-gradient(circle,rgba(255,244,220,.12) 0 4%,rgba(177,63,65,.18) 14%,rgba(95,26,25,.07) 38%,transparent 68%);
-  filter:blur(18px);
   pointer-events:none;
+  opacity:0;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,#fff 0 18%,#fff2d9 24%,#ffbc8e 48%,#dc5c46 66%,rgba(220,92,70,0) 76%);
+  box-shadow:
+    0 0 5px #fff,
+    0 0 12px rgba(255,229,194,.94),
+    0 0 26px rgba(255,111,78,.90),
+    0 0 54px rgba(177,49,43,.58);
+  will-change:left,top,opacity,transform;
+}
+.lvl-intro-laser:after{
+  content:"";
+  position:absolute;
+  right:4px;
+  top:50%;
+  width:38px;
+  height:1px;
+  transform:translateY(-50%);
+  transform-origin:right center;
+  background:linear-gradient(90deg,transparent,rgba(255,136,95,.32),rgba(255,241,216,.88));
+  filter:blur(.2px);
 }
 .lvl-intro-line{
   display:block;
   width:0;
   height:1px;
-  margin-top:clamp(12px,1.8vh,21px);
+  margin-top:clamp(12px,1.8vh,22px);
   background:linear-gradient(90deg,transparent,rgba(238,229,211,.36),transparent);
   opacity:0;
   box-shadow:0 0 12px rgba(238,229,211,.13);
 }
 
-.lvl-intro-loader.is-running:before{animation:lvlCharacterBackdrop 1.15s ease forwards}
-.lvl-intro-loader.is-running:after{animation:lvlCharacterTexture 1.3s ease .12s forwards}
-.lvl-intro-loader.is-running .lvl-intro-ambient{animation:lvlCharacterAmbient 2.5s cubic-bezier(.16,.82,.2,1) .08s forwards}
-.lvl-intro-loader.is-running .lvl-intro-orbit{animation:lvlCharacterOrbit 3.35s cubic-bezier(.18,.8,.2,1) .18s forwards}
-.lvl-intro-loader.is-running .lvl-intro-mark{animation:lvlCharacterFrameIn .72s cubic-bezier(.16,.82,.2,1) .08s forwards,lvlCharacterFrameLock .7s ease 2.72s forwards}
-.lvl-intro-loader.is-running .lvl-intro-flare{animation:lvlCharacterFlare 1.15s ease 1.74s forwards}
-.lvl-intro-loader.is-running .lvl-intro-line{animation:lvlCharacterLine .82s ease 2.82s forwards}
+.lvl-intro-loader.is-running:before{animation:lvlLaserBackdrop 1.1s ease forwards}
+.lvl-intro-loader.is-running:after{animation:lvlLaserTexture 1.2s ease .12s forwards}
+.lvl-intro-loader.is-running .lvl-intro-ambient{animation:lvlLaserAmbient 4.4s cubic-bezier(.16,.82,.2,1) .08s forwards}
+.lvl-intro-loader.is-running .lvl-intro-orbit{animation:lvlLaserOrbit 4.5s cubic-bezier(.18,.8,.2,1) .16s forwards}
+.lvl-intro-loader.is-running .lvl-intro-mark-wrap{
+  animation:lvlLaserReveal .48s ease .12s forwards,lvlLaserRoam 4.25s ease-in-out .5s both;
+}
+.lvl-intro-loader.is-complete .lvl-intro-mark-wrap{
+  animation:lvlLaserLock .72s cubic-bezier(.18,.8,.2,1) forwards;
+}
+.lvl-intro-loader.is-complete .lvl-intro-line{animation:lvlLaserLine .72s ease forwards}
 
-.lvl-intro-loader.is-exiting{animation:lvlCharacterExit .88s cubic-bezier(.3,.72,.22,1) forwards}
-.lvl-intro-loader.is-exiting .lvl-intro-mark{
-  transition:transform .82s cubic-bezier(.2,.72,.2,1),opacity .65s ease,filter .7s ease;
-  transform:perspective(1400px) translateZ(120px) scale(1.075);
+.lvl-intro-loader.is-exiting{animation:lvlLaserExit .86s cubic-bezier(.3,.72,.22,1) forwards}
+.lvl-intro-loader.is-exiting .lvl-intro-mark-wrap{
+  transition:transform .82s cubic-bezier(.2,.72,.2,1),opacity .62s ease,filter .68s ease;
+  transform:perspective(1400px) translateZ(105px) scale(1.065);
   opacity:0;
-  filter:blur(6px) saturate(1.08) drop-shadow(0 18px 44px rgba(0,0,0,.5));
+  filter:blur(4px);
 }
 .lvl-intro-loader.is-exiting .lvl-intro-ambient{
-  transition:opacity .72s ease,transform .88s ease;
+  transition:opacity .7s ease,transform .86s ease;
   opacity:0;
-  transform:translate(-50%,-50%) scale(1.3);
+  transform:translate(-50%,-50%) scale(1.28);
 }
 
-@keyframes lvlCharacterBackdrop{
+@keyframes lvlLaserBackdrop{
   0%{opacity:0;transform:scale(1.08)}
   100%{opacity:1;transform:scale(1)}
 }
-@keyframes lvlCharacterTexture{0%{opacity:0}100%{opacity:.28}}
-@keyframes lvlCharacterAmbient{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.45)}
-  46%{opacity:.84}
+@keyframes lvlLaserTexture{0%{opacity:0}100%{opacity:.27}}
+@keyframes lvlLaserAmbient{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.42)}
+  34%{opacity:.82}
   100%{opacity:.48;transform:translate(-50%,-50%) scale(1)}
 }
-@keyframes lvlCharacterOrbit{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.68) rotate(-10deg)}
-  40%{opacity:.18}
-  100%{opacity:.055;transform:translate(-50%,-50%) scale(1.16) rotate(9deg)}
+@keyframes lvlLaserOrbit{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.72) rotate(-11deg)}
+  38%{opacity:.16}
+  100%{opacity:.05;transform:translate(-50%,-50%) scale(1.17) rotate(10deg)}
 }
-@keyframes lvlCharacterFrameIn{
-  0%{opacity:0;transform:perspective(1400px) translateZ(-120px) scale(.86);filter:blur(7px) saturate(.82) drop-shadow(0 18px 38px rgba(0,0,0,.46))}
-  100%{opacity:1;transform:perspective(1400px) translateZ(0) scale(1);filter:blur(0) saturate(1) drop-shadow(0 18px 38px rgba(0,0,0,.46))}
+@keyframes lvlLaserReveal{
+  from{opacity:0}
+  to{opacity:1}
 }
-@keyframes lvlCharacterFrameLock{
-  0%{transform:perspective(1400px) translateZ(0) scale(1)}
-  50%{transform:perspective(1400px) translateZ(16px) scale(1.012)}
-  100%{transform:perspective(1400px) translateZ(0) scale(1)}
+@keyframes lvlLaserRoam{
+  0%{transform:translate3d(-14px,7px,0) rotate(-1.2deg) scale(.985)}
+  22%{transform:translate3d(9px,-11px,0) rotate(.75deg) scale(1.006)}
+  46%{transform:translate3d(17px,4px,0) rotate(1.15deg) scale(1.012)}
+  68%{transform:translate3d(-8px,-8px,0) rotate(-.65deg) scale(1.004)}
+  86%{transform:translate3d(-13px,8px,0) rotate(-1deg) scale(.997)}
+  100%{transform:translate3d(0,0,0) rotate(0) scale(1)}
 }
-@keyframes lvlCharacterFlare{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}
-  38%{opacity:.88}
-  100%{opacity:.08;transform:translate(-50%,-50%) scale(1.22)}
+@keyframes lvlLaserLock{
+  0%{transform:scale(1)}
+  42%{transform:scale(1.025);filter:drop-shadow(0 0 24px rgba(255,129,92,.24))}
+  100%{transform:scale(1);filter:none}
 }
-@keyframes lvlCharacterLine{
+@keyframes lvlLaserLine{
   0%{width:0;opacity:0}
-  48%{opacity:.72}
-  100%{width:70%;opacity:.20}
+  46%{opacity:.66}
+  100%{width:68%;opacity:.17}
 }
-@keyframes lvlCharacterExit{
+@keyframes lvlLaserExit{
   0%{opacity:1;visibility:visible}
   100%{opacity:0;visibility:hidden}
 }
 
 @media(max-width:800px){
-  .lvl-intro-stage{width:min(84vw,560px)}
-  .lvl-intro-ambient{width:min(120vw,760px)}
-  .lvl-intro-orbit{width:min(86vw,520px)}
+  .lvl-intro-stage{width:min(88vw,620px)}
+  .lvl-intro-ambient{width:min(124vw,780px)}
+  .lvl-intro-orbit{width:min(90vw,560px)}
 }
 @media(max-width:480px){
-  .lvl-intro-stage{width:min(94vw,470px)}
-  .lvl-intro-line{margin-top:8px}
+  .lvl-intro-stage{width:min(96vw,500px)}
+  .lvl-intro-laser{width:8px;height:8px}
+  .lvl-intro-laser:after{width:26px}
 }
 @media(prefers-reduced-motion:reduce){
   .lvl-intro-loader,.lvl-intro-loader *{animation:none!important;transition:none!important}
