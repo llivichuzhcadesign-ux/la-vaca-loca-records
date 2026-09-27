@@ -13,7 +13,7 @@ async function setupHomepageIntro(){
  const loader=document.getElementById('lvlIntroLoader');
  if(!loader)return;
 
- const SESSION_KEY='lvl-home-intro-character-v1';
+ const SESSION_KEY='lvl-home-intro-laser-v1';
  let seen=false;
  try{seen=sessionStorage.getItem(SESSION_KEY)==='1'}catch(error){}
  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -26,112 +26,142 @@ async function setupHomepageIntro(){
   return;
  }
 
- const mark=document.getElementById('lvlIntroMark');
+ const wrap=document.getElementById('lvlIntroSvgWrap');
+ const laser=document.getElementById('lvlIntroLaser');
  const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
- async function waitForSvg(){
-  if(!mark)return;
-  try{
-   if(mark.contentDocument?.documentElement)return;
-  }catch(error){}
-  await Promise.race([
-   new Promise(resolve=>mark.addEventListener('load',resolve,{once:true})),
-   delay(1800)
-  ]);
+ function finishIntro(){
+  loader.classList.add('is-exiting');
+  document.body.classList.remove('intro-active');
+  try{sessionStorage.setItem(SESSION_KEY,'1')}catch(error){}
+  setTimeout(()=>loader.remove(),920);
  }
 
- await waitForSvg();
-
- let svgRoot=null;
  try{
-  const svgDoc=mark?.contentDocument;
-  svgRoot=svgDoc?.documentElement||null;
-  if(svgDoc&&svgRoot){
-   const style=svgDoc.createElementNS('http://www.w3.org/2000/svg','style');
-   style.textContent=`
-svg{overflow:visible}
-#BG{opacity:0!important}
-#LOMO,#LEGS,#BORRACHITO,#VACA,#Cuete_1,#Cuete_2{
-  opacity:0;
-  transform-box:fill-box;
-  transform-origin:center;
-  will-change:transform,opacity,filter;
-}
-.lvl-character-boot #LOMO{
-  animation:lvlLomoIn .82s cubic-bezier(.16,.84,.18,1) .18s forwards;
-}
-.lvl-character-boot #LEGS{
-  animation:lvlLegsIn .78s cubic-bezier(.18,.82,.2,1) .46s forwards;
-}
-.lvl-character-boot #BORRACHITO{
-  animation:lvlBorrachoIn .82s cubic-bezier(.16,.82,.18,1) .67s forwards;
-}
-.lvl-character-boot #VACA{
-  animation:lvlVacaIn .88s cubic-bezier(.14,.84,.18,1) .90s forwards;
-}
-.lvl-character-boot #Cuete_1{
-  animation:lvlCueteOne .72s cubic-bezier(.12,.86,.18,1) 1.40s forwards,lvlCueteGlow .95s ease 2.28s 1;
-}
-.lvl-character-boot #Cuete_2{
-  animation:lvlCueteTwo .72s cubic-bezier(.12,.86,.18,1) 1.63s forwards,lvlCueteGlow .95s ease 2.42s 1;
-}
-@keyframes lvlLomoIn{
-  0%{opacity:0;transform:translate(42px,8px) scale(.86);filter:blur(10px)}
-  68%{opacity:1;transform:translate(-3px,0) scale(1.018);filter:blur(0)}
-  100%{opacity:1;transform:translate(0,0) scale(1);filter:blur(0)}
-}
-@keyframes lvlLegsIn{
-  0%{opacity:0;transform:translate(0,54px) rotate(5deg) scale(.93);filter:blur(7px)}
-  72%{opacity:1;transform:translate(0,-3px) rotate(-.8deg) scale(1.012);filter:blur(0)}
-  100%{opacity:1;transform:translate(0,0) rotate(0) scale(1);filter:blur(0)}
-}
-@keyframes lvlBorrachoIn{
-  0%{opacity:0;transform:translate(-38px,28px) rotate(12deg) scale(.90);filter:blur(8px)}
-  70%{opacity:1;transform:translate(3px,-2px) rotate(-1.2deg) scale(1.015);filter:blur(0)}
-  100%{opacity:1;transform:translate(0,0) rotate(0) scale(1);filter:blur(0)}
-}
-@keyframes lvlVacaIn{
-  0%{opacity:0;transform:translate(-46px,-18px) rotate(-7deg) scale(.87);filter:blur(9px)}
-  68%{opacity:1;transform:translate(5px,1px) rotate(1.4deg) scale(1.028);filter:blur(0)}
-  100%{opacity:1;transform:translate(0,0) rotate(0) scale(1);filter:blur(0)}
-}
-@keyframes lvlCueteOne{
-  0%{opacity:0;transform:translate(18px,34px) scale(.12) rotate(-18deg);filter:blur(12px) drop-shadow(0 0 0 rgba(255,90,167,0))}
-  64%{opacity:1;transform:translate(-2px,-3px) scale(1.14) rotate(2deg);filter:blur(0) drop-shadow(0 0 18px rgba(255,90,167,.42))}
-  100%{opacity:1;transform:translate(0,0) scale(1) rotate(0);filter:blur(0) drop-shadow(0 0 8px rgba(255,90,167,.16))}
-}
-@keyframes lvlCueteTwo{
-  0%{opacity:0;transform:translate(-24px,30px) scale(.10) rotate(17deg);filter:blur(12px) drop-shadow(0 0 0 rgba(255,90,167,0))}
-  64%{opacity:1;transform:translate(2px,-3px) scale(1.15) rotate(-2deg);filter:blur(0) drop-shadow(0 0 19px rgba(255,90,167,.44))}
-  100%{opacity:1;transform:translate(0,0) scale(1) rotate(0);filter:blur(0) drop-shadow(0 0 8px rgba(255,90,167,.16))}
-}
-@keyframes lvlCueteGlow{
-  0%,100%{filter:drop-shadow(0 0 8px rgba(255,90,167,.16))}
-  46%{filter:drop-shadow(0 0 28px rgba(255,90,167,.54))}
-}
-`;
-   svgRoot.appendChild(style);
-  }
- }catch(error){
-  console.warn('LVL intro SVG groups could not be animated',error);
- }
+  const response=await fetch('assets/brand/lvl-laser-logo.svg',{cache:'force-cache'});
+  if(!response.ok)throw new Error('Intro SVG could not load');
+  const svgText=await response.text();
+  wrap.innerHTML=svgText;
 
- requestAnimationFrame(()=>{
-  requestAnimationFrame(()=>{
-   if(svgRoot)svgRoot.classList.add('lvl-character-boot');
-   loader.classList.add('is-running');
+  const svg=wrap.querySelector('svg');
+  if(!svg)throw new Error('Intro SVG markup missing');
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+  svg.removeAttribute('width');
+  svg.removeAttribute('height');
+
+  const drawableSelector='path,circle,ellipse,rect,line,polyline,polygon';
+  const shapes=[...svg.querySelectorAll(drawableSelector)].filter(el=>{
+   if(el.closest('defs,clipPath,mask,pattern'))return false;
+   if(typeof el.getTotalLength!=='function')return false;
+   try{return el.getTotalLength()>.35}catch(error){return false}
   });
- });
 
- const RUN_DURATION=4300;
- await delay(RUN_DURATION);
+  if(!shapes.length)throw new Error('Intro SVG has no drawable paths');
 
- loader.classList.add('is-exiting');
- document.body.classList.remove('intro-active');
- try{sessionStorage.setItem(SESSION_KEY,'1')}catch(error){}
+  const segments=[];
+  let totalWeight=0;
 
- await delay(920);
- loader.remove();
+  for(const el of shapes){
+   let len=0;
+   try{len=Math.max(.5,el.getTotalLength())}catch(error){continue}
+   const weight=Math.max(16,Math.min(260,Math.sqrt(len)*12));
+   totalWeight+=weight;
+
+   el.classList.add('lvl-laser-draw');
+   el.style.strokeDasharray=String(len);
+   el.style.strokeDashoffset=String(len);
+   el.style.fillOpacity='0';
+   el.style.strokeOpacity='1';
+
+   segments.push({el,len,weight,start:totalWeight-weight,end:totalWeight,done:false});
+  }
+
+  function completeSegment(seg){
+   if(seg.done)return;
+   seg.done=true;
+   seg.el.style.strokeDashoffset='0';
+   seg.el.classList.add('lvl-laser-done');
+   requestAnimationFrame(()=>{seg.el.style.fillOpacity='1'});
+  }
+
+  function pointOn(seg,fraction){
+   const p=seg.el.getPointAtLength(seg.len*Math.max(0,Math.min(1,fraction)));
+   const matrix=seg.el.getScreenCTM();
+   if(!matrix)return null;
+   const pt=svg.createSVGPoint();
+   pt.x=p.x;pt.y=p.y;
+   const screen=pt.matrixTransform(matrix);
+   return {x:screen.x,y:screen.y};
+  }
+
+  loader.classList.add('is-running');
+  await delay(180);
+
+  const TRACE_DURATION=3800;
+  const startTime=performance.now();
+  let previousPoint=null;
+
+  await new Promise(resolve=>{
+   function frame(now){
+    const elapsed=Math.min(TRACE_DURATION,now-startTime);
+    const global=(elapsed/TRACE_DURATION)*totalWeight;
+
+    let active=segments[segments.length-1];
+    for(const seg of segments){
+     if(global>=seg.end){
+      completeSegment(seg);
+      continue;
+     }
+     if(global>=seg.start){
+      active=seg;
+      break;
+     }
+     active=seg;
+     break;
+    }
+
+    const local=Math.max(0,Math.min(1,(global-active.start)/active.weight));
+    active.el.style.strokeDashoffset=String(active.len*(1-local));
+
+    const point=pointOn(active,local);
+    if(point&&laser){
+     laser.style.left=point.x+'px';
+     laser.style.top=point.y+'px';
+     laser.style.opacity='1';
+
+     if(previousPoint){
+      const angle=Math.atan2(point.y-previousPoint.y,point.x-previousPoint.x)*180/Math.PI;
+      if(Number.isFinite(angle))laser.style.transform='translate(-50%,-50%) rotate('+angle+'deg)';
+     }
+     previousPoint=point;
+    }
+
+    if(elapsed<TRACE_DURATION){
+     requestAnimationFrame(frame);
+    }else{
+     segments.forEach(completeSegment);
+     if(laser)laser.style.opacity='0';
+     resolve();
+    }
+   }
+   requestAnimationFrame(frame);
+  });
+
+  // Restore the artwork's original vector strokes once the laser has completed them.
+  await delay(260);
+  segments.forEach(({el})=>{
+   el.style.removeProperty('stroke-dasharray');
+   el.style.removeProperty('stroke-dashoffset');
+   el.style.removeProperty('stroke-opacity');
+  });
+
+  loader.classList.add('is-complete');
+  await delay(720);
+  finishIntro();
+ }catch(error){
+  console.warn('LVL laser intro could not run',error);
+  finishIntro();
+ }
 }
 
 setupHomepageIntro();
