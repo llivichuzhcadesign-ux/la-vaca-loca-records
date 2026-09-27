@@ -7,7 +7,7 @@
 <meta name="description" content="Discos, sonido, sesiones y cultura desde Gualaceo, Ecuador.">
 <script>
 try{
-  if(sessionStorage.getItem('lvl-home-intro-character-v1')==='1'||window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  if(sessionStorage.getItem('lvl-home-intro-laser-v1')==='1'||window.matchMedia('(prefers-reduced-motion: reduce)').matches){
     document.documentElement.classList.add('lvl-intro-skip');
   }
 }catch(error){}
@@ -65,12 +65,10 @@ body{background:var(--paper);color:var(--ink)}
   <div class="lvl-intro-ambient"></div>
   <div class="lvl-intro-orbit"></div>
   <div class="lvl-intro-stage">
-    <div class="lvl-intro-mark-wrap">
-      <object class="lvl-intro-mark" id="lvlIntroMark" data="assets/brand/lvl-intro.svg" type="image/svg+xml" aria-hidden="true"></object>
-      <span class="lvl-intro-flare" aria-hidden="true"></span>
-    </div>
+    <div class="lvl-intro-mark-wrap" id="lvlIntroSvgWrap"></div>
     <span class="lvl-intro-line"></span>
   </div>
+  <span class="lvl-intro-laser" id="lvlIntroLaser" aria-hidden="true"></span>
 </div>
 <header class="site-header"><a class="brand" href="#top"><strong>LA VACA LOCA</strong><small>RECORD STORE · GUALACEO</small></a><nav class="main-nav"><a href="discos.html">DISCOS</a><a href="sessions.html">SESSIONS</a><a href="eventos.html">EVENTOS</a><a href="archivo.html">ARCHIVO</a></nav><button class="cart-button" id="cartButton">BAG <span id="cartCount">0</span></button></header>
 <main id="top">
