@@ -13,7 +13,7 @@ async function setupHomepageIntro(){
  const loader=document.getElementById('lvlIntroLoader');
  if(!loader)return;
 
- const SESSION_KEY='lvl-home-intro-laser-v5';
+ const SESSION_KEY='lvl-home-intro-laser-v6';
  let seen=false;
  try{seen=sessionStorage.getItem(SESSION_KEY)==='1'}catch(error){}
  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;

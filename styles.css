@@ -170,6 +170,7 @@ body.intro-active{overflow:hidden}
   animation:lvlLaserReveal .48s ease .12s forwards,lvlLaserRoam 4.25s ease-in-out .5s both;
 }
 .lvl-intro-loader.is-complete .lvl-intro-mark-wrap{
+  opacity:1;
   animation:lvlLaserLock .88s cubic-bezier(.18,.8,.2,1) forwards;
 }
 .lvl-intro-loader.is-complete .lvl-intro-line{animation:lvlLaserLine .88s ease forwards}
