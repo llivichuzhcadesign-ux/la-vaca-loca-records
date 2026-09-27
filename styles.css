@@ -120,6 +120,7 @@ body.intro-active{overflow:hidden}
 .lvl-intro-beam{
   pointer-events:none;
   opacity:0;
+  transition:opacity .14s ease-out;
 }
 .lvl-intro-beam-tail{
   stroke:#ffb786;
@@ -132,6 +133,25 @@ body.intro-active{overflow:hidden}
   stroke:#ffcfaa;
   stroke-width:.8;
 }
+.lvl-intro-smoke{pointer-events:none}
+.lvl-intro-smoke path{
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  stroke-dasharray:100;
+  stroke-dashoffset:100;
+  opacity:0;
+}
+.lvl-smoke-haze{
+  stroke:#d49d8d;
+  stroke-width:6;
+  filter:blur(2px);
+}
+.lvl-smoke-thread{stroke-width:1.6}
+.lvl-intro-loader.is-smoking .lvl-smoke-plume path{
+  animation:lvlSmokeWisp 1.9s cubic-bezier(.14,.48,.25,1) both;
+}
+.lvl-intro-loader.is-smoking .lvl-smoke-plume:nth-child(2) path{animation-delay:.17s}
 .lvl-intro-line{
   display:block;
   width:0;
@@ -150,21 +170,16 @@ body.intro-active{overflow:hidden}
   animation:lvlLaserReveal .48s ease .12s forwards,lvlLaserRoam 4.25s ease-in-out .5s both;
 }
 .lvl-intro-loader.is-complete .lvl-intro-mark-wrap{
-  animation:lvlLaserLock .72s cubic-bezier(.18,.8,.2,1) forwards;
+  animation:lvlLaserLock .88s cubic-bezier(.18,.8,.2,1) forwards;
 }
-.lvl-intro-loader.is-complete .lvl-intro-line{animation:lvlLaserLine .72s ease forwards}
+.lvl-intro-loader.is-complete .lvl-intro-line{animation:lvlLaserLine .88s ease forwards}
 
 .lvl-intro-loader.is-exiting{animation:lvlLaserExit .86s cubic-bezier(.3,.72,.22,1) forwards}
 .lvl-intro-loader.is-exiting .lvl-intro-mark-wrap{
-  transition:transform .82s cubic-bezier(.2,.72,.2,1),opacity .62s ease,filter .68s ease;
-  transform:perspective(1400px) translateZ(105px) scale(1.065);
-  opacity:0;
-  filter:blur(4px);
+  animation:lvlLaserMarkExit .86s cubic-bezier(.2,.72,.2,1) forwards;
 }
 .lvl-intro-loader.is-exiting .lvl-intro-ambient{
-  transition:opacity .7s ease,transform .86s ease;
-  opacity:0;
-  transform:translate(-50%,-50%) scale(1.28);
+  animation:lvlLaserAmbientExit .86s ease forwards;
 }
 
 @keyframes lvlLaserBackdrop{
@@ -202,8 +217,15 @@ body.intro-active{overflow:hidden}
 }
 @keyframes lvlLaserLock{
   0%{transform:scale(1)}
-  42%{transform:scale(1.025);filter:drop-shadow(0 0 24px rgba(255,129,92,.24))}
+  38%{transform:scale(1.016);filter:drop-shadow(0 0 20px rgba(255,129,92,.20))}
+  72%{transform:scale(.997)}
   100%{transform:scale(1);filter:none}
+}
+@keyframes lvlSmokeWisp{
+  0%{opacity:0;stroke-dashoffset:100;transform:translate(0,0)}
+  20%{opacity:.72;stroke-dashoffset:66}
+  62%{opacity:.56;stroke-dashoffset:10;transform:translate(-6px,-8px)}
+  100%{opacity:0;stroke-dashoffset:-25;transform:translate(-14px,-20px)}
 }
 @keyframes lvlLaserLine{
   0%{width:0;opacity:0}
@@ -211,8 +233,17 @@ body.intro-active{overflow:hidden}
   100%{width:68%;opacity:.17}
 }
 @keyframes lvlLaserExit{
-  0%{opacity:1;visibility:visible}
+  0%,12%{opacity:1;visibility:visible}
   100%{opacity:0;visibility:hidden}
+}
+@keyframes lvlLaserMarkExit{
+  0%{opacity:1;transform:scale(1);filter:none}
+  30%{opacity:1;transform:scale(1.01);filter:none}
+  100%{opacity:0;transform:scale(1.07);filter:blur(5px)}
+}
+@keyframes lvlLaserAmbientExit{
+  from{opacity:.48;transform:translate(-50%,-50%) scale(1)}
+  to{opacity:0;transform:translate(-50%,-50%) scale(1.25)}
 }
 
 @media(max-width:800px){

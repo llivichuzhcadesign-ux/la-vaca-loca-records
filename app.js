@@ -13,7 +13,7 @@ async function setupHomepageIntro(){
  const loader=document.getElementById('lvlIntroLoader');
  if(!loader)return;
 
- const SESSION_KEY='lvl-home-intro-laser-v4';
+ const SESSION_KEY='lvl-home-intro-laser-v5';
  let seen=false;
  try{seen=sessionStorage.getItem(SESSION_KEY)==='1'}catch(error){}
  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -76,6 +76,39 @@ async function setupHomepageIntro(){
   beam.append(tail,halo,core);
   svg.appendChild(beam);
 
+  const smokeGradient=document.createElementNS(svgNS,'linearGradient');
+  smokeGradient.id='lvlIntroSmokeGradient';
+  for(const [name,value] of [['gradientUnits','userSpaceOnUse'],['x1','62'],['y1','158'],['x2','28'],['y2','96']]){
+   smokeGradient.setAttribute(name,value);
+  }
+  for(const [offset,color,opacity] of [['0','#d99a87','.82'],['.55','#f0d9ca','.67'],['1','#eee5d3','.12']]){
+   const stop=document.createElementNS(svgNS,'stop');
+   stop.setAttribute('offset',offset);
+   stop.setAttribute('stop-color',color);
+   stop.setAttribute('stop-opacity',opacity);
+   smokeGradient.appendChild(stop);
+  }
+  defs.appendChild(smokeGradient);
+  const smoke=document.createElementNS(svgNS,'g');
+  smoke.setAttribute('class','lvl-intro-smoke');
+  for(const d of [
+   'M54 154 C43 151 37 144 39 136 C41 128 30 125 32 115 C34 107 27 103 28 96',
+   'M65 158 C58 151 54 148 56 139 C59 129 47 126 48 118 C49 112 45 108 46 103'
+  ]){
+   const plume=document.createElementNS(svgNS,'g');
+   plume.setAttribute('class','lvl-smoke-plume');
+   for(const className of ['lvl-smoke-haze','lvl-smoke-thread']){
+    const path=document.createElementNS(svgNS,'path');
+    path.setAttribute('class',className);
+    path.setAttribute('d',d);
+    path.setAttribute('pathLength','100');
+    if(className==='lvl-smoke-thread')path.setAttribute('stroke','url(#lvlIntroSmokeGradient)');
+    plume.appendChild(path);
+   }
+   smoke.appendChild(plume);
+  }
+  svg.appendChild(smoke);
+
   const nearEye=[svg.querySelector('#lvl-cow-eye-near'),svg.querySelector('#lvl-cow-eye-near-outline')];
   const farEye=svg.querySelector('#lvl-cow-eye-far');
   if(nearEye.some(el=>!el)||!farEye)throw new Error('Intro SVG eye shapes missing');
@@ -84,7 +117,7 @@ async function setupHomepageIntro(){
 
   const drawableSelector='path,circle,ellipse,rect,line,polyline,polygon';
   const shapes=[...svg.querySelectorAll(drawableSelector)].filter(el=>{
-   if(el.closest('defs,clipPath,mask,pattern,.lvl-intro-beam')||eyeShapes.has(el))return false;
+   if(el.closest('defs,clipPath,mask,pattern,.lvl-intro-beam,.lvl-intro-smoke')||eyeShapes.has(el))return false;
    if(typeof el.getTotalLength!=='function')return false;
    try{return el.getTotalLength()>.35}catch(error){return false}
   });
@@ -175,7 +208,9 @@ async function setupHomepageIntro(){
   await new Promise(resolve=>{
    function frame(now){
     const elapsed=Math.min(TRACE_DURATION,now-startTime);
-    const global=(elapsed/TRACE_DURATION)*totalWeight;
+    const progress=elapsed/TRACE_DURATION;
+    const eased=progress-.16*Math.sin(2*Math.PI*progress)/(2*Math.PI);
+    const global=eased*totalWeight;
 
     let active=segments[segments.length-1];
     for(const seg of segments){
@@ -239,7 +274,9 @@ async function setupHomepageIntro(){
   });
 
   loader.classList.add('is-complete');
-  await delay(720);
+  await delay(2200);
+  loader.classList.add('is-smoking');
+  await delay(520);
   finishIntro();
  }catch(error){
   console.warn('LVL laser intro could not run',error);
