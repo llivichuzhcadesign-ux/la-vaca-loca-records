@@ -13,7 +13,7 @@ async function setupHomepageIntro(){
  const loader=document.getElementById('lvlIntroLoader');
  if(!loader)return;
 
- const SESSION_KEY='lvl-home-intro-laser-v2';
+ const SESSION_KEY='lvl-home-intro-laser-v3';
  let seen=false;
  try{seen=sessionStorage.getItem(SESSION_KEY)==='1'}catch(error){}
  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -37,7 +37,7 @@ async function setupHomepageIntro(){
  }
 
  try{
-  const response=await fetch('assets/brand/lvl-laser-logo.svg',{cache:'force-cache'});
+  const response=await fetch('assets/brand/lvl-laser-logo.svg?v=horn-1',{cache:'force-cache'});
   if(!response.ok)throw new Error('Intro SVG could not load');
   const svgText=await response.text();
   wrap.innerHTML=svgText;
@@ -84,6 +84,18 @@ async function setupHomepageIntro(){
   });
 
   if(!shapes.length)throw new Error('Intro SVG has no drawable paths');
+
+  // Both horns sit last in the source SVG. Trace them with the cow's head so
+  // their silhouettes are present while the character comes into view.
+  const horns=svg.querySelectorAll('#lvl-cow-horn,#lvl-cow-horn-far');
+  const head=svg.querySelector('#lvl-cow-head');
+  for(const horn of horns){
+   const hornIndex=shapes.indexOf(horn);
+   if(hornIndex>=0&&shapes.includes(head)){
+    shapes.splice(hornIndex,1);
+    shapes.splice(shapes.indexOf(head),0,horn);
+   }
+  }
 
   const segments=[];
   let totalWeight=0;
