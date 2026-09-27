@@ -109,41 +109,24 @@ body.intro-active{overflow:hidden}
   stroke-linecap:round!important;
   stroke-linejoin:round!important;
   vector-effect:non-scaling-stroke;
-  filter:drop-shadow(0 0 2px rgba(255,255,255,.82)) drop-shadow(0 0 7px rgba(255,118,82,.58));
 }
 .lvl-intro-mark-wrap .lvl-laser-done{
   filter:none;
 }
-.lvl-intro-laser{
-  position:absolute;
-  z-index:8;
-  left:50%;
-  top:50%;
-  width:10px;
-  height:10px;
-  border-radius:50%;
+.lvl-intro-beam{
   pointer-events:none;
   opacity:0;
-  transform:translate(-50%,-50%);
-  background:radial-gradient(circle,#fff 0 18%,#fff2d9 24%,#ffbc8e 48%,#dc5c46 66%,rgba(220,92,70,0) 76%);
-  box-shadow:
-    0 0 5px #fff,
-    0 0 12px rgba(255,229,194,.94),
-    0 0 26px rgba(255,111,78,.90),
-    0 0 54px rgba(177,49,43,.58);
-  will-change:left,top,opacity,transform;
 }
-.lvl-intro-laser:after{
-  content:"";
-  position:absolute;
-  right:4px;
-  top:50%;
-  width:38px;
-  height:1px;
-  transform:translateY(-50%);
-  transform-origin:right center;
-  background:linear-gradient(90deg,transparent,rgba(255,136,95,.32),rgba(255,241,216,.88));
-  filter:blur(.2px);
+.lvl-intro-beam-tail{
+  stroke:#ffb786;
+  stroke-width:1.35;
+  stroke-linecap:round;
+  opacity:.72;
+}
+.lvl-intro-beam-core{
+  fill:#fff9e9;
+  stroke:#ffcfaa;
+  stroke-width:.8;
 }
 .lvl-intro-line{
   display:block;
@@ -229,8 +212,6 @@ body.intro-active{overflow:hidden}
 }
 @media(max-width:480px){
   .lvl-intro-stage{width:min(96vw,500px)}
-  .lvl-intro-laser{width:8px;height:8px}
-  .lvl-intro-laser:after{width:26px}
 }
 @media(prefers-reduced-motion:reduce){
   .lvl-intro-loader,.lvl-intro-loader *{animation:none!important;transition:none!important}

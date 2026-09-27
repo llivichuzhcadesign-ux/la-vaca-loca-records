@@ -13,7 +13,7 @@ async function setupHomepageIntro(){
  const loader=document.getElementById('lvlIntroLoader');
  if(!loader)return;
 
- const SESSION_KEY='lvl-home-intro-laser-v1';
+ const SESSION_KEY='lvl-home-intro-laser-v2';
  let seen=false;
  try{seen=sessionStorage.getItem(SESSION_KEY)==='1'}catch(error){}
  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -27,13 +27,12 @@ async function setupHomepageIntro(){
  }
 
  const wrap=document.getElementById('lvlIntroSvgWrap');
- const laser=document.getElementById('lvlIntroLaser');
  const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
- function finishIntro(){
+ function finishIntro(markSeen=true){
   loader.classList.add('is-exiting');
   document.body.classList.remove('intro-active');
-  try{sessionStorage.setItem(SESSION_KEY,'1')}catch(error){}
+  if(markSeen)try{sessionStorage.setItem(SESSION_KEY,'1')}catch(error){}
   setTimeout(()=>loader.remove(),920);
  }
 
@@ -48,6 +47,34 @@ async function setupHomepageIntro(){
   svg.setAttribute('preserveAspectRatio','xMidYMid meet');
   svg.removeAttribute('width');
   svg.removeAttribute('height');
+
+  // Keep the laser in the artwork's coordinate space. Mobile Safari can report
+  // screen coordinates differently while the outer artwork is transforming.
+  const svgNS='http://www.w3.org/2000/svg';
+  const defs=svg.querySelector('defs')||svg.insertBefore(document.createElementNS(svgNS,'defs'),svg.firstChild);
+  const glow=document.createElementNS(svgNS,'radialGradient');
+  glow.id='lvlIntroBeamGlow';
+  for(const [offset,color,opacity] of [['0','#fff','.95'],['.24','#ffe3bc','.82'],['.53','#ff966b','.48'],['1','#e5532e','0']]){
+   const stop=document.createElementNS(svgNS,'stop');
+   stop.setAttribute('offset',offset);
+   stop.setAttribute('stop-color',color);
+   stop.setAttribute('stop-opacity',opacity);
+   glow.appendChild(stop);
+  }
+  defs.appendChild(glow);
+  const beam=document.createElementNS(svgNS,'g');
+  beam.setAttribute('class','lvl-intro-beam');
+  const tail=document.createElementNS(svgNS,'line');
+  tail.setAttribute('class','lvl-intro-beam-tail');
+  const halo=document.createElementNS(svgNS,'circle');
+  halo.setAttribute('class','lvl-intro-beam-halo');
+  halo.setAttribute('fill','url(#lvlIntroBeamGlow)');
+  halo.setAttribute('r','9');
+  const core=document.createElementNS(svgNS,'circle');
+  core.setAttribute('class','lvl-intro-beam-core');
+  core.setAttribute('r','2.25');
+  beam.append(tail,halo,core);
+  svg.appendChild(beam);
 
   const drawableSelector='path,circle,ellipse,rect,line,polyline,polygon';
   const shapes=[...svg.querySelectorAll(drawableSelector)].filter(el=>{
@@ -76,6 +103,18 @@ async function setupHomepageIntro(){
    segments.push({el,len,weight,start:totalWeight-weight,end:totalWeight,done:false});
   }
 
+  if(!segments.length)throw new Error('Intro SVG paths could not be measured');
+
+  // Geometry within the SVG is fixed; measure once rather than forcing layout
+  // for every path on every animation frame.
+  const rootMatrix=svg.getCTM();
+  if(!rootMatrix)throw new Error('Intro SVG is not laid out');
+  const rootInverse=rootMatrix.inverse();
+  for(const seg of segments){
+   const matrix=seg.el.getCTM();
+   seg.matrix=matrix ? rootInverse.multiply(matrix) : null;
+  }
+
   function completeSegment(seg){
    if(seg.done)return;
    seg.done=true;
@@ -85,13 +124,14 @@ async function setupHomepageIntro(){
   }
 
   function pointOn(seg,fraction){
-   const p=seg.el.getPointAtLength(seg.len*Math.max(0,Math.min(1,fraction)));
-   const matrix=seg.el.getScreenCTM();
-   if(!matrix)return null;
-   const pt=svg.createSVGPoint();
-   pt.x=p.x;pt.y=p.y;
-   const screen=pt.matrixTransform(matrix);
-   return {x:screen.x,y:screen.y};
+   if(!seg.matrix)return null;
+   try{
+    const p=seg.el.getPointAtLength(seg.len*Math.max(0,Math.min(1,fraction)));
+    const pt=svg.createSVGPoint();
+    pt.x=p.x;pt.y=p.y;
+    const local=pt.matrixTransform(seg.matrix);
+    return Number.isFinite(local.x)&&Number.isFinite(local.y) ? local : null;
+   }catch(error){return null}
   }
 
   loader.classList.add('is-running');
@@ -100,6 +140,7 @@ async function setupHomepageIntro(){
   const TRACE_DURATION=3800;
   const startTime=performance.now();
   let previousPoint=null;
+  let previousSegment=null;
 
   await new Promise(resolve=>{
    function frame(now){
@@ -124,23 +165,32 @@ async function setupHomepageIntro(){
     active.el.style.strokeDashoffset=String(active.len*(1-local));
 
     const point=pointOn(active,local);
-    if(point&&laser){
-     laser.style.left=point.x+'px';
-     laser.style.top=point.y+'px';
-     laser.style.opacity='1';
-
-     if(previousPoint){
-      const angle=Math.atan2(point.y-previousPoint.y,point.x-previousPoint.x)*180/Math.PI;
-      if(Number.isFinite(angle))laser.style.transform='translate(-50%,-50%) rotate('+angle+'deg)';
-     }
+    if(point){
+     halo.setAttribute('cx',point.x);
+     halo.setAttribute('cy',point.y);
+     core.setAttribute('cx',point.x);
+     core.setAttribute('cy',point.y);
+     const dx=previousPoint&&previousSegment===active ? point.x-previousPoint.x : 0;
+     const dy=previousPoint&&previousSegment===active ? point.y-previousPoint.y : 0;
+     const distance=Math.hypot(dx,dy);
+     const trail=distance>0 ? Math.min(18,distance)/distance : 0;
+     tail.setAttribute('x1',point.x-dx*trail);
+     tail.setAttribute('y1',point.y-dy*trail);
+     tail.setAttribute('x2',point.x);
+     tail.setAttribute('y2',point.y);
+     beam.style.opacity='1';
      previousPoint=point;
+     previousSegment=active;
+    }else{
+     beam.style.opacity='0';
+     previousPoint=null;
     }
 
     if(elapsed<TRACE_DURATION){
      requestAnimationFrame(frame);
     }else{
      segments.forEach(completeSegment);
-     if(laser)laser.style.opacity='0';
+     beam.style.opacity='0';
      resolve();
     }
    }
@@ -160,7 +210,17 @@ async function setupHomepageIntro(){
   finishIntro();
  }catch(error){
   console.warn('LVL laser intro could not run',error);
-  finishIntro();
+  // Keep a visible mark if an older Safari build cannot trace SVG geometry.
+  wrap.querySelectorAll('.lvl-laser-draw').forEach(el=>{
+   el.classList.remove('lvl-laser-draw');
+   el.style.removeProperty('stroke-dasharray');
+   el.style.removeProperty('stroke-dashoffset');
+   el.style.removeProperty('fill-opacity');
+   el.style.removeProperty('stroke-opacity');
+  });
+  wrap.style.opacity='1';
+  await delay(500);
+  finishIntro(false);
  }
 }
 
