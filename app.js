@@ -9,6 +9,50 @@ if(previewMode){
   }
  }catch(error){console.warn('Admin draft preview could not load',error)}
 }
+async function setupHomepageIntro(){
+ const loader=document.getElementById('lvlIntroLoader');
+ if(!loader)return;
+
+ let seen=false;
+ try{seen=sessionStorage.getItem('lvl-home-intro-seen')==='1'}catch(error){}
+ const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const skip=seen||reduceMotion||previewMode||document.documentElement.classList.contains('lvl-intro-skip');
+
+ if(skip){
+  document.documentElement.classList.add('lvl-intro-skip');
+  document.body.classList.remove('intro-active');
+  loader.remove();
+  return;
+ }
+
+ const mark=document.getElementById('lvlIntroMark');
+ const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+
+ try{
+  if(mark&&typeof mark.decode==='function'){
+   await Promise.race([mark.decode().catch(()=>{}),delay(650)]);
+  }else{
+   await delay(120);
+  }
+ }catch(error){}
+
+ requestAnimationFrame(()=>{
+  requestAnimationFrame(()=>loader.classList.add('is-running'));
+ });
+
+ const RUN_DURATION=3900;
+ await delay(RUN_DURATION);
+
+ loader.classList.add('is-exiting');
+ document.body.classList.remove('intro-active');
+ try{sessionStorage.setItem('lvl-home-intro-seen','1')}catch(error){}
+
+ await delay(900);
+ loader.remove();
+}
+
+setupHomepageIntro();
+
 const content=window.SITE_CONTENT||{};
 const state={cart:[],current:null,playing:false};
 const visibleItems=list=>(list||[]).filter(item=>!item.hideFromPublic);
