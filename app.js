@@ -13,7 +13,7 @@ async function setupHomepageIntro(){
  const loader=document.getElementById('lvlIntroLoader');
  if(!loader)return;
 
- const SESSION_KEY='lvl-home-intro-laser-v8';
+ const SESSION_KEY='lvl-home-intro-laser-v9';
  let seen=false;
  try{seen=sessionStorage.getItem(SESSION_KEY)==='1'}catch(error){}
  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -49,7 +49,7 @@ async function setupHomepageIntro(){
   svg.removeAttribute('height');
 
   // The original SVG layers raster shading and the heart tail over its vector
-  // shapes. Keep those layers hidden during tracing, then reveal them together.
+  // shapes. Keep each detail hidden until the laser completes its base shape.
   const details=[...svg.querySelectorAll('use')];
   details.forEach(el=>{
    el.classList.add('lvl-logo-detail');
@@ -153,6 +153,22 @@ async function setupHomepageIntro(){
 
   if(!segments.length)throw new Error('Intro SVG paths could not be measured');
 
+  // The source places each image detail after the vector artwork it shades.
+  // Pair by paint order, so the heart, body shading and face texture develop
+  // with their respective laser strokes instead of popping in at the end.
+  const segmentByElement=new Map(segments.map(seg=>[seg.el,seg]));
+  const detailsBySegment=new Map();
+  let detailAnchor=segments[0];
+  for(const el of svg.querySelectorAll(`${drawableSelector},use`)){
+   if(el.closest('defs,clipPath,mask,pattern,.lvl-intro-beam,.lvl-laser-smoke'))continue;
+   const seg=segmentByElement.get(el);
+   if(seg){detailAnchor=seg;continue}
+   if(el.localName==='use'){
+    if(!detailsBySegment.has(detailAnchor))detailsBySegment.set(detailAnchor,[]);
+    detailsBySegment.get(detailAnchor).push(el);
+   }
+  }
+
   // Geometry within the SVG is fixed; measure once rather than forcing layout
   // for every path on every animation frame.
   const rootMatrix=svg.getCTM();
@@ -179,7 +195,10 @@ async function setupHomepageIntro(){
    seg.done=true;
    seg.el.style.strokeDashoffset='0';
    seg.el.classList.add('lvl-laser-done');
-   requestAnimationFrame(()=>{seg.el.style.fillOpacity='1'});
+   requestAnimationFrame(()=>{
+    seg.el.style.fillOpacity='1';
+    detailsBySegment.get(seg)?.forEach(el=>el.style.removeProperty('opacity'));
+   });
    if(seg.el===head&&!eyeSequence)eyeSequence=revealEyes();
   }
 
@@ -293,7 +312,6 @@ async function setupHomepageIntro(){
   });
 
   loader.classList.add('is-complete');
-  requestAnimationFrame(()=>details.forEach(el=>el.style.removeProperty('opacity')));
   await delay(2200);
   finishIntro();
  }catch(error){
