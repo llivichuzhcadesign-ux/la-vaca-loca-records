@@ -60,3 +60,22 @@ body .motion-section.in-view .motion-copy,body .motion-section.in-view .motion-o
 @media(max-width:1000px){body .showcase-heading{flex-direction:column;align-items:flex-start;gap:28px}.shop-showcase h2{white-space:normal}.shop-showcase .showcase-feature{gap:40px}body .archive-main{grid-template-columns:1fr;gap:30px}body .archive-main a{justify-self:start}}
 @media(max-width:700px){body .shop-section.shop-showcase{padding:70px 20px 90px}.shop-showcase h2{font-size:15vw}.shop-showcase .showcase-feature{margin-top:40px}.shop-showcase .showcase-strip{gap:15px;margin-top:35px}.shop-showcase .showcase-strip .showcase-thumb{flex-basis:30vw}body .sessions-section{padding:0 20px 70px}body .sessions-section h2{font-size:15vw}body .sessions-copy>p:last-of-type{font-size:9px;margin-bottom:30px}body .sessions-copy .session-cards{flex-direction:column;gap:0;margin-bottom:28px}body .session-cards .session-card{max-width:none;width:100%;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:16px 0}body .session-card small{grid-column:1/-1}body .session-cards .session-card strong{font-size:23px;margin:0}body .sessions-photo{height:440px}body .sessions-photo-card{left:7%;bottom:8%}body .sessions-photo-card strong{font-size:48px}body .events-section{padding:75px 20px 80px!important}body .events-copy h2{font-size:17vw!important}body .home-calendar-art{width:100%;aspect-ratio:1.15;margin-top:36px}body .archive-section{padding:0 20px 80px!important}body .archive-main{padding:0 0 35px}body .archive-main h2{font-size:14vw}body .archive-cards{grid-template-columns:1fr 1fr;gap:16px}body .archive-card{padding:18px}body .archive-card.sign{background-image:linear-gradient(0deg,#090907b3,transparent 70%),url('assets/images/site/hero/lvl-hero-01.webp');margin-top:40px}body .archive-card.poster{grid-column:1/-1;aspect-ratio:1.7;margin-top:0}body .archive-card.poster strong{font-size:42px}body .site-footer{padding:45px 20px 110px}}
 @media(prefers-reduced-motion:reduce){body .motion-section *,body .archive-card,body .home-calendar-art img{transition:none!important;transform:none!important}}
+
+/* A compact, aligned artwork gallery for new releases. */
+body .shop-section.shop-showcase{padding:80px 6vw 100px}
+body .shop-showcase .showcase-heading{max-width:1200px;align-items:center}
+body .shop-showcase h2{font-size:clamp(48px,6vw,96px);line-height:1;white-space:normal}
+body .shop-showcase .showcase-feature{max-width:1200px;grid-template-columns:minmax(0,1fr) minmax(0,.85fr);gap:clamp(36px,6vw,90px);margin-top:44px;align-items:center}
+body .shop-showcase .showcase-open{width:100%;max-width:520px;aspect-ratio:1;justify-self:start}
+body .shop-showcase .showcase-open>.showcase-art{position:relative;top:auto;left:auto;width:100%;transform:none;box-shadow:none;border:0}
+body .shop-showcase .showcase-open:hover>.showcase-art{transform:none;box-shadow:none}
+body .shop-showcase .showcase-zoom{right:16px;bottom:16px}
+body .shop-showcase .showcase-overline{display:none}
+body .shop-showcase .showcase-info{padding:0}
+body .shop-showcase .showcase-info h3{margin:0 0 12px;font-size:clamp(38px,4.4vw,64px);line-height:1.02}
+body .shop-showcase .showcase-artist{font-size:19px;line-height:1.4}
+body .shop-showcase .showcase-facts{gap:14px;margin:24px 0;padding:0;justify-content:flex-start}
+body .shop-showcase .showcase-facts strong{margin-left:12px;font-size:18px}
+body .shop-showcase .showcase-controls{max-width:none;width:100%;margin-top:32px;padding-top:22px;border-top:1px solid #eee5d326}
+body .shop-showcase .showcase-strip{max-width:1200px;gap:24px;margin-top:40px}
+@media(max-width:800px){body .shop-section.shop-showcase{padding:60px 20px 80px}body .shop-showcase .showcase-heading{gap:20px;align-items:flex-start}body .shop-showcase h2{font-size:clamp(46px,10vw,76px)}body .shop-showcase .showcase-feature{grid-template-columns:1fr;gap:28px;margin-top:30px}body .shop-showcase .showcase-open{max-width:480px;justify-self:center}body .shop-showcase .showcase-info{width:100%;max-width:480px;margin:auto}body .shop-showcase .showcase-info h3{font-size:42px}body .shop-showcase .showcase-strip{gap:16px;margin-top:32px}}

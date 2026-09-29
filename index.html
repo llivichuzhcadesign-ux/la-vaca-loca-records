@@ -60,7 +60,7 @@ body{background:var(--paper);color:var(--ink)}
 @media(prefers-reduced-motion:reduce){.ticker .ticker-track{animation:none}.lvl-slide{transition:none;transform:none}.lvl-slide.is-active{opacity:1}}
 </style>
 <link rel="stylesheet" href="home-discos.css?v=art-viewer-20260929">
-<link rel="stylesheet" href="home-flow.css?v=20260929-restored">
+<link rel="stylesheet" href="home-flow.css?v=20260929-artwork">
 </head>
 <body class="intro-active">
 <div class="lvl-intro-loader" id="lvlIntroLoader" aria-hidden="true">
@@ -99,12 +99,11 @@ body{background:var(--paper);color:var(--ink)}
   </div>
   <div class="showcase-feature">
     <button class="showcase-open" id="showcaseOpenArt" type="button" aria-label="Ampliar portada">
-      <span class="showcase-disc" aria-hidden="true"></span>
       <span class="showcase-art" id="showcaseArt" style="--sleeve-color:#864833"><span class="showcase-art-title"></span><span class="showcase-art-code"></span><img alt="" hidden></span>
       <span class="showcase-zoom" aria-hidden="true">↗</span>
     </button>
     <div class="showcase-info">
-      <span class="showcase-overline">EN EL PLATO <span id="showcaseNumber">01 / 05</span></span>
+      <span class="showcase-overline"><span id="showcaseNumber">01 / 05</span></span>
       <h3 id="showcaseTitle"></h3>
       <p class="showcase-artist" id="showcaseArtist"></p>
       <div class="showcase-facts"><span id="showcaseGenre"></span><span id="showcaseYear"></span><strong id="showcasePrice"></strong></div>
