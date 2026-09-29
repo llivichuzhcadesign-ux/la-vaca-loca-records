@@ -62,6 +62,23 @@ async function publicPost(code){
   }
   return preview||null;
 }
+export async function providerPost(env,code){
+  const cacheKey=`__imports/instagram/${code}.json`;
+  const cached=await env.MEDIA.get(cacheKey);
+  if(cached){try{const value=await cached.json();if(value.savedAt>Date.now()-86400000)return value.post}catch{}}
+  const response=await fetch('https://api.apify.com/v2/actors/apify~instagram-post-scraper/run-sync-get-dataset-items?timeout=60&clean=true',{method:'POST',headers:{Authorization:`Bearer ${env.APIFY_API_TOKEN}`,'Content-Type':'application/json'},body:JSON.stringify({username:[`https://www.instagram.com/p/${code}/`],resultsLimit:1,dataDetailLevel:'detailedData'}),signal:AbortSignal.timeout(70000)});
+  if(!response.ok)throw new Error('Public Instagram extraction failed. Check the Apify API key and available credits, then retry.');
+  const items=await response.json();
+  const item=Array.isArray(items)?items.find(value=>value.shortCode===code||postCode(value.url)===code):null;
+  if(!item||item.error)throw new Error('The extraction service could not read this public post.');
+  const children=item.childPosts||[];
+  const urls=children.length?children.filter(child=>child.type!=='Video').map(child=>child.displayUrl):item.type==='Video'?[]:item.images?.length?item.images:[item.displayUrl];
+  const photos=[...new Set(urls.filter(Boolean))].map((url,index)=>({id:String(index),url}));
+  if(!photos.length)throw new Error('The post has no downloadable photos.');
+  const post={id:code,caption:item.caption||'',photos,url:`https://www.instagram.com/p/${code}/`,source:'public-service',warnings:[]};
+  await env.MEDIA.put(cacheKey,JSON.stringify({savedAt:Date.now(),post}),{httpMetadata:{contentType:'application/json'}});
+  return post;
+}
 export async function onRequestGet(){return json({ok:true,publicImport:true})}
 export async function onRequestPost(context){
   const env=context.env;
@@ -70,8 +87,9 @@ export async function onRequestPost(context){
   const code=postCode(body.url);if(!code)return json({ok:false,error:'Paste an Instagram post or reel link.'},400);
   try{
     let post;try{post=await publicPost(code)}catch{}
+    if((!post||post.warnings.length)&&env.APIFY_API_TOKEN)post=await providerPost(env,code);
     if(!post&&env.INSTAGRAM_ACCESS_TOKEN&&env.INSTAGRAM_USER_ID){const item=await findPost(env,code);if(item)post={id:item.id,caption:item.caption||'',photos:await photosFor(env,item),url:item.permalink,source:'connected',warnings:[]}}
-    if(!post)return json({ok:false,error:'Instagram did not expose this post’s photos and caption to the server. Try again later, or add the photos from Gallery/files and paste the caption manually.'},422);
+    if(!post)return json({ok:false,error:'Public import is not connected: Instagram blocked direct extraction. Configure the Cloudflare secret APIFY_API_TOKEN to enable the public-post extraction service. No Instagram login is required.'},422);
     let photos=post.photos;
     if(!photos.length)return json({ok:false,error:'This post has no photos to import. Video-only posts are not supported.'},422);
     if(body.save===true){

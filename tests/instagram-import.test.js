@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs');
 (async()=>{
- const {postCode,parsePublicPost,onRequestPost}=await import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync('functions/api/admin/instagram.js','utf8')).toString('base64'));
+ const {postCode,parsePublicPost,providerPost,onRequestPost}=await import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync('functions/api/admin/instagram.js','utf8')).toString('base64'));
  assert.equal(postCode('https://www.instagram.com/p/ABC_123/?igsh=x'),'ABC_123');for(const url of ['https://evil.test/p/abc/','http://instagram.com/p/abc/','https://www.instagram.com/accounts/login/'])assert.equal(postCode(url),'');
  const make=(body,env)=>({request:new Request('https://site.test/api/admin/instagram',{method:'POST',body:JSON.stringify(body)}),env});
  assert.equal((await onRequestPost(make({url:'https://instagram.com/p/abc/'},{}))).status,503);
@@ -21,5 +21,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs');
   data=await (await onRequestPost(make({url:'https://instagram.com/p/abc/',save:true},env))).json();assert.equal(writes.length,2);assert.equal(data.photos[0].url,'https://site.test/media/uploads/instagram/abc/0.jpg');assert.equal(writes[0].options.customMetadata.mediaKind,'image');
   env.MEDIA.head=async()=>({});await onRequestPost(make({url:'https://instagram.com/p/abc/',save:true},env));assert.equal(writes.length,2);
  }finally{global.fetch=original}
+ const cache=new Map();let runs=0;const providerEnv={APIFY_API_TOKEN:'provider-test',MEDIA:{get:async key=>cache.has(key)?{json:async()=>JSON.parse(cache.get(key))}:null,put:async(key,value)=>cache.set(key,value)}};
+ global.fetch=async(url,options)=>{runs++;assert.equal(options.headers.Authorization,'Bearer provider-test');assert.equal(JSON.parse(options.body).username[0],'https://www.instagram.com/p/abc/');return Response.json([{shortCode:'abc',caption:'Caption from service',type:'Sidecar',childPosts:[{type:'Image',displayUrl:'https://scontent.cdninstagram.com/a.jpg'},{type:'Image',displayUrl:'https://scontent.cdninstagram.com/b.jpg'}]}])};
+ try{const post=await providerPost(providerEnv,'abc');assert.equal(post.photos.length,2);assert.equal(post.caption,'Caption from service');await providerPost(providerEnv,'abc');assert.equal(runs,1)}finally{global.fetch=original}
  console.log('PASS: URL validation, storage gate, public caption/carousel preview, image persistence and retry deduplication');
 })().catch(error=>{console.error(error);process.exitCode=1});
