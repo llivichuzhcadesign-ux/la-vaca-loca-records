@@ -135,7 +135,7 @@
     const featured=sessions.find(item=>item.featured)||sessions[0];
     const url=mediaUrl(featured,'heroImage','hero');
     const section=document.querySelector('.sessions-photo');
-    if(url&&section)section.style.backgroundImage=`linear-gradient(90deg,rgba(9,9,7,.28),transparent 28%),url('${url}')`;
+    if(url&&section){const image=new Image();image.onload=()=>{section.style.backgroundImage=`linear-gradient(0deg,rgba(9,9,7,.65),transparent 70%),url('${url}')`};image.src=url;}
   }
   function decorateEventsMedia(){
     document.querySelectorAll('.event-card[data-event]').forEach(card=>{
