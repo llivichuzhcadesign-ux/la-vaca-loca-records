@@ -409,20 +409,68 @@ window.addEventListener('beforeunload',()=>heroObjectUrls.forEach(url=>URL.revok
 function renderRecordPreview(){
  if(!grid)return;
  const publicRecords=window.RECORDS.filter(r=>!['DRAFT','PRIVATE LISTING','HIDDEN'].includes(String(r.status||'').toUpperCase()));
- const records=[...publicRecords.filter(r=>r.featured),...publicRecords.filter(r=>!r.featured)].slice(0,3);
- const colors=['#864833','#35493f','#827451'];
- const count=document.getElementById('shopPreviewCount');
- if(count)count.textContent=records.length?`01 — ${String(records.length).padStart(2,'0')}`:'00 — 00';
- grid.innerHTML=records.length?records.map((r,index)=>{
-  const art=r.coverImage||r.media?.artwork?.url||r.media?.artwork?.path||'';
-  const src=art&&window.CalendarContent?.imageUrl(art,document.baseURI);
-  return `<a class="shop-preview-sleeve" href="discos.html#${encodeURIComponent(String(r.id))}" aria-label="Escuchar ${escapeText(r.artist)} — ${escapeText(r.title)} en la sala de escucha"><span class="shop-preview-art" style="--sleeve-color:${colors[index]}"><span class="shop-preview-art-title">${escapeText(r.title)}</span><span class="shop-preview-art-code">${escapeText(r.id)} / LVL RECORDS</span>${src?`<img src="${escapeText(src)}" alt="" loading="lazy">`:''}</span><span class="shop-preview-meta"><strong>${escapeText(r.artist)}</strong><small>${escapeText(r.title)}</small></span><span class="shop-preview-facts"><span>${escapeText(r.genre||'DISCO')} · ${escapeText(r.year||'')}</span><b>${money(Number(r.price||0).toFixed(2))}</b></span></a>`;
- }).join(''):'<p class="shop-preview-empty">La selección estará disponible próximamente.</p>';
- grid.querySelectorAll('img').forEach(img=>{
-  const hideMissing=()=>img.remove();
-  img.addEventListener('error',hideMissing,{once:true});
-  if(img.complete&&!img.naturalWidth)hideMissing();
+ const records=publicRecords.sort((a,b)=>Number(b.year||0)-Number(a.year||0)||Number(!!b.featured)-Number(!!a.featured)).slice(0,5);
+ const colors=['#864833','#35493f','#827451','#493d57','#a25439'];
+ const section=document.getElementById('shop');
+ const feature=section.querySelector('.showcase-feature');
+ const dialog=document.getElementById('showcaseDialog');
+ if(!records.length){feature.hidden=true;grid.innerHTML='<p class="showcase-empty">Próximamente.</p>';return}
+
+ const artMarkup='<span class="showcase-art-title"></span><span class="showcase-art-code"></span><img alt="" hidden>';
+ grid.innerHTML=records.map((r,index)=>`<button class="showcase-thumb" type="button" data-showcase-index="${index}" aria-label="Ver portada de ${escapeText(r.artist)} — ${escapeText(r.title)}" aria-pressed="false"><span class="showcase-art showcase-thumb-art">${artMarkup}</span><span class="showcase-thumb-caption"><strong>${escapeText(r.title)}</strong><small>${escapeText(r.artist)}</small></span></button>`).join('');
+
+ function setArtwork(container,record,index){
+  container.style.setProperty('--sleeve-color',colors[index%colors.length]);
+  container.querySelector('.showcase-art-title').textContent=record.title||'';
+  container.querySelector('.showcase-art-code').textContent=`${record.id||'LVL'} / LVL RECORDS`;
+  const img=container.querySelector('img');
+  const source=record.coverImage||record.media?.artwork?.url||record.media?.artwork?.path||'';
+  const url=source&&window.CalendarContent?.imageUrl(source,document.baseURI);
+  img.hidden=true;
+  img.onload=()=>{if(img.dataset.requested===url)img.hidden=false};
+  img.onerror=()=>{img.hidden=true};
+  img.dataset.requested=url||'';
+  if(url){img.src=url;if(img.complete&&img.naturalWidth)img.hidden=false}
+  else img.removeAttribute('src');
+ }
+
+ grid.querySelectorAll('.showcase-thumb').forEach((button,index)=>{
+  setArtwork(button.querySelector('.showcase-art'),records[index],index);
+  button.addEventListener('click',()=>show(index));
  });
+
+ let selected=0;
+ function show(index){
+  selected=(index+records.length)%records.length;
+  const record=records[selected];
+  const position=`${String(selected+1).padStart(2,'0')} / ${String(records.length).padStart(2,'0')}`;
+  setArtwork(document.getElementById('showcaseArt'),record,selected);
+  setArtwork(document.getElementById('showcaseDialogArt'),record,selected);
+  document.getElementById('showcaseTitle').textContent=record.title||'';
+  document.getElementById('showcaseArtist').textContent=record.artist||'';
+  document.getElementById('showcaseGenre').textContent=record.genre||'';
+  document.getElementById('showcaseYear').textContent=record.year||'';
+  document.getElementById('showcasePrice').textContent=money(Number(record.price||0).toFixed(2));
+  document.getElementById('showcaseNumber').textContent=position;
+  document.getElementById('showcasePosition').textContent=position.replace(' / ',' — ');
+  document.getElementById('showcaseDialogCaption').textContent=`${record.artist||''} — ${record.title||''}`;
+  document.getElementById('showcaseRecordLink').href=`discos.html#${encodeURIComponent(String(record.id))}`;
+  document.getElementById('showcaseOpenArt').setAttribute('aria-label',`Ampliar portada de ${record.artist} — ${record.title}`);
+  grid.querySelectorAll('.showcase-thumb').forEach((button,i)=>{
+   button.classList.toggle('is-active',i===selected);
+   button.setAttribute('aria-pressed',String(i===selected));
+  });
+ }
+ document.querySelectorAll('[data-showcase-prev]').forEach(button=>button.addEventListener('click',()=>show(selected-1)));
+ document.querySelectorAll('[data-showcase-next]').forEach(button=>button.addEventListener('click',()=>show(selected+1)));
+ document.getElementById('showcaseOpenArt').addEventListener('click',()=>dialog.showModal());
+ document.getElementById('showcaseDialogClose').addEventListener('click',()=>dialog.close());
+ dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()});
+ dialog.addEventListener('keydown',event=>{
+  if(event.key==='ArrowLeft'){event.preventDefault();show(selected-1)}
+  if(event.key==='ArrowRight'){event.preventDefault();show(selected+1)}
+ });
+ show(0);
 }
 function addToCart(id){const r=getRecord(id);if(!r||r.stock===0)return;state.cart.push(r);renderCart();openCart()}
 function renderCart(){cartCount.textContent=state.cart.length;cartItems.innerHTML=state.cart.length?state.cart.map((r,i)=>`<div class="cart-item"><div><strong>${r.artist}</strong><br><small>${r.title}</small></div><div><strong>${money(r.price)}</strong><br><button data-remove="${i}" style="background:none;border:0;color:#777;cursor:pointer">remove</button></div></div>`).join(''):'<p style="color:#777">Tu bag está vacío.</p>';const total=state.cart.reduce((s,r)=>s+r.price,0);cartTotal.textContent=money(total);const lines=state.cart.map(r=>`1x ${r.artist} — ${r.title} — ${money(r.price)}`);whatsapp.href=`https://wa.me/?text=${encodeURIComponent(`${settings.whatsappText||'Hola! Quiero hacer este pedido de La Vaca Loca Records:'}\n\n${lines.join('\n')}\n\nTotal: ${money(total)}`)}`}
