@@ -59,6 +59,7 @@ body{background:var(--paper);color:var(--ink)}
 @media(max-width:560px){.lvl-kicker{max-width:250px;line-height:1.45}.lvl-mark{font-size:39vw}.lvl-hero-copy{margin-top:26px;max-width:300px;font-size:20px}.lvl-hero-actions{margin-top:24px}.lvl-primary-link,.lvl-secondary-link{padding:11px 12px;font-size:9px}.lvl-hero-index i{width:42px}}
 @media(prefers-reduced-motion:reduce){.ticker .ticker-track{animation:none}.lvl-slide{transition:none;transform:none}.lvl-slide.is-active{opacity:1}}
 </style>
+<link rel="stylesheet" href="home-discos.css?v=preview-20260929">
 </head>
 <body class="intro-active">
 <div class="lvl-intro-loader" id="lvlIntroLoader" aria-hidden="true">
@@ -90,12 +91,24 @@ body{background:var(--paper);color:var(--ink)}
 <div class="lvl-hero-index" aria-hidden="true"><span id="lvlHeroCurrent">01</span><i></i><span id="lvlHeroTotal">03</span></div>
 </div></section>
 <section class="ticker" aria-label="Categorías de la tienda"><div class="ticker-track"><span>NEW IN · PREORDERS · HOUSE · TECHNO · ELECTRO · BREAKS · AMBIENT · GUALACEO · ECUADOR · LATIN · EXPERIMENTAL · JAZZ · SOUL · </span><span aria-hidden="true">NEW IN · PREORDERS · HOUSE · TECHNO · ELECTRO · BREAKS · AMBIENT · GUALACEO · ECUADOR · LATIN · EXPERIMENTAL · JAZZ · SOUL · </span><span aria-hidden="true">NEW IN · PREORDERS · HOUSE · TECHNO · ELECTRO · BREAKS · AMBIENT · GUALACEO · ECUADOR · LATIN · EXPERIMENTAL · JAZZ · SOUL · </span></div></section>
-<section class="shop-section motion-section" id="shop"><div class="section-heading"><div><p class="eyebrow">01 / DISCOS</p><h2>ÚLTIMOS<br>DISCOS</h2></div><a class="shop-link-tag" href="discos.html">BROWSE →</a></div><div class="filters" id="filters"><button class="filter active" data-filter="all">TODO</button><button class="filter" data-filter="House">HOUSE</button><button class="filter" data-filter="Techno">TECHNO</button><button class="filter" data-filter="Breaks">BREAKS</button><button class="filter" data-filter="Ambient">AMBIENT</button></div><div class="shop-dig motion-object"><div><p class="eyebrow">DIG MODE</p><h3>BUSCA POR<br>SENSACIÓN</h3><p>Elige un mood o deja que La Vaca te tire un disco del crate.</p></div><div><button class="dig-random" id="digRandom">SORPRÉNDEME</button><div class="mood-grid"><button data-mood="OSCURO">OSCURO</button><button data-mood="PROFUNDO">PROFUNDO</button><button data-mood="PEAK TIME">PEAK TIME</button><button data-mood="AFTERHOURS">AFTERHOURS</button><button data-mood="PSICODÉLICO">PSICODÉLICO</button><button data-mood="FUNKY">FUNKY</button></div></div></div><div class="record-grid" id="recordGrid"></div></section>
+<section class="shop-section shop-preview motion-section" id="shop" aria-labelledby="shopPreviewTitle">
+  <div class="shop-preview-intro">
+    <p class="eyebrow">01 / DISCOS · LA SALA DE ESCUCHA</p>
+    <h2 id="shopPreviewTitle">Discos para<br><em>escuchar.</em></h2>
+    <p class="shop-preview-copy">Una pequeña selección del crate. Elige un disco en la sala de escucha, ponlo en el tocadiscos y explora toda la colección.</p>
+    <a class="shop-preview-cta" href="discos.html">ENTRAR A LA SALA DE ESCUCHA <span aria-hidden="true">↗</span></a>
+  </div>
+  <div class="shop-preview-selection">
+    <div class="shop-preview-label"><span>SELECCIÓN / LA VACA LOCA</span><span id="shopPreviewCount">01 — 03</span></div>
+    <div class="shop-preview-grid" id="recordGrid"></div>
+    <a class="shop-preview-all" href="discos.html">VER TODOS LOS DISCOS <span aria-hidden="true">→</span></a>
+  </div>
+</section>
 <section class="sessions-section motion-section" id="sessions"><div class="sessions-copy motion-copy"><p class="eyebrow">02 / SESSIONS</p><h2><span>SESSIONS</span></h2><p>Sets, conversaciones, Hi-Fi, invitados y cultura. Un archivo vivo desde Gualaceo al mundo.</p></div><div class="sessions-photo motion-object"><div class="sessions-photo-card"><span>ARCHIVO / GUALACEO</span><strong>LA VACA LOCA<br>SESSIONS</strong><span>SETS · HI-FI · CONVERSATORIOS · INVITADOS</span><br><a class="sessions-button" href="archivo.html">VER SESSIONS →</a></div></div></section>
 <section class="archive-section motion-section" id="archive"><div class="archive-main motion-copy"><p class="eyebrow">04 / MEMORIA VIVA</p><h2>ARCHIVO<br>CULTURAL</h2><p>Fotos, posters, sesiones, eventos y momentos de La Vaca Loca. El archivo crecerá junto con la tienda y su comunidad.</p><a href="archivo.html">EXPLORAR EL ARCHIVO <span class="css-arrow" aria-hidden="true"></span></a></div><div class="archive-cards motion-object"><a class="archive-card photo" href="archivo.html#A01"><small>ESPACIO / HI-FI</small><strong>LA CASA</strong></a><a class="archive-card sign" href="archivo.html#A02"><small>SESSIONS / RECORDS</small><strong>LA VACA LOCA</strong></a><a class="archive-card poster" href="archivo.html#A03"><small>POSTERS / EVENTOS</small><strong>FIESTA<br>CALIENTE</strong><small>26.06.2026 · CUENCA</small></a></div></section>
 </main>
 <aside class="cart-panel" id="cartPanel" aria-hidden="true"><div class="cart-head"><h3>YOUR BAG</h3><button id="closeCart">CERRAR</button></div><div id="cartItems" class="cart-items"></div><div class="cart-footer"><div class="cart-total"><span>TOTAL</span><strong id="cartTotal">$0</strong></div><a id="whatsappCheckout" class="button primary full" href="#" target="_blank" rel="noopener">ORDENAR POR WHATSAPP</a></div></aside><div class="scrim" id="scrim"></div>
 <div class="player" id="player"><button id="playerToggle" class="play-control" aria-label="Reproducir"><span class="play-icon" aria-hidden="true"></span></button><div class="player-art" id="playerArt"><span></span></div><div class="player-meta"><span>NOW PLAYING / LA VACA LOCA</span><strong id="playerTitle">Selecciona un disco para escuchar</strong><small id="playerSub">CRATE PLAYER · GUALACEO</small></div><div class="player-line"><span id="playerProgress"></span></div></div>
-<script src="data.js"></script><script src="api/content"></script><script src="draft-preview.js"></script><script src="calendar-content.js"></script><script src="app.js?v=smooth-trace-v2-20260929"></script><script src="media-runtime.js"></script>
+<script src="data.js"></script><script src="api/content"></script><script src="draft-preview.js"></script><script src="calendar-content.js"></script><script src="app.js?v=home-discos-20260929"></script><script src="media-runtime.js"></script>
 </body>
 </html>

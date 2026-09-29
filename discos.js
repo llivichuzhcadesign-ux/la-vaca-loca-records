@@ -631,8 +631,11 @@ stage.addEventListener('keydown',e=>{
 });
 
 if(records.length){
-  updateSelectedInfo(records[0]);
-  mountRecord(records[0],false,true);
+  let requestedId='';
+  try{requestedId=decodeURIComponent(location.hash.slice(1))}catch(error){}
+  const initialRecord=records.find(record=>record.id===requestedId)||records[0];
+  updateSelectedInfo(initialRecord);
+  mountRecord(initialRecord,false,true);
 }else{
   if(deckPlay)deckPlay.disabled=true;
   renderGallery();

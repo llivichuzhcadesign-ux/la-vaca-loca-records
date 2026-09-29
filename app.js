@@ -406,10 +406,23 @@ async function setupHomepageHero(){
 }
 window.addEventListener('beforeunload',()=>heroObjectUrls.forEach(url=>URL.revokeObjectURL(url)));
 
-function renderRecords(filter='all'){
- const records=window.RECORDS.filter(r=>filter==='all'||r.genre===filter);
- grid.innerHTML=records.map((r,index)=>`<article class="record-card reveal-item" style="--delay:${Math.min(index,7)*55}ms" data-id="${r.id}" tabindex="0" role="button" aria-label="Abrir detalles de ${escapeText(r.artist)} - ${escapeText(r.title)}"><div class="cover"><span class="badge">${r.status}</span><span class="cover-code">${r.id} / ${r.genre.toUpperCase()}</span></div><div class="record-meta"><div class="topline"><div><h3>${r.artist}</h3><p>${r.title} · ${r.genre}</p></div><strong>${money(r.price)}</strong></div><div class="record-actions"><button data-listen="${r.id}"><span class="mini-play" aria-hidden="true"></span> ESCUCHAR</button><button data-detail="${r.id}">DETALLES</button><button data-add="${r.id}" ${r.stock===0?'disabled':''}>${r.stock===0?'LO QUIERO':'+ BAG'}</button></div></div></article>`).join('');
- requestAnimationFrame(()=>document.querySelectorAll('.reveal-item').forEach(el=>el.classList.add('is-visible')));
+function renderRecordPreview(){
+ if(!grid)return;
+ const publicRecords=window.RECORDS.filter(r=>!['DRAFT','PRIVATE LISTING','HIDDEN'].includes(String(r.status||'').toUpperCase()));
+ const records=[...publicRecords.filter(r=>r.featured),...publicRecords.filter(r=>!r.featured)].slice(0,3);
+ const colors=['#864833','#35493f','#827451'];
+ const count=document.getElementById('shopPreviewCount');
+ if(count)count.textContent=records.length?`01 — ${String(records.length).padStart(2,'0')}`:'00 — 00';
+ grid.innerHTML=records.length?records.map((r,index)=>{
+  const art=r.coverImage||r.media?.artwork?.url||r.media?.artwork?.path||'';
+  const src=art&&window.CalendarContent?.imageUrl(art,document.baseURI);
+  return `<a class="shop-preview-sleeve" href="discos.html#${encodeURIComponent(String(r.id))}" aria-label="Escuchar ${escapeText(r.artist)} — ${escapeText(r.title)} en la sala de escucha"><span class="shop-preview-art" style="--sleeve-color:${colors[index]}"><span class="shop-preview-art-title">${escapeText(r.title)}</span><span class="shop-preview-art-code">${escapeText(r.id)} / LVL RECORDS</span>${src?`<img src="${escapeText(src)}" alt="" loading="lazy">`:''}</span><span class="shop-preview-meta"><strong>${escapeText(r.artist)}</strong><small>${escapeText(r.title)}</small></span><span class="shop-preview-facts"><span>${escapeText(r.genre||'DISCO')} · ${escapeText(r.year||'')}</span><b>${money(Number(r.price||0).toFixed(2))}</b></span></a>`;
+ }).join(''):'<p class="shop-preview-empty">La selección estará disponible próximamente.</p>';
+ grid.querySelectorAll('img').forEach(img=>{
+  const hideMissing=()=>img.remove();
+  img.addEventListener('error',hideMissing,{once:true});
+  if(img.complete&&!img.naturalWidth)hideMissing();
+ });
 }
 function addToCart(id){const r=getRecord(id);if(!r||r.stock===0)return;state.cart.push(r);renderCart();openCart()}
 function renderCart(){cartCount.textContent=state.cart.length;cartItems.innerHTML=state.cart.length?state.cart.map((r,i)=>`<div class="cart-item"><div><strong>${r.artist}</strong><br><small>${r.title}</small></div><div><strong>${money(r.price)}</strong><br><button data-remove="${i}" style="background:none;border:0;color:#777;cursor:pointer">remove</button></div></div>`).join(''):'<p style="color:#777">Tu bag está vacío.</p>';const total=state.cart.reduce((s,r)=>s+r.price,0);cartTotal.textContent=money(total);const lines=state.cart.map(r=>`1x ${r.artist} — ${r.title} — ${money(r.price)}`);whatsapp.href=`https://wa.me/?text=${encodeURIComponent(`${settings.whatsappText||'Hola! Quiero hacer este pedido de La Vaca Loca Records:'}\n\n${lines.join('\n')}\n\nTotal: ${money(total)}`)}`}
@@ -418,7 +431,6 @@ function closeCart(){cartPanel.classList.remove('open');if(!recordModal.classLis
 function updatePlayerControl(){playerToggle.classList.toggle('is-playing',state.playing);playerToggle.setAttribute('aria-label',state.playing?'Pausar':'Reproducir');player.classList.toggle('playing',state.playing);player.classList.toggle('has-current',!!state.current)}
 function selectRecord(r,autoplay=true){if(!r)return;state.current=r;state.playing=autoplay;playerTitle.textContent=`${r.artist} — ${r.title}`;playerSub.textContent=`${r.genre.toUpperCase()} · ${r.id} · ${settings.location||'GUALACEO'}`;updatePlayerControl();player.animate([{transform:'translateY(8px)'},{transform:'translateY(0)'}],{duration:260,easing:'cubic-bezier(.2,.8,.2,1)'});document.querySelectorAll('[data-listen]').forEach(btn=>{btn.classList.toggle('is-active',btn.dataset.listen===r.id)})}
 function randomRecord(){return window.RECORDS[Math.floor(Math.random()*window.RECORDS.length)]}
-function dig(mood){document.querySelectorAll('[data-mood]').forEach(b=>b.classList.toggle('active',b.dataset.mood===mood));const r=randomRecord();selectRecord(r,true);openRecordModal(r)}
 
 function createRecordModal(){
  const modal=document.createElement('div');
@@ -545,15 +557,11 @@ document.addEventListener('click',e=>{
  const detail=e.target.closest('[data-detail]');if(detail){e.stopPropagation();openRecordModal(detail.dataset.detail);return}
  const card=e.target.closest('.record-card');if(card&&!e.target.closest('button'))openRecordModal(card.dataset.id);
  const remove=e.target.closest('[data-remove]');if(remove){state.cart.splice(Number(remove.dataset.remove),1);renderCart();return}
- const filter=e.target.closest('[data-filter]');if(filter){document.querySelectorAll('.filter').forEach(b=>b.classList.remove('active'));filter.classList.add('active');renderRecords(filter.dataset.filter);return}
- const mood=e.target.closest('[data-mood]');if(mood){dig(mood.dataset.mood);return}
  const session=e.target.closest('[data-session]');if(session)showSessionDetail(session.dataset.session);
 });
 document.addEventListener('keydown',e=>{const card=e.target.closest&&e.target.closest('.record-card');if(card&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openRecordModal(card.dataset.id)}});
 document.addEventListener('click',e=>{const link=e.target.closest('a[href^="#"]');if(!link)return;const target=document.querySelector(link.getAttribute('href'));if(target){e.preventDefault();closeMobileNav();target.scrollIntoView({behavior:'smooth',block:'start'})}});
 document.getElementById('cartButton').addEventListener('click',openCart);document.getElementById('closeCart').addEventListener('click',closeCart);scrim.addEventListener('click',()=>{closeCart();closeRecordModal();closeMobileNav()});
-const digRandomButton=document.getElementById('digRandom');
-if(digRandomButton)digRandomButton.addEventListener('click',()=>dig(''));
 playerToggle.addEventListener('click',()=>{if(!state.current){selectRecord(randomRecord(),true);return}state.playing=!state.playing;updatePlayerControl()});
 
 const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -591,7 +599,7 @@ setupDraftPreviewBanner();
 setupHomepageHero();
 enhancePublicSite();
 setupMobileNavigation();
-renderRecords();renderCart();
+renderRecordPreview();renderCart();
 
 (function addDesignCredit(){
  const footer=document.querySelector(".site-footer");
