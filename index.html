@@ -60,7 +60,7 @@ body{background:var(--paper);color:var(--ink)}
 @media(prefers-reduced-motion:reduce){.ticker .ticker-track{animation:none}.lvl-slide{transition:none;transform:none}.lvl-slide.is-active{opacity:1}}
 </style>
 <link rel="stylesheet" href="home-discos.css?v=art-viewer-20260929">
-<link rel="stylesheet" href="home-flow.css?v=20260929-artwork">
+<link rel="stylesheet" href="home-flow.css?v=20260929-collage">
 </head>
 <body class="intro-active">
 <div class="lvl-intro-loader" id="lvlIntroLoader" aria-hidden="true">
@@ -124,12 +124,12 @@ body{background:var(--paper);color:var(--ink)}
   <a class="sessions-photo motion-object" href="sessions.html" aria-label="Explorar La Vaca Loca Sessions"><div class="sessions-photo-card"><span>GUALACEO / ECUADOR</span><strong>El sonido<br>nos reúne.</strong><span class="sessions-button">EXPLORAR SESSIONS ↗</span></div></a>
 </section>
 <section class="archive-section motion-section" id="archive" aria-labelledby="homeArchiveTitle">
-  <div class="archive-main motion-copy"><p class="eyebrow">04 / MEMORIA VIVA</p><h2 id="homeArchiveTitle">Cultura <em>en vivo.</em></h2><a href="archivo.html">EXPLORAR EL ARCHIVO <span aria-hidden="true">↗</span></a></div>
-  <div class="archive-cards motion-object"><a class="archive-card photo" href="archivo.html#A01"><small>01 / ESPACIO</small><strong>La casa.</strong></a><a class="archive-card sign" href="archivo.html#A02"><small>02 / ENCUENTROS</small><strong>La comunidad.</strong></a><a class="archive-card poster" href="archivo.html#A03"><small>03 / POSTERS</small><strong>Fiesta<br><em>caliente.</em></strong><small>26.06.2026 · CUENCA</small></a></div>
+  <div class="archive-main motion-copy"><h2 id="homeArchiveTitle">Memoria <em>viva.</em></h2><a href="archivo.html" aria-label="Explorar el archivo">↗</a></div>
+  <div class="memory-collage" id="memoryCollage" aria-label="Galería de Memoria viva"></div>
 </section>
 </main>
 <aside class="cart-panel" id="cartPanel" aria-hidden="true"><div class="cart-head"><h3>YOUR BAG</h3><button id="closeCart">CERRAR</button></div><div id="cartItems" class="cart-items"></div><div class="cart-footer"><div class="cart-total"><span>TOTAL</span><strong id="cartTotal">$0</strong></div><a id="whatsappCheckout" class="button primary full" href="#" target="_blank" rel="noopener">ORDENAR POR WHATSAPP</a></div></aside><div class="scrim" id="scrim"></div>
 <div class="player" id="player"><button id="playerToggle" class="play-control" aria-label="Reproducir"><span class="play-icon" aria-hidden="true"></span></button><div class="player-art" id="playerArt"><span></span></div><div class="player-meta"><span>NOW PLAYING / LA VACA LOCA</span><strong id="playerTitle">Selecciona un disco para escuchar</strong><small id="playerSub">CRATE PLAYER · GUALACEO</small></div><div class="player-line"><span id="playerProgress"></span></div></div>
 <script src="data.js"></script><script src="api/content"></script><script src="draft-preview.js"></script><script src="calendar-content.js"></script><script src="app.js?v=20260929-flow"></script><script src="media-runtime.js?v=flow-image-20260929"></script>
-</body>
+<script src="home-collage.js?v=20260929"></script></body>
 </html>

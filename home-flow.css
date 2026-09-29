@@ -79,3 +79,23 @@ body .shop-showcase .showcase-facts strong{margin-left:12px;font-size:18px}
 body .shop-showcase .showcase-controls{max-width:none;width:100%;margin-top:32px;padding-top:22px;border-top:1px solid #eee5d326}
 body .shop-showcase .showcase-strip{max-width:1200px;gap:24px;margin-top:40px}
 @media(max-width:800px){body .shop-section.shop-showcase{padding:60px 20px 80px}body .shop-showcase .showcase-heading{gap:20px;align-items:flex-start}body .shop-showcase h2{font-size:clamp(46px,10vw,76px)}body .shop-showcase .showcase-feature{grid-template-columns:1fr;gap:28px;margin-top:30px}body .shop-showcase .showcase-open{max-width:480px;justify-self:center}body .shop-showcase .showcase-info{width:100%;max-width:480px;margin:auto}body .shop-showcase .showcase-info h3{font-size:42px}body .shop-showcase .showcase-strip{gap:16px;margin-top:32px}}
+/* Three continuous photographic layers. */
+body .archive-section{padding:20px 0 100px!important}
+body .archive-main{display:flex;align-items:center;justify-content:space-between;padding:30px 6vw 50px}
+body .archive-main h2{font-size:clamp(56px,7.5vw,116px);line-height:1}
+body .archive-main a{border:0;font-size:42px;margin:0}
+.memory-collage{overflow:hidden;display:grid;gap:18px;padding:8px 0;isolation:isolate}
+.memory-track{display:flex;width:max-content;animation:memory-drift 100s linear infinite;will-change:transform}
+.memory-track:nth-child(2){animation-direction:reverse;animation-duration:120s;margin-left:-140px}
+.memory-track:nth-child(3){animation-duration:110s;margin-left:-70px}
+.memory-group{display:flex;align-items:center;gap:18px;padding-right:18px}
+.memory-photo{display:block;flex:none;width:280px;height:210px;overflow:hidden;background:#b6a98e}
+.memory-photo:nth-child(3n+2){width:190px;height:240px}
+.memory-photo:nth-child(3n){width:340px;height:190px}
+.memory-photo img{display:block;width:100%;height:100%;object-fit:cover;filter:sepia(.9) saturate(.5);transition:filter .45s ease,transform .6s ease}
+.memory-collage:hover .memory-track,.memory-collage:focus-within .memory-track{animation-play-state:paused}
+.memory-photo:hover img,.memory-photo:focus-visible img{filter:none;transform:scale(1.035)}
+.memory-photo:focus-visible{outline:3px solid #63312d;outline-offset:3px}
+@keyframes memory-drift{to{transform:translateX(-50%)}}
+@media(max-width:700px){body .archive-main{padding:20px 20px 30px;gap:15px}body .archive-main h2{font-size:13vw}.memory-collage{gap:12px}.memory-group{gap:12px;padding-right:12px}.memory-photo{width:210px;height:155px}.memory-photo:nth-child(3n+2){width:145px;height:180px}.memory-photo:nth-child(3n){width:250px;height:145px}body .archive-section{padding-bottom:70px!important}}
+@media(prefers-reduced-motion:reduce){.memory-track{animation:none}.memory-collage{overflow-x:auto}.memory-photo img{transition:none}}
