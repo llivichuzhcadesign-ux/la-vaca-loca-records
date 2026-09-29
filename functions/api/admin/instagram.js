@@ -26,35 +26,71 @@ async function photosFor(env,post){
   }
   return post.media_type==='IMAGE'&&post.media_url?[{id:post.id,url:post.media_url}]:[];
 }
-export async function onRequestGet(context){return json({ok:true,configured:!!(context.env.INSTAGRAM_ACCESS_TOKEN&&context.env.INSTAGRAM_USER_ID)})}
+function decode(value=''){return String(value).replace(/&quot;/g,'"').replace(/&#(?:39|x27);/g,"'").replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&#(\d+);/g,(_,n)=>String.fromCodePoint(Number(n)))}
+export function parsePublicPost(html,code){
+  let found;
+  function walk(value,depth=0){
+    if(!value||typeof value!=='object'||depth>80||found)return;
+    if((value.shortcode===code||value.code===code)&&(value.display_url||value.image_versions2||value.carousel_media||value.edge_sidecar_to_children)){found=value;return}
+    for(const child of Object.values(value))walk(child,depth+1);
+  }
+  for(const match of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)){try{walk(JSON.parse(match[1]))}catch{}}
+  if(found){
+    const children=found.carousel_media||found.edge_sidecar_to_children?.edges?.map(edge=>edge.node)||[found];
+    const photos=children.filter(item=>!item.is_video&&item.media_type!==2).map((item,index)=>({id:String(item.id||index),url:item.display_url||item.image_versions2?.candidates?.[0]?.url})).filter(item=>item.url);
+    const caption=found.caption?.text||found.edge_media_to_caption?.edges?.[0]?.node?.text||'';
+    if(photos.length)return{id:code,caption,photos,url:`https://www.instagram.com/p/${code}/`,warnings:[],source:'public'};
+  }
+  const tags=[...html.matchAll(/<meta\b[^>]*>/gi)].map(match=>{
+    const attrs={};for(const attr of match[0].matchAll(/([\w:-]+)\s*=\s*(["'])([\s\S]*?)\2/g))attrs[attr[1].toLowerCase()]=decode(attr[3]);return attrs;
+  });
+  const meta=name=>tags.find(tag=>tag.property===name||tag.name===name)?.content||'';
+  const image=meta('og:image');let caption=meta('og:description')||meta('description');
+  if(!image||!caption||/^(?:Instagram|Login|Log in|Sign up)$/i.test(meta('og:title').trim()))return null;
+  const quoted=caption.match(/:\s*["“]([\s\S]*)["”]\.?$/);if(quoted)caption=quoted[1];
+  return{id:code,caption,photos:[{id:'cover',url:image}],url:`https://www.instagram.com/p/${code}/`,source:'public',warnings:['Instagram exposed a preview only. The caption may be shortened and additional carousel photos may be missing. Review before creating the event.']};
+}
+async function publicPost(code){
+  let preview;
+  for(const suffix of ['', 'embed/captioned/']){
+    try{
+    const response=await fetch(`https://www.instagram.com/p/${code}/${suffix}`,{redirect:'error',headers:{'User-Agent':'Mozilla/5.0','Accept':'text/html'},signal:AbortSignal.timeout(15000)});
+    if(!response.ok)continue;
+    const html=await response.text();if(html.length>12000000)throw new Error('Instagram page is too large to import.');
+    const post=parsePublicPost(html,code);if(post&&!post.warnings.length)return post;if(post)preview=post;
+    }catch{}
+  }
+  return preview||null;
+}
+export async function onRequestGet(){return json({ok:true,publicImport:true})}
 export async function onRequestPost(context){
   const env=context.env;
-  if(!env.INSTAGRAM_ACCESS_TOKEN||!env.INSTAGRAM_USER_ID)return json({ok:false,error:'Instagram is not connected yet. Configure INSTAGRAM_ACCESS_TOKEN and INSTAGRAM_USER_ID in Cloudflare for the Instagram professional account.'},503);
   if(!env.MEDIA)return json({ok:false,error:'Media storage is not configured.'},503);
   let body;try{body=await context.request.json()}catch{return json({ok:false,error:'Invalid request.'},400)}
   const code=postCode(body.url);if(!code)return json({ok:false,error:'Paste an Instagram post or reel link.'},400);
   try{
-    const post=await findPost(env,code);if(!post)return json({ok:false,error:'Post not found in the connected account’s latest 1,000 posts. Use a link from that account.'},404);
-    let photos=await photosFor(env,post);
+    let post;try{post=await publicPost(code)}catch{}
+    if(!post&&env.INSTAGRAM_ACCESS_TOKEN&&env.INSTAGRAM_USER_ID){const item=await findPost(env,code);if(item)post={id:item.id,caption:item.caption||'',photos:await photosFor(env,item),url:item.permalink,source:'connected',warnings:[]}}
+    if(!post)return json({ok:false,error:'Instagram did not expose this post’s photos and caption to the server. Try again later, or add the photos from Gallery/files and paste the caption manually.'},422);
+    let photos=post.photos;
     if(!photos.length)return json({ok:false,error:'This post has no photos to import. Video-only posts are not supported.'},422);
     if(body.save===true){
       const saved=[];
-      for(const photo of photos){
-        if(!/^\d+$/.test(String(post.id))||!/^\d+$/.test(String(photo.id)))throw new Error('Instagram returned an invalid media ID.');
-        const key=`uploads/instagram/${post.id}/${photo.id}.jpg`;
+      for(const [index,photo] of photos.entries()){
+        const key=`uploads/instagram/${code}/${index}.jpg`;
         if(!await env.MEDIA.head(key)){
           const url=new URL(photo.url);
           if(url.protocol!=='https:'||!/(^|\.)(cdninstagram\.com|fbcdn\.net)$/.test(url.hostname))throw new Error('Instagram returned an unsupported image host.');
           const response=await fetch(url,{redirect:'error',signal:AbortSignal.timeout(20000)});
           if(!response.ok||!response.headers.get('content-type')?.startsWith('image/'))throw new Error('A photo could not be downloaded. Retry the import.');
           const bytes=await response.arrayBuffer();if(bytes.byteLength>50*1024*1024)throw new Error('A photo exceeds the 50 MB upload limit.');
-          await env.MEDIA.put(key,bytes,{httpMetadata:{contentType:response.headers.get('content-type')},customMetadata:{originalName:`Instagram ${code} ${photo.id}.jpg`,uploadedAt:new Date().toISOString(),mediaKind:'image',originalBytes:String(bytes.byteLength)}});
+          await env.MEDIA.put(key,bytes,{httpMetadata:{contentType:response.headers.get('content-type')},customMetadata:{originalName:`Instagram ${code} ${index+1}.jpg`,uploadedAt:new Date().toISOString(),mediaKind:'image',originalBytes:String(bytes.byteLength)}});
         }
         saved.push({id:photo.id,url:new URL(`/media/${key}`,context.request.url).href});
       }
       photos=saved;
     }
     const caption=post.caption||'';
-    return json({ok:true,id:post.id,url:post.permalink,caption,title:caption.split('\n').find(line=>line.trim())?.trim().slice(0,100)||'Instagram event',photos});
+    return json({ok:true,id:code,url:post.url,caption,title:caption.split('\n').find(line=>line.trim())?.trim().slice(0,100)||'Instagram event',photos,source:post.source,warnings:post.warnings});
   }catch(error){return json({ok:false,error:error.name==='TimeoutError'?'Instagram took too long to respond. Retry the import.':error.message||'Instagram import failed.'},502)}
 }
