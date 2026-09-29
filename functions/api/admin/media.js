@@ -66,3 +66,11 @@ export async function onRequestPost(context){
     headers:{'cache-control':'no-store'}
   });
 }
+
+export async function onRequestGet(context){
+  if(!context.env.MEDIA)return Response.json({ok:false,error:'R2 binding MEDIA is not configured.'},{status:503});
+  const cursor=new URL(context.request.url).searchParams.get('cursor')||undefined;
+  const page=await context.env.MEDIA.list({prefix:'uploads/',limit:100,cursor,include:['customMetadata','httpMetadata']});
+  const items=page.objects.filter(object=>object.customMetadata?.mediaKind==='image'||object.httpMetadata?.contentType?.startsWith('image/')).map(object=>({key:object.key,name:object.customMetadata?.originalName||object.key.split('/').pop(),size:object.size,uploadedAt:object.customMetadata?.uploadedAt||object.uploaded.toISOString(),url:new URL(`/media/${object.key}`,context.request.url).href}));
+  return Response.json({ok:true,items,cursor:page.truncated?page.cursor:null},{headers:{'cache-control':'no-store'}});
+}
