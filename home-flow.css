@@ -1,6 +1,6 @@
 /* Homepage rhythm: open compositions connected by a shared palette. */
 body{background:#090907}
-body .site-header{box-shadow:none;border-bottom:1px solid #eee5d31a;background:#41482d;backdrop-filter:blur(16px)}
+body .site-header{box-shadow:none;border-bottom:1px solid #eee5d31a;background:#090907eb;backdrop-filter:blur(16px)}
 body .main-nav a:hover{text-decoration:none}
 body .ticker{border:0;padding:18px 0;color:#c6bba9;background:#090907;font-size:9px;letter-spacing:.13em}
 body .shop-section.shop-showcase{background:radial-gradient(ellipse at 20% 40%,#40232370,transparent 68%),#090907;border:0;padding:110px 6vw 135px}

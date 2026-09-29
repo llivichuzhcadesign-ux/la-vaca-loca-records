@@ -330,3 +330,5 @@ body[data-page="discos"] .editorial-header nav a[aria-current]::after{
 .return-sleeve-ghost:after{content:"";position:absolute;width:78%;height:78%;border:16px solid #ead9b925;border-radius:50%;left:26%;top:33%}
 .return-sleeve-ghost img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2}
 .sleeve-zone.is-swapping{pointer-events:none}
+
+body[data-page="discos"] .editorial-header{background:#41482d}
