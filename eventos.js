@@ -11,9 +11,9 @@ const now=new Date();let view=new Date(now.getFullYear(),now.getMonth(),1);
 const months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const grid=document.getElementById('calendarGrid'),dialog=document.getElementById('eventDialog');
 function inMonth(e){const d=parseDate(e.date);return d&&d.getFullYear()===view.getFullYear()&&d.getMonth()===view.getMonth();}
-function poster(e){const src=window.CalendarContent.imageUrl(e.posterImage??e.media?.poster?.url,document.baseURI);return src?'<img src="'+esc(src)+'" alt="'+esc(e.media?.poster?.alt||e.title)+'" loading="lazy">':'';}
+function poster(e){const sources=[e.posterImage??e.media?.poster?.url,...(e.photos||[]).map(photo=>photo.url)].filter(Boolean);return [...new Set(sources)].map(value=>{const src=window.CalendarContent.imageUrl(value,document.baseURI);return src?'<img src="'+esc(src)+'" alt="'+esc(e.title)+'" loading="lazy">':''}).join('');}
 function openEvents(items){
- document.getElementById('eventDetails').innerHTML=items.map((e,i)=>'<section><p class="calendar-kicker">'+esc(e.status||'Evento')+'</p><h2'+(i===0?' id="eventTitle"':'')+'>'+esc(e.title)+'</h2><p><strong>'+esc(e.date)+' · '+esc(e.place)+'</strong><br>'+esc(e.time||'Horario por confirmar')+'</p><p>'+esc(e.detail)+'</p>'+poster(e)+'</section>').join('');
+ document.getElementById('eventDetails').innerHTML=items.map((e,i)=>'<section><p class="calendar-kicker">'+esc(e.status||'Evento')+'</p><h2'+(i===0?' id="eventTitle"':'')+'>'+esc(e.title)+'</h2><p><strong>'+esc(e.date)+' · '+esc(e.place)+'</strong><br>'+esc(e.time||'Horario por confirmar')+'</p><p>'+esc(e.detail).replace(/\n/g,'<br>')+'</p>'+poster(e)+'</section>').join('');
  document.querySelectorAll('#eventDetails img').forEach(img=>{img.onerror=()=>{img.hidden=true;};});
  if(!dialog.open)dialog.showModal();
 }
