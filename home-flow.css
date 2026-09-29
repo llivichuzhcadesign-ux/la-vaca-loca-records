@@ -1,0 +1,62 @@
+/* Homepage rhythm: open compositions connected by a shared palette. */
+body{background:#090907}
+body .site-header{box-shadow:none;border-bottom:1px solid #eee5d31a;background:#090907eb;backdrop-filter:blur(16px)}
+body .main-nav a:hover{text-decoration:none}
+body .ticker{border:0;padding:18px 0;color:#c6bba9;background:#090907;font-size:9px;letter-spacing:.13em}
+body .shop-section.shop-showcase{background:radial-gradient(ellipse at 20% 40%,#40232370,transparent 68%),#090907;border:0;padding:110px 6vw 135px}
+.shop-showcase .showcase-heading{align-items:center;max-width:1500px;margin:auto}
+.shop-showcase h2{font-size:clamp(64px,8.5vw,144px);letter-spacing:-.075em;line-height:.88}
+.shop-showcase .showcase-index{color:#a89a89;font-weight:500}
+.shop-showcase .showcase-feature{margin-top:70px;gap:8vw}
+.shop-showcase .showcase-info{border-bottom:0;border-top:0}
+.shop-showcase .showcase-info h3{font-size:clamp(48px,5vw,80px)}
+.shop-showcase .showcase-facts{border:0;margin-top:24px}
+.shop-showcase .showcase-record-link{background:none;border:0;border-bottom:1px solid #eee5d35c;color:#eee5d3;padding:16px 0;min-width:220px}
+.shop-showcase .showcase-strip{margin-top:55px;gap:28px;border-color:#eee5d319}
+.shop-showcase .showcase-thumb-art{box-shadow:none}
+.shop-showcase .showcase-thumb.is-active .showcase-thumb-art{outline-width:1px;outline-offset:6px}
+body .sessions-section{display:flex;flex-direction:column;padding:0 6vw 110px;background:#090907;color:#eee5d3;overflow:visible;min-height:0}
+body .sessions-copy{padding:0;align-self:stretch;text-align:center;max-width:1500px;width:100%;margin:auto;order:0}
+body .sessions-section h2{font-size:clamp(64px,9vw,150px);line-height:.91;font-weight:400;letter-spacing:-.065em}
+body .sessions-section h2 em,body .archive-main h2 em,body .events-copy h2 em{font-family:Georgia,serif;font-weight:400}
+body .sessions-copy>p:last-of-type{max-width:none;margin:28px auto 52px;color:#a89a89;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+body .sessions-copy .session-cards{display:flex;justify-content:center;max-width:none;margin:0 auto 45px;gap:32px;text-align:left}
+body .session-cards .session-card{background:none;border:0;border-top:1px solid #eee5d329;padding:18px 0;flex:1;max-width:330px;transition:border-color .3s,color .3s}
+body .session-cards .session-card:hover{background:none;color:#fff;border-color:#ff5aa7}
+body .session-cards .session-card small,body .session-cards .session-card span{color:#a89a89;font-weight:500;font-size:9px;letter-spacing:.09em}
+body .session-cards .session-card strong{font-family:Georgia,serif;font-weight:400;font-size:26px;line-height:1.12;margin:12px 0}
+body .sessions-photo{display:block;width:100%;max-width:1500px;margin:auto;min-height:0;height:clamp(380px,48vw,700px);background-position:center 45%;background-image:linear-gradient(0deg,#090907b3,transparent 70%),url('assets/images/hero-store-hq.jpg?v=4');overflow:hidden}
+body .sessions-photo:after{display:none}
+body .sessions-photo-card{left:5%;right:auto;bottom:9%;padding:0;max-width:none;background:none;color:#eee5d3;box-shadow:none}
+body .sessions-photo-card strong{font-family:Georgia,serif;font-weight:400;font-size:clamp(40px,5.5vw,88px);line-height:.97;letter-spacing:-.06em;margin:24px 0}
+body .sessions-photo-card span{font-size:9px;font-weight:500;letter-spacing:.12em}
+body .sessions-photo-card .sessions-button{border:0;border-bottom:1px solid #eee5d37a;background:none;padding:0 0 10px;color:#eee5d3}
+body .events-section{display:block;background:#eee5d3!important;color:#1e1b16;border:0;padding:110px 6vw 115px!important;position:relative}
+body .events-copy{padding:0;text-align:center;position:relative;z-index:2}
+body .events-copy h2{font-weight:400;font-size:clamp(70px,11vw,180px)!important;line-height:.85!important;letter-spacing:-.075em}
+body .events-copy .eyebrow{color:#74695c;margin-bottom:30px}
+body .events-copy>a{font-size:10px;letter-spacing:.08em;font-weight:500!important;border-bottom:1px solid #1e1b164a;padding-bottom:9px;margin-top:32px!important}
+body .home-calendar-art{width:82%;max-width:1200px;margin:55px auto 0;aspect-ratio:1.7;position:relative}
+body .home-calendar-art img{transition:transform .7s ease;object-position:center}
+body .home-calendar-art:hover img{transform:scale(1.025)}
+body .archive-section{display:block;background:#eee5d3;color:#1e1b16;overflow:hidden;padding:10px 6vw 130px!important}
+body .archive-main{background:none;padding:20px 0 60px;display:grid;grid-template-columns:1fr auto;align-items:end}
+body .archive-main .eyebrow{grid-column:1/-1;color:#74695c}
+body .archive-main h2{font-size:clamp(60px,8.5vw,140px);line-height:.91;font-weight:400;letter-spacing:-.07em}
+body .archive-main a{margin:0 0 8px;border-bottom:1px solid #1e1b164a;font-size:10px;letter-spacing:.08em;padding-bottom:9px;font-weight:500}
+body .archive-cards{display:grid;grid-template-columns:1.15fr .8fr .85fr;gap:3vw;min-height:0;align-items:start;overflow:visible}
+body .archive-card{min-height:0;aspect-ratio:.77;padding:28px;color:#eee5d3;transition:transform .4s ease}
+body .archive-card.photo{grid-row:auto;aspect-ratio:.82;background-position:40% center}
+body .archive-card.sign{margin-top:90px;aspect-ratio:.68}
+body .archive-card.poster{margin-top:35px;background:#63312d;color:#eee5d3;aspect-ratio:.78}
+body .archive-card.poster:after{display:none}
+body .archive-card:hover{transform:translateY(-7px)}
+body .archive-card strong,body .archive-card.poster strong{font-family:Georgia,serif;font-weight:400;font-size:clamp(26px,3.5vw,56px);line-height:.95;letter-spacing:-.05em}
+body .archive-card small{font-size:8px;font-weight:500;letter-spacing:.1em}
+body .site-footer{border:0;padding:65px 6vw 120px}
+/* Gentle reveals keep imagery crisp and do not shift entire sections. */
+body .motion-section .motion-copy,body .motion-section .motion-object,body .archive-section>*{filter:none;transform:translateY(22px);transition:opacity .65s ease,transform .75s ease}
+body .motion-section.in-view .motion-copy,body .motion-section.in-view .motion-object,body .archive-section.in-view>*{transform:none;filter:none}
+@media(max-width:1000px){body .showcase-heading{flex-direction:column;align-items:flex-start;gap:28px}.shop-showcase h2{white-space:normal}.shop-showcase .showcase-feature{gap:40px}body .archive-main{grid-template-columns:1fr;gap:30px}body .archive-main a{justify-self:start}}
+@media(max-width:700px){body .shop-section.shop-showcase{padding:70px 20px 90px}.shop-showcase h2{font-size:15vw}.shop-showcase .showcase-feature{margin-top:40px}.shop-showcase .showcase-strip{gap:15px;margin-top:35px}.shop-showcase .showcase-strip .showcase-thumb{flex-basis:30vw}body .sessions-section{padding:0 20px 70px}body .sessions-section h2{font-size:15vw}body .sessions-copy>p:last-of-type{font-size:9px;margin-bottom:30px}body .sessions-copy .session-cards{flex-direction:column;gap:0;margin-bottom:28px}body .session-cards .session-card{max-width:none;width:100%;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:16px 0}body .session-card small{grid-column:1/-1}body .session-cards .session-card strong{font-size:23px;margin:0}body .sessions-photo{height:440px}body .sessions-photo-card{left:7%;bottom:8%}body .sessions-photo-card strong{font-size:48px}body .events-section{padding:75px 20px 80px!important}body .events-copy h2{font-size:17vw!important}body .home-calendar-art{width:100%;aspect-ratio:1.15;margin-top:36px}body .archive-section{padding:0 20px 80px!important}body .archive-main{padding:0 0 35px}body .archive-main h2{font-size:14vw}body .archive-cards{grid-template-columns:1fr 1fr;gap:16px}body .archive-card{padding:18px}body .archive-card.sign{margin-top:40px}body .archive-card.poster{grid-column:1/-1;aspect-ratio:1.7;margin-top:0}body .archive-card.poster strong{font-size:42px}body .site-footer{padding:45px 20px 110px}}
+@media(prefers-reduced-motion:reduce){body .motion-section *,body .archive-card,body .home-calendar-art img{transition:none!important;transform:none!important}}
