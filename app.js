@@ -13,7 +13,7 @@ async function setupHomepageIntro(){
  const loader=document.getElementById('lvlIntroLoader');
  if(!loader)return;
 
- const SESSION_KEY='lvl-home-intro-laser-v9';
+ const SESSION_KEY='lvl-home-intro-laser-v10';
  let seen=false;
  try{seen=sessionStorage.getItem(SESSION_KEY)==='1'}catch(error){}
  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -217,7 +217,11 @@ async function setupHomepageIntro(){
   await delay(180);
 
   const TRACE_DURATION=3800;
-  const startTime=performance.now();
+  // The larger artwork can take longer to paint on tablets and desktops.
+  // Advance by at most two display frames so a late frame cannot skip several
+  // shapes, their shading, and the laser position in one visible jump.
+  let traceTime=0;
+  let previousFrameTime=null;
   let previousPoint=null;
   let previousSegment=null;
   let lastSmokeAt=-Infinity;
@@ -243,8 +247,11 @@ async function setupHomepageIntro(){
 
   await new Promise(resolve=>{
    function frame(now){
-    const elapsed=Math.min(TRACE_DURATION,now-startTime);
-    const progress=elapsed/TRACE_DURATION;
+    if(previousFrameTime!==null){
+     traceTime=Math.min(TRACE_DURATION,traceTime+Math.min(32,Math.max(0,now-previousFrameTime)));
+    }
+    previousFrameTime=now;
+    const progress=traceTime/TRACE_DURATION;
     const eased=progress-.16*Math.sin(2*Math.PI*progress)/(2*Math.PI);
     const global=eased*totalWeight;
 
@@ -288,7 +295,7 @@ async function setupHomepageIntro(){
     }
     updateLaserSmoke(now,point);
 
-    if(elapsed<TRACE_DURATION){
+    if(traceTime<TRACE_DURATION){
      requestAnimationFrame(frame);
     }else{
      segments.forEach(completeSegment);
