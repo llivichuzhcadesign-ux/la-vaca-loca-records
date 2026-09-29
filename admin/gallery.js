@@ -53,6 +53,5 @@
   for(const id of ['gallerySearch','galleryPickerSearch'])byId(id).addEventListener('input',render);
   byId('galleryPickerClose').addEventListener('click',()=>picker.close());
   picker.addEventListener('click',event=>{if(event.target===picker)picker.close()});
-  document.addEventListener('gallery-updated',()=>{loaded=false;load(true)});
   render();
 })();

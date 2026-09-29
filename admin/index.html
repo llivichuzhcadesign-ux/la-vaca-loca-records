@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin — La Vaca Loca Records</title>
-<link rel="stylesheet" href="admin.css?v=instagram-service-20260929">
+<link rel="stylesheet" href="admin.css?v=gallery-only-20260929">
 </head>
 <body>
 <header class="admin-header">
@@ -69,7 +69,6 @@
     <section class="panel" id="events">
       <div class="panel-head"><div><p class="eyebrow">04 / Agenda</p><h2>Events</h2></div><button class="admin-action" data-add-event>Add event</button></div>
       <p class="notice">Save a local draft, then preview the calendar. Draft / Hidden events are never public. Leave a date empty for “Próximo anuncio”. Use Publish Live when the calendar is ready.</p>
-      <form class="form-card instagram-import" id="instagramImportForm"><h3>Import from Instagram</h3><p>Paste a public Instagram post link. Preview its photos and caption before creating an event.</p><div class="gallery-toolbar"><input id="instagramPostUrl" type="url" required placeholder="https://www.instagram.com/p/…/" aria-label="Instagram post link"><button class="admin-action" id="instagramPreviewButton" type="submit">Preview post</button></div><p id="instagramImportStatus" role="status" aria-live="polite"></p><div id="instagramImportPreview"></div></form>
       <div class="form-card" id="calendarSettings"></div>
       <p><a class="admin-action secondary" href="../eventos.html?preview=admin-draft" target="_blank" rel="noopener">Save & preview calendar</a></p>
       <div class="editor-list" id="eventsList"></div>
@@ -131,9 +130,8 @@ document.addEventListener('click',function(event){
 });
 </script>
 <script src="../calendar-content.js"></script>
-<script src="admin.js?v=instagram-service-20260929"></script>
-<script src="gallery.js?v=instagram-service-20260929"></script>
-<script src="instagram-import.js?v=instagram-service-20260929"></script>
+<script src="admin.js?v=gallery-only-20260929"></script>
+<script src="gallery.js?v=gallery-only-20260929"></script>
 <script src="audio-upload.js"></script>
 </body>
 </html>
