@@ -225,3 +225,6 @@ body.intro-active{overflow:hidden}
 @media(prefers-reduced-motion:reduce){
   .lvl-intro-loader,.lvl-intro-loader *{animation:none!important;transition:none!important}
 }
+
+/* Official store signature, preserving its original SVG colors. */
+.store-signature{display:block;width:clamp(140px,13vw,180px);padding:12px;background:#eee9df;border-radius:2px}.store-signature img{display:block;width:100%;height:auto}.store-signature:focus-visible{outline:2px solid #ef9aab;outline-offset:5px}
