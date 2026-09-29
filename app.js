@@ -13,7 +13,7 @@ async function setupHomepageIntro(){
  const loader=document.getElementById('lvlIntroLoader');
  if(!loader)return;
 
- const SESSION_KEY='lvl-home-intro-laser-v10';
+ const SESSION_KEY='lvl-home-intro-laser-v11';
  let seen=false;
  try{seen=sessionStorage.getItem(SESSION_KEY)==='1'}catch(error){}
  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -218,8 +218,8 @@ async function setupHomepageIntro(){
 
   const TRACE_DURATION=3800;
   // The larger artwork can take longer to paint on tablets and desktops.
-  // Advance by at most two display frames so a late frame cannot skip several
-  // shapes, their shading, and the laser position in one visible jump.
+  // Limit catch-up after a late frame so the laser does not jump across large
+  // areas, while allowing slow devices to finish the intro promptly.
   let traceTime=0;
   let previousFrameTime=null;
   let previousPoint=null;
@@ -248,7 +248,7 @@ async function setupHomepageIntro(){
   await new Promise(resolve=>{
    function frame(now){
     if(previousFrameTime!==null){
-     traceTime=Math.min(TRACE_DURATION,traceTime+Math.min(32,Math.max(0,now-previousFrameTime)));
+     traceTime=Math.min(TRACE_DURATION,traceTime+Math.min(80,Math.max(0,now-previousFrameTime)));
     }
     previousFrameTime=now;
     const progress=traceTime/TRACE_DURATION;
