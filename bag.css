@@ -21,3 +21,9 @@
 .shared-bag-footer p{font-size:12px;line-height:1.5;margin:12px 0 0}
 .shared-bag :focus-visible{outline:2px solid #97652c;outline-offset:3px}
 @media(max-width:600px){.shared-bag{padding:20px;padding-top:max(20px,env(safe-area-inset-top));width:100vw}}
+
+/* A compact quantity badge follows the woven basket on every header. */
+body header #cartButton,body header .header-bag,body header .ios-basket{position:relative;overflow:visible}
+body header .bag-count,.ios-header body header #cartCount.bag-count{position:absolute!important;display:grid!important;place-items:center;top:0!important;right:-5px!important;min-width:16px!important;width:auto!important;height:16px!important;padding:0 4px!important;border-radius:50px!important;background:#eee5d3!important;color:#291b12!important;font:700 9px/1 Arial,sans-serif!important;box-shadow:0 0 0 2px #21140f;pointer-events:none}
+body header .bag-count[hidden],.ios-header body header #cartCount.bag-count[hidden]{display:none!important}
+.ios-header body header .bag-count{top:3px!important;right:0!important;height:15px!important;min-width:15px!important;font-size:8px!important}
