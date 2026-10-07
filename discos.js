@@ -619,6 +619,8 @@ function angle(){
 // Turn the vinyl to scrub; dragging the surrounding deck still tilts it.
 const interactiveVinyl=document.querySelector('.vinyl');
 let vinylDrag=null;
+const scratchSound=window.createVinylScratch?.(audio);
+if(deckPlay)deckPlay.addEventListener('pointerdown',()=>scratchSound?.prepare()?.catch(()=>{}));
 if(interactiveVinyl){
  interactiveVinyl.tabIndex=0;
  interactiveVinyl.setAttribute('role','slider');
@@ -636,7 +638,8 @@ if(interactiveVinyl){
   e.preventDefault();
   const matrix=new DOMMatrix(getComputedStyle(interactiveVinyl).transform);
   const rotation=Math.atan2(matrix.b,matrix.a)*180/Math.PI;
-  vinylDrag={id:e.pointerId,angle:pointerAngle(e),rotation,resume:!audio.paused,demo:demoPlaying,selection};
+  vinylDrag={id:e.pointerId,angle:pointerAngle(e),rotation,lastMove:performance.now(),resume:!audio.paused,demo:demoPlaying,selection};
+  scratchSound?.prepare()?.catch(()=>{});
   audio.pause();demoPlaying=false;stopDemoClock();
   interactiveVinyl.style.animation='none';interactiveVinyl.style.transform='rotate('+rotation+'deg)';
   interactiveVinyl.classList.add('is-scrubbing');interactiveVinyl.setPointerCapture(e.pointerId);
@@ -647,10 +650,13 @@ if(interactiveVinyl){
   if(delta>Math.PI)delta-=2*Math.PI;if(delta<-Math.PI)delta+=2*Math.PI;
   vinylDrag.angle=angle;vinylDrag.rotation+=delta*180/Math.PI;
   interactiveVinyl.style.transform='rotate('+vinylDrag.rotation+'deg)';
-  scrubTo(scrubCurrent()+delta/(2*Math.PI)*8);
+  const movement=delta/(2*Math.PI)*8;
+  const now=performance.now(),elapsed=Math.max(.008,(now-vinylDrag.lastMove)/1000);vinylDrag.lastMove=now;
+  scrubTo(scrubCurrent()+movement);
+  scratchSound?.move(scrubCurrent(),movement/elapsed);
  });
  function finishVinylDrag(e){
-  if(!vinylDrag||e.pointerId!==vinylDrag.id)return;const drag=vinylDrag;vinylDrag=null;
+  if(!vinylDrag||e.pointerId!==vinylDrag.id)return;const drag=vinylDrag;vinylDrag=null;scratchSound?.stop();
   interactiveVinyl.classList.remove('is-scrubbing');interactiveVinyl.style.animation='';interactiveVinyl.style.transform='';
   const spinSeconds=1.8/(1+tempoPercent/100);interactiveVinyl.style.animationDelay=-(drag.rotation%360+360)%360/360*spinSeconds+'s';
   if(drag.selection!==selection)return;
