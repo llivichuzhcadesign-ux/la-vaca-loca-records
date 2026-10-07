@@ -4,10 +4,11 @@
 const visible=r=>!r.hideFromPublic&&!['DRAFT','PRIVATE LISTING','HIDDEN'].includes(String(r.status||'').toUpperCase());
 const filterRecords=(records,query,genre)=>records.filter(r=>(!genre||r.genre===genre)&&[r.title,r.artist,r.label].join(' ').toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
 function audioUrl(r,base){
-  const s=String(r.audioPreview||r.media?.audio?.url||r.media?.audio?.path||'').trim();
+  const s=String(r.media?.audio?.url||r.audioPreview||r.media?.audio?.path||'').trim();
   if(/^data:audio\/[\w.+-]+;base64,[a-z0-9+/=]+$/i.test(s))return s;
   try{
     const u=new URL(s,base);
+    if(u.origin===new URL(base).origin&&u.pathname.startsWith('/media/'))u.searchParams.set('audioSeek','2');
     return s&&['http:','https:'].includes(u.protocol)&&!/(^|\.)(youtube\.com|youtu\.be)$/.test(u.hostname)?u.href:'';
   }catch{return ''}
 }
