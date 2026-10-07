@@ -291,7 +291,12 @@ function mountRecord(r,focusView=false,infoReady=false){
 
   const sound=audioUrl(r,document.baseURI);
   if(deckPlay)deckPlay.disabled=false;
-  if(sound)audio.src=sound;
+  if(sound){
+    audio.preload='auto';
+    audio.src=sound;
+    audio.load();
+    scratchSound?.prepare(false)?.catch(()=>{});
+  }
   notice('Disco listo en el plato.');
 
   if(sleeveZone){

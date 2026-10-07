@@ -5,7 +5,7 @@
  if(!root)return;
  root.createVinylScratch=function(audio){
   let context,buffer,reversed,loadedUrl='',pending,bytesPromise;const voices=new Set();let lastGrain=0;
-  function url(){return audio.currentSrc||audio.src}
+  function url(){return audio.src||audio.currentSrc}
   function preload(){const src=url();if(!src||src===loadedUrl)return;loadedUrl=src;buffer=reversed=null;pending=null;if(root.dispatchEvent)root.dispatchEvent(new root.CustomEvent('vinyl-audio-buffer',{detail:null}));bytesPromise=fetch(src).then(r=>{if(!r.ok)throw Error('audio');return r.arrayBuffer()});bytesPromise.catch(()=>{});}
   audio.addEventListener('loadedmetadata',()=>{preload();prepare(false).catch(()=>{})});
   async function prepare(activate=true){
