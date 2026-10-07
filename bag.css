@@ -1,5 +1,5 @@
 #cartPanel[hidden]{display:none!important}
-.shared-bag{position:fixed;inset:0 0 0 auto;margin:0;width:min(420px,100vw);max-width:100vw;height:100dvh;max-height:100dvh;padding:24px;background:#eee5d3;color:#261e17;border:0;box-shadow:-20px 0 70px #0006;overflow:hidden;box-sizing:border-box}
+.shared-bag{position:fixed;inset:0 0 0 auto;margin:0;width:min(420px,100vw);max-width:100vw;height:100dvh;max-height:100dvh;padding:24px;background:#35493f;color:#eee5d3;border:0;box-shadow:-20px 0 70px #0006;overflow:hidden;box-sizing:border-box}
 .shared-bag[open]{display:flex;flex-direction:column;gap:20px}
 .shared-bag::backdrop{background:#080604aa}
 .shared-bag-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-shrink:0}
@@ -7,24 +7,24 @@
 .shared-bag button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;min-width:44px;min-height:44px}
 .shared-bag-head button{font-size:12px}
 .shared-bag-items{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-.shared-bag-item{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 0;border-bottom:1px solid #261e1722}
+.shared-bag-item{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 0;border-bottom:1px solid #eee5d32b}
 .shared-bag-item>div:first-child{display:grid;gap:6px;min-width:0}
 .shared-bag-item strong{font-size:15px;overflow-wrap:anywhere}
 .shared-bag-item span{font-size:12px}
 .shared-bag-item>div:last-child{display:flex;align-items:center;flex-shrink:0}
 .shared-bag-item button{font-size:22px}
 .shared-bag button:disabled{opacity:.3;cursor:default}
-.shared-bag-footer{flex-shrink:0;padding-top:18px;border-top:1px solid #261e1744;padding-bottom:env(safe-area-inset-bottom,0px)}
+.shared-bag-footer{flex-shrink:0;padding-top:18px;border-top:1px solid #eee5d344;padding-bottom:env(safe-area-inset-bottom,0px)}
 .shared-bag-footer>div{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-size:20px}
-.shared-bag-footer a{display:block;text-align:center;padding:16px;background:#261e17;color:#eee5d3;text-decoration:none;font-size:13px;font-weight:bold}
+.shared-bag-footer a{display:block;text-align:center;padding:16px;background:#eee5d3;color:#24372d;text-decoration:none;font-size:13px;font-weight:bold}
 .shared-bag-footer a[aria-disabled="true"]{opacity:.4;cursor:default}
 .shared-bag-footer p{font-size:12px;line-height:1.5;margin:12px 0 0}
-.shared-bag :focus-visible{outline:2px solid #97652c;outline-offset:3px}
+.shared-bag :focus-visible{outline:2px solid #e4c28b;outline-offset:3px}
 @media(max-width:600px){.shared-bag{padding:20px;padding-top:max(20px,env(safe-area-inset-top));width:100vw}}
 
 
 
-/* Filled and empty baskets share the same vector dimensions. */
+/* The natural carrizo basket stays unchanged regardless of contents. */
 body header .bag-state-image{display:block;width:34px;height:36px;object-fit:contain;filter:none}
 .ios-header body header .bag-state-image{width:30px!important;height:30px!important}
 body header #cartCount{display:none!important}

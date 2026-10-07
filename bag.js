@@ -19,7 +19,7 @@
   total.textContent=money(sum);const phone=String(settings.whatsappNumber||'').replace(/\D/g,'');checkout.setAttribute('aria-disabled',String(!ids.length||!phone));
   if(ids.length&&phone)checkout.href='https://wa.me/'+phone+'?text='+encodeURIComponent((settings.whatsappText||'Hola! Quiero hacer este pedido de La Vaca Loca Records:')+'\n\n'+lines.join('\n')+'\n\nTotal: '+money(sum));else checkout.removeAttribute('href');
   status.textContent=!phone?'La tienda todavía no ha configurado su número de WhatsApp.':'';
-  document.querySelectorAll('.bag-state-image').forEach(image=>{image.src=ids.length?'assets/brand/carrizo-basket-filled.svg':'assets/brand/carrizo-basket.svg'});document.querySelectorAll('#cartButton,.header-bag,.ios-basket').forEach(button=>button.setAttribute('aria-label','Abrir canasta: '+ids.length+' '+(ids.length===1?'disco':'discos')));
+  document.querySelectorAll('.bag-state-image').forEach(image=>{image.src='assets/brand/carrizo-basket.svg'});document.querySelectorAll('#cartButton,.header-bag,.ios-basket').forEach(button=>button.setAttribute('aria-label','Abrir canasta: '+ids.length+' '+(ids.length===1?'disco':'discos')));
  }
  function refresh(){ids=read();save()}
  function open(){refresh();if(dialog.open)return;opener=document.activeElement;scrollY=window.scrollY;styles={position:document.body.style.position,top:document.body.style.top,width:document.body.style.width,overflow:document.body.style.overflow};Object.assign(document.body.style,{position:'fixed',top:-scrollY+'px',width:'100%',overflow:'hidden'});dialog.showModal()}
