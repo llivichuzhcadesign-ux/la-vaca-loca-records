@@ -186,6 +186,16 @@ function syncSleeveReadyState(){
     :selected?'Disco actual: '+selected.artist+' — '+selected.title:'Disco no disponible');
 }
 
+function storedIds(key){try{const list=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(list)?list:[]}catch{return []}}
+function syncRecordActions(r){
+ const liked=storedIds('lvl-liked-discs').includes(r.id),bagged=storedIds('lvl-cart-discs').includes(r.id);
+ $('recordLike').setAttribute('aria-pressed',String(liked));$('recordLike').setAttribute('aria-label',(liked?'Quitar de favoritos: ':'Guardar favorito: ')+r.title);
+ $('recordBag').disabled=Number(r.stock)===0&&!bagged;$('recordBag').classList.toggle('is-added',bagged);$('recordBag').setAttribute('aria-label',bagged?'Ver canasta':'Añadir a la canasta: '+r.title);
+}
+$('recordLike').onclick=()=>{const r=pendingRecord||selected;if(!r)return;const saved=new Set(storedIds('lvl-liked-discs'));saved.has(r.id)?saved.delete(r.id):saved.add(r.id);localStorage.setItem('lvl-liked-discs',JSON.stringify([...saved]));syncRecordActions(r);notice(saved.has(r.id)?'Disco guardado en favoritos.':'Disco eliminado de favoritos.')};
+$('recordBag').onclick=()=>{const r=pendingRecord||selected;if(!r)return;const ids=storedIds('lvl-cart-discs');if(ids.includes(r.id)){location.href='index.html?bag=1';return}if(Number(r.stock)===0)return;ids.push(r.id);localStorage.setItem('lvl-cart-discs',JSON.stringify(ids));syncRecordActions(r);notice('Disco añadido a la canasta.');$('recordBag').animate?.([{transform:'scale(1)'},{transform:'scale(1.18)'},{transform:'scale(1)'}],{duration:260})};
+window.addEventListener('storage',()=>{if(pendingRecord||selected)syncRecordActions(pendingRecord||selected)});
+
 function updateSelectedInfo(r){
   if(!r)return;
   pendingRecord=r;
@@ -196,6 +206,7 @@ function updateSelectedInfo(r){
   $('recordPrice').textContent=price(r);
   $('recordStock').textContent=String(r.status||((Number(r.stock)||0)>0?'IN STOCK':'SOLD OUT'));
 
+  syncRecordActions(r);
   const selectedArt=$('selectedArtwork');
   const selectedImage=$('selectedArtworkImage');
   const selectedColor=recordColor(r);

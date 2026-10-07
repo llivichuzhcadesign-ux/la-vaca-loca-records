@@ -342,9 +342,10 @@ async function setupHomepageIntro(){
 setupHomepageIntro();
 
 const content=window.SITE_CONTENT||{};
-const state={cart:[],current:null,playing:false};
 const visibleItems=list=>(list||[]).filter(item=>!item.hideFromPublic);
 const recordsSource=visibleItems(content.records||window.RECORDS||[]);
+let savedCart=[];try{const ids=JSON.parse(localStorage.getItem('lvl-cart-discs')||'[]');if(Array.isArray(ids))savedCart=ids.map(id=>recordsSource.find(r=>r.id===id)).filter(r=>r&&!r.hideFromPublic&&Number(r.stock)!==0)}catch{}
+const state={cart:savedCart,current:null,playing:false};
 const settings=content.settings||{};
 const SESSIONS=visibleItems(content.sessions||window.SESSIONS||[]);
 const EVENTS=visibleItems(content.events||window.EVENTS||[]);
@@ -473,7 +474,7 @@ function renderRecordPreview(){
  show(0);
 }
 function addToCart(id){const r=getRecord(id);if(!r||r.stock===0)return;state.cart.push(r);renderCart();openCart()}
-function renderCart(){cartCount.textContent=state.cart.length;cartItems.innerHTML=state.cart.length?state.cart.map((r,i)=>`<div class="cart-item"><div><strong>${r.artist}</strong><br><small>${r.title}</small></div><div><strong>${money(r.price)}</strong><br><button data-remove="${i}" style="background:none;border:0;color:#777;cursor:pointer">remove</button></div></div>`).join(''):'<p style="color:#777">Tu bag está vacío.</p>';const total=state.cart.reduce((s,r)=>s+r.price,0);cartTotal.textContent=money(total);const lines=state.cart.map(r=>`1x ${r.artist} — ${r.title} — ${money(r.price)}`);whatsapp.href=`https://wa.me/?text=${encodeURIComponent(`${settings.whatsappText||'Hola! Quiero hacer este pedido de La Vaca Loca Records:'}\n\n${lines.join('\n')}\n\nTotal: ${money(total)}`)}`}
+function renderCart(){localStorage.setItem('lvl-cart-discs',JSON.stringify(state.cart.map(r=>r.id)));cartCount.textContent=state.cart.length;cartItems.innerHTML=state.cart.length?state.cart.map((r,i)=>`<div class="cart-item"><div><strong>${r.artist}</strong><br><small>${r.title}</small></div><div><strong>${money(r.price)}</strong><br><button data-remove="${i}" style="background:none;border:0;color:#777;cursor:pointer">remove</button></div></div>`).join(''):'<p style="color:#777">Tu bag está vacío.</p>';const total=state.cart.reduce((s,r)=>s+r.price,0);cartTotal.textContent=money(total);const lines=state.cart.map(r=>`1x ${r.artist} — ${r.title} — ${money(r.price)}`);whatsapp.href=`https://wa.me/?text=${encodeURIComponent(`${settings.whatsappText||'Hola! Quiero hacer este pedido de La Vaca Loca Records:'}\n\n${lines.join('\n')}\n\nTotal: ${money(total)}`)}`}
 function openCart(){cartPanel.classList.add('open');scrim.classList.add('show');cartPanel.setAttribute('aria-hidden','false')}
 function closeCart(){cartPanel.classList.remove('open');if(!recordModal.classList.contains('open'))scrim.classList.remove('show');cartPanel.setAttribute('aria-hidden','true')}
 function updatePlayerControl(){playerToggle.classList.toggle('is-playing',state.playing);playerToggle.setAttribute('aria-label',state.playing?'Pausar':'Reproducir');player.classList.toggle('playing',state.playing);player.classList.toggle('has-current',!!state.current)}
@@ -657,3 +658,5 @@ renderRecordPreview();renderCart();
  style.textContent=".site-footer{flex-wrap:wrap}.site-footer .design-credit{flex-basis:100%;margin:24px 0 0;padding-top:18px;border-top:1px solid rgba(238,229,211,.24);text-align:center;line-height:1.6}.site-footer .design-credit a{display:inline-block;padding:8px 0;font-weight:400;color:#cfc4b2;text-underline-offset:4px}.site-footer .design-credit a:hover{text-decoration:underline;color:var(--paper)}.site-footer .design-credit a:focus-visible{outline:2px solid var(--pink);outline-offset:4px}";
  document.head.appendChild(style);
 })();
+
+if(new URLSearchParams(location.search).has('bag'))openCart();
