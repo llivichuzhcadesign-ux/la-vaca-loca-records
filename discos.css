@@ -126,22 +126,7 @@ body[data-page="discos"] .editorial-header .brand img{
 }
 
 body[data-page="discos"] .editorial-header nav a:hover,
-body[data-page="discos"] .editorial-header nav a[aria-current]{
-  color:#eee3cf;
-}
-body[data-page="discos"] .editorial-header nav a[aria-current]{
-  position:relative;
-}
-body[data-page="discos"] .editorial-header nav a[aria-current]::after{
-  content:"";
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:-7px;
-  height:1px;
-  background:#eee3cf;
-  opacity:.72;
-}
+
 
 /* Record focus drawer */
 .library-column{

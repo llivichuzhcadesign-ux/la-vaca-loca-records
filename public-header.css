@@ -12,3 +12,11 @@
  html:not(.ios-header) body[data-page="discos"] #contenido{height:calc(100vh - 78px)}
 }
 @media(max-width:800px){html:not(.ios-header) .editorial-header>.header-bag{position:absolute;right:6vw;top:16px}}
+
+/* One underline motion for every public navigation tab. */
+.site-header{--header-line:var(--pink,#ff5aa7)}
+.editorial-header{--header-line:currentColor}
+.site-header .main-nav a,.editorial-header>nav a{position:relative}
+.site-header .main-nav a::after,.editorial-header>nav a::after{content:"";position:absolute;left:0;right:100%;bottom:-6px;height:2px;background:var(--header-line);opacity:1;transition:right .24s ease;pointer-events:none}
+.site-header .main-nav a:hover::after,.site-header .main-nav a:focus-visible::after,.site-header .main-nav a[aria-current="page"]::after,.editorial-header>nav a:hover::after,.editorial-header>nav a:focus-visible::after,.editorial-header>nav a[aria-current="page"]::after{right:0}
+@media(prefers-reduced-motion:reduce){.site-header .main-nav a::after,.editorial-header>nav a::after{transition:none}}
