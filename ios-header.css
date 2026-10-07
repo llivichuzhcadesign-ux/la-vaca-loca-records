@@ -1,6 +1,6 @@
 .ios-header .site-header,.ios-header .editorial-header{display:grid!important;grid-template-columns:1fr auto 1fr!important;height:62px!important;padding:6px 12px!important;gap:8px!important}
 .ios-header header .brand{grid-column:2;grid-row:1;justify-self:center!important;width:38px!important;min-width:0!important}
-.ios-header header .brand img{display:block!important;width:38px!important;height:38px!important;object-fit:contain!important;filter:invert(48%) sepia(84%) saturate(1200%) hue-rotate(291deg)!important}
+.ios-header header .brand img{display:block!important;width:38px!important;height:38px!important;object-fit:contain!important;}
 .ios-header header .mobile-menu-toggle{display:flex!important;grid-column:1;grid-row:1;justify-self:start;width:42px;height:44px;border:0;background:none;flex-direction:column;justify-content:center;align-items:center;gap:5px}
 .ios-header header .mobile-menu-toggle span{width:19px;height:1.5px;background:currentColor}
 .ios-header-actions{grid-column:3;grid-row:1;justify-self:end;display:flex;align-items:center;gap:4px}
@@ -12,9 +12,16 @@
 .ios-liked-dialog{width:calc(100% - 24px);max-width:520px;max-height:80vh;padding:24px;border:1px solid #eee5d333;background:#11110e;color:#eee5d3}.ios-liked-dialog::backdrop{background:#000b}.ios-liked-head{display:flex;align-items:center;justify-content:space-between;gap:20px}.ios-liked-head h2{font-size:36px;line-height:1;letter-spacing:-.04em}.ios-liked-dialog button{background:none;color:inherit;border:0;cursor:pointer}.ios-liked-head button{font-size:36px}.ios-liked-toggle{margin:20px 0;padding:10px 0;border-bottom:1px solid #eee5d366!important}.ios-liked-row{display:flex;align-items:center;gap:14px;padding:16px 0;border-top:1px solid #eee5d322}.ios-liked-row a{display:flex;align-items:center;gap:12px;flex:1;font-size:15px;line-height:1.4}.ios-liked-row img{width:56px;height:56px;object-fit:cover}.ios-liked-row button{font-size:30px;min-width:44px;color:#ff5aa7}
 
 /* Identical compact iOS chrome on every public page. */
-.ios-header body .site-header,.ios-header body .editorial-header{background:#090907!important;color:#eee5d3!important;border-bottom:1px solid #eee5d31a!important;box-shadow:none!important}
+
 .ios-header #cartCount{display:none!important}
-.ios-header-actions #cartButton,.ios-header-actions .ios-basket,.ios-header-actions .ios-heart{display:flex!important;align-items:center;justify-content:center;width:40px!important;height:44px!important;min-width:40px!important;padding:0!important;border:0!important;background:none!important;color:#eee5d3!important}
+.ios-header-actions #cartButton,.ios-header-actions .ios-basket,.ios-header-actions .ios-heart{display:flex!important;align-items:center;justify-content:center;width:40px!important;height:44px!important;min-width:40px!important;padding:0!important;border:0!important;background:none!important;color:inherit!important}
 .ios-header-actions .ios-heart svg{width:25px;height:25px;display:block}
 .ios-header-actions #cartButton img,.ios-header-actions .ios-basket img{width:30px!important;height:30px!important;filter:none!important;object-fit:contain}
 .ios-header body .main-nav{top:62px!important}
+
+/* Compact iOS placement inherits the colors of each page. */
+.ios-header .site-header .main-nav a::after,.ios-header .editorial-header>nav a::after{display:none!important;transition:none!important}
+.ios-header body[data-page="discos"] .ios-liked-dialog{background:#21140f;color:#eee3cf;border-color:#d6a45933}
+.ios-header body[data-page="discos"] .ios-liked-row button{color:#ddb777}
+.ios-header body[data-page="discos"] #contenido{height:calc(100dvh - 62px)}
+@media(max-width:950px){.ios-header body[data-page="discos"] #contenido{height:auto}}
