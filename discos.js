@@ -191,7 +191,7 @@ function updateSelectedInfo(r){
   pendingRecord=r;
   $('recordTitle').textContent=r.title;
   $('recordArtist').textContent=r.artist;
-  $('recordInfo').textContent=[r.genre,r.label,r.year,r.condition].filter(Boolean).join(' / ');
+  $('recordInfo').innerHTML=[['Sello',r.label],['Año',r.year],['Género',r.genre],['Estado',r.condition]].filter(([,value])=>value).map(([name,value])=>'<div><dt>'+name+'</dt><dd>'+escape(String(value))+'</dd></div>').join('');
   $('recordDescription').textContent=r.description||'';
   $('recordPrice').textContent=price(r);
   $('recordStock').textContent=String(r.status||((Number(r.stock)||0)>0?'IN STOCK':'SOLD OUT'));
@@ -239,7 +239,7 @@ function updateSelectedInfo(r){
 
 function renderGallery(){
   results=filterRecords(records,$('recordSearch').value,$('genreFilter').value);
-  $('resultCount').textContent=results.length+' discos en la selección';
+  $('resultCount').textContent=results.length+' discos';
   gallery.innerHTML=results.map((r,i)=>{
     const detail=[r.genre,r.year].filter(Boolean).join(' · ');
     const status=String(r.status||'').trim();
