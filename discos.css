@@ -460,3 +460,30 @@ body[data-page="discos"] .deck-area{
 .sleeve-detail{color:#b69d89}
 .record-facts dt{color:#b69d89}
 @media(max-width:950px){body[data-page="discos"] .deck-area{border-left:0;border-bottom-color:#ead9b91c}.library-column .listening-panel:after{display:none}}
+
+/* Intimate listening-room light: amber pools against dark walnut. */
+body[data-page="discos"] .listening-room{background:#180f0b}
+body[data-page="discos"] .library-column{
+ background:radial-gradient(ellipse at 32% 8%,#a7642421 0%,transparent 52%),linear-gradient(135deg,#2c1d14 0%,#20140f 52%,#160e0b 100%);
+}
+body[data-page="discos"] .deck-area{
+ background:radial-gradient(ellipse at 36% 18%,#f6b54536 0%,#b66b2526 22%,transparent 55%),radial-gradient(ellipse at 47% 79%,#aa602019 0%,transparent 49%),linear-gradient(135deg,#392318 0%,#302019 36%,#251714 65%,#130d0b 100%);
+ border-left-color:#e3b56c12;box-shadow:inset 20px 0 55px #08050344,inset -30px -24px 80px #08050355;
+}
+.library-column .listening-panel{background:radial-gradient(ellipse at 14% 22%,#d9943620,transparent 75%);border-bottom-color:#e3b56c16}
+.library-column .browse-tools input,.library-column .browse-tools select{background:#100b0866;border-bottom-color:#d6a45933}
+.turntable{filter:drop-shadow(10px 25px 25px #070402a0)}
+.platter:after{background:conic-gradient(from -48deg,transparent 0deg,#edbc6424 27deg,#ffe4a83c 42deg,#d9983712 59deg,transparent 78deg 205deg,#e6b75f0e 226deg,transparent 248deg)}
+.platter-shadow{box-shadow:12px 25px 34px #000a,4px 8px 12px #0009}
+.arm-mount{box-shadow:5px 11px 15px #000a,inset 1px 1px 0 #f7d39566,inset -1px -2px 0 #000a}
+.start-stop-ring{box-shadow:4px 8px 12px #000a,inset 1px 1px 0 #ffdda86b,0 0 0 1px #c08f472e}
+.pitch-reset-control>span{box-shadow:3px 6px 9px #000a,inset 1px 1px 0 #ffdda85c}
+.tonearm-svg{filter:drop-shadow(5px 8px 5px #0009) sepia(.2)}
+.counterweight,.cue-lever,.mount-cap{filter:sepia(.22)}
+.tempo-fader{background:linear-gradient(145deg,#60422644,#120d0baa);border-color:#e6ba7024;box-shadow:5px 10px 20px #0007,inset 1px 1px 0 #f4cd8315}
+.selected-artwork{box-shadow:3px 11px 24px #0008;border-color:#e5b96c2e}
+.sleeve-art{box-shadow:3px 12px 22px #0007}
+.sleeve[aria-pressed="true"] .sleeve-art{box-shadow:0 0 0 2px #ddb777,3px 12px 25px #0008}
+.sleeve[aria-pressed="true"] .sleeve-meta{border-left-color:#ddb777}
+.light-on .deck-light-control:after{background:radial-gradient(ellipse at 48% 64%,#ffcf683b 0 15%,#e9a53a20 32%,transparent 68%)}
+@media(max-width:950px){body[data-page="discos"] .deck-area{box-shadow:inset 0 -24px 60px #08050355;border-bottom-color:#e3b56c1c}}
