@@ -369,3 +369,5 @@ body[data-page="discos"] .editorial-header nav a[aria-current]::after{
 .deck-waveform .deck-seek::-moz-range-track,.deck-waveform .deck-seek::-moz-range-progress{background:transparent!important}
 .deck-waveform .deck-seek::-moz-range-thumb{background:transparent!important;border:0!important}
 .deck-waveform:focus-within{outline:1px solid #eee3cf77;outline-offset:4px}
+
+.deck-waveform,.deck-waveform canvas,.deck-area>.deck-playback-timeline .deck-waveform .deck-seek{height:76px}
