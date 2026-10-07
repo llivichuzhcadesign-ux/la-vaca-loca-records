@@ -132,12 +132,23 @@ function startDemoClock(){
   demoFrame=requestAnimationFrame(demoTick);
 }
 
-function focusRecordView(on){
-  const allow=window.matchMedia('(min-width:951px)').matches;
-  const active=!!on&&allow;
-  if(libraryColumn)libraryColumn.classList.toggle('record-focus',active);
-  if(libraryToggle)libraryToggle.setAttribute('aria-expanded',String(!active));
+function focusRecordView(){
+  if(libraryColumn)libraryColumn.classList.remove('record-focus');
+  if(libraryToggle)libraryToggle.setAttribute('aria-expanded','true');
 }
+
+// Desktop keeps selection details and the scrollable collection in one library.
+const desktopLibrary=window.matchMedia?.('(min-width:951px)');
+const selectionPanel=document.querySelector('.listening-panel');
+const collectionPanel=document.querySelector('.collection');
+function arrangeLibrary(){
+  if(!selectionPanel||!collectionPanel||!libraryColumn)return;
+  if(desktopLibrary?.matches){collectionPanel.insertBefore(selectionPanel,gallery)}
+  else{libraryColumn.insertBefore(selectionPanel,collectionPanel)}
+  focusRecordView();
+}
+arrangeLibrary();
+desktopLibrary?.addEventListener('change',arrangeLibrary);
 
 function recordColor(r){
   return colors[Math.max(0,records.indexOf(r))%colors.length];
