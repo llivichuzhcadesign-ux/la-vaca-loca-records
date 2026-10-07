@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Discos — La Vaca Loca Records</title><meta name="description" content="Entra a nuestra sala de escucha. Explora discos y prueba sus previews en el tocadiscos."><link rel="stylesheet" href="editorial.css?v=footer-transparent-20260929"><link rel="stylesheet" href="discos.css?v=20261007-library"><script src="data.js" defer></script><script src="api/content" defer></script><script src="draft-preview.js" defer></script><script src="calendar-content.js" defer></script><script src="discos.js?v=20261007-library" defer></script><link rel="stylesheet" href="ios-header.css?v=20261007"></head>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Discos — La Vaca Loca Records</title><meta name="description" content="Entra a nuestra sala de escucha. Explora discos y prueba sus previews en el tocadiscos."><link rel="stylesheet" href="editorial.css?v=footer-transparent-20260929"><link rel="stylesheet" href="discos.css?v=20261007-timeline"><script src="data.js" defer></script><script src="api/content" defer></script><script src="draft-preview.js" defer></script><script src="calendar-content.js" defer></script><script src="discos.js?v=20261007-timeline" defer></script><link rel="stylesheet" href="ios-header.css?v=20261007"></head>
 <body data-page="discos"><a class="skip-link" href="#contenido">Saltar al contenido</a><header class="editorial-header"><a class="brand" href="index.html"><img src="assets/brand/horizontal-logo-black.svg" alt="La Vaca Loca Records — Inicio"></a><nav aria-label="Principal"><a href="discos.html" aria-current="page">Discos</a><a href="sessions.html">Sessions</a><a href="eventos.html">Eventos</a><a href="archivo.html">Archivo</a></nav></header>
 <main id="contenido"><section class="listening-room"><div class="room-layout"><div class="deck-area"><div class="deck-stage" id="deckStage" tabindex="0" role="group" aria-label="Tocadiscos interactivo. Arrastra o usa las flechas para cambiar el ángulo.">
   <div class="turntable minimalist-deck" id="turntable">
@@ -71,17 +71,19 @@
       <small>RESET</small>
     </button>
 
-    <div class="deck-playback-timeline">
-      <span class="deck-time" id="deckCurrent">0:00</span>
-      <input id="seek" class="deck-seek" type="range" min="0" max="100" value="0" disabled aria-label="Posición del audio">
-      <span class="deck-time" id="deckDuration">0:00</span>
-    </div>
+
 
     <div class="deck-branding" aria-hidden="true">
       <img src="assets/brand/horizontal-logo-black.svg" alt="">
     </div>
   </div>
-</div></div>
+</div>
+    <div class="deck-playback-timeline">
+      <span class="deck-time" id="deckCurrent">0:00</span>
+      <input id="seek" class="deck-seek" type="range" min="0" max="100" step="0.1" value="0" disabled aria-label="Posición del audio">
+      <span class="deck-time" id="deckDuration">0:00</span>
+    </div>
+</div>
 <div class="library-column">
   <aside class="listening-panel">
     <div class="now-playing-head"><p class="eyebrow">SELECCIÓN</p><span id="recordInfo"></span></div>

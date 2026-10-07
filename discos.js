@@ -97,6 +97,7 @@ function setTimeline(current,duration){
   $('deckDuration').textContent=time(safeDuration);
   $('seek').value=progress;
   $('seek').style.setProperty('--seek-progress',progress+'%');
+  $('seek').setAttribute('aria-valuetext',time(safeCurrent)+' de '+time(safeDuration));
 }
 
 function stopDemoClock(){

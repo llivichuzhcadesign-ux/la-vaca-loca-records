@@ -346,3 +346,16 @@ body[data-page="discos"] .editorial-header nav a[aria-current]::after{
  .library-column #recordDescription{display:block;-webkit-line-clamp:unset;font-size:11px;line-height:1.5}
  .library-column .disc-gallery{min-height:0;overflow-y:auto;overscroll-behavior:contain;align-content:start;padding:22px 24px 38px;scrollbar-width:thin;scrollbar-color:#b59679 #211413}
 }
+
+/* Readable scrubbing below the deck, outside its rotation gesture area. */
+.deck-area{grid-template-rows:minmax(0,1fr) auto;gap:12px}
+.deck-stage{min-height:0}
+.deck-area>.deck-playback-timeline{position:relative;left:auto;right:auto;bottom:auto;transform:none;width:100%;max-width:980px;justify-self:center;display:grid;grid-template-columns:48px minmax(0,1fr) 48px;gap:14px;align-items:center;padding:8px 0 2px;z-index:1;color:#eee3cf}
+.deck-area>.deck-playback-timeline .deck-time{font-size:13px;font-weight:500;line-height:1.4;font-variant-numeric:tabular-nums;letter-spacing:0}
+.deck-area>.deck-playback-timeline .deck-time:last-child{text-align:right}
+.deck-area>.deck-playback-timeline .deck-seek{height:44px;touch-action:none}
+.deck-area>.deck-playback-timeline .deck-seek::-webkit-slider-runnable-track{height:6px}
+.deck-area>.deck-playback-timeline .deck-seek::-webkit-slider-thumb{width:18px;height:18px;margin-top:-6px}
+.deck-area>.deck-playback-timeline .deck-seek::-moz-range-track,.deck-area>.deck-playback-timeline .deck-seek::-moz-range-progress{height:6px}
+.deck-area>.deck-playback-timeline .deck-seek::-moz-range-thumb{width:18px;height:18px}
+@media(max-width:950px){.deck-area{gap:0}.deck-area>.deck-playback-timeline{max-width:680px;grid-template-columns:42px minmax(0,1fr) 42px;gap:10px}.deck-area>.deck-playback-timeline .deck-time{font-size:12px}}
