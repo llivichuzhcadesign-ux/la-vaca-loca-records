@@ -6,16 +6,16 @@
  root.createVinylScratch=function(audio){
   let context,buffer,reversed,loadedUrl='',pending,bytesPromise;const voices=new Set();let lastGrain=0;
   function url(){return audio.currentSrc||audio.src}
-  function preload(){const src=url();if(!src||src===loadedUrl)return;loadedUrl=src;buffer=reversed=null;pending=null;bytesPromise=fetch(src).then(r=>{if(!r.ok)throw Error('audio');return r.arrayBuffer()});bytesPromise.catch(()=>{});}
-  audio.addEventListener('loadedmetadata',preload);
-  async function prepare(){
+  function preload(){const src=url();if(!src||src===loadedUrl)return;loadedUrl=src;buffer=reversed=null;pending=null;if(root.dispatchEvent)root.dispatchEvent(new root.CustomEvent('vinyl-audio-buffer',{detail:null}));bytesPromise=fetch(src).then(r=>{if(!r.ok)throw Error('audio');return r.arrayBuffer()});bytesPromise.catch(()=>{});}
+  audio.addEventListener('loadedmetadata',()=>{preload();prepare(false).catch(()=>{})});
+  async function prepare(activate=true){
    const Audio=root.AudioContext||root.webkitAudioContext;if(!Audio)return;
-   context=context||new Audio();await context.resume();preload();
+   context=context||new Audio();if(activate)await context.resume();preload();
    if(buffer||pending||!bytesPromise)return pending;
    const src=loadedUrl;
    pending=bytesPromise.then(bytes=>context.decodeAudioData(bytes.slice(0))).then(decoded=>{
     if(src!==loadedUrl)return;
-    buffer=decoded;reversed=context.createBuffer(decoded.numberOfChannels,decoded.length,decoded.sampleRate);
+    buffer=decoded;if(root.dispatchEvent)root.dispatchEvent(new root.CustomEvent('vinyl-audio-buffer',{detail:decoded}));reversed=context.createBuffer(decoded.numberOfChannels,decoded.length,decoded.sampleRate);
     for(let c=0;c<decoded.numberOfChannels;c++){const from=decoded.getChannelData(c),to=reversed.getChannelData(c);for(let i=0;i<from.length;i++)to[i]=from[from.length-1-i]}
    }).catch(()=>{}).finally(()=>{if(src===loadedUrl)pending=null});return pending;
   }

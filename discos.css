@@ -361,3 +361,11 @@ body[data-page="discos"] .editorial-header nav a[aria-current]::after{
 @media(max-width:950px){.deck-area{gap:0}.deck-area>.deck-playback-timeline{max-width:680px;grid-template-columns:42px minmax(0,1fr) 42px;gap:10px}.deck-area>.deck-playback-timeline .deck-time{font-size:12px}}
 
 .vinyl{cursor:grab;touch-action:none}.vinyl.is-scrubbing{cursor:grabbing}.vinyl:focus-visible{outline:2px solid #ead9b9;outline-offset:5px}
+.deck-waveform{position:relative;width:100%;height:58px;min-width:0}
+.deck-waveform canvas{display:block;width:100%;height:58px;pointer-events:none}
+.deck-area>.deck-playback-timeline .deck-waveform .deck-seek{position:absolute;inset:0;width:100%;height:58px;z-index:2}
+.deck-waveform .deck-seek::-webkit-slider-runnable-track{background:transparent!important;box-shadow:none!important;height:2px!important}
+.deck-waveform .deck-seek::-webkit-slider-thumb{background:transparent!important;border:0!important;box-shadow:none!important}
+.deck-waveform .deck-seek::-moz-range-track,.deck-waveform .deck-seek::-moz-range-progress{background:transparent!important}
+.deck-waveform .deck-seek::-moz-range-thumb{background:transparent!important;border:0!important}
+.deck-waveform:focus-within{outline:1px solid #eee3cf77;outline-offset:4px}

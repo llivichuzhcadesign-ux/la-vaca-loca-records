@@ -98,6 +98,7 @@ function setTimeline(current,duration){
   $('deckDuration').textContent=time(safeDuration);
   $('seek').value=progress;
   $('seek').style.setProperty('--seek-progress',progress+'%');
+  window.drawVinylWaveform?.(progress);
   $('seek').setAttribute('aria-valuetext',time(safeCurrent)+' de '+time(safeDuration));
   const vinyl=document.querySelector('.vinyl');if(vinyl){vinyl.setAttribute('aria-valuemin','0');vinyl.setAttribute('aria-valuemax',String(safeDuration));vinyl.setAttribute('aria-valuenow',String(Math.round(safeCurrent)));vinyl.setAttribute('aria-valuetext',time(safeCurrent)+' de '+time(safeDuration))}
 }
