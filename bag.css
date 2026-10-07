@@ -24,11 +24,7 @@
 
 
 
-/* An opaque green jacket rests behind the basket's front rim. */
-body header #cartButton,body header .header-bag,body header .ios-basket{position:relative;overflow:visible;isolation:isolate}
-body header .bag-jacket{position:absolute;left:46%;top:9px;width:20px;height:23px;transform:translateX(-50%) rotate(-12deg);border-radius:1px;background:#35493f;border:1px solid #687b60;box-shadow:1px 1px 2px #0006;z-index:-1;pointer-events:none;overflow:hidden}
-body header .bag-jacket:after{content:"";position:absolute;width:17px;height:17px;left:6px;top:9px;border:2px solid #89916b;border-radius:50%;box-sizing:border-box}
-body header .bag-jacket[hidden]{display:none!important}
-body header #cartButton>img,body header .header-bag>img,body header .ios-basket>img,body header #cartButton>svg{position:relative;z-index:1}
-.ios-header body header .bag-jacket{width:17px;height:20px;top:12px}
+/* Filled and empty baskets share the same vector dimensions. */
+body header .bag-state-image{display:block;width:34px;height:36px;object-fit:contain;filter:none}
+.ios-header body header .bag-state-image{width:30px!important;height:30px!important}
 body header #cartCount{display:none!important}
