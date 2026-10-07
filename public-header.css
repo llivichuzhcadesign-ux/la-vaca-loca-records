@@ -1,0 +1,14 @@
+/* Shared placement, while each page owns its header colors. */
+.header-bag{display:flex;align-items:center;justify-content:center;width:44px;min-height:44px;text-decoration:none;flex-shrink:0}
+.header-bag img{display:block;width:34px;height:36px;object-fit:contain}
+@media(min-width:801px){
+ html:not(.ios-header) .site-header,html:not(.ios-header) .editorial-header{display:grid!important;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;height:78px;padding:10px 3vw;gap:24px}
+ html:not(.ios-header) header .brand{grid-column:1;grid-row:1;justify-self:start;width:min(270px,25vw);max-width:270px;min-width:0;display:flex;align-items:center}
+ html:not(.ios-header) header .brand img{width:100%;height:auto;max-height:52px;object-fit:contain;object-position:left center}
+ html:not(.ios-header) .site-header>.main-nav,html:not(.ios-header) .editorial-header>nav{grid-column:2;grid-row:1;display:flex;flex-wrap:nowrap;align-items:center;justify-content:center;gap:26px;margin:0}
+ html:not(.ios-header) .site-header>.main-nav a,html:not(.ios-header) .editorial-header>nav a{font-size:12px;font-weight:800;line-height:1.4;text-transform:uppercase;white-space:nowrap;text-decoration:none}
+ html:not(.ios-header) header>.cart-button,html:not(.ios-header) header>.header-bag{grid-column:3;grid-row:1;justify-self:end}
+ html:not(.ios-header) .site-header>.mobile-menu-toggle{display:none}
+ html:not(.ios-header) body[data-page="discos"] #contenido{height:calc(100vh - 78px)}
+}
+@media(max-width:800px){html:not(.ios-header) .editorial-header>.header-bag{position:absolute;right:6vw;top:16px}}
