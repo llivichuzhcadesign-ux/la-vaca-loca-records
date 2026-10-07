@@ -359,3 +359,5 @@ body[data-page="discos"] .editorial-header nav a[aria-current]::after{
 .deck-area>.deck-playback-timeline .deck-seek::-moz-range-track,.deck-area>.deck-playback-timeline .deck-seek::-moz-range-progress{height:6px}
 .deck-area>.deck-playback-timeline .deck-seek::-moz-range-thumb{width:18px;height:18px}
 @media(max-width:950px){.deck-area{gap:0}.deck-area>.deck-playback-timeline{max-width:680px;grid-template-columns:42px minmax(0,1fr) 42px;gap:10px}.deck-area>.deck-playback-timeline .deck-time{font-size:12px}}
+
+.vinyl{cursor:grab;touch-action:none}.vinyl.is-scrubbing{cursor:grabbing}.vinyl:focus-visible{outline:2px solid #ead9b9;outline-offset:5px}

@@ -98,6 +98,7 @@ function setTimeline(current,duration){
   $('seek').value=progress;
   $('seek').style.setProperty('--seek-progress',progress+'%');
   $('seek').setAttribute('aria-valuetext',time(safeCurrent)+' de '+time(safeDuration));
+  const vinyl=document.querySelector('.vinyl');if(vinyl){vinyl.setAttribute('aria-valuemin','0');vinyl.setAttribute('aria-valuemax',String(safeDuration));vinyl.setAttribute('aria-valuenow',String(Math.round(safeCurrent)));vinyl.setAttribute('aria-valuetext',time(safeCurrent)+' de '+time(safeDuration))}
 }
 
 function stopDemoClock(){
@@ -612,6 +613,53 @@ window.addEventListener('resize',()=>{if(window.innerWidth<=950)focusRecordView(
 function angle(){
   deck.style.setProperty('--rx',rx+'deg');
   deck.style.setProperty('--ry',ry+'deg');
+}
+
+// Turn the vinyl to scrub; dragging the surrounding deck still tilts it.
+const interactiveVinyl=document.querySelector('.vinyl');
+let vinylDrag=null;
+if(interactiveVinyl){
+ interactiveVinyl.tabIndex=0;
+ interactiveVinyl.setAttribute('role','slider');
+ interactiveVinyl.setAttribute('aria-label','Girar disco para avanzar o retroceder el audio');
+ function scrubDuration(){return Number.isFinite(audio.duration)&&audio.duration>0?audio.duration:demoDuration}
+ function scrubCurrent(){return Number.isFinite(audio.duration)&&audio.duration>0?audio.currentTime:demoTime}
+ function scrubTo(value){
+  const duration=scrubDuration();const current=Math.max(0,Math.min(duration,value));
+  if(Number.isFinite(audio.duration)&&audio.duration>0)audio.currentTime=current;else demoTime=current;
+  setTimeline(current,duration);
+ }
+ function pointerAngle(e){const box=interactiveVinyl.getBoundingClientRect();return Math.atan2((e.clientY-box.top-box.height/2)/box.height,(e.clientX-box.left-box.width/2)/box.width)}
+ interactiveVinyl.addEventListener('pointerdown',e=>{
+  e.stopPropagation();if(isLoadingDisc||$('seek').disabled||(e.pointerType==='mouse'&&e.button!==0))return;
+  e.preventDefault();
+  const matrix=new DOMMatrix(getComputedStyle(interactiveVinyl).transform);
+  const rotation=Math.atan2(matrix.b,matrix.a)*180/Math.PI;
+  vinylDrag={id:e.pointerId,angle:pointerAngle(e),rotation,resume:!audio.paused,demo:demoPlaying,selection};
+  audio.pause();demoPlaying=false;stopDemoClock();
+  interactiveVinyl.style.animation='none';interactiveVinyl.style.transform='rotate('+rotation+'deg)';
+  interactiveVinyl.classList.add('is-scrubbing');interactiveVinyl.setPointerCapture(e.pointerId);
+ });
+ interactiveVinyl.addEventListener('pointermove',e=>{
+  if(!vinylDrag||e.pointerId!==vinylDrag.id)return;e.preventDefault();e.stopPropagation();
+  const angle=pointerAngle(e);let delta=angle-vinylDrag.angle;
+  if(delta>Math.PI)delta-=2*Math.PI;if(delta<-Math.PI)delta+=2*Math.PI;
+  vinylDrag.angle=angle;vinylDrag.rotation+=delta*180/Math.PI;
+  interactiveVinyl.style.transform='rotate('+vinylDrag.rotation+'deg)';
+  scrubTo(scrubCurrent()+delta/(2*Math.PI)*8);
+ });
+ function finishVinylDrag(e){
+  if(!vinylDrag||e.pointerId!==vinylDrag.id)return;const drag=vinylDrag;vinylDrag=null;
+  interactiveVinyl.classList.remove('is-scrubbing');interactiveVinyl.style.animation='';interactiveVinyl.style.transform='';
+  const spinSeconds=1.8/(1+tempoPercent/100);interactiveVinyl.style.animationDelay=-(drag.rotation%360+360)%360/360*spinSeconds+'s';
+  if(drag.selection!==selection)return;
+  if(drag.resume)audio.play().catch(()=>playing(false));else if(drag.demo)startDemoClock();
+ }
+ ['pointerup','pointercancel','lostpointercapture'].forEach(event=>interactiveVinyl.addEventListener(event,finishVinylDrag));
+ interactiveVinyl.addEventListener('keydown',e=>{
+  if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key)||$('seek').disabled)return;e.preventDefault();e.stopPropagation();
+  scrubTo(e.key==='Home'?0:e.key==='End'?scrubDuration():scrubCurrent()+(e.key==='ArrowRight'?2:-2));
+ });
 }
 
 const stage=$('deckStage');
