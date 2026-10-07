@@ -212,6 +212,7 @@ function updateSelectedInfo(r){
   syncSleeveReadyState();
 
   const src=cover(r);
+  $('artworkOpen').hidden=!src;
   if(src){
     const image=new Image();
     image.onload=()=>{
@@ -236,6 +237,20 @@ function updateSelectedInfo(r){
   link.textContent=Number(r.stock)===0?'Consultar disponibilidad ↗':'Consultar este disco ↗';
   if(phone)link.href='https://wa.me/'+phone+'?text='+encodeURIComponent('Hola! Me interesa '+r.artist+' — '+r.title+' ('+r.id+'). ¿Está disponible?');
 }
+
+const artworkDialog=$('artworkDialog');
+const artworkStage=$('artworkStage');
+function resetArtworkZoom(){artworkStage.classList.remove('is-zoomed');$('artworkZoom').setAttribute('aria-pressed','false');$('artworkZoom').textContent='Ampliar';artworkStage.scrollTop=0;artworkStage.scrollLeft=0}
+$('artworkOpen').onclick=()=>{
+  const record=pendingRecord||selected,src=record&&cover(record);if(!src)return;
+  resetArtworkZoom();$('artworkCaption').textContent=record.artist+' — '+record.title;
+  $('artworkFull').src=src;$('artworkFull').alt='Portada de '+record.title+' — '+record.artist;
+  artworkDialog.showModal();
+};
+$('artworkClose').onclick=()=>artworkDialog.close();
+$('artworkZoom').onclick=()=>{const zoom=artworkStage.classList.toggle('is-zoomed');$('artworkZoom').setAttribute('aria-pressed',String(zoom));$('artworkZoom').textContent=zoom?'Ajustar':'Ampliar'};
+artworkDialog.addEventListener('click',e=>{if(e.target===artworkDialog){const box=artworkDialog.getBoundingClientRect();if(e.clientX<box.left||e.clientX>box.right||e.clientY<box.top||e.clientY>box.bottom)artworkDialog.close()}});
+artworkDialog.addEventListener('close',()=>{resetArtworkZoom();$('artworkFull').removeAttribute('src');$('artworkOpen').focus()});
 
 function renderGallery(){
   results=filterRecords(records,$('recordSearch').value,$('genreFilter').value);
