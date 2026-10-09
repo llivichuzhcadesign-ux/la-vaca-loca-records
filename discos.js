@@ -69,10 +69,17 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
 function notice(text){$('playerNotice').textContent=text;const status=$('iosPlaybackStatus');if(status)status.textContent=text}
 
+function playerControlIcon(kind){
+ const paths={play:'<path d="M9 5.5 19 12 9 18.5Z" fill="currentColor" stroke-linejoin="round"/>',pause:'<path d="M9 6v12M15 6v12" stroke-width="3"/>',previous:'<path d="m14.5 6-6 6 6 6M9 12h11"/>',next:'<path d="m9.5 6 6 6-6 6M15 12H4"/>',down:'<path d="m6 9 6 6 6-6"/>'};
+ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'+paths[kind]+'</svg>';
+}
+function paintPlayerButton(button,on,label){
+ button.innerHTML=playerControlIcon(on?'pause':'play');button.setAttribute('aria-label',label);button.setAttribute('aria-pressed',String(on));button.title=label;
+}
 function playing(on){
  if(on&&iosDiscView&&selected)iosStartedId=selected.id;
- const sheetPlay=$('iosSheetPlay');if(sheetPlay){sheetPlay.textContent=sheetPlay.disabled?'Sin preview':on?'Pausar':'Reproducir';sheetPlay.setAttribute('aria-pressed',String(on))}
  const miniPlay=$('libraryPlayerPlay');if(miniPlay){miniPlay.textContent=miniPlay.disabled?'Sin preview':on?'Pausar':'Reproducir';miniPlay.setAttribute('aria-label',on?'Pausar':'Reproducir');miniPlay.setAttribute('aria-pressed',String(on))}
+  if(iosDiscView&&miniPlay)paintPlayerButton(miniPlay,on,miniPlay.disabled?'Sin preview de audio':on?'Pausar':'Reproducir');
   if(iosDiscView&&iosSheet)syncIosJackets(pendingRecord||selected,on);
   deck.classList.toggle('playing',on);
   if(deckPlay){
@@ -252,7 +259,7 @@ document.querySelectorAll('[data-disc-view]').forEach(button=>button.addEventLis
 $('libraryPlayerPlay').onclick=()=>deckPlay?.click();
 if(iosDiscView){
  iosSheet=document.createElement('section');iosSheet.id='iosPlayerSheet';iosSheet.className='ios-player-sheet';iosSheet.setAttribute('aria-label','Reproductor');iosSheet.setAttribute('role','region');
- iosSheet.innerHTML='<div class="ios-sheet-head"><button type="button" class="ios-sheet-handle" aria-label="Cambiar tamaño del reproductor"><span></span></button><button type="button" class="ios-sheet-close" aria-label="Minimizar reproductor">⌄</button></div><div class="ios-sheet-content"></div><div class="ios-sheet-controls"><span id="iosPlaybackStatus" role="status"></span><div class="ios-transport"><button type="button" id="iosPrevious" aria-label="Ver disco anterior">‹</button><button type="button" id="iosSheetPlay">Reproducir</button><button type="button" id="iosNext" aria-label="Ver disco siguiente">›</button></div></div>';
+ iosSheet.innerHTML='<div class="ios-sheet-head"><button type="button" class="ios-sheet-handle" aria-label="Cambiar tamaño del reproductor"><span></span></button><button type="button" class="ios-sheet-close" aria-label="Minimizar reproductor">'+playerControlIcon('down')+'</button></div><div class="ios-sheet-content"></div><div class="ios-sheet-controls"><span id="iosPlaybackStatus" role="status"></span><div class="ios-transport"><button type="button" id="iosPrevious" aria-label="Ver disco anterior">'+playerControlIcon('previous')+'</button><button type="button" id="iosSheetPlay" aria-label="Reproducir">'+playerControlIcon('play')+'</button><button type="button" id="iosNext" aria-label="Ver disco siguiente">'+playerControlIcon('next')+'</button></div></div>';
  document.body.append(iosSheet);const head=iosSheet.querySelector('.ios-sheet-head');head.append($('iosTurntableToggle'));const content=iosSheet.querySelector('.ios-sheet-content');content.append(selectionPanel,timelineDeck);
  const close=()=>{setSheetPosition('compact');document.querySelector('.mini-player-open').focus({preventScroll:true})};iosSheet.querySelector('.ios-sheet-close').onclick=close;iosSheet.querySelector('.ios-sheet-handle').onclick=close;iosSheet.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close()}});
  $('iosSheetPlay').onclick=playBrowsedRecord;$('iosPrevious').onclick=()=>stepIosJacket(-1);$('iosNext').onclick=()=>stepIosJacket(1);$('iosTurntableToggle').onclick=()=>setSheetMode(!sheetTurntable);
@@ -276,7 +283,7 @@ function syncIosJackets(r,on=!audio.paused){
  $('iosJacketRail').querySelectorAll('[data-jacket]').forEach(button=>{const item=records[Number(button.dataset.jacket)];button.setAttribute('aria-pressed',String(item===r));button.classList.toggle('is-loaded',item===selected&&iosStartedId===item.id);button.classList.toggle('is-spinning',item===selected&&on)});
  const index=records.indexOf(r);$('iosPrevious').disabled=index<=0;$('iosNext').disabled=index>=records.length-1;
  const button=$('iosSheetPlay'),available=!!audioUrl(r,document.baseURI),active=r===selected&&on;
- button.disabled=!available;button.textContent=available?(active?'Ⅱ':'▶'):'Sin preview';button.setAttribute('aria-label',available?(active?'Pausar':'Reproducir '+r.title):'Sin preview de audio');button.setAttribute('aria-pressed',String(active));
+ button.disabled=!available;paintPlayerButton(button,active,available?(active?'Pausar':'Reproducir '+r.title):'Sin preview de audio');
  iosSheet.classList.toggle('is-browsing',r!==selected);
  $('iosPlaybackStatus').textContent=r!==selected?(available?'Pulsa reproducir para escuchar':'Sin preview de audio'):(available?(on?'Escuchando '+r.title:'Listo para escuchar'):'Sin preview de audio');
 }
@@ -304,7 +311,7 @@ function updateSelectedInfo(r,browsing=false){
    const fallback='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="'+recordColor(r)+'"/><circle cx="56" cy="65" r="27" fill="none" stroke="#e6d1a6" stroke-opacity=".2" stroke-width="10"/><text x="8" y="23" fill="#eee3cf" font-size="13" font-family="serif">LVL</text></svg>');
    miniArt.onerror=()=>{miniArt.onerror=null;miniArt.src=fallback};miniArt.src=cover(r)||fallback;miniArt.hidden=false;
   }
-  for(const id of ['libraryPlayerPlay','iosSheetPlay']){const control=$(id);if(control&&iosDiscView){control.disabled=!audioUrl(r,document.baseURI);control.textContent=control.disabled?'Sin preview':(!audio.paused?'Pausar':'Reproducir')}}
+  for(const id of ['libraryPlayerPlay','iosSheetPlay']){const control=$(id);if(control&&iosDiscView){control.disabled=!audioUrl(r,document.baseURI);paintPlayerButton(control,!audio.paused,control.disabled?'Sin preview de audio':(!audio.paused?'Pausar':'Reproducir'))}}
   }
   $('recordInfo').innerHTML=[['Sello',r.label],['Año',r.year],['Género',r.genre],['Estado',r.condition]].filter(([,value])=>value).map(([name,value])=>'<div><dt>'+name+'</dt><dd>'+escape(String(value))+'</dd></div>').join('');
   $('recordDescription').textContent=r.description||'';

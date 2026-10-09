@@ -648,3 +648,23 @@ body:has(.ios-player-sheet[open]){overflow:hidden!important}
 @media(max-height:650px){.ios-jacket-rail{--jacket-size:min(42vw,25dvh,190px)}.ios-sheet-head{height:48px}.ios-sheet-controls{padding-top:2px}.ios-transport #iosSheetPlay{width:48px;height:48px}.ios-sheet-controls .deck-waveform,.ios-sheet-controls .deck-waveform canvas,.ios-sheet-controls .deck-waveform .deck-seek{height:36px}}
 @media(prefers-reduced-motion:reduce){.ios-jacket,.ios-jacket-disc{transition:none}.ios-jacket.is-spinning .ios-jacket-disc i{animation:none}}
 @media(max-height:450px){.ios-jacket-rail{--jacket-size:70px;height:90px;padding-top:6px;padding-bottom:6px}.ios-sheet-head{height:40px}.ios-header .layered-ios-player .ios-player-sheet .listening-panel h2{font-size:18px;-webkit-line-clamp:1}.ios-header .layered-ios-player .ios-player-sheet .listening-panel{padding-top:0!important;padding-bottom:0!important}.ios-sheet-controls{gap:2px;padding-bottom:4px}.ios-transport #iosSheetPlay{width:44px;height:44px}.ios-player-sheet.show-turntable .ios-jacket-rail{display:none}}
+
+/* Wine transport, beige icon strokes, and olive playback accents. */
+.ios-transport{gap:26px;padding:4px 0}
+.ios-transport button{display:grid;place-items:center;width:48px;height:48px;border:1px solid #dcccaa38;border-radius:50%;color:#e8d9bd;background:#535b3c;box-shadow:inset 0 1px 0 #f5e5c514,0 3px 8px #0002;transition:background .2s,transform .18s,box-shadow .2s}
+.ios-transport button svg{display:block;width:25px;height:25px;pointer-events:none}
+.ios-transport #iosSheetPlay{width:64px;height:64px;padding:0;color:#f0e2c9;background:#682d3b;border:1px solid #d9bea45c;box-shadow:0 0 0 5px #682d3b20,inset 0 1px 0 #f5e5c525,0 5px 16px #0004}
+.ios-transport #iosSheetPlay svg{width:28px;height:28px}
+.ios-transport #iosSheetPlay[aria-pressed="true"]{background:#535b3c;box-shadow:0 0 0 5px #535b3c26,inset 0 1px 0 #f5e5c525,0 5px 16px #0004}
+.ios-transport button:active:not(:disabled){transform:scale(.94);box-shadow:inset 0 2px 6px #0003}
+.ios-transport button:disabled{opacity:.35;box-shadow:none;cursor:default}
+.ios-transport #iosSheetPlay:disabled{padding:0}
+.ios-transport button:focus-visible,.ios-header .layered-ios-player #libraryPlayerPlay:focus-visible{outline:2px solid #eee0c4;outline-offset:5px}
+.ios-sheet-close{display:grid;place-items:center;color:#e8d9bd}
+.ios-sheet-close svg{width:24px;height:24px}
+.ios-header .layered-ios-player #libraryPlayerPlay{display:grid;place-items:center;width:44px;height:44px;padding:0;border-radius:50%;border:1px solid #d9bea44d;background:#682d3b;color:#f0e2c9}
+.ios-header .layered-ios-player #libraryPlayerPlay[aria-pressed="true"]{background:#535b3c}
+#libraryPlayerPlay svg{width:23px;height:23px;pointer-events:none}
+@media(max-height:650px){.ios-transport{padding:2px 0}.ios-transport #iosSheetPlay{width:52px;height:52px}}
+@media(max-height:450px){.ios-transport{padding:0}.ios-transport #iosSheetPlay{width:44px;height:44px}.ios-transport #iosSheetPlay svg{width:24px;height:24px}}
+@media(prefers-reduced-motion:reduce){.ios-transport button{transition:none}}
