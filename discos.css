@@ -521,3 +521,33 @@ body[data-page="discos"] .record-facts dt{color:#bfa58a}
  .expanded-library .library-mini-player{position:sticky;bottom:0;z-index:4;height:auto;min-height:68px;padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));gap:10px}
  .library-mini-player button{padding:10px;font-size:10px}
 }
+
+/* Artwork-first iOS listening view, in the existing walnut and cream palette. */
+.ios-turntable-toggle{display:none}
+.ios-header .ios-turntable-toggle{display:grid;place-items:center;position:absolute;top:16px;right:16px;width:44px;height:44px;border:1px solid #eee3cf38;border-radius:50%;background:#1a130f66;color:#eee3cf;z-index:4}
+.ios-turntable-toggle svg{width:26px;height:26px}
+.ios-header .expanded-library #contenido{height:auto!important;overflow:visible}
+.ios-header body.expanded-library{overflow:auto}
+.ios-header .expanded-library .room-layout{height:auto;display:block}
+.ios-header .expanded-library .library-column{height:auto;overflow:visible}
+.ios-header .expanded-library .collection{display:block!important;height:auto!important;overflow:visible!important}
+.ios-header .expanded-library .library-view-switch{display:none}
+.ios-header .expanded-library .listening-panel{max-height:none!important;height:auto!important;padding:68px 7vw 24px!important;border-right:0;background:radial-gradient(ellipse at 35% 25%,#c5812920,transparent 65%)}
+.ios-header .expanded-library .now-playing-head{margin:0 0 30px}
+.ios-header .expanded-library .selected-record{display:flex!important;flex-direction:column;gap:30px}
+.ios-header .expanded-library .sleeve-zone{width:min(64vw,330px)!important;max-width:none!important;margin:0 auto 10px!important;align-self:center;transform:translateX(-8%)}
+.ios-header .expanded-library .sleeve-disc-preview,.ios-header .expanded-library .disc-on-deck .sleeve-disc-preview{opacity:1;right:-35%;transform:none}
+.ios-header .expanded-library .selected-record-copy{width:100%}
+.ios-header .expanded-library .now-playing-copy{grid-template-columns:minmax(0,1fr) auto;align-items:start}
+.ios-header .expanded-library .listening-panel h2{font-size:clamp(28px,6vw,42px);line-height:1.1}
+.ios-header .expanded-library .record-buy{align-items:flex-end}
+.ios-header .expanded-library .record-facts{margin-top:18px}
+.ios-header .expanded-library .listening-panel>.deck-playback-timeline{display:grid;grid-template-columns:42px minmax(0,1fr) 42px;align-items:center;gap:10px;width:100%;position:relative;left:auto;right:auto;bottom:auto;transform:none;margin-top:22px;color:#eee3cf}
+.ios-header .expanded-library .deck-time{font-size:11px;font-variant-numeric:tabular-nums}
+.ios-header .expanded-library .deck-time:last-child{text-align:right}
+.ios-header .expanded-library .library-toolbar{padding:22px 7vw!important;display:block!important;border-top:1px solid #eee3cf1c}
+.ios-header .expanded-library .library-label{margin-bottom:16px}
+.ios-header .expanded-library .browse-tools{display:grid;grid-template-columns:minmax(0,1fr) 110px}
+.ios-header .expanded-library .disc-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr))!important;padding:12px 7vw 28px!important;overflow:visible!important}
+.ios-header .expanded-library .library-mini-player{position:sticky;bottom:0;z-index:4;height:auto;min-height:68px;padding:14px 7vw;padding-bottom:max(14px,env(safe-area-inset-bottom))}
+.ios-header .expanded-library .listening-panel .deck-waveform .deck-seek{position:absolute;inset:0;width:100%;height:76px;z-index:2;touch-action:none}

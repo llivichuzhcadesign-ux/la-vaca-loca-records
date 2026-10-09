@@ -199,17 +199,25 @@ $('recordBag').onclick=()=>{const r=pendingRecord||selected;if(!r)return;const i
 window.addEventListener('storage',()=>{if(pendingRecord||selected)syncRecordActions(pendingRecord||selected)});
 document.addEventListener('lvl-bag-change',()=>{if(pendingRecord||selected)syncRecordActions(pendingRecord||selected)});
 
+const iosDiscView=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const viewStorageKey=iosDiscView?'lvl-ios-disc-view':'lvl-disc-view';
+const playbackTimeline=document.querySelector('.deck-playback-timeline');
+const timelineDeck=document.querySelector('.deck-area');
 let discView='player';
 const miniPlayer=document.querySelector('.library-mini-player');
 function setDiscView(view){
  discView=view==='library'?'library':'player';document.body.classList.toggle('expanded-library',discView==='library');
  document.querySelectorAll('.library-view-switch [data-disc-view]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.discView===discView)));
  if(miniPlayer)miniPlayer.hidden=discView!=='library';
- try{localStorage.setItem('lvl-disc-view',discView)}catch{}
+ if(iosDiscView&&playbackTimeline){(discView==='library'?selectionPanel:timelineDeck).append(playbackTimeline)}
+ $('iosTurntableToggle').setAttribute('aria-pressed',String(discView==='player'));
+ $('iosTurntableToggle').setAttribute('aria-label',discView==='player'?'Volver a la vista de portada':'Abrir tocadiscos');
+ try{localStorage.setItem(viewStorageKey,discView)}catch{}
 }
 document.querySelectorAll('[data-disc-view]').forEach(button=>button.addEventListener('click',()=>setDiscView(button.dataset.discView)));
 $('libraryPlayerPlay').onclick=()=>deckPlay?.click();
-try{setDiscView(localStorage.getItem('lvl-disc-view'))}catch{setDiscView('player')}
+$('iosTurntableToggle').onclick=()=>setDiscView(discView==='library'?'player':'library');
+try{setDiscView(localStorage.getItem(viewStorageKey)||(iosDiscView?'library':'player'))}catch{setDiscView(iosDiscView?'library':'player')}
 
 function updateSelectedInfo(r){
   if(!r)return;
