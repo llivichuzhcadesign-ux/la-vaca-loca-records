@@ -668,3 +668,8 @@ body:has(.ios-player-sheet[open]){overflow:hidden!important}
 @media(max-height:650px){.ios-transport{padding:2px 0}.ios-transport #iosSheetPlay{width:52px;height:52px}}
 @media(max-height:450px){.ios-transport{padding:0}.ios-transport #iosSheetPlay{width:44px;height:44px}.ios-transport #iosSheetPlay svg{width:24px;height:24px}}
 @media(prefers-reduced-motion:reduce){.ios-transport button{transition:none}}
+
+/* Keep record details below the turntable, before the shared timeline. */
+.ios-player-sheet.show-turntable .ios-jacket-rail{order:0}
+.ios-player-sheet.show-turntable .deck-area{order:1}
+.ios-player-sheet.show-turntable .listening-panel{order:2}
