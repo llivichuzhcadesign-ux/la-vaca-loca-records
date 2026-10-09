@@ -70,8 +70,10 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function notice(text){$('playerNotice').textContent=text;const status=$('iosPlaybackStatus');if(status)status.textContent=text}
 
 function playing(on){
+ if(on&&iosDiscView&&selected)iosStartedId=selected.id;
  const sheetPlay=$('iosSheetPlay');if(sheetPlay){sheetPlay.textContent=sheetPlay.disabled?'Sin preview':on?'Pausar':'Reproducir';sheetPlay.setAttribute('aria-pressed',String(on))}
  const miniPlay=$('libraryPlayerPlay');if(miniPlay){miniPlay.textContent=miniPlay.disabled?'Sin preview':on?'Pausar':'Reproducir';miniPlay.setAttribute('aria-label',on?'Pausar':'Reproducir');miniPlay.setAttribute('aria-pressed',String(on))}
+  if(iosDiscView&&iosSheet)syncIosJackets(pendingRecord||selected,on);
   deck.classList.toggle('playing',on);
   if(deckPlay){
     deckPlay.setAttribute('aria-pressed',String(on));
@@ -207,7 +209,7 @@ const playbackTimeline=document.querySelector('.deck-playback-timeline');
 const timelineDeck=document.querySelector('.deck-area');
 let discView='player';
 const miniPlayer=document.querySelector('.library-mini-player');
-let iosSheet=null,sheetTurntable=false,sheetPosition='compact';
+let iosSheet=null,sheetTurntable=false,sheetPosition='compact',iosStartedId=null;
 function setDiscView(view){
  if(iosDiscView){
   discView='library';document.body.classList.add('expanded-library','layered-ios-player');if(miniPlayer)miniPlayer.hidden=false;
@@ -221,23 +223,22 @@ function setDiscView(view){
 }
 function setSheetMode(turntable){
  sheetTurntable=turntable;iosSheet.classList.toggle('show-turntable',turntable);
- (turntable?timelineDeck:selectionPanel).append(playbackTimeline);
+ iosSheet.querySelector('.ios-sheet-controls').prepend(playbackTimeline);
  requestAnimationFrame(()=>syncDeckTimeline());
  $('iosTurntableToggle').setAttribute('aria-pressed',String(turntable));$('iosTurntableToggle').setAttribute('aria-label',turntable?'Ver portada':'Ver tocadiscos');
 }
-function sheetHeights(){const height=window.visualViewport?.height||window.innerHeight;return {compact:0,half:Math.round(height*.52),expanded:Math.max(180,Math.min(height*.86,height-64))}}
+function sheetHeights(){const height=window.visualViewport?.height||window.innerHeight;return {compact:0,expanded:Math.max(180,height-62)}}
 function setSheetPosition(position){
  if(!iosSheet)return;
  sheetPosition=position;const height=sheetHeights()[position];
  iosSheet.dataset.position=position;iosSheet.style.height=height+'px';iosSheet.classList.remove('is-dragging');
  iosSheet.inert=position==='compact';iosSheet.setAttribute('aria-hidden',String(position==='compact'));
  document.body.dataset.playerPosition=position;
- document.body.style.setProperty('--player-space',position==='half'?height+'px':'104px');
+ document.body.style.setProperty('--player-space','104px');
  const opener=document.querySelector('.mini-player-open');opener?.setAttribute('aria-expanded',String(position!=='compact'));
- $('iosSheetExpand').textContent=position==='expanded'?'Reducir':'Ampliar';
  requestAnimationFrame(()=>syncDeckTimeline());
 }
-function openIosPlayer(){setSheetPosition('half');iosSheet.querySelector('.ios-sheet-handle').focus({preventScroll:true})}
+function openIosPlayer(){setSheetPosition('expanded');iosSheet.querySelector('.ios-sheet-handle').focus({preventScroll:true})}
 function wireSheetDrag(target){
  let drag=null,suppressClick=false;
  target.addEventListener('pointerdown',e=>{if(e.button!==0)return;drag={y:e.clientY,height:sheetHeights()[sheetPosition],moved:false};target.setPointerCapture(e.pointerId)});
@@ -251,22 +252,52 @@ document.querySelectorAll('[data-disc-view]').forEach(button=>button.addEventLis
 $('libraryPlayerPlay').onclick=()=>deckPlay?.click();
 if(iosDiscView){
  iosSheet=document.createElement('section');iosSheet.id='iosPlayerSheet';iosSheet.className='ios-player-sheet';iosSheet.setAttribute('aria-label','Reproductor');iosSheet.setAttribute('role','region');
- iosSheet.innerHTML='<div class="ios-sheet-head"><button type="button" class="ios-sheet-handle" aria-label="Cambiar tamaño del reproductor"><span></span></button><button type="button" class="ios-sheet-close" aria-label="Minimizar reproductor">⌄</button></div><div class="ios-sheet-content"></div><div class="ios-sheet-controls"><span id="iosPlaybackStatus" role="status"></span><button type="button" id="iosSheetExpand">Ampliar</button><button type="button" id="iosSheetPlay">Reproducir</button></div>';
+ iosSheet.innerHTML='<div class="ios-sheet-head"><button type="button" class="ios-sheet-handle" aria-label="Cambiar tamaño del reproductor"><span></span></button><button type="button" class="ios-sheet-close" aria-label="Minimizar reproductor">⌄</button></div><div class="ios-sheet-content"></div><div class="ios-sheet-controls"><span id="iosPlaybackStatus" role="status"></span><div class="ios-transport"><button type="button" id="iosPrevious" aria-label="Ver disco anterior">‹</button><button type="button" id="iosSheetPlay">Reproducir</button><button type="button" id="iosNext" aria-label="Ver disco siguiente">›</button></div></div>';
  document.body.append(iosSheet);const head=iosSheet.querySelector('.ios-sheet-head');head.append($('iosTurntableToggle'));const content=iosSheet.querySelector('.ios-sheet-content');content.append(selectionPanel,timelineDeck);
- const close=()=>{setSheetPosition('compact');document.querySelector('.mini-player-open').focus({preventScroll:true})};iosSheet.querySelector('.ios-sheet-close').onclick=close;iosSheet.querySelector('.ios-sheet-handle').onclick=()=>setSheetPosition(sheetPosition==='expanded'?'half':'expanded');$('iosSheetExpand').onclick=()=>setSheetPosition(sheetPosition==='expanded'?'half':'expanded');iosSheet.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close()}});
- $('iosSheetPlay').onclick=()=>deckPlay?.click();$('iosTurntableToggle').onclick=()=>setSheetMode(!sheetTurntable);
+ const close=()=>{setSheetPosition('compact');document.querySelector('.mini-player-open').focus({preventScroll:true})};iosSheet.querySelector('.ios-sheet-close').onclick=close;iosSheet.querySelector('.ios-sheet-handle').onclick=close;iosSheet.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close()}});
+ $('iosSheetPlay').onclick=playBrowsedRecord;$('iosPrevious').onclick=()=>stepIosJacket(-1);$('iosNext').onclick=()=>stepIosJacket(1);$('iosTurntableToggle').onclick=()=>setSheetMode(!sheetTurntable);
  const openButton=document.createElement('button');openButton.type='button';openButton.className='mini-player-open';openButton.setAttribute('aria-label','Expandir reproductor');openButton.setAttribute('aria-controls','iosPlayerSheet');const artwork=document.createElement('img');artwork.id='miniPlayerArtwork';artwork.alt='';artwork.hidden=true;openButton.append(artwork,miniPlayer.querySelector('div'));miniPlayer.prepend(openButton);wireSheetDrag(openButton);openButton.onclick=openIosPlayer;
  miniPlayer.querySelector('[data-disc-view]').remove();const miniSeek=document.createElement('input');miniSeek.type='range';miniSeek.id='miniPlayerSeek';miniSeek.min=0;miniSeek.max=100;miniSeek.step=.1;miniSeek.disabled=true;miniSeek.setAttribute('aria-label','Posición del audio');miniSeek.oninput=()=>{$('seek').value=miniSeek.value;$('seek').dispatchEvent(new Event('input',{bubbles:true}))};miniPlayer.append(miniSeek);
  wireSheetDrag(iosSheet.querySelector('.ios-sheet-handle'));window.visualViewport?.addEventListener('resize',()=>setSheetPosition(sheetPosition));
  setSheetPosition('compact');
- setSheetMode(false);setDiscView('library');
+ setSheetMode(false);setDiscView('library');buildIosJackets();
 }else{try{setDiscView(localStorage.getItem(viewStorageKey)||'player')}catch{setDiscView('player')}}
 
-function updateSelectedInfo(r){
+function buildIosJackets(){
+ const rail=document.createElement('div');rail.id='iosJacketRail';rail.className='ios-jacket-rail';rail.setAttribute('aria-label','Explorar portadas');
+ rail.innerHTML=records.map((r,i)=>'<button type="button" class="ios-jacket" data-jacket="'+i+'" aria-label="Ver '+escape(r.artist+' — '+r.title)+'" style="--jacket-color:'+recordColor(r)+'"><span class="ios-jacket-disc" aria-hidden="true"><i></i></span><span class="sleeve-art"><span class="fallback-type">'+escape(r.title)+'</span><span class="fallback-code">'+escape(r.id)+'</span>'+(cover(r)?'<img src="'+escape(cover(r))+'" alt="" loading="lazy">':'')+'</span></button>').join('');
+ iosSheet.querySelector('.ios-sheet-content').prepend(rail);
+ rail.querySelectorAll('img').forEach(img=>img.onerror=()=>img.remove());
+ rail.querySelectorAll('[data-jacket]').forEach(button=>button.onclick=()=>browseIosRecord(records[Number(button.dataset.jacket)]));
+ let timer;rail.addEventListener('scroll',()=>{clearTimeout(timer);timer=setTimeout(()=>{const bounds=rail.getBoundingClientRect(),center=bounds.left+bounds.width/2;let closest=null,distance=Infinity;rail.querySelectorAll('[data-jacket]').forEach(button=>{const b=button.getBoundingClientRect(),d=Math.abs(b.left+b.width/2-center);if(d<distance){distance=d;closest=button}});if(closest){const record=records[Number(closest.dataset.jacket)];if(record!==(pendingRecord||selected))browseIosRecord(record,false)}},130)});
+}
+function syncIosJackets(r,on=!audio.paused){
+ if(!r||!$('iosJacketRail'))return;
+ $('iosJacketRail').querySelectorAll('[data-jacket]').forEach(button=>{const item=records[Number(button.dataset.jacket)];button.setAttribute('aria-pressed',String(item===r));button.classList.toggle('is-loaded',item===selected&&iosStartedId===item.id);button.classList.toggle('is-spinning',item===selected&&on)});
+ const index=records.indexOf(r);$('iosPrevious').disabled=index<=0;$('iosNext').disabled=index>=records.length-1;
+ const button=$('iosSheetPlay'),available=!!audioUrl(r,document.baseURI),active=r===selected&&on;
+ button.disabled=!available;button.textContent=available?(active?'Ⅱ':'▶'):'Sin preview';button.setAttribute('aria-label',available?(active?'Pausar':'Reproducir '+r.title):'Sin preview de audio');button.setAttribute('aria-pressed',String(active));
+ iosSheet.classList.toggle('is-browsing',r!==selected);
+ $('iosPlaybackStatus').textContent=r!==selected?(available?'Pulsa reproducir para escuchar':'Sin preview de audio'):(available?(on?'Escuchando '+r.title:'Listo para escuchar'):'Sin preview de audio');
+}
+function browseIosRecord(r,center=true){
+ if(!r)return;updateSelectedInfo(r,true);
+ if(center){const button=$('iosJacketRail').querySelector('[data-jacket="'+records.indexOf(r)+'"]');if(button)$('iosJacketRail').scrollTo({left:button.offsetLeft-($('iosJacketRail').clientWidth-button.offsetWidth)/2,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'})}
+}
+function stepIosJacket(direction){const index=records.indexOf(pendingRecord||selected);browseIosRecord(records[Math.max(0,Math.min(records.length-1,index+direction))])}
+function playBrowsedRecord(){
+ const record=pendingRecord||selected;if(!record||!audioUrl(record,document.baseURI))return;
+ if(record!==selected)mountRecord(record);
+ // Start audio within the Play gesture; the jacket animates when playback succeeds.
+ togglePlayback();
+}
+
+function updateSelectedInfo(r,browsing=false){
   if(!r)return;
   pendingRecord=r;
   $('recordTitle').textContent=r.title;
   $('recordArtist').textContent=r.artist;
+  if(!browsing){
   $('libraryPlayerTitle').textContent=r.title;
   $('libraryPlayerArtist').textContent=r.artist;
   const miniArt=$('miniPlayerArtwork');if(miniArt){
@@ -274,12 +305,14 @@ function updateSelectedInfo(r){
    miniArt.onerror=()=>{miniArt.onerror=null;miniArt.src=fallback};miniArt.src=cover(r)||fallback;miniArt.hidden=false;
   }
   for(const id of ['libraryPlayerPlay','iosSheetPlay']){const control=$(id);if(control&&iosDiscView){control.disabled=!audioUrl(r,document.baseURI);control.textContent=control.disabled?'Sin preview':(!audio.paused?'Pausar':'Reproducir')}}
+  }
   $('recordInfo').innerHTML=[['Sello',r.label],['Año',r.year],['Género',r.genre],['Estado',r.condition]].filter(([,value])=>value).map(([name,value])=>'<div><dt>'+name+'</dt><dd>'+escape(String(value))+'</dd></div>').join('');
   $('recordDescription').textContent=r.description||'';
   $('recordPrice').textContent=price(r);
   $('recordStock').textContent=String(r.status||((Number(r.stock)||0)>0?'IN STOCK':'SOLD OUT'));
 
   syncRecordActions(r);
+  if(iosDiscView)syncIosJackets(r);
   const selectedArt=$('selectedArtwork');
   const selectedImage=$('selectedArtworkImage');
   const selectedColor=recordColor(r);
@@ -455,6 +488,7 @@ async function animateDiscTransfer(r){
 
 function stageFromLibrary(r){
   if(!r||isLoadingDisc)return;
+  if(iosDiscView){browseIosRecord(r);openIosPlayer();return}
   if(discView==='library'){if(r!==selected)mountRecord(r);else updateSelectedInfo(r);renderGallery();return}
 
   updateSelectedInfo(r);

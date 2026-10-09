@@ -583,26 +583,21 @@ body:has(.ios-player-sheet[open]){overflow:hidden!important}
 @keyframes ios-player-rise{from{transform:translateY(35px);opacity:.6}to{transform:translateY(0);opacity:1}}
 @media(prefers-reduced-motion:reduce){.ios-player-sheet[open]{animation:none}}
 
-/* Three touch-controlled positions keep browsing and playback together. */
+/* Touch-controlled player keeps browsing and playback together. */
 .ios-header .layered-ios-player .listening-room{padding-bottom:calc(var(--player-space,104px) + 24px + env(safe-area-inset-bottom))}
 .ios-player-sheet{display:flex;flex-direction:column;height:0;max-height:none;z-index:45;visibility:hidden;transition:height .3s cubic-bezier(.2,.8,.2,1),visibility .3s;box-sizing:border-box}
-.ios-player-sheet[data-position="half"],.ios-player-sheet[data-position="expanded"],.ios-player-sheet.is-dragging{visibility:visible}
 .ios-player-sheet.is-dragging{transition:none}
-.layered-ios-player[data-player-position="half"] .library-mini-player,.layered-ios-player[data-player-position="expanded"] .library-mini-player{visibility:hidden;pointer-events:none}
 .ios-sheet-head{height:58px}
 .ios-sheet-handle{height:44px;width:110px;left:calc(50% - 55px)}
 .ios-sheet-content{scrollbar-width:thin}
 .ios-sheet-controls{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;padding:8px 24px calc(12px + env(safe-area-inset-bottom))}
 .ios-sheet-controls button{min-width:0;min-height:44px;font-size:14px}
-#iosSheetExpand{background:none;color:#eee3cf;border-color:#eee3cf33}
 #iosPlaybackStatus{grid-column:1/-1;text-align:center;font-size:12px;color:#d7bfa4;line-height:1.4}
-.ios-header .layered-ios-player .ios-player-sheet[data-position="half"] .sleeve-zone{width:min(32vw,150px)!important;margin-bottom:0!important}
 .ios-header .layered-ios-player .ios-player-sheet .selected-record{gap:16px}
 .ios-header .layered-ios-player .ios-player-sheet .listening-panel h2{font-size:clamp(22px,5.5vw,30px)}
 .ios-header .layered-ios-player .ios-player-sheet.show-turntable .listening-panel{display:block!important}
 .ios-player-sheet.show-turntable .sleeve-zone,.ios-player-sheet.show-turntable #artworkOpen,.ios-player-sheet.show-turntable #playerNotice{display:none!important}
 .ios-player-sheet.show-turntable .deck-stage{max-width:520px;margin:auto}
-.ios-player-sheet[data-position="half"].show-turntable .deck-stage{max-width:300px}
 .ios-header .layered-ios-player .sleeve-meta strong{font-size:14px;line-height:1.4}
 .ios-header .layered-ios-player .sleeve-meta small{font-size:13px;white-space:normal}
 .ios-header .layered-ios-player .sleeve-detail{font-size:11px;letter-spacing:.02em}
@@ -617,3 +612,39 @@ body:has(.ios-player-sheet[open]){overflow:hidden!important}
 #miniPlayerSeek::-moz-range-progress{height:3px;background:#e7cba2}
 #miniPlayerSeek::-moz-range-thumb{width:14px;height:14px;border:0;border-radius:50%;background:#e7cba2}
 @media(prefers-reduced-motion:reduce){.ios-player-sheet{transition:none}}
+
+/* Two positions, with a horizontal sleeve browser inside the full player. */
+.ios-player-sheet[data-position="expanded"],.ios-player-sheet.is-dragging{visibility:visible}
+.layered-ios-player[data-player-position="expanded"] .library-mini-player{visibility:hidden;pointer-events:none}
+.ios-sheet-content{display:flex;flex-direction:column;gap:6px}
+.ios-header .layered-ios-player .ios-player-sheet .sleeve-zone{display:none!important}
+.ios-player-sheet #artworkOpen,.ios-player-sheet #playerNotice,.ios-player-sheet #recordInquiry{display:none}
+.ios-jacket-rail{--jacket-size:min(54vw,30dvh,260px);position:relative;display:flex;flex-shrink:0;align-items:center;gap:26px;width:100%;height:calc(var(--jacket-size) + 42px);padding:12px calc((100% - var(--jacket-size))/2);box-sizing:border-box;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;touch-action:pan-x}
+.ios-jacket-rail::-webkit-scrollbar{display:none}
+.ios-jacket{position:relative;flex:0 0 var(--jacket-size);width:var(--jacket-size);height:var(--jacket-size);border:0;padding:0;background:none;color:#eee3cf;scroll-snap-align:center;opacity:.5;transform:scale(.88);transition:opacity .3s,transform .4s;isolation:isolate}
+.ios-jacket[aria-pressed="true"]{opacity:1;transform:scale(1)}
+.ios-jacket .sleeve-art{width:100%;height:100%;z-index:2;background:var(--jacket-color);box-shadow:0 12px 22px #0007}
+.ios-jacket .sleeve-art img{z-index:1}
+.ios-jacket-disc{position:absolute;z-index:1;width:92%;height:92%;left:4%;top:4%;border-radius:50%;background:repeating-radial-gradient(circle,#101010 0 2px,#252525 3px,#090909 4px);box-shadow:3px 5px 12px #0008;transform:translateX(0);transition:transform .75s cubic-bezier(.2,.8,.2,1)}
+.ios-jacket-disc i{position:absolute;inset:34%;border-radius:50%;background:var(--jacket-color);border:1px solid #ffffff44}
+.ios-jacket-disc i:after{content:"";position:absolute;inset:43%;border-radius:50%;background:#080808}
+.ios-jacket.is-loaded .ios-jacket-disc{transform:translateX(38%)}
+.ios-jacket.is-spinning .ios-jacket-disc i{animation:spin 3s linear infinite}
+.ios-header .layered-ios-player .ios-player-sheet .listening-panel{padding:6px 7% 8px!important;flex-shrink:0}
+.ios-header .layered-ios-player .ios-player-sheet .listening-panel h2{font-size:clamp(20px,5vw,28px);line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ios-sheet-controls{grid-template-columns:1fr;gap:6px;padding:8px 24px calc(12px + env(safe-area-inset-bottom))}
+.ios-sheet-controls>.deck-playback-timeline{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;align-items:center;gap:8px;margin:0;padding:0}
+.ios-sheet-controls .deck-waveform,.ios-sheet-controls .deck-waveform canvas,.ios-sheet-controls .deck-waveform .deck-seek{height:52px}
+.ios-sheet-controls .deck-waveform .deck-seek{position:absolute;inset:0;width:100%;touch-action:none}
+.ios-player-sheet.is-browsing .deck-playback-timeline{visibility:hidden}
+.ios-transport{display:flex;align-items:center;justify-content:center;gap:28px}
+.ios-transport button{border:0;background:none;color:#eee3cf;min-width:48px;min-height:48px;font-size:36px;padding:0}
+.ios-transport #iosSheetPlay{width:60px;height:60px;border-radius:50%;background:#eee3cf;color:#211810;font-size:23px;line-height:1}
+.ios-transport #iosSheetPlay:disabled{font-size:11px;padding:5px}
+.ios-player-sheet.show-turntable .ios-jacket-rail{--jacket-size:70px;height:88px;gap:18px}
+.ios-header .layered-ios-player .ios-player-sheet.show-turntable .deck-area{padding:0 18px;flex:1;min-height:150px}
+.ios-player-sheet.show-turntable .deck-stage{width:min(100%,34dvh);max-width:380px}
+#iosPlaybackStatus{min-height:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-height:650px){.ios-jacket-rail{--jacket-size:min(42vw,25dvh,190px)}.ios-sheet-head{height:48px}.ios-sheet-controls{padding-top:2px}.ios-transport #iosSheetPlay{width:48px;height:48px}.ios-sheet-controls .deck-waveform,.ios-sheet-controls .deck-waveform canvas,.ios-sheet-controls .deck-waveform .deck-seek{height:36px}}
+@media(prefers-reduced-motion:reduce){.ios-jacket,.ios-jacket-disc{transition:none}.ios-jacket.is-spinning .ios-jacket-disc i{animation:none}}
+@media(max-height:450px){.ios-jacket-rail{--jacket-size:70px;height:90px;padding-top:6px;padding-bottom:6px}.ios-sheet-head{height:40px}.ios-header .layered-ios-player .ios-player-sheet .listening-panel h2{font-size:18px;-webkit-line-clamp:1}.ios-header .layered-ios-player .ios-player-sheet .listening-panel{padding-top:0!important;padding-bottom:0!important}.ios-sheet-controls{gap:2px;padding-bottom:4px}.ios-transport #iosSheetPlay{width:44px;height:44px}.ios-player-sheet.show-turntable .ios-jacket-rail{display:none}}
