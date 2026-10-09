@@ -67,11 +67,11 @@ const price=r=>(settings.currency||'$')+Number(r.price||0).toFixed(2);
 const cover=r=>window.CalendarContent.imageUrl(r.coverImage||r.media?.artwork?.url||r.media?.artwork?.path,document.baseURI);
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
-function notice(text){$('playerNotice').textContent=text}
+function notice(text){$('playerNotice').textContent=text;const status=$('iosPlaybackStatus');if(status)status.textContent=text}
 
 function playing(on){
- const sheetPlay=$('iosSheetPlay');if(sheetPlay){sheetPlay.textContent=on?'Pausar':'Reproducir';sheetPlay.setAttribute('aria-pressed',String(on))}
- const miniPlay=$('libraryPlayerPlay');if(miniPlay){miniPlay.textContent=on?'Pausar':'Reproducir';miniPlay.setAttribute('aria-label',on?'Pausar':'Reproducir');miniPlay.setAttribute('aria-pressed',String(on))}
+ const sheetPlay=$('iosSheetPlay');if(sheetPlay){sheetPlay.textContent=sheetPlay.disabled?'Sin preview':on?'Pausar':'Reproducir';sheetPlay.setAttribute('aria-pressed',String(on))}
+ const miniPlay=$('libraryPlayerPlay');if(miniPlay){miniPlay.textContent=miniPlay.disabled?'Sin preview':on?'Pausar':'Reproducir';miniPlay.setAttribute('aria-label',on?'Pausar':'Reproducir');miniPlay.setAttribute('aria-pressed',String(on))}
   deck.classList.toggle('playing',on);
   if(deckPlay){
     deckPlay.setAttribute('aria-pressed',String(on));
@@ -99,7 +99,7 @@ function setTimeline(current,duration){
   $('deckCurrent').textContent=time(safeCurrent);
   $('deckDuration').textContent=time(safeDuration);
   $('seek').value=progress;
-  const miniSeek=$('miniPlayerSeek');if(miniSeek){miniSeek.value=progress;miniSeek.disabled=!safeDuration;miniSeek.setAttribute('aria-valuetext',time(safeCurrent)+' de '+time(safeDuration))}
+  const miniSeek=$('miniPlayerSeek');if(miniSeek){miniSeek.value=progress;miniSeek.style.setProperty('--progress',progress+'%');miniSeek.disabled=!safeDuration;miniSeek.setAttribute('aria-valuetext',time(safeCurrent)+' de '+time(safeDuration))}
   $('seek').style.setProperty('--seek-progress',progress+'%');
   window.drawVinylWaveform?.(progress);
   $('seek').setAttribute('aria-valuetext',time(safeCurrent)+' de '+time(safeDuration));
@@ -207,7 +207,7 @@ const playbackTimeline=document.querySelector('.deck-playback-timeline');
 const timelineDeck=document.querySelector('.deck-area');
 let discView='player';
 const miniPlayer=document.querySelector('.library-mini-player');
-let iosSheet=null,sheetTurntable=false;
+let iosSheet=null,sheetTurntable=false,sheetPosition='compact';
 function setDiscView(view){
  if(iosDiscView){
   discView='library';document.body.classList.add('expanded-library','layered-ios-player');if(miniPlayer)miniPlayer.hidden=false;
@@ -225,19 +225,40 @@ function setSheetMode(turntable){
  requestAnimationFrame(()=>syncDeckTimeline());
  $('iosTurntableToggle').setAttribute('aria-pressed',String(turntable));$('iosTurntableToggle').setAttribute('aria-label',turntable?'Ver portada':'Ver tocadiscos');
 }
-function openIosPlayer(){if(iosSheet&&!iosSheet.open){iosSheet.showModal();requestAnimationFrame(()=>syncDeckTimeline())}}
+function sheetHeights(){const height=window.visualViewport?.height||window.innerHeight;return {compact:0,half:Math.round(height*.52),expanded:Math.max(180,Math.min(height*.86,height-64))}}
+function setSheetPosition(position){
+ if(!iosSheet)return;
+ sheetPosition=position;const height=sheetHeights()[position];
+ iosSheet.dataset.position=position;iosSheet.style.height=height+'px';iosSheet.classList.remove('is-dragging');
+ iosSheet.inert=position==='compact';iosSheet.setAttribute('aria-hidden',String(position==='compact'));
+ document.body.dataset.playerPosition=position;
+ document.body.style.setProperty('--player-space',position==='half'?height+'px':'104px');
+ const opener=document.querySelector('.mini-player-open');opener?.setAttribute('aria-expanded',String(position!=='compact'));
+ $('iosSheetExpand').textContent=position==='expanded'?'Reducir':'Ampliar';
+ requestAnimationFrame(()=>syncDeckTimeline());
+}
+function openIosPlayer(){setSheetPosition('half');iosSheet.querySelector('.ios-sheet-handle').focus({preventScroll:true})}
+function wireSheetDrag(target){
+ let drag=null,suppressClick=false;
+ target.addEventListener('pointerdown',e=>{if(e.button!==0)return;drag={y:e.clientY,height:sheetHeights()[sheetPosition],moved:false};target.setPointerCapture(e.pointerId)});
+ target.addEventListener('pointermove',e=>{if(!drag)return;const delta=drag.y-e.clientY;if(Math.abs(delta)>6)drag.moved=true;if(!drag.moved)return;iosSheet.classList.add('is-dragging');iosSheet.inert=false;iosSheet.setAttribute('aria-hidden','false');iosSheet.style.height=Math.max(0,Math.min(sheetHeights().expanded,drag.height+delta))+'px'});
+ const finish=e=>{if(!drag)return;const moved=drag.moved;const height=drag.height+drag.y-e.clientY;drag=null;if(moved){suppressClick=true;const heights=sheetHeights();const next=Object.keys(heights).reduce((a,b)=>Math.abs(heights[a]-height)<Math.abs(heights[b]-height)?a:b);setSheetPosition(next);setTimeout(()=>{suppressClick=false},0)}};
+ target.addEventListener('pointerup',finish);
+ target.addEventListener('pointercancel',()=>{drag=null;setSheetPosition(sheetPosition)});target.addEventListener('lostpointercapture',()=>{if(drag){drag=null;setSheetPosition(sheetPosition)}});
+ target.addEventListener('click',e=>{if(suppressClick){e.preventDefault();e.stopImmediatePropagation()}},true);
+}
 document.querySelectorAll('[data-disc-view]').forEach(button=>button.addEventListener('click',()=>setDiscView(button.dataset.discView)));
 $('libraryPlayerPlay').onclick=()=>deckPlay?.click();
 if(iosDiscView){
- iosSheet=document.createElement('dialog');iosSheet.id='iosPlayerSheet';iosSheet.className='ios-player-sheet';iosSheet.setAttribute('aria-label','Reproductor');
- iosSheet.innerHTML='<div class="ios-sheet-head"><button type="button" class="ios-sheet-handle" aria-label="Minimizar reproductor"><span></span></button><button type="button" class="ios-sheet-close" aria-label="Minimizar reproductor">⌄</button></div><div class="ios-sheet-content"></div><div class="ios-sheet-controls"><button type="button" id="iosSheetPlay">Reproducir</button></div>';
+ iosSheet=document.createElement('section');iosSheet.id='iosPlayerSheet';iosSheet.className='ios-player-sheet';iosSheet.setAttribute('aria-label','Reproductor');iosSheet.setAttribute('role','region');
+ iosSheet.innerHTML='<div class="ios-sheet-head"><button type="button" class="ios-sheet-handle" aria-label="Cambiar tamaño del reproductor"><span></span></button><button type="button" class="ios-sheet-close" aria-label="Minimizar reproductor">⌄</button></div><div class="ios-sheet-content"></div><div class="ios-sheet-controls"><span id="iosPlaybackStatus" role="status"></span><button type="button" id="iosSheetExpand">Ampliar</button><button type="button" id="iosSheetPlay">Reproducir</button></div>';
  document.body.append(iosSheet);const head=iosSheet.querySelector('.ios-sheet-head');head.append($('iosTurntableToggle'));const content=iosSheet.querySelector('.ios-sheet-content');content.append(selectionPanel,timelineDeck);
- const close=()=>iosSheet.close();iosSheet.querySelector('.ios-sheet-close').onclick=close;iosSheet.querySelector('.ios-sheet-handle').onclick=close;
+ const close=()=>{setSheetPosition('compact');document.querySelector('.mini-player-open').focus({preventScroll:true})};iosSheet.querySelector('.ios-sheet-close').onclick=close;iosSheet.querySelector('.ios-sheet-handle').onclick=()=>setSheetPosition(sheetPosition==='expanded'?'half':'expanded');$('iosSheetExpand').onclick=()=>setSheetPosition(sheetPosition==='expanded'?'half':'expanded');iosSheet.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close()}});
  $('iosSheetPlay').onclick=()=>deckPlay?.click();$('iosTurntableToggle').onclick=()=>setSheetMode(!sheetTurntable);
- const openButton=document.createElement('button');openButton.type='button';openButton.className='mini-player-open';openButton.setAttribute('aria-label','Expandir reproductor');const artwork=document.createElement('img');artwork.id='miniPlayerArtwork';artwork.alt='';artwork.hidden=true;openButton.append(artwork,miniPlayer.querySelector('div'));miniPlayer.prepend(openButton);openButton.onclick=openIosPlayer;
+ const openButton=document.createElement('button');openButton.type='button';openButton.className='mini-player-open';openButton.setAttribute('aria-label','Expandir reproductor');openButton.setAttribute('aria-controls','iosPlayerSheet');const artwork=document.createElement('img');artwork.id='miniPlayerArtwork';artwork.alt='';artwork.hidden=true;openButton.append(artwork,miniPlayer.querySelector('div'));miniPlayer.prepend(openButton);wireSheetDrag(openButton);openButton.onclick=openIosPlayer;
  miniPlayer.querySelector('[data-disc-view]').remove();const miniSeek=document.createElement('input');miniSeek.type='range';miniSeek.id='miniPlayerSeek';miniSeek.min=0;miniSeek.max=100;miniSeek.step=.1;miniSeek.disabled=true;miniSeek.setAttribute('aria-label','Posición del audio');miniSeek.oninput=()=>{$('seek').value=miniSeek.value;$('seek').dispatchEvent(new Event('input',{bubbles:true}))};miniPlayer.append(miniSeek);
- let swipeY=null;const handle=iosSheet.querySelector('.ios-sheet-handle');handle.addEventListener('pointerdown',e=>{swipeY=e.clientY;handle.setPointerCapture(e.pointerId)});handle.addEventListener('pointerup',e=>{if(swipeY!==null&&e.clientY-swipeY>40)close();swipeY=null});
- openButton.addEventListener('pointerdown',e=>{swipeY=e.clientY;openButton.setPointerCapture(e.pointerId)});openButton.addEventListener('pointerup',e=>{if(swipeY!==null&&swipeY-e.clientY>30)openIosPlayer();swipeY=null});
+ wireSheetDrag(iosSheet.querySelector('.ios-sheet-handle'));window.visualViewport?.addEventListener('resize',()=>setSheetPosition(sheetPosition));
+ setSheetPosition('compact');
  setSheetMode(false);setDiscView('library');
 }else{try{setDiscView(localStorage.getItem(viewStorageKey)||'player')}catch{setDiscView('player')}}
 
@@ -248,7 +269,11 @@ function updateSelectedInfo(r){
   $('recordArtist').textContent=r.artist;
   $('libraryPlayerTitle').textContent=r.title;
   $('libraryPlayerArtist').textContent=r.artist;
-  const miniArt=$('miniPlayerArtwork');if(miniArt){miniArt.src=cover(r)||'';miniArt.hidden=!cover(r)}
+  const miniArt=$('miniPlayerArtwork');if(miniArt){
+   const fallback='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="'+recordColor(r)+'"/><circle cx="56" cy="65" r="27" fill="none" stroke="#e6d1a6" stroke-opacity=".2" stroke-width="10"/><text x="8" y="23" fill="#eee3cf" font-size="13" font-family="serif">LVL</text></svg>');
+   miniArt.onerror=()=>{miniArt.onerror=null;miniArt.src=fallback};miniArt.src=cover(r)||fallback;miniArt.hidden=false;
+  }
+  for(const id of ['libraryPlayerPlay','iosSheetPlay']){const control=$(id);if(control&&iosDiscView){control.disabled=!audioUrl(r,document.baseURI);control.textContent=control.disabled?'Sin preview':(!audio.paused?'Pausar':'Reproducir')}}
   $('recordInfo').innerHTML=[['Sello',r.label],['Año',r.year],['Género',r.genre],['Estado',r.condition]].filter(([,value])=>value).map(([name,value])=>'<div><dt>'+name+'</dt><dd>'+escape(String(value))+'</dd></div>').join('');
   $('recordDescription').textContent=r.description||'';
   $('recordPrice').textContent=price(r);
@@ -364,14 +389,14 @@ function mountRecord(r,focusView=false,infoReady=false){
   }
 
   const sound=audioUrl(r,document.baseURI);
-  if(deckPlay)deckPlay.disabled=false;
+  if(deckPlay)deckPlay.disabled=iosDiscView&&!sound;
   if(sound){
     audio.preload='auto';
     audio.src=sound;
     audio.load();
     scratchSound?.prepare(false)?.catch(()=>{});
   }
-  notice('Disco listo en el plato.');
+  notice(iosDiscView&&!sound?'Sin preview de audio':'Disco listo en el plato.');
 
   if(sleeveZone){
     sleeveZone.classList.remove('is-ejecting','is-flying','is-swapping');
@@ -589,6 +614,7 @@ async function togglePlayback(){
 
   const sound=audioUrl(selected,document.baseURI);
   if(!sound){
+    if(iosDiscView){notice('Sin preview de audio');return}
     startDemoClock();
     notice('Modo visual activo.');
     return;
@@ -606,6 +632,7 @@ async function togglePlayback(){
     if(version===selection)notice('Escuchando '+selected.artist+' — '+selected.title);
   }catch{
     if(version===selection){
+      if(iosDiscView){playing(false);notice('No se pudo cargar el preview. Intenta de nuevo.');return}
       startDemoClock();
       notice('Preview no disponible. Tocadiscos en modo visual.');
     }

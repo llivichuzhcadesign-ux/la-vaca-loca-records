@@ -582,3 +582,38 @@ body[data-page="discos"] .record-facts dt{color:#bfa58a}
 body:has(.ios-player-sheet[open]){overflow:hidden!important}
 @keyframes ios-player-rise{from{transform:translateY(35px);opacity:.6}to{transform:translateY(0);opacity:1}}
 @media(prefers-reduced-motion:reduce){.ios-player-sheet[open]{animation:none}}
+
+/* Three touch-controlled positions keep browsing and playback together. */
+.ios-header .layered-ios-player .listening-room{padding-bottom:calc(var(--player-space,104px) + 24px + env(safe-area-inset-bottom))}
+.ios-player-sheet{display:flex;flex-direction:column;height:0;max-height:none;z-index:45;visibility:hidden;transition:height .3s cubic-bezier(.2,.8,.2,1),visibility .3s;box-sizing:border-box}
+.ios-player-sheet[data-position="half"],.ios-player-sheet[data-position="expanded"],.ios-player-sheet.is-dragging{visibility:visible}
+.ios-player-sheet.is-dragging{transition:none}
+.layered-ios-player[data-player-position="half"] .library-mini-player,.layered-ios-player[data-player-position="expanded"] .library-mini-player{visibility:hidden;pointer-events:none}
+.ios-sheet-head{height:58px}
+.ios-sheet-handle{height:44px;width:110px;left:calc(50% - 55px)}
+.ios-sheet-content{scrollbar-width:thin}
+.ios-sheet-controls{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;padding:8px 24px calc(12px + env(safe-area-inset-bottom))}
+.ios-sheet-controls button{min-width:0;min-height:44px;font-size:14px}
+#iosSheetExpand{background:none;color:#eee3cf;border-color:#eee3cf33}
+#iosPlaybackStatus{grid-column:1/-1;text-align:center;font-size:12px;color:#d7bfa4;line-height:1.4}
+.ios-header .layered-ios-player .ios-player-sheet[data-position="half"] .sleeve-zone{width:min(32vw,150px)!important;margin-bottom:0!important}
+.ios-header .layered-ios-player .ios-player-sheet .selected-record{gap:16px}
+.ios-header .layered-ios-player .ios-player-sheet .listening-panel h2{font-size:clamp(22px,5.5vw,30px)}
+.ios-header .layered-ios-player .ios-player-sheet.show-turntable .listening-panel{display:block!important}
+.ios-player-sheet.show-turntable .sleeve-zone,.ios-player-sheet.show-turntable #artworkOpen,.ios-player-sheet.show-turntable #playerNotice{display:none!important}
+.ios-player-sheet.show-turntable .deck-stage{max-width:520px;margin:auto}
+.ios-player-sheet[data-position="half"].show-turntable .deck-stage{max-width:300px}
+.ios-header .layered-ios-player .sleeve-meta strong{font-size:14px;line-height:1.4}
+.ios-header .layered-ios-player .sleeve-meta small{font-size:13px;white-space:normal}
+.ios-header .layered-ios-player .sleeve-detail{font-size:11px;letter-spacing:.02em}
+.ios-header .layered-ios-player .sleeve-price{font-size:13px}
+.ios-header .layered-ios-player .library-mini-player strong{font-size:14px}
+.ios-header .layered-ios-player .library-mini-player span{font-size:12px}
+.ios-header .layered-ios-player #libraryPlayerPlay{min-height:44px;font-size:12px}
+#miniPlayerSeek{-webkit-appearance:none;appearance:none;height:28px;background:transparent;outline-offset:2px}
+#miniPlayerSeek::-webkit-slider-runnable-track{height:3px;border-radius:4px;background:linear-gradient(to right,#e7cba2 var(--progress,0%),#eee3cf33 var(--progress,0%))}
+#miniPlayerSeek::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#e7cba2;margin-top:-5.5px}
+#miniPlayerSeek::-moz-range-track{height:3px;background:#eee3cf33}
+#miniPlayerSeek::-moz-range-progress{height:3px;background:#e7cba2}
+#miniPlayerSeek::-moz-range-thumb{width:14px;height:14px;border:0;border-radius:50%;background:#e7cba2}
+@media(prefers-reduced-motion:reduce){.ios-player-sheet{transition:none}}
