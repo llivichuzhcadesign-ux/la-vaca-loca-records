@@ -70,6 +70,7 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function notice(text){$('playerNotice').textContent=text}
 
 function playing(on){
+ const miniPlay=$('libraryPlayerPlay');if(miniPlay){miniPlay.textContent=on?'Pausar':'Reproducir';miniPlay.setAttribute('aria-label',on?'Pausar':'Reproducir');miniPlay.setAttribute('aria-pressed',String(on))}
   deck.classList.toggle('playing',on);
   if(deckPlay){
     deckPlay.setAttribute('aria-pressed',String(on));
@@ -198,11 +199,25 @@ $('recordBag').onclick=()=>{const r=pendingRecord||selected;if(!r)return;const i
 window.addEventListener('storage',()=>{if(pendingRecord||selected)syncRecordActions(pendingRecord||selected)});
 document.addEventListener('lvl-bag-change',()=>{if(pendingRecord||selected)syncRecordActions(pendingRecord||selected)});
 
+let discView='player';
+const miniPlayer=document.querySelector('.library-mini-player');
+function setDiscView(view){
+ discView=view==='library'?'library':'player';document.body.classList.toggle('expanded-library',discView==='library');
+ document.querySelectorAll('.library-view-switch [data-disc-view]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.discView===discView)));
+ if(miniPlayer)miniPlayer.hidden=discView!=='library';
+ try{localStorage.setItem('lvl-disc-view',discView)}catch{}
+}
+document.querySelectorAll('[data-disc-view]').forEach(button=>button.addEventListener('click',()=>setDiscView(button.dataset.discView)));
+$('libraryPlayerPlay').onclick=()=>deckPlay?.click();
+try{setDiscView(localStorage.getItem('lvl-disc-view'))}catch{setDiscView('player')}
+
 function updateSelectedInfo(r){
   if(!r)return;
   pendingRecord=r;
   $('recordTitle').textContent=r.title;
   $('recordArtist').textContent=r.artist;
+  $('libraryPlayerTitle').textContent=r.title;
+  $('libraryPlayerArtist').textContent=r.artist;
   $('recordInfo').innerHTML=[['Sello',r.label],['Año',r.year],['Género',r.genre],['Estado',r.condition]].filter(([,value])=>value).map(([name,value])=>'<div><dt>'+name+'</dt><dd>'+escape(String(value))+'</dd></div>').join('');
   $('recordDescription').textContent=r.description||'';
   $('recordPrice').textContent=price(r);
@@ -384,6 +399,7 @@ async function animateDiscTransfer(r){
 
 function stageFromLibrary(r){
   if(!r||isLoadingDisc)return;
+  if(discView==='library'){if(r!==selected)mountRecord(r);else updateSelectedInfo(r);renderGallery();return}
 
   updateSelectedInfo(r);
   focusRecordView(true);
