@@ -234,11 +234,16 @@ function setSheetMode(turntable){
  requestAnimationFrame(()=>syncDeckTimeline());
  $('iosTurntableToggle').setAttribute('aria-pressed',String(turntable));$('iosTurntableToggle').setAttribute('aria-label',turntable?'Ver portada':'Ver tocadiscos');
 }
-function sheetHeights(){const height=window.visualViewport?.height||window.innerHeight;return {compact:0,expanded:Math.max(180,height-62)}}
+function sheetHeights(){const height=window.visualViewport?.height||window.innerHeight;return {compact:0,expanded:Math.max(0,height-16)}}
+function sizeIosSheet(height){
+ const viewport=window.visualViewport;
+ iosSheet.style.height=height+'px';
+ iosSheet.style.top=((viewport?.offsetTop||0)+8+sheetHeights().expanded-height)+'px';
+}
 function setSheetPosition(position){
  if(!iosSheet)return;
  sheetPosition=position;const height=sheetHeights()[position];
- iosSheet.dataset.position=position;iosSheet.style.height=height+'px';iosSheet.classList.remove('is-dragging');
+ iosSheet.dataset.position=position;sizeIosSheet(height);iosSheet.classList.remove('is-dragging');
  iosSheet.inert=position==='compact';iosSheet.setAttribute('aria-hidden',String(position==='compact'));
  document.body.dataset.playerPosition=position;
  document.body.style.setProperty('--player-space','104px');
@@ -249,7 +254,7 @@ function openIosPlayer(){setSheetPosition('expanded');iosSheet.querySelector('.i
 function wireSheetDrag(target){
  let drag=null,suppressClick=false;
  target.addEventListener('pointerdown',e=>{if(e.button!==0)return;drag={y:e.clientY,height:sheetHeights()[sheetPosition],moved:false};target.setPointerCapture(e.pointerId)});
- target.addEventListener('pointermove',e=>{if(!drag)return;const delta=drag.y-e.clientY;if(Math.abs(delta)>6)drag.moved=true;if(!drag.moved)return;iosSheet.classList.add('is-dragging');iosSheet.inert=false;iosSheet.setAttribute('aria-hidden','false');iosSheet.style.height=Math.max(0,Math.min(sheetHeights().expanded,drag.height+delta))+'px'});
+ target.addEventListener('pointermove',e=>{if(!drag)return;const delta=drag.y-e.clientY;if(Math.abs(delta)>6)drag.moved=true;if(!drag.moved)return;iosSheet.classList.add('is-dragging');iosSheet.inert=false;iosSheet.setAttribute('aria-hidden','false');sizeIosSheet(Math.max(0,Math.min(sheetHeights().expanded,drag.height+delta)))});
  const finish=e=>{if(!drag)return;const moved=drag.moved;const height=drag.height+drag.y-e.clientY;drag=null;if(moved){suppressClick=true;const heights=sheetHeights();const next=Object.keys(heights).reduce((a,b)=>Math.abs(heights[a]-height)<Math.abs(heights[b]-height)?a:b);setSheetPosition(next);setTimeout(()=>{suppressClick=false},0)}};
  target.addEventListener('pointerup',finish);
  target.addEventListener('pointercancel',()=>{drag=null;setSheetPosition(sheetPosition)});target.addEventListener('lostpointercapture',()=>{if(drag){drag=null;setSheetPosition(sheetPosition)}});
@@ -266,6 +271,11 @@ if(iosDiscView){
  const openButton=document.createElement('button');openButton.type='button';openButton.className='mini-player-open';openButton.setAttribute('aria-label','Expandir reproductor');openButton.setAttribute('aria-controls','iosPlayerSheet');const artwork=document.createElement('img');artwork.id='miniPlayerArtwork';artwork.alt='';artwork.hidden=true;openButton.append(artwork,miniPlayer.querySelector('div'));miniPlayer.prepend(openButton);wireSheetDrag(openButton);openButton.onclick=openIosPlayer;
  miniPlayer.querySelector('[data-disc-view]').remove();const miniSeek=document.createElement('input');miniSeek.type='range';miniSeek.id='miniPlayerSeek';miniSeek.min=0;miniSeek.max=100;miniSeek.step=.1;miniSeek.disabled=true;miniSeek.setAttribute('aria-label','Posición del audio');miniSeek.oninput=()=>{$('seek').value=miniSeek.value;$('seek').dispatchEvent(new Event('input',{bubbles:true}))};miniPlayer.append(miniSeek);
  wireSheetDrag(iosSheet.querySelector('.ios-sheet-handle'));window.visualViewport?.addEventListener('resize',()=>setSheetPosition(sheetPosition));
+ window.visualViewport?.addEventListener('scroll',()=>setSheetPosition(sheetPosition));
+ window.addEventListener('resize',()=>setSheetPosition(sheetPosition));
+ const fitDeck=()=>{if(!sheetTurntable||sheetPosition==='compact')return;const stage=$('deckStage'),box=timelineDeck.getBoundingClientRect();const width=Math.max(0,Math.min(box.width-24,(box.height-12)*1.15,480));stage.style.width=width+'px';stage.style.height=(width/1.15)+'px'};
+ if(window.ResizeObserver)new ResizeObserver(fitDeck).observe(timelineDeck);
+ iosSheet.addEventListener('transitionend',fitDeck);
  setSheetPosition('compact');
  setSheetMode(false);setDiscView('library');buildIosJackets();
 }else{try{setDiscView(localStorage.getItem(viewStorageKey)||'player')}catch{setDiscView('player')}}

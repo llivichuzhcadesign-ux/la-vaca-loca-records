@@ -708,3 +708,17 @@ body:has(.ios-player-sheet[open]){overflow:hidden!important}
 .ios-player-sheet.is-playing .ios-current-track:before{content:"";display:inline-block;width:5px;height:5px;margin-right:7px;border-radius:50%;background:#a8b080;box-shadow:0 0 7px #a8b08088;vertical-align:2px}
 @media(max-height:650px){.ios-sheet-controls{gap:2px;padding-top:3px}.ios-player-sheet .record-actions{margin:0}.ios-player-sheet .record-buy{gap:1px}.ios-player-sheet .record-buy strong{font-size:18px}}
 @media(prefers-reduced-motion:reduce){.ios-player-sheet .turntable,.ios-player-sheet .deck-area,.ios-jacket .sleeve-art{transition:none}}
+
+/* Fit the expanded surface to Safari's visible viewport, above its toolbar. */
+.ios-player-sheet{bottom:auto;max-height:none;padding-top:env(safe-area-inset-top,0px);border-radius:20px;z-index:1000}
+.ios-sheet-head{height:52px}
+.ios-sheet-controls{padding:6px max(20px,env(safe-area-inset-right)) calc(26px + env(safe-area-inset-bottom));gap:3px}
+.ios-player-sheet.show-turntable .ios-sheet-content{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:72px minmax(0,1fr) auto;gap:4px;overflow:hidden}
+.ios-player-sheet.show-turntable .ios-jacket-rail{grid-row:1;--jacket-size:58px;height:72px;padding-top:5px;padding-bottom:5px}
+.ios-header .layered-ios-player .ios-player-sheet.show-turntable .deck-area{grid-row:2;grid-column:1;min-height:0;height:100%;width:100%;padding:6px 12px;box-sizing:border-box;overflow:visible;display:flex!important;align-items:center;justify-content:center}
+.ios-player-sheet.show-turntable .deck-stage{flex:none;max-width:100%;max-height:100%;margin:0;min-height:0;aspect-ratio:1.15}
+.ios-header .layered-ios-player .ios-player-sheet.show-turntable .listening-panel{grid-row:3;grid-column:1;padding:4px 6% 8px!important}
+.ios-sheet-controls .ios-current-track.can-return{min-height:32px}
+.ios-player-sheet .record-actions{margin:0;gap:5px}
+@media(max-height:650px){.ios-sheet-head{height:46px}.ios-sheet-controls{padding-bottom:calc(24px + env(safe-area-inset-bottom));gap:1px}.ios-player-sheet.show-turntable .ios-sheet-content{grid-template-rows:58px minmax(0,1fr) auto}.ios-player-sheet.show-turntable .ios-jacket-rail{--jacket-size:48px;height:58px}.ios-player-sheet .record-stock{font-size:9px}}
+@media(max-height:450px){.ios-player-sheet.show-turntable .ios-sheet-content{grid-template-columns:minmax(0,1fr) minmax(140px,.8fr);grid-template-rows:minmax(0,1fr)}.ios-header .layered-ios-player .ios-player-sheet.show-turntable .deck-area{grid-row:1;grid-column:1}.ios-header .layered-ios-player .ios-player-sheet.show-turntable .listening-panel{grid-row:1;grid-column:2;align-self:center}.ios-sheet-controls{padding-bottom:calc(18px + env(safe-area-inset-bottom))}.ios-sheet-controls .ios-current-track{display:none}.ios-sheet-controls #iosPlaybackStatus{display:none}.ios-sheet-head{height:44px}}
