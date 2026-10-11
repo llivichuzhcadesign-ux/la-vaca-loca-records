@@ -722,3 +722,37 @@ body:has(.ios-player-sheet[open]){overflow:hidden!important}
 .ios-player-sheet .record-actions{margin:0;gap:5px}
 @media(max-height:650px){.ios-sheet-head{height:46px}.ios-sheet-controls{padding-bottom:calc(24px + env(safe-area-inset-bottom));gap:1px}.ios-player-sheet.show-turntable .ios-sheet-content{grid-template-rows:58px minmax(0,1fr) auto}.ios-player-sheet.show-turntable .ios-jacket-rail{--jacket-size:48px;height:58px}.ios-player-sheet .record-stock{font-size:9px}}
 @media(max-height:450px){.ios-player-sheet.show-turntable .ios-sheet-content{grid-template-columns:minmax(0,1fr) minmax(140px,.8fr);grid-template-rows:minmax(0,1fr)}.ios-header .layered-ios-player .ios-player-sheet.show-turntable .deck-area{grid-row:1;grid-column:1}.ios-header .layered-ios-player .ios-player-sheet.show-turntable .listening-panel{grid-row:1;grid-column:2;align-self:center}.ios-sheet-controls{padding-bottom:calc(18px + env(safe-area-inset-bottom))}.ios-sheet-controls .ios-current-track{display:none}.ios-sheet-controls #iosPlaybackStatus{display:none}.ios-sheet-head{height:44px}}
+
+/* Leave the site header visible above the expanded iOS player. */
+.ios-header .layered-ios-player .editorial-header{position:sticky;top:0;z-index:1001}
+
+/* Spacious artwork and grouped controls, within the area below the header. */
+.ios-player-sheet{padding-top:0;border-radius:22px 22px 14px 14px;background:radial-gradient(ellipse at 15% 18%,#6a493332,transparent 60%),radial-gradient(ellipse at 90% 85%,#535b3c26,transparent 60%),linear-gradient(155deg,#34251b,#1d1813);border-color:#e8d9bd1c;box-shadow:0 8px 35px #0007}
+.ios-sheet-head{height:48px}
+.ios-sheet-handle span{width:32px;height:4px;background:#e8d9bd45}
+.ios-header .ios-sheet-head .ios-turntable-toggle{width:40px;height:40px;top:6px;right:18px;border-color:#e8d9bd24;background:#e8d9bd06}
+.ios-sheet-close{top:5px!important;left:16px}
+.ios-player-sheet:not(.show-turntable) .ios-sheet-content{justify-content:center;gap:8px;overflow-y:auto}
+.ios-player-sheet:not(.show-turntable) .ios-jacket-rail{--jacket-size:min(62vw,calc(var(--player-height,700px)*.36),300px);height:calc(var(--jacket-size) + 38px);min-height:calc(var(--jacket-size) + 38px);gap:30px;flex:1 0 auto}
+.ios-jacket .sleeve-art{border-radius:7px}
+.ios-header .layered-ios-player .ios-player-sheet .listening-panel{padding:8px 24px 10px!important;background:none}
+.ios-header .layered-ios-player .ios-player-sheet .now-playing-copy{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;gap:2px 18px;align-items:start}
+.ios-player-sheet .now-playing-copy>div:first-child{grid-column:1;grid-row:1/3;align-self:center}
+.ios-header .layered-ios-player .ios-player-sheet .record-buy{grid-column:2;grid-row:1;gap:2px;text-align:right}
+.ios-player-sheet .now-playing-copy>.record-actions{grid-column:2;grid-row:2;justify-self:end;gap:5px;margin:0}
+.ios-header .layered-ios-player .ios-player-sheet .listening-panel h2{font-size:clamp(22px,5.5vw,30px);letter-spacing:-.025em;line-height:1.15;margin:0 0 6px}
+.ios-player-sheet #recordArtist{font-size:15px;color:#c9bba4;margin:0}
+.ios-player-sheet .record-buy strong{font-size:18px;font-weight:500;color:#e8d9bd}
+.ios-player-sheet .record-stock{font-size:9px;color:#b6a58c}
+.ios-sheet-controls{border-top:0;background:linear-gradient(180deg,transparent,#18161030);padding:8px 24px calc(28px + env(safe-area-inset-bottom));gap:6px}
+.ios-sheet-controls .ios-current-track:not(.can-return){display:none}
+.ios-player-sheet.is-playing:not(.is-browsing) #iosPlaybackStatus{display:none}
+.ios-sheet-controls .deck-waveform,.ios-sheet-controls .deck-waveform canvas,.ios-sheet-controls .deck-waveform .deck-seek{height:44px}
+.ios-sheet-controls .deck-time{font-size:11px;color:#b9aa91}
+.ios-transport{gap:36px;padding:10px 0 4px}
+.ios-transport #iosPrevious,.ios-transport #iosNext{background:none;border-color:transparent;box-shadow:none;color:#c0c69d;width:48px;height:48px}
+.ios-transport #iosPrevious svg,.ios-transport #iosNext svg{width:29px;height:29px}
+.ios-transport #iosSheetPlay{width:62px;height:62px;box-shadow:inset 0 1px 0 #f5e5c51c,0 4px 14px #0003}
+.ios-header .layered-ios-player .ios-player-sheet.show-turntable .listening-panel{padding:6px 24px 8px!important}
+@media(max-height:650px){.ios-sheet-head{height:44px}.ios-sheet-controls{padding-top:3px;padding-bottom:calc(24px + env(safe-area-inset-bottom));gap:2px}.ios-transport{padding:5px 0 2px}.ios-transport #iosSheetPlay{width:52px;height:52px}.ios-header .layered-ios-player .ios-player-sheet .listening-panel h2{font-size:22px}.ios-player-sheet #recordArtist{font-size:13px}.ios-player-sheet .record-buy strong{font-size:16px}}
+@media(max-height:450px){.ios-player-sheet:not(.show-turntable) .ios-jacket-rail{--jacket-size:90px;min-height:110px;height:110px}.ios-sheet-controls{padding-bottom:calc(16px + env(safe-area-inset-bottom))}.ios-transport{padding:0}.ios-transport #iosSheetPlay{width:44px;height:44px}.ios-sheet-controls .deck-waveform,.ios-sheet-controls .deck-waveform canvas,.ios-sheet-controls .deck-waveform .deck-seek{height:32px}}

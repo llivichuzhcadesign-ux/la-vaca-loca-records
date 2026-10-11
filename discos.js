@@ -234,11 +234,12 @@ function setSheetMode(turntable){
  requestAnimationFrame(()=>syncDeckTimeline());
  $('iosTurntableToggle').setAttribute('aria-pressed',String(turntable));$('iosTurntableToggle').setAttribute('aria-label',turntable?'Ver portada':'Ver tocadiscos');
 }
-function sheetHeights(){const height=window.visualViewport?.height||window.innerHeight;return {compact:0,expanded:Math.max(0,height-16)}}
+function sheetHeights(){const height=window.visualViewport?.height||window.innerHeight;const headerHeight=document.querySelector('.editorial-header')?.getBoundingClientRect().height||62;return {compact:0,expanded:Math.max(0,height-headerHeight-8)}}
 function sizeIosSheet(height){
  const viewport=window.visualViewport;
  iosSheet.style.height=height+'px';
- iosSheet.style.top=((viewport?.offsetTop||0)+8+sheetHeights().expanded-height)+'px';
+ iosSheet.style.setProperty('--player-height',sheetHeights().expanded+'px');
+ iosSheet.style.top=((viewport?.offsetTop||0)+(viewport?.height||window.innerHeight)-8-height)+'px';
 }
 function setSheetPosition(position){
  if(!iosSheet)return;
@@ -265,7 +266,7 @@ $('libraryPlayerPlay').onclick=()=>deckPlay?.click();
 if(iosDiscView){
  iosSheet=document.createElement('section');iosSheet.id='iosPlayerSheet';iosSheet.className='ios-player-sheet';iosSheet.setAttribute('aria-label','Reproductor');iosSheet.setAttribute('role','region');
  iosSheet.innerHTML='<div class="ios-sheet-head"><button type="button" class="ios-sheet-handle" aria-label="Cambiar tamaño del reproductor"><span></span></button><button type="button" class="ios-sheet-close" aria-label="Minimizar reproductor">'+playerControlIcon('down')+'</button></div><div class="ios-sheet-content"></div><div class="ios-sheet-controls"><button type="button" id="iosCurrentTrack" class="ios-current-track" aria-label="Ver disco en reproducción"></button><span id="iosPlaybackStatus" role="status"></span><div class="ios-transport"><button type="button" id="iosPrevious" aria-label="Ver disco anterior">'+playerControlIcon('previous')+'</button><button type="button" id="iosSheetPlay" aria-label="Reproducir">'+playerControlIcon('play')+'</button><button type="button" id="iosNext" aria-label="Ver disco siguiente">'+playerControlIcon('next')+'</button></div></div>';
- document.body.append(iosSheet);const head=iosSheet.querySelector('.ios-sheet-head');head.append($('iosTurntableToggle'));const content=iosSheet.querySelector('.ios-sheet-content');content.append(selectionPanel,timelineDeck);
+ document.body.append(iosSheet);selectionPanel.querySelector('.now-playing-copy').append(selectionPanel.querySelector('.record-actions'));const head=iosSheet.querySelector('.ios-sheet-head');head.append($('iosTurntableToggle'));const content=iosSheet.querySelector('.ios-sheet-content');content.append(selectionPanel,timelineDeck);
  const close=()=>{setSheetPosition('compact');document.querySelector('.mini-player-open').focus({preventScroll:true})};iosSheet.querySelector('.ios-sheet-close').onclick=close;iosSheet.querySelector('.ios-sheet-handle').onclick=close;iosSheet.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close()}});
  $('iosCurrentTrack').onclick=()=>{if(selected)browseIosRecord(selected)};$('iosSheetPlay').onclick=playBrowsedRecord;$('iosPrevious').onclick=()=>stepIosJacket(-1);$('iosNext').onclick=()=>stepIosJacket(1);$('iosTurntableToggle').onclick=()=>setSheetMode(!sheetTurntable);
  const openButton=document.createElement('button');openButton.type='button';openButton.className='mini-player-open';openButton.setAttribute('aria-label','Expandir reproductor');openButton.setAttribute('aria-controls','iosPlayerSheet');const artwork=document.createElement('img');artwork.id='miniPlayerArtwork';artwork.alt='';artwork.hidden=true;openButton.append(artwork,miniPlayer.querySelector('div'));miniPlayer.prepend(openButton);wireSheetDrag(openButton);openButton.onclick=openIosPlayer;
