@@ -756,3 +756,55 @@ body:has(.ios-player-sheet[open]){overflow:hidden!important}
 .ios-header .layered-ios-player .ios-player-sheet.show-turntable .listening-panel{padding:6px 24px 8px!important}
 @media(max-height:650px){.ios-sheet-head{height:44px}.ios-sheet-controls{padding-top:3px;padding-bottom:calc(24px + env(safe-area-inset-bottom));gap:2px}.ios-transport{padding:5px 0 2px}.ios-transport #iosSheetPlay{width:52px;height:52px}.ios-header .layered-ios-player .ios-player-sheet .listening-panel h2{font-size:22px}.ios-player-sheet #recordArtist{font-size:13px}.ios-player-sheet .record-buy strong{font-size:16px}}
 @media(max-height:450px){.ios-player-sheet:not(.show-turntable) .ios-jacket-rail{--jacket-size:90px;min-height:110px;height:110px}.ios-sheet-controls{padding-bottom:calc(16px + env(safe-area-inset-bottom))}.ios-transport{padding:0}.ios-transport #iosSheetPlay{width:44px;height:44px}.ios-sheet-controls .deck-waveform,.ios-sheet-controls .deck-waveform canvas,.ios-sheet-controls .deck-waveform .deck-seek{height:32px}}
+
+/* Biblioteca: playlists above a full record grid, with a quiet navigation rail. */
+.biblioteca-sidebar,.library-playlists{display:none}
+.expanded-library .biblioteca-sidebar{display:flex;flex-direction:column;gap:5px;color:#d5c5ac}
+.biblioteca-sidebar button{display:flex;align-items:center;gap:12px;min-height:44px;width:100%;border:0;border-radius:7px;padding:10px 12px;background:none;color:inherit;text-align:left;font-size:13px;line-height:1.4}
+.biblioteca-sidebar button[aria-pressed="true"]{background:#535b3c45;color:#f0e2c9}
+.biblioteca-sidebar button:hover{background:#e8d9bd0b}
+.biblioteca-sidebar button svg{width:20px;height:20px;flex-shrink:0}
+.biblioteca-sidebar button img{width:24px;height:24px;object-fit:contain;flex-shrink:0}
+.biblioteca-sidebar .library-deck-button{margin-bottom:24px;color:#eee3cf;border:1px solid #dcccaa24;background:#682d3b30}
+.biblioteca-sidebar .library-deck-button svg{width:28px;height:28px}
+.library-nav-caption{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#a99377;padding:12px 12px 6px}
+.library-genres{display:grid;gap:3px}
+.library-genres button{font-size:12px;padding-left:14px}
+.expanded-library .library-playlists{display:block;min-width:0}
+.library-section-heading{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:18px}
+.library-section-heading h2{margin:0;font-size:20px;font-weight:500;letter-spacing:-.025em;color:#eee3cf}
+.library-section-heading a{font-size:11px;color:#b9bea0;text-decoration:none;white-space:nowrap}
+.library-playlists iframe{display:block;border:0;border-radius:12px;width:100%;max-width:100%;background:#241e18}
+.desktop-deck-toggle svg{width:26px;height:26px;display:block}
+@media(min-width:951px){
+ .expanded-library .library-column .collection{display:grid;grid-template-columns:220px minmax(0,1fr);grid-template-rows:auto auto auto;align-content:start;height:100%;overflow:auto!important}
+ .expanded-library .biblioteca-sidebar{grid-column:1;grid-row:1/4;position:sticky;top:0;align-self:start;padding:24px 14px;height:calc(100dvh - 153px);overflow-y:auto;background:linear-gradient(180deg,#16130fd9,#16130f66);border-right:1px solid #dcccaa16}
+ .expanded-library .library-column .listening-panel{display:none}
+ .expanded-library .library-playlists{grid-column:2;grid-row:1;padding:28px 32px 8px}
+ .expanded-library .library-column .library-toolbar{grid-column:2;grid-row:2;display:flex;justify-content:space-between;gap:24px;align-items:center;padding:28px 32px 8px;border:0}
+ .expanded-library .library-view-switch{display:none}
+ .expanded-library .library-label{margin:0;font-size:18px}
+ .expanded-library .browse-tools{display:block;width:min(100%,320px)}
+ .expanded-library .browse-tools label:last-child{display:none}
+ .expanded-library .library-column .disc-gallery{grid-column:2;grid-row:3;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));padding:20px 32px 40px;gap:30px 26px;overflow:visible}
+ .expanded-library .library-mini-player{height:68px;background:#1b1711;border-top-color:#dcccaa1c}
+ .expanded-library .room-layout{height:calc(100% - 68px)}
+}
+@media(max-width:950px){
+ body.expanded-library{overflow:auto}
+ .expanded-library #contenido{height:auto!important;overflow:visible!important}
+ .expanded-library .listening-room{height:auto;min-height:calc(100dvh - 62px)}
+ .expanded-library .biblioteca-sidebar{flex-direction:row;gap:6px;padding:14px 6vw 6px;overflow-x:auto;scrollbar-width:none}
+ .biblioteca-sidebar>button{flex:0 0 auto;width:auto;white-space:nowrap;font-size:12px;padding:8px 12px}
+ .biblioteca-sidebar .library-deck-button{margin:0}
+ .biblioteca-sidebar .library-nav-caption,.biblioteca-sidebar .library-genres{display:none}
+ .expanded-library .library-playlists{padding:20px 6vw 10px}
+ .library-section-heading h2{font-size:18px}
+ .library-section-heading{margin-bottom:14px}
+ .expanded-library .library-toolbar{border-top:0!important}
+ .expanded-library .library-view-switch{display:none}
+}
+.ios-header .expanded-library .biblioteca-sidebar{position:static;flex-direction:row;height:auto;max-height:none;padding:14px 6vw 6px;border:0;background:none;overflow-x:auto;gap:6px}
+.ios-header .biblioteca-sidebar>button{flex:0 0 auto;width:auto;white-space:nowrap;font-size:12px;padding:8px 12px}
+.ios-header .biblioteca-sidebar .library-deck-button{margin:0}
+.ios-header .biblioteca-sidebar .library-nav-caption,.ios-header .biblioteca-sidebar .library-genres{display:none}

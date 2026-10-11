@@ -3,6 +3,7 @@
 
 const visible=r=>!r.hideFromPublic&&!['DRAFT','PRIVATE LISTING','HIDDEN'].includes(String(r.status||'').toUpperCase());
 const filterRecords=(records,query,genre)=>records.filter(r=>(!genre||r.genre===genre)&&[r.title,r.artist,r.label].join(' ').toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
+function filterLibraryRecords(records,query,genre,liked=null){const result=filterRecords(records,query,genre);return liked===null?result:result.filter(r=>liked.has(r.id))}
 function audioUrl(r,base){
   const s=String(r.media?.audio?.url||r.audioPreview||r.media?.audio?.path||'').trim();
   if(/^data:audio\/[\w.+-]+;base64,[a-z0-9+/=]+$/i.test(s))return s;
@@ -13,7 +14,7 @@ function audioUrl(r,base){
   }catch{return ''}
 }
 function time(s){return Number.isFinite(s)?Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'):'0:00'}
-if(typeof module!=='undefined')module.exports={visible,filterRecords,audioUrl,time};
+if(typeof module!=='undefined')module.exports={visible,filterRecords,filterLibraryRecords,audioUrl,time};
 if(typeof document==='undefined')return;
 
 const $=id=>document.getElementById(id);
@@ -205,7 +206,7 @@ function syncRecordActions(r){
  $('recordLike').setAttribute('aria-pressed',String(liked));$('recordLike').setAttribute('aria-label',(liked?'Quitar de favoritos: ':'Guardar favorito: ')+r.title);
  $('recordBag').disabled=Number(r.stock)===0&&!bagged;$('recordBag').classList.toggle('is-added',bagged);$('recordBag').setAttribute('aria-label',bagged?'Ver canasta':'Añadir a la canasta: '+r.title);
 }
-$('recordLike').onclick=()=>{const r=pendingRecord||selected;if(!r)return;const saved=new Set(storedIds('lvl-liked-discs'));saved.has(r.id)?saved.delete(r.id):saved.add(r.id);localStorage.setItem('lvl-liked-discs',JSON.stringify([...saved]));syncRecordActions(r);notice(saved.has(r.id)?'Disco guardado en favoritos.':'Disco eliminado de favoritos.')};
+$('recordLike').onclick=()=>{const r=pendingRecord||selected;if(!r)return;const saved=new Set(storedIds('lvl-liked-discs'));saved.has(r.id)?saved.delete(r.id):saved.add(r.id);localStorage.setItem('lvl-liked-discs',JSON.stringify([...saved]));syncRecordActions(r);renderGallery();notice(saved.has(r.id)?'Disco guardado en favoritos.':'Disco eliminado de favoritos.')};
 $('recordBag').onclick=()=>{const r=pendingRecord||selected;if(!r)return;const ids=storedIds('lvl-cart-discs');if(ids.includes(r.id)){location.href='index.html?bag=1';return}if(Number(r.stock)===0)return;ids.push(r.id);localStorage.setItem('lvl-cart-discs',JSON.stringify(ids));syncRecordActions(r);notice('Disco añadido a la canasta.');$('recordBag').animate?.([{transform:'scale(1)'},{transform:'scale(1.18)'},{transform:'scale(1)'}],{duration:260})};
 window.addEventListener('storage',()=>{if(pendingRecord||selected)syncRecordActions(pendingRecord||selected)});
 document.addEventListener('lvl-bag-change',()=>{if(pendingRecord||selected)syncRecordActions(pendingRecord||selected)});
@@ -214,7 +215,7 @@ const iosDiscView=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platf
 const viewStorageKey=iosDiscView?'lvl-ios-disc-view':'lvl-disc-view';
 const playbackTimeline=document.querySelector('.deck-playback-timeline');
 const timelineDeck=document.querySelector('.deck-area');
-let discView='player';
+let discView='player',libraryScope='all';
 const miniPlayer=document.querySelector('.library-mini-player');
 let iosSheet=null,sheetTurntable=false,sheetPosition='compact',iosStartedId=null;
 function setDiscView(view){
@@ -279,7 +280,7 @@ if(iosDiscView){
  iosSheet.addEventListener('transitionend',fitDeck);
  setSheetPosition('compact');
  setSheetMode(false);setDiscView('library');buildIosJackets();
-}else{try{setDiscView(localStorage.getItem(viewStorageKey)||'player')}catch{setDiscView('player')}}
+}else{const opener=miniPlayer.querySelector('[data-disc-view]');opener.innerHTML=$('iosTurntableToggle').innerHTML;opener.classList.add('desktop-deck-toggle');opener.setAttribute('aria-label','Abrir tocadiscos');setDiscView('library')}
 
 function buildIosJackets(){
  const rail=document.createElement('div');rail.id='iosJacketRail';rail.className='ios-jacket-rail';rail.setAttribute('aria-label','Explorar portadas');
@@ -391,7 +392,8 @@ artworkDialog.addEventListener('click',e=>{if(e.target===artworkDialog){const bo
 artworkDialog.addEventListener('close',()=>{resetArtworkZoom();$('artworkFull').removeAttribute('src');$('artworkOpen').focus()});
 
 function renderGallery(){
-  results=filterRecords(records,$('recordSearch').value,$('genreFilter').value);
+  results=filterLibraryRecords(records,$('recordSearch').value,$('genreFilter').value,libraryScope==='liked'?new Set(storedIds('lvl-liked-discs')):null);
+  document.querySelectorAll('#libraryGenres button').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.genre===$('genreFilter').value)));
   $('resultCount').textContent=results.length+' discos';
   gallery.innerHTML=results.map((r,i)=>{
     const detail=[r.genre,r.year].filter(Boolean).join(' · ');
@@ -769,6 +771,16 @@ applyTempo(0);
   $('genreFilter').append(option);
 });
 
+function setLibraryScope(scope){
+ libraryScope=scope;$('libraryNavAll').setAttribute('aria-pressed',String(scope==='all'));$('libraryNavLiked').setAttribute('aria-pressed',String(scope==='liked'));
+ libraryToggle.querySelector('.eyebrow').textContent=scope==='liked'?'DISCOS QUE TE GUSTAN':'BIBLIOTECA';renderGallery();
+}
+$('libraryNavAll').onclick=()=>{ $('genreFilter').value='';setLibraryScope('all')};
+$('libraryNavLiked').onclick=()=>setLibraryScope('liked');
+$('libraryNavBag').onclick=()=>window.openLVLBag?.();
+['',...[...new Set(records.map(r=>r.genre).filter(Boolean))].sort()].forEach(genre=>{const button=document.createElement('button');button.type='button';button.dataset.genre=genre;button.textContent=genre||'Todos los géneros';button.setAttribute('aria-pressed',String(!genre));button.onclick=()=>{$('genreFilter').value=genre;renderGallery()};$('libraryGenres').append(button)});
+window.addEventListener('storage',()=>renderGallery());
+document.addEventListener('lvl-bag-change',()=>{if(libraryScope==='liked')renderGallery()});
 $('recordSearch').oninput=renderGallery;
 $('genreFilter').onchange=renderGallery;
 if(libraryToggle)libraryToggle.onclick=()=>focusRecordView(false);
