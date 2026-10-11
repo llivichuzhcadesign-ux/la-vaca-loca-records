@@ -808,3 +808,33 @@ body:has(.ios-player-sheet[open]){overflow:hidden!important}
 .ios-header .biblioteca-sidebar>button{flex:0 0 auto;width:auto;white-space:nowrap;font-size:12px;padding:8px 12px}
 .ios-header .biblioteca-sidebar .library-deck-button{margin:0}
 .ios-header .biblioteca-sidebar .library-nav-caption,.ios-header .biblioteca-sidebar .library-genres{display:none}
+
+/* Collectible LVL cover designs replace the large embedded playlist. */
+.library-cover-row{display:flex;gap:22px;overflow-x:auto;overflow-y:hidden;padding:4px 2px 14px;scroll-snap-type:x proximity;scrollbar-width:thin;scrollbar-color:#dcccaa33 transparent}
+.library-cover-card{flex:0 0 clamp(190px,20vw,280px);min-width:0;display:block;color:#eee3cf;background:none;border:0;padding:0;text-align:left;text-decoration:none;scroll-snap-align:start;cursor:pointer}
+.library-cover-face{position:relative;display:block;aspect-ratio:4/5;border:1px solid #e8d9bd20;border-radius:10px;overflow:hidden;isolation:isolate;background:#35493f;box-shadow:0 8px 18px #0003;transition:transform .25s,box-shadow .25s}
+.library-cover-card:hover .library-cover-face{transform:translateY(-3px);box-shadow:0 12px 24px #0005}
+.library-cover-card[aria-pressed="true"] .library-cover-face{border-color:#dfcc9f;box-shadow:0 0 0 1px #dfcc9f66,0 8px 18px #0003}
+.cover-edition{position:absolute;left:20px;right:20px;top:19px;font-size:8px;letter-spacing:.18em;color:#eee3cfb3}
+.cover-cow{position:absolute;left:20px;top:49px;width:44px;height:44px;object-fit:contain;opacity:.9;filter:brightness(0) invert(.91) sepia(.18)}
+.cover-title{position:absolute;left:20px;right:20px;bottom:49px;z-index:2;font-family:Georgia,serif;font-size:clamp(30px,3vw,43px);font-weight:normal;line-height:.96;letter-spacing:-.045em;overflow-wrap:anywhere}
+.cover-imprint{position:absolute;left:20px;bottom:20px;font-size:8px;letter-spacing:.15em;color:#eee3cf9c}
+.cover-symbol{position:absolute;right:20px;top:49px;width:30px;height:30px;color:#eee3cfcc}
+.cover-symbol svg{width:100%;height:100%}
+.cover-card-caption{display:block;font-size:13px;line-height:1.4;margin-top:12px;color:#d9cab1}
+.cover-card-caption>span{float:right;color:#adb793}
+.cover-geometry{position:absolute;z-index:-1;left:8%;top:20%;width:115%;aspect-ratio:1;border-radius:50%;border:1px solid #e8d9bd24;box-shadow:0 0 0 15px #e8d9bd07,0 0 0 31px #e8d9bd12,0 0 0 47px #e8d9bd07;transform:rotate(-20deg)}
+.cover-spotify{background:radial-gradient(ellipse at 80% 25%,#9eab6844,transparent 65%),linear-gradient(145deg,#506045,#23392e)}
+.cover-liked{background:radial-gradient(ellipse at 20% 10%,#b5787544,transparent 65%),linear-gradient(145deg,#7b3b48,#3b1d28)}
+.cover-liked .cover-geometry{border-radius:35%;transform:rotate(35deg);left:28%;top:27%;width:90%;box-shadow:0 0 0 24px #e8d9bd0b,0 0 0 49px #e8d9bd08}
+.genre-0{background:linear-gradient(150deg,#817754,#353e32)}
+.genre-0 .cover-geometry{border-radius:50% 50% 0 50%;transform:rotate(25deg);top:30%}
+.genre-1{background:linear-gradient(150deg,#815642,#38271f)}
+.genre-1 .cover-geometry{border-radius:0;transform:rotate(-25deg);width:80%;left:37%}
+.genre-2{background:linear-gradient(150deg,#536448,#26382e)}
+.genre-2 .cover-geometry{width:130%;left:5%;top:33%;box-shadow:0 0 0 12px #e8d9bd12,0 0 0 25px #e8d9bd08,0 0 0 38px #e8d9bd12}
+.genre-3{background:linear-gradient(150deg,#63474f,#27282a)}
+.genre-3 .cover-geometry{border-radius:0;transform:rotate(45deg);left:40%;top:16%;width:80%;box-shadow:0 0 0 18px #e8d9bd0b,0 0 0 36px #e8d9bd08}
+.expanded-library .disc-gallery{scroll-margin-top:90px}
+@media(max-width:950px){.library-cover-row{gap:16px}.library-cover-card{flex-basis:66vw;max-width:270px}.cover-title{font-size:38px}}
+@media(prefers-reduced-motion:reduce){.library-cover-face{transition:none}}

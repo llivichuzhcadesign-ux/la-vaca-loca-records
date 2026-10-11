@@ -394,6 +394,8 @@ artworkDialog.addEventListener('close',()=>{resetArtworkZoom();$('artworkFull').
 function renderGallery(){
   results=filterLibraryRecords(records,$('recordSearch').value,$('genreFilter').value,libraryScope==='liked'?new Set(storedIds('lvl-liked-discs')):null);
   document.querySelectorAll('#libraryGenres button').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.genre===$('genreFilter').value)));
+  document.querySelectorAll('[data-cover-liked]').forEach(button=>button.setAttribute('aria-pressed',String(libraryScope==='liked')));
+  document.querySelectorAll('[data-cover-genre]').forEach(button=>button.setAttribute('aria-pressed',String(libraryScope==='all'&&button.dataset.coverGenre===$('genreFilter').value)));
   $('resultCount').textContent=results.length+' discos';
   gallery.innerHTML=results.map((r,i)=>{
     const detail=[r.genre,r.year].filter(Boolean).join(' · ');
@@ -771,10 +773,21 @@ applyTempo(0);
   $('genreFilter').append(option);
 });
 
+function renderLibraryCovers(){
+ const genres=[...new Set(records.map(r=>r.genre).filter(Boolean))].sort();
+ const heart='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>';
+ const spotify='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M6 9c4-1.5 8-1.2 12 1M7 12.5c3.4-1.2 6.8-.9 10 1M8 16c2.6-.8 5.2-.5 7.8.8"/></svg>';
+ const face=(title,type,index,icon='')=>'<span class="library-cover-face cover-'+type+'" style="--cover-index:'+index+'"><span class="cover-edition">LA VACA LOCA / '+String(index+1).padStart(2,'0')+'</span><span class="cover-geometry" aria-hidden="true"></span><img class="cover-cow" src="assets/brand/cow-symbol.svg" alt="">'+(icon?'<span class="cover-symbol">'+icon+'</span>':'')+'<span class="cover-title">'+escape(title)+'</span><span class="cover-imprint">GUALACEO · RECORDS</span></span>';
+ $('libraryCoverRow').innerHTML='<a class="library-cover-card" href="https://open.spotify.com/playlist/10DUSYdwJrUocKuKjTqCgN" target="_blank" rel="noopener noreferrer" aria-label="Abrir playlist de La Vaca Loca en Spotify">'+face('La selección','spotify',0,spotify)+'<span class="cover-card-caption">La Vaca Loca en Spotify <span aria-hidden="true">↗</span></span></a><button class="library-cover-card" type="button" data-cover-liked aria-label="Ver discos que te gustan">'+face('Tus favoritos','liked',1,heart)+'<span class="cover-card-caption">Discos que te gustan</span></button>'+genres.map((genre,i)=>'<button class="library-cover-card" type="button" data-cover-genre="'+escape(genre)+'" aria-label="Explorar '+escape(genre)+'">'+face(genre,'genre genre-'+(i%4),i+2)+'<span class="cover-card-caption">'+escape(genre)+'</span></button>').join('');
+ const showDiscs=()=>gallery.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
+ $('libraryCoverRow').querySelector('[data-cover-liked]').onclick=()=>{$('recordSearch').value='';$('genreFilter').value='';setLibraryScope('liked');showDiscs()};
+ $('libraryCoverRow').querySelectorAll('[data-cover-genre]').forEach(button=>button.onclick=()=>{$('recordSearch').value='';$('genreFilter').value=button.dataset.coverGenre;setLibraryScope('all');showDiscs()});
+}
 function setLibraryScope(scope){
  libraryScope=scope;$('libraryNavAll').setAttribute('aria-pressed',String(scope==='all'));$('libraryNavLiked').setAttribute('aria-pressed',String(scope==='liked'));
  libraryToggle.querySelector('.eyebrow').textContent=scope==='liked'?'DISCOS QUE TE GUSTAN':'BIBLIOTECA';renderGallery();
 }
+renderLibraryCovers();
 $('libraryNavAll').onclick=()=>{ $('genreFilter').value='';setLibraryScope('all')};
 $('libraryNavLiked').onclick=()=>setLibraryScope('liked');
 $('libraryNavBag').onclick=()=>window.openLVLBag?.();
