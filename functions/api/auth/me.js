@@ -1,0 +1,2 @@
+import {json,currentSession} from '../../_lib/auth.js';
+export async function onRequestGet(context){if(!context.env.DB)return json({ok:false,error:'Database not configured.'},503);const session=await currentSession(context);return session?json({ok:true,email:session.email}):json({ok:false,error:'Sign in required.'},401)}
