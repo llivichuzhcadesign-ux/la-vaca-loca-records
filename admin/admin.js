@@ -3,7 +3,7 @@ const original=window.SITE_CONTENT||{};
 let draft=loadDraft();
 const MEDIA_DB_NAME='lvl-admin-media-v1';
 const MEDIA_STORE='files';
-const CLOUD_KEY_SESSION='lvl-cloud-admin-key-v1';
+
 const heroPreviewUrls=new Map();
 let cloudState={available:false,mediaBinding:false,adminSecret:false,publishedContent:false,authenticated:false};
 function calendarDefaults(){draft.settings=draft.settings||{};const c=CalendarContent.artwork(original.settings);draft.settings.calendar={image:c.image,imageAlt:c.alt,showTitle:c.showTitle,...(draft.settings.calendar||{})};}
@@ -40,48 +40,34 @@ function getValue(path){return path.split('.').reduce((obj,key)=>obj&&obj[key],d
 function setValue(path,value){const parts=path.split('.');let target=draft;while(parts.length>1){const key=parts.shift();target[key]=target[key]||{};target=target[key]}target[parts[0]]=value;markDirty()}
 function markDirty(){dirty=true;updatePublishStatus()}
 function showToast(message){const toast=byId('adminToast');if(!toast)return;toast.textContent=message;toast.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.classList.remove('show'),1800)}
-function cloudAdminKey(){return sessionStorage.getItem(CLOUD_KEY_SESSION)||''}
-function setCloudAdminKey(value){const key=String(value||'').trim();if(key)sessionStorage.setItem(CLOUD_KEY_SESSION,key);else sessionStorage.removeItem(CLOUD_KEY_SESSION)}
+function cloudAdminKey(){return cloudState.authenticated?'session':''}
 function cloudScope(path='site'){const root=String(path).split('.')[0]||'site';if(root==='homepage')return'hero';if(root==='records')return'records';if(root==='sessions')return'sessions';if(root==='events')return'events';if(root==='archiveItems')return'archive';return'site'}
 async function readCloudResponse(response){let data={};try{data=await response.json()}catch{}if(!response.ok)throw new Error(data.error||`Cloudflare request failed (${response.status})`);return data}
 function updateCloudUi(){
-  const pill=byId('cloudStatus'),hint=byId('cloudSetupHint'),input=byId('cloudAdminKey');
-  if(input&&!input.value&&cloudAdminKey())input.value=cloudAdminKey();
-  let label='Cloudflare unavailable',message='Open this admin on the Cloudflare Pages site to use live publishing.';
-  if(cloudState.available){
-    if(!cloudState.mediaBinding){label='R2 binding needed';message='Create/bind an R2 bucket to this Pages project with variable name MEDIA.'}
-    else if(!cloudState.adminSecret){label='Admin secret needed';message='Add a Cloudflare secret named ADMIN_API_KEY, then redeploy.'}
-    else if(cloudState.authenticated){label='Cloudflare connected';message=cloudState.publishedContent?'Live content is stored in Cloudflare.':'Backend is ready. Publish once to create the live content document.'}
-    else{label='Cloudflare ready';message='Enter the ADMIN_API_KEY value above and press Connect.'}
-  }
-  if(pill){pill.textContent=label;pill.classList.toggle('cloud-ok',cloudState.authenticated)}
-  if(hint)hint.textContent=message;
+ const pill=byId('cloudStatus'),hint=byId('cloudSetupHint');
+ let label='Connecting',message='Checking the Cloudflare connection…';
+ if(!cloudState.available){label='Cloudflare unavailable';message='Open the admin on your Cloudflare Pages domain.'}
+ else if(!cloudState.mediaBinding){label='R2 binding needed';message='Bind the R2 bucket as MEDIA in Cloudflare Pages.'}
+ else if(cloudState.authenticated){label='Cloudflare connected';message='Signed in securely. Publishing and media uploads are available.'}
+ else{label='Login required';message='Your session has expired. Sign in again.'}
+ if(pill){pill.textContent=label;pill.classList.toggle('cloud-ok',cloudState.authenticated)}
+ if(hint)hint.textContent=message;
 }
 async function checkCloudStatus(){
-  try{
-    const response=await fetch('../api/status',{cache:'no-store'});
-    if(!response.ok)throw new Error('status unavailable');
-    const data=await response.json();
-    cloudState={...cloudState,available:!!data.cloudflare,mediaBinding:!!data.mediaBinding,adminSecret:!!data.adminSecret,publishedContent:!!data.publishedContent};
-  }catch{cloudState={...cloudState,available:false,authenticated:false}}
-  updateCloudUi();
-}
-async function connectCloudAdmin(){
-  const input=byId('cloudAdminKey');const key=String(input?.value||'').trim();
-  if(!key){showToast('Enter the Cloudflare admin key');return}
-  setCloudAdminKey(key);
-  try{
-    const response=await fetch('../api/admin/ping',{headers:{'X-Admin-Key':key},cache:'no-store'});
-    const data=await readCloudResponse(response);
-    cloudState={...cloudState,available:true,authenticated:true,mediaBinding:!!data.mediaBinding};
-    updateCloudUi();showToast('Cloudflare publishing connected');
-  }catch(error){cloudState.authenticated=false;updateCloudUi();showToast(error.message||'Cloudflare connection failed')}
+ try{
+  const [status,me]=await Promise.all([fetch('../api/status',{cache:'no-store'}),fetch('../api/auth/me',{cache:'no-store'})]);
+  if(!status.ok)throw Error('Cloudflare unavailable');
+  const data=await status.json();
+  cloudState={...cloudState,available:!!data.cloudflare,mediaBinding:!!data.mediaBinding,publishedContent:!!data.publishedContent,authenticated:me.ok};
+  if(!me.ok){location.replace('login.html');return}
+ }catch{cloudState={...cloudState,available:false,authenticated:false}}
+ updateCloudUi();
 }
 async function uploadOriginalToCloudflare(file,scope='site'){
   const key=cloudAdminKey();
   if(!key)throw new Error('Connect Cloudflare publishing first.');
   const form=new FormData();form.append('file',file,file.name);form.append('scope',scope);
-  const response=await fetch('../api/admin/media',{method:'POST',headers:{'X-Admin-Key':key},body:form});
+  const response=await fetch('../api/admin/media',{method:'POST',body:form});
   return readCloudResponse(response);
 }
 async function publishCloudContent(){
@@ -91,7 +77,7 @@ async function publishCloudContent(){
     showToast('Publishing live…');
     const response=await fetch('../api/admin/content',{
       method:'POST',
-      headers:{'content-type':'application/json','X-Admin-Key':key},
+      headers:{'content-type':'application/json'},
       body:JSON.stringify(publishableDraft())
     });
     const data=await readCloudResponse(response);
@@ -263,7 +249,7 @@ document.addEventListener('click',e=>{
   const clear=e.target.closest('[data-clear-media]');if(clear){clearMedia(clear.dataset.clearMedia);return}
   const copy=e.target.closest('[data-copy-path]');if(copy){const input=copy.closest('.advanced-media')?.querySelector('[data-path]');if(input){navigator.clipboard&&navigator.clipboard.writeText(input.value);copy.classList.add('copy-flash');setTimeout(()=>copy.classList.remove('copy-flash'),500);showToast('Path copied')}return}
   const toggle=e.target.closest('[data-toggle-path]');if(toggle){const path=toggle.dataset.togglePath;const next=toggle.getAttribute('aria-pressed')!=='true';setValue(path,next);toggle.classList.toggle('on',next);toggle.setAttribute('aria-pressed',next?'true':'false');toggle.querySelector('span').textContent=next?'ON':'OFF';renderStats();renderExport();return}
-  if(e.target.closest('[data-cloud-connect]')){connectCloudAdmin();return}
+  
   if(e.target.closest('[data-cloud-publish]')){publishCloudContent();return}
   if(e.target.closest('[data-copy-datajs]')){copyDataJs();return}
   if(e.target.closest('[data-download-datajs]')){downloadDataJs();return}
@@ -291,3 +277,4 @@ injectAdminEnhancements();
 injectHomepageAdminStyles();
 refreshAll();
 checkCloudStatus();
+byId('adminLogout')?.addEventListener('click',async()=>{await fetch('../api/auth/logout',{method:'POST'});location.replace('login.html')});
