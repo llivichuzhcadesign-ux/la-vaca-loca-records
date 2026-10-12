@@ -815,7 +815,7 @@ function saveLibraryHistory(replace){
  history[replace?'replaceState':'pushState']({lvlLibrary:page},'',url);
 }
 function libraryPageFromUrl(){
- const params=new URL(location.href).searchParams,record=records.find(r=>r.id===(params.get('disc')||decodeURIComponent(location.hash.slice(1))));
+ const params=new URL(location.href).searchParams;let hash='';try{hash=decodeURIComponent(location.hash.slice(1))}catch{}const record=records.find(r=>r.id===(params.get('disc')||hash));
  if(record)return {type:'disc',record};
  if(params.has('collection')||params.has('q'))return {type:'collection',scope:params.get('collection')==='liked'?'liked':'all',genre:params.get('genre')||'',query:params.get('q')||''};
  return {type:'home'};
@@ -829,7 +829,7 @@ function syncLibraryPage(){
  document.body.classList.toggle('library-collection-open',!home&&!detail);
  $('libraryPageTitle').textContent=detail?'Biblioteca':$('recordSearch').value?'Resultados':home?'Biblioteca':libraryPage.scope==='liked'?'Discos que te gustan':libraryPage.genre||'Todos los discos';
  $('libraryBack').hidden=home;
- $('libraryNavHome').setAttribute('aria-pressed',String(home));
+ $('libraryNavHome').setAttribute('aria-pressed',String(home&&discView==='library'));
  $('libraryNavAll').setAttribute('aria-pressed',String(!home&&!detail&&libraryPage.scope==='all'&&!libraryPage.genre));
  $('libraryNavLiked').setAttribute('aria-pressed',String(!home&&!detail&&libraryPage.scope==='liked'));
  $('libraryDiscDetail').hidden=!detail;

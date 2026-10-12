@@ -985,3 +985,7 @@ body[data-page="discos"] .shared-bag h2{font-family:Arial,Helvetica,sans-serif;f
  .desktop-turntable .room-layout>.biblioteca-sidebar{display:flex;overflow:auto;gap:6px;padding:10px 6vw;order:0}.desktop-turntable .biblioteca-sidebar .library-nav-caption,.desktop-turntable .biblioteca-sidebar .library-genres{display:none}
 }
 .shelf-controls{display:inline-flex;gap:4px;margin-left:auto}.shelf-controls[hidden]{display:none}.shelf-controls button{display:grid;place-items:center;width:36px;height:36px;min-height:36px;padding:0;background:#535b3c22;border:1px solid #dcccaa22;border-radius:50%;color:#eee3cf}.shelf-controls svg{width:18px;height:18px}.shelf-controls button:disabled{opacity:.25}.record-shelf-heading>button{margin-left:auto}.record-shelf-heading .shelf-controls{margin-left:0}
+body[data-page="discos"]{--pink:#c6cea7}
+.library-mini-player>.mini-transport{display:flex;flex:none;gap:8px;align-items:center}
+.library-mini-player .mini-transport button{padding:0;border:0;width:44px;height:44px;flex:none}
+@media(min-width:951px){body:not(.layered-ios-player) .library-mini-player{box-sizing:border-box;overflow:visible;grid-template-rows:1fr}.desktop-turntable .now-playing-copy{gap:8px}.desktop-turntable .record-buy{text-align:left;justify-self:start}.desktop-turntable .record-actions{justify-content:flex-start}}

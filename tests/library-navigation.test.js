@@ -17,3 +17,7 @@ context.openLibraryCollection('liked');assert.equal(context.libraryScope,'liked'
 context.navigateLibrary({type:'home'});assert.equal(context.libraryScope,'all');assert.equal(context.libraryPage.type,'home');assert.equal(rendered,4);
 context.iosDiscView=true;context.stageFromLibrary(record);assert.equal(context.libraryPage.type,'disc');assert.equal(mounted,0);
 console.log('PASS: disc browsing preserves audio, back restores collection/search/scroll, favorites reset filters, mobile opens disc details');
+context.location.href='https://example.test/discos?disc=disc-1';context.location.hash='';context.records=[record];assert.equal(context.libraryPageFromUrl().record,record);
+context.location.href='https://example.test/discos?collection=liked&q=night';assert.equal(context.libraryPageFromUrl().scope,'liked');assert.equal(context.libraryPageFromUrl().query,'night');
+let route;context.history.pushState=(state,unused,url)=>{route={state,url}};context.libraryPage={type:'disc',record};context.saveLibraryHistory(false);assert.equal(route.url.searchParams.get('disc'),'disc-1');assert.equal(route.state.lvlLibrary.record.id,'disc-1');
+console.log('PASS: direct disc URLs, favorite search URLs and browser history state');
