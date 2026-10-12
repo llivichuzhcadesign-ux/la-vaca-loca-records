@@ -10,7 +10,7 @@ export async function passwordHash(password,salt){
  return hex(await crypto.subtle.deriveBits({name:'PBKDF2',salt:encoder.encode(salt),iterations:210000,hash:'SHA-256'},key,256));
 }
 export function cookie(token,maxAge){return `${COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`}
-export function getToken(request){const match=(request.headers.get('cookie')||'').match(/(?:^|;\\s*)lvl_admin_session=([^;]+)/);return match?.[1]||''}
+export function getToken(request){const match=(request.headers.get('cookie')||'').match(/(?:^|;\s*)lvl_admin_session=([^;]+)/);return match?.[1]||''}
 export function sameOrigin(request){const origin=request.headers.get('Origin');return !origin||origin===new URL(request.url).origin}
 export async function currentSession(context){
  const token=getToken(context.request);if(!/^[a-f0-9]{64}$/.test(token)||!context.env.DB)return null;
