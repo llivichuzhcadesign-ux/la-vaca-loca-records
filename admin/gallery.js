@@ -14,7 +14,7 @@
     if(!cloudAdminKey()){render();byId('galleryPickerStatus').textContent='Connect Cloudflare from Dashboard first.';return}
     loading=true;if(reset){cursor=null;loaded=false;photos=[]}render();
     try{
-      const response=await fetch('../api/admin/media'+(cursor?'?cursor='+encodeURIComponent(cursor):''),{headers:{'X-Admin-Key':cloudAdminKey()},cache:'no-store'});
+      const response=await fetch('../api/admin/media'+(cursor?'?cursor='+encodeURIComponent(cursor):''),{cache:'no-store'});
       const data=await readCloudResponse(response);
       const merged=new Map(photos.map(photo=>[photo.key,photo]));for(const photo of data.items)merged.set(photo.key,photo);
       photos=[...merged.values()].sort((a,b)=>b.uploadedAt.localeCompare(a.uploadedAt));cursor=data.cursor;loaded=true;
