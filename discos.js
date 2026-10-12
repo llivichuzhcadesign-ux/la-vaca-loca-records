@@ -68,7 +68,7 @@ const price=r=>(settings.currency||'$')+Number(r.price||0).toFixed(2);
 const cover=r=>window.CalendarContent.imageUrl(r.coverImage||r.media?.artwork?.url||r.media?.artwork?.path,document.baseURI);
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
-function notice(text){$('playerNotice').textContent=text;const status=$('iosPlaybackStatus');if(status)status.textContent=text}
+function notice(text){$('playerNotice').textContent=text;const feedback=$('libraryPlaybackStatus');if(feedback)feedback.textContent=/no disponible|no se pudo|sin preview/i.test(text)?text:'';const status=$('iosPlaybackStatus');if(status)status.textContent=text}
 
 function playerControlIcon(kind){
  const paths={play:'<path d="M9 5.5 19 12 9 18.5Z" fill="currentColor" stroke-linejoin="round"/>',pause:'<path d="M9 6v12M15 6v12" stroke-width="3"/>',previous:'<path d="m14.5 6-6 6 6 6M9 12h11"/>',next:'<path d="m9.5 6 6 6-6 6M15 12H4"/>',down:'<path d="m6 9 6 6 6-6"/>'};
@@ -80,7 +80,7 @@ function paintPlayerButton(button,on,label){
 function playing(on){
  if(on&&iosDiscView&&selected)iosStartedId=selected.id;
  const miniPlay=$('libraryPlayerPlay');if(miniPlay){miniPlay.textContent=miniPlay.disabled?'Sin preview':on?'Pausar':'Reproducir';miniPlay.setAttribute('aria-label',on?'Pausar':'Reproducir');miniPlay.setAttribute('aria-pressed',String(on))}
-  if(iosDiscView&&miniPlay)paintPlayerButton(miniPlay,on,miniPlay.disabled?'Sin preview de audio':on?'Pausar':'Reproducir');
+  if(miniPlay)paintPlayerButton(miniPlay,on,miniPlay.disabled?'Sin preview de audio':on?'Pausar':'Reproducir');
   if(iosDiscView&&iosSheet)syncIosJackets(pendingRecord||selected,on);
   deck.classList.toggle('playing',on);
   if(deckPlay){
@@ -106,6 +106,7 @@ function setTimeline(current,duration){
   const safeDuration=Number.isFinite(duration)&&duration>0?duration:0;
   const safeCurrent=Math.max(0,Math.min(Number.isFinite(current)?current:0,safeDuration||0));
   const progress=safeDuration?safeCurrent/safeDuration*100:0;
+  const miniTime=$('miniPlayerTime');if(miniTime)miniTime.textContent=time(safeCurrent)+' / '+time(safeDuration);
   $('deckCurrent').textContent=time(safeCurrent);
   $('deckDuration').textContent=time(safeDuration);
   $('seek').value=progress;
@@ -227,7 +228,10 @@ function setDiscView(view){
  }
  discView=view==='library'?'library':'player';document.body.classList.toggle('expanded-library',discView==='library');
  document.querySelectorAll('.library-view-switch [data-disc-view]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.discView===discView)));
- if(miniPlayer)miniPlayer.hidden=discView!=='library';
+ if(miniPlayer)miniPlayer.hidden=false;
+ const rail=document.querySelector('.biblioteca-sidebar');
+ if(rail){if(discView==='player')document.querySelector('.room-layout').prepend(rail);else collectionPanel.prepend(rail)}
+ document.body.classList.toggle('desktop-turntable',discView==='player');
  try{localStorage.setItem(viewStorageKey,discView)}catch{}
 }
 function setSheetMode(turntable){
@@ -281,7 +285,17 @@ if(iosDiscView){
  iosSheet.addEventListener('transitionend',fitDeck);
  setSheetPosition('compact');
  setSheetMode(false);setDiscView('library');buildIosJackets();
-}else{const opener=miniPlayer.querySelector('[data-disc-view]');opener.innerHTML=$('iosTurntableToggle').innerHTML;opener.classList.add('desktop-deck-toggle');opener.setAttribute('aria-label','Abrir tocadiscos');setDiscView('library')}
+}else{
+ const openButton=document.createElement('button');openButton.type='button';openButton.className='mini-player-open';openButton.setAttribute('aria-label','Abrir disco en reproducción');
+ const artwork=document.createElement('img');artwork.id='miniPlayerArtwork';artwork.alt='';openButton.append(artwork,miniPlayer.querySelector('div'));miniPlayer.prepend(openButton);openButton.onclick=()=>{if(selected)navigateLibrary({type:'disc',record:selected})};
+ const transport=document.createElement('div');transport.className='mini-transport';
+ [-1,1].forEach(direction=>{const b=document.createElement('button');b.type='button';b.id=direction<0?'miniPrevious':'miniNext';b.setAttribute('aria-label',direction<0?'Reproducir disco anterior':'Reproducir disco siguiente');b.innerHTML=playerControlIcon(direction<0?'previous':'next');b.onclick=()=>{const queue=records.filter(r=>audioUrl(r,document.baseURI)),index=queue.indexOf(selected),r=queue[index+direction];if(r){mountRecord(r);togglePlayback()}};transport.append(b)});
+ transport.insertBefore($('libraryPlayerPlay'),transport.lastChild);miniPlayer.append(transport);
+ const seek=document.createElement('input');seek.type='range';seek.id='miniPlayerSeek';seek.min=0;seek.max=100;seek.step=.1;seek.disabled=true;seek.setAttribute('aria-label','Posición del audio');seek.oninput=()=>{$('seek').value=seek.value;$('seek').dispatchEvent(new Event('input',{bubbles:true}))};miniPlayer.append(seek);
+ const opener=miniPlayer.querySelector('[data-disc-view]');opener.innerHTML=$('iosTurntableToggle').innerHTML;opener.classList.add('desktop-deck-toggle');opener.setAttribute('aria-label','Abrir tocadiscos');setDiscView('library')}
+
+const feedback=document.createElement('span');feedback.id='libraryPlaybackStatus';feedback.setAttribute('role','status');miniPlayer.append(feedback);
+if(!iosDiscView){const clock=document.createElement('span');clock.id='miniPlayerTime';clock.textContent='0:00 / 0:00';miniPlayer.append(clock)}
 
 function buildIosJackets(){
  const rail=document.createElement('div');rail.id='iosJacketRail';rail.className='ios-jacket-rail';rail.setAttribute('aria-label','Explorar portadas');
@@ -321,13 +335,14 @@ function updateSelectedInfo(r,browsing=false){
   $('recordTitle').textContent=r.title;
   $('recordArtist').textContent=r.artist;
   if(!browsing){
+  const queue=records.filter(item=>audioUrl(item,document.baseURI)),queueIndex=queue.indexOf(r);if($('miniPrevious'))$('miniPrevious').disabled=queueIndex<=0;if($('miniNext'))$('miniNext').disabled=queueIndex<0||queueIndex>=queue.length-1;
   $('libraryPlayerTitle').textContent=r.title;
   $('libraryPlayerArtist').textContent=r.artist;
   const miniArt=$('miniPlayerArtwork');if(miniArt){
    const fallback='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="'+recordColor(r)+'"/><circle cx="56" cy="65" r="27" fill="none" stroke="#e6d1a6" stroke-opacity=".2" stroke-width="10"/><text x="8" y="23" fill="#eee3cf" font-size="13" font-family="sans-serif">LVL</text></svg>');
    miniArt.onerror=()=>{miniArt.onerror=null;miniArt.src=fallback};miniArt.src=cover(r)||fallback;miniArt.hidden=false;
   }
-  for(const id of ['libraryPlayerPlay','iosSheetPlay']){const control=$(id);if(control&&iosDiscView){control.disabled=!audioUrl(r,document.baseURI);paintPlayerButton(control,!audio.paused,control.disabled?'Sin preview de audio':(!audio.paused?'Pausar':'Reproducir'))}}
+  for(const id of ['libraryPlayerPlay','iosSheetPlay']){const control=$(id);if(control){control.disabled=!audioUrl(r,document.baseURI);paintPlayerButton(control,!audio.paused,control.disabled?'Sin preview de audio':(!audio.paused?'Pausar':'Reproducir'))}}
   }
   $('recordInfo').innerHTML=[['Sello',r.label],['Año',r.year],['Género',r.genre],['Estado',r.condition]].filter(([,value])=>value).map(([name,value])=>'<div><dt>'+name+'</dt><dd>'+escape(String(value))+'</dd></div>').join('');
   $('recordDescription').textContent=r.description||'';
@@ -390,7 +405,7 @@ $('artworkOpen').onclick=()=>{
 $('artworkClose').onclick=()=>artworkDialog.close();
 $('artworkZoom').onclick=()=>{const zoom=artworkStage.classList.toggle('is-zoomed');$('artworkZoom').setAttribute('aria-pressed',String(zoom));$('artworkZoom').textContent=zoom?'Ajustar':'Ampliar'};
 artworkDialog.addEventListener('click',e=>{if(e.target===artworkDialog){const box=artworkDialog.getBoundingClientRect();if(e.clientX<box.left||e.clientX>box.right||e.clientY<box.top||e.clientY>box.bottom)artworkDialog.close()}});
-artworkDialog.addEventListener('close',()=>{resetArtworkZoom();$('artworkFull').removeAttribute('src');$('artworkOpen').focus()});
+artworkDialog.addEventListener('close',()=>{resetArtworkZoom();$('artworkFull').removeAttribute('src');(libraryPage.type==='disc'?$('libraryArtworkOpen'):$('artworkOpen'))?.focus()});
 
 function libraryRecordCards(items){return items.map((r,i)=>{
     const detail=[r.genre,r.year].filter(Boolean).join(' · ');
@@ -408,9 +423,11 @@ function renderGallery(){
   syncLibraryPage();
   if(discView==='library'&&libraryPage.type==='home'&&!$('recordSearch').value){
     const shelf=(title,items,genre='')=>'<section class="record-shelf"><div class="record-shelf-heading"><h2>'+escape(title)+'</h2><button type="button" data-open-collection="'+escape(genre)+'">Ver todos <span aria-hidden="true">›</span></button></div><div class="record-shelf-row">'+libraryRecordCards(items)+'</div></section>';
-    gallery.innerHTML=shelf('Discos',records)+[...new Set(records.map(r=>r.genre).filter(Boolean))].sort().map(genre=>shelf(genre,records.filter(r=>r.genre===genre),genre)).join('');
+    gallery.innerHTML=shelf('Discos',records);
     gallery.querySelectorAll('[data-open-collection]').forEach(button=>button.onclick=()=>openLibraryCollection('all',button.dataset.openCollection));
-  }else gallery.innerHTML=libraryRecordCards(results)||'<p>No hay discos en esta colección.</p>';
+  }else gallery.innerHTML=libraryRecordCards(results)||'<div class="library-empty"><h2>'+ (libraryScope==='liked'?'Guarda tus discos favoritos':'No encontramos discos')+'</h2><p>'+ (libraryScope==='liked'?'Usa el corazón en cada disco para reunirlos aquí.':'Prueba con otro artista, título o sello.')+'</p><button type="button" id="libraryEmptyBrowse">Explorar discos</button></div>';
+  if($('libraryEmptyBrowse'))$('libraryEmptyBrowse').onclick=()=>openLibraryCollection('all');
+  wireLibraryShelves();
   gallery.querySelectorAll('img').forEach(img=>img.onerror=()=>img.remove());
   gallery.querySelectorAll('[data-index]').forEach(button=>{
     button.onclick=()=>stageFromLibrary(records[+button.dataset.index]);
@@ -455,7 +472,7 @@ function mountRecord(r,focusView=false,infoReady=false){
   }
 
   const sound=audioUrl(r,document.baseURI);
-  if(deckPlay)deckPlay.disabled=iosDiscView&&!sound;
+  if(deckPlay)deckPlay.disabled=!sound;
   if(sound){
     audio.preload='auto';
     audio.src=sound;
@@ -524,7 +541,7 @@ function stageFromLibrary(r){
   if(discView==='library'){navigateLibrary({type:'disc',record:r});return}
   if(iosDiscView){browseIosRecord(r);openIosPlayer();return}
 
-  updateSelectedInfo(r);
+  updateSelectedInfo(r,true);
   focusRecordView(true);
 
   if(r===selected){
@@ -681,9 +698,7 @@ async function togglePlayback(){
 
   const sound=audioUrl(selected,document.baseURI);
   if(!sound){
-    if(iosDiscView){notice('Sin preview de audio');return}
-    startDemoClock();
-    notice('Modo visual activo.');
+    playing(false);notice('Sin preview de audio');
     return;
   }
 
@@ -699,9 +714,7 @@ async function togglePlayback(){
     if(version===selection)notice('Escuchando '+selected.artist+' — '+selected.title);
   }catch{
     if(version===selection){
-      if(iosDiscView){playing(false);notice('No se pudo cargar el preview. Intenta de nuevo.');return}
-      startDemoClock();
-      notice('Preview no disponible. Tocadiscos en modo visual.');
+      playing(false);notice('No se pudo cargar el preview. Intenta de nuevo.');
     }
   }
 }
@@ -782,21 +795,39 @@ applyTempo(0);
 });
 
 function navigateLibrary(page,push=true){
+ if(push){saveLibraryHistory(true);}
  if(push)libraryTrail.push({...libraryPage,query:$('recordSearch').value,scroll:collectionPanel.scrollTop});
  libraryPage=page;libraryScope=page.scope||'all';
+ setDiscView('library');
  $('recordSearch').value=page.query||'';$('genreFilter').value=page.genre||'';
  renderGallery();
  collectionPanel.scrollTop=page.scroll||0;
+ if(push)saveLibraryHistory(false);
  if(window.innerWidth<=950)collectionPanel.scrollIntoView({block:'start'});
  $('libraryPageTitle').focus({preventScroll:true});
 }
+function saveLibraryHistory(replace){
+ const page={...libraryPage,query:$('recordSearch').value,scroll:collectionPanel.scrollTop};
+ const url=new URL(location.href);['disc','collection','genre','q'].forEach(key=>url.searchParams.delete(key));url.hash='';
+ if(page.type==='disc')url.searchParams.set('disc',page.record.id);
+ else if(page.type==='collection'){url.searchParams.set('collection',page.scope||'all');if(page.genre)url.searchParams.set('genre',page.genre)}
+ if(page.query)url.searchParams.set('q',page.query);
+ history[replace?'replaceState':'pushState']({lvlLibrary:page},'',url);
+}
+function libraryPageFromUrl(){
+ const params=new URL(location.href).searchParams,record=records.find(r=>r.id===(params.get('disc')||decodeURIComponent(location.hash.slice(1))));
+ if(record)return {type:'disc',record};
+ if(params.has('collection')||params.has('q'))return {type:'collection',scope:params.get('collection')==='liked'?'liked':'all',genre:params.get('genre')||'',query:params.get('q')||''};
+ return {type:'home'};
+}
+window.addEventListener('popstate',e=>navigateLibrary(e.state?.lvlLibrary||libraryPageFromUrl(),false));
 function openLibraryCollection(scope,genre=''){navigateLibrary({type:'collection',scope,genre})}
 function syncLibraryPage(){
  const home=libraryPage.type==='home',detail=libraryPage.type==='disc';
- document.body.classList.toggle('library-home',home);
+ document.body.classList.toggle('library-home',home);document.body.classList.toggle('library-searching',!!$('recordSearch').value);
  document.body.classList.toggle('library-detail-open',detail);
  document.body.classList.toggle('library-collection-open',!home&&!detail);
- $('libraryPageTitle').textContent=detail?'Disco':home?'Biblioteca':libraryPage.scope==='liked'?'Discos que te gustan':libraryPage.genre||'Todos los discos';
+ $('libraryPageTitle').textContent=detail?'Biblioteca':$('recordSearch').value?'Resultados':home?'Biblioteca':libraryPage.scope==='liked'?'Discos que te gustan':libraryPage.genre||'Todos los discos';
  $('libraryBack').hidden=home;
  $('libraryNavHome').setAttribute('aria-pressed',String(home));
  $('libraryNavAll').setAttribute('aria-pressed',String(!home&&!detail&&libraryPage.scope==='all'&&!libraryPage.genre));
@@ -808,8 +839,9 @@ function syncLibraryPage(){
 function renderLibraryDisc(r){
  const liked=storedIds('lvl-liked-discs').includes(r.id),bagged=storedIds('lvl-cart-discs').includes(r.id);
  const available=!!audioUrl(r,document.baseURI);
- $('libraryDiscDetail').innerHTML='<div class="library-disc-hero"><div class="sleeve-art" style="--sleeve-color:'+recordColor(r)+'"><span class="fallback-type">'+escape(r.title)+'</span>'+(cover(r)?'<img src="'+escape(cover(r))+'" alt="Portada de '+escape(r.title)+'">':'')+'</div><div class="library-disc-copy"><p class="library-disc-kind">'+escape([r.genre,r.year].filter(Boolean).join(' · '))+'</p><h2>'+escape(r.title)+'</h2><p class="library-disc-artist">'+escape(r.artist)+'</p><p class="library-disc-label">'+escape(r.label||'La Vaca Loca Records')+'</p><div class="library-disc-buttons"><button id="libraryDiscPlay" type="button" '+(!available?'disabled':'')+'>'+playerControlIcon('play')+'<span>'+ (available?'Reproducir preview':'Sin preview')+'</span></button><button id="libraryDiscTurntable" type="button">Ver tocadiscos</button></div><div class="library-disc-purchase"><strong>'+escape(price(r))+'</strong><button id="libraryDiscLike" type="button" aria-pressed="'+liked+'">'+(liked?'Guardado':'Me gusta')+'</button><button type="button" '+(bagged?'id="libraryDiscBag"':'data-add="'+escape(r.id)+'"')+' '+(Number(r.stock)===0&&!bagged?'disabled':'')+'>'+(bagged?'Ver canasta':Number(r.stock)===0?'Agotado':'Añadir a canasta')+'</button></div></div></div><div class="library-disc-information"><p>'+escape(r.description||'')+'</p><dl>'+[['Sello',r.label],['Año',r.year],['Género',r.genre],['Estado',r.condition]].filter(([,v])=>v).map(([k,v])=>'<div><dt>'+k+'</dt><dd>'+escape(v)+'</dd></div>').join('')+'</dl></div>';
+ $('libraryDiscDetail').innerHTML='<div class="library-disc-hero"><button type="button" id="libraryArtworkOpen" aria-label="Ampliar portada" '+(!cover(r)?'disabled':'')+' class="sleeve-art" style="--sleeve-color:'+recordColor(r)+'"><span class="fallback-type">'+escape(r.title)+'</span>'+(cover(r)?'<img src="'+escape(cover(r))+'" alt="Portada de '+escape(r.title)+'">':'')+'</button><div class="library-disc-copy"><p class="library-disc-kind">'+escape([r.genre,r.year].filter(Boolean).join(' · '))+'</p><h2>'+escape(r.title)+'</h2><p class="library-disc-artist">'+escape(r.artist)+'</p><p class="library-disc-label">'+escape(r.label||'La Vaca Loca Records')+'</p><div class="library-disc-buttons"><button id="libraryDiscPlay" type="button" '+(!available?'disabled':'')+'>'+playerControlIcon('play')+'<span>'+ (available?'Reproducir preview':'Sin preview')+'</span></button><button id="libraryDiscTurntable" type="button">Ver tocadiscos</button></div><div class="library-disc-purchase"><strong>'+escape(price(r))+'</strong><button id="libraryDiscLike" type="button" aria-pressed="'+liked+'">'+'<svg viewBox="0 0 24 24" fill="'+(liked?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span>'+(liked?'Guardado':'Guardar')+'</span>'+'</button><button type="button" '+(bagged?'id="libraryDiscBag"':'data-add="'+escape(r.id)+'"')+' '+(Number(r.stock)===0&&!bagged?'disabled':'')+'>'+(bagged?'Ver canasta':Number(r.stock)===0?'Agotado':'Añadir a canasta')+'</button></div></div></div><div class="library-disc-information"><p>'+escape(r.description||'')+'</p><dl>'+[['Sello',r.label],['Año',r.year],['Género',r.genre],['Estado',r.condition]].filter(([,v])=>v).map(([k,v])=>'<div><dt>'+k+'</dt><dd>'+escape(v)+'</dd></div>').join('')+'</dl></div>';
  $('libraryDiscDetail').querySelectorAll('img').forEach(img=>img.onerror=()=>img.remove());
+ $('libraryArtworkOpen').onclick=()=>{resetArtworkZoom();$('artworkCaption').textContent=r.artist+' — '+r.title;$('artworkFull').src=cover(r);$('artworkFull').alt='Portada de '+r.title;artworkDialog.showModal()};
  $('libraryDiscPlay').onclick=()=>{if(r!==selected)mountRecord(r);togglePlayback()};
  $('libraryDiscTurntable').onclick=()=>{if(iosDiscView){browseIosRecord(r);setDiscView('player')}else{setDiscView('player');stageFromLibrary(r)}};
  $('libraryDiscLike').onclick=()=>{const ids=new Set(storedIds('lvl-liked-discs'));ids.has(r.id)?ids.delete(r.id):ids.add(r.id);localStorage.setItem('lvl-liked-discs',JSON.stringify([...ids]));renderGallery();if(pendingRecord||selected)syncRecordActions(pendingRecord||selected);$('libraryDiscLike').focus()};
@@ -822,6 +854,17 @@ function syncLibraryDiscPlayback(){
  button.innerHTML=playerControlIcon(on?'pause':'play')+'<span>'+(button.disabled?'Sin preview':on?'Pausar':'Reproducir preview')+'</span>';
 }
 audio.addEventListener('play',syncLibraryDiscPlayback);audio.addEventListener('pause',syncLibraryDiscPlayback);
+
+function wireLibraryShelves(){
+ document.querySelectorAll('.library-cover-row,.record-shelf-row').forEach(row=>{
+  const heading=row.previousElementSibling;if(!heading||heading.querySelector('.shelf-controls'))return;
+  const controls=document.createElement('span');controls.className='shelf-controls';
+  [-1,1].forEach(direction=>{const button=document.createElement('button');button.type='button';button.setAttribute('aria-label',direction<0?'Portadas anteriores':'Más portadas');button.innerHTML=playerControlIcon(direction<0?'previous':'next');button.onclick=()=>row.scrollBy({left:direction*row.clientWidth*.8,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});controls.append(button)});
+  heading.append(controls);
+  const update=()=>{controls.firstChild.disabled=row.scrollLeft<=1;controls.lastChild.disabled=row.scrollLeft+row.clientWidth>=row.scrollWidth-2;controls.hidden=row.scrollWidth<=row.clientWidth+2};
+  row.addEventListener('scroll',update,{passive:true});requestAnimationFrame(update);
+ });
+}
 
 function renderLibraryCovers(){
  const genres=[...new Set(records.map(r=>r.genre).filter(Boolean))].sort();
@@ -839,14 +882,14 @@ function setLibraryScope(scope){
 }
 renderLibraryCovers();
 $('libraryNavHome').onclick=()=>navigateLibrary({type:'home'});
-$('libraryBack').onclick=()=>{const previous=libraryTrail.pop()||{type:'home'};navigateLibrary(previous,false)};
+$('libraryBack').onclick=()=>{if(libraryTrail.length){libraryTrail.pop();history.back()}else navigateLibrary({type:'home'})};
 $('libraryNavAll').onclick=()=>openLibraryCollection('all');
 $('libraryNavLiked').onclick=()=>openLibraryCollection('liked');
 $('libraryNavBag').onclick=()=>window.openLVLBag?.();
 ['',...[...new Set(records.map(r=>r.genre).filter(Boolean))].sort()].forEach(genre=>{const button=document.createElement('button');button.type='button';button.dataset.genre=genre;button.textContent=genre||'Todos los géneros';button.setAttribute('aria-pressed',String(!genre));button.onclick=()=>openLibraryCollection('all',genre);$('libraryGenres').append(button)});
 window.addEventListener('storage',()=>renderGallery());
 document.addEventListener('lvl-bag-change',()=>{if(libraryScope==='liked'||libraryPage.type==='disc')renderGallery()});
-$('recordSearch').oninput=()=>{if(libraryPage.type==='home'){libraryPage={type:'collection',scope:'all',genre:''};}renderGallery()};
+$('recordSearch').oninput=()=>{renderGallery();saveLibraryHistory(true)};
 $('genreFilter').onchange=()=>openLibraryCollection('all',$('genreFilter').value);
 if(libraryToggle)libraryToggle.onclick=()=>{if(discView!=='library')focusRecordView(false)};
 window.addEventListener('resize',()=>{if(window.innerWidth<=950)focusRecordView(false)});
@@ -943,6 +986,7 @@ if(records.length){
   const initialRecord=records.find(record=>record.id===requestedId)||records[0];
   updateSelectedInfo(initialRecord);
   mountRecord(initialRecord,false,true);
+  libraryPage=libraryPageFromUrl();navigateLibrary(libraryPage,false);saveLibraryHistory(true);
 }else{
   if(deckPlay)deckPlay.disabled=true;
   renderGallery();

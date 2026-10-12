@@ -2,7 +2,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const source=fs.readFileSync(require.resolve('../discos.js'),'utf8');
 const fields={recordSearch:{value:'night'},genreFilter:{value:'House'},libraryPageTitle:{focus(){}}};
 let mounted=0,played=0,rendered=0;
-const context={libraryPage:{type:'collection',scope:'all',genre:'House'},libraryTrail:[],libraryScope:'all',collectionPanel:{scrollTop:180},$:id=>fields[id],renderGallery(){rendered++},window:{innerWidth:1200},discView:'library',iosDiscView:false,isLoadingDisc:false,mountRecord(){mounted++},togglePlayback(){played++}};
+const context={libraryPage:{type:'collection',scope:'all',genre:'House'},libraryTrail:[],libraryScope:'all',collectionPanel:{scrollTop:180},$:id=>fields[id],setDiscView(){},saveLibraryHistory(){},renderGallery(){rendered++},URL,location:{href:'https://example.test/discos',hash:''},history:{replaceState(){},pushState(){}},window:{innerWidth:1200,addEventListener(){}},discView:'library',iosDiscView:false,isLoadingDisc:false,mountRecord(){mounted++},togglePlayback(){played++}};
 vm.createContext(context);
 vm.runInContext(source.slice(source.indexOf('function navigateLibrary('),source.indexOf('function syncLibraryPage(')),context);
 vm.runInContext(source.slice(source.indexOf('function stageFromLibrary('),source.indexOf('function createReturnSleeveGhost(')),context);

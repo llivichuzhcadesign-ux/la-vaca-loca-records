@@ -926,3 +926,62 @@ body[data-page="discos"] .cover-title,body[data-page="discos"] .fallback-type,bo
  .library-disc-hero>.sleeve-art{width:min(70vw,300px);justify-self:center}
  .library-disc-information dl{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* Shared library/player language and stable navigation. */
+body[data-page="discos"]{--accent:#d6dcb6}
+body[data-page="discos"] .shared-bag h2{font-family:Arial,Helvetica,sans-serif;font-weight:600;letter-spacing:-.025em}
+.library-empty{grid-column:1/-1;padding:30px 0;max-width:460px}
+.library-empty h2{font-size:22px;margin:0 0 10px}.library-empty p{color:#c8bea9;font-size:14px;line-height:1.6}
+.library-empty button{min-height:44px;border:1px solid #a9b18a55;background:#535b3c;color:#f0e2c9;border-radius:7px;padding:10px 18px}
+.library-disc-hero>button.sleeve-art{width:100%;padding:0;text-align:left;color:inherit;cursor:zoom-in}
+.library-disc-hero>button.sleeve-art:disabled{opacity:1;cursor:default}
+#libraryDiscLike{display:inline-flex;align-items:center;gap:8px}#libraryDiscLike svg{width:20px;height:20px}
+.library-disc-label{display:none}
+.library-detail-open .library-page-heading h1{font-size:13px;color:#c8bea9;font-weight:500;letter-spacing:0}
+.library-disc-kind{font-size:14px;color:#c8bea9}
+.library-disc-information dt{font-size:12px;color:#bdb39d}
+.expanded-library .sleeve-detail{font-size:11px;color:#bdb39d}.expanded-library .sleeve-price{font-size:12px}
+.record-shelf-row,.library-cover-row{scrollbar-width:thin;scrollbar-color:#dcccaa22 transparent}
+.library-searching .library-playlists{display:none!important}
+.expanded-library.library-home.library-searching .library-column .disc-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+#libraryPlaybackStatus:empty{display:none}
+#libraryPlaybackStatus{position:absolute;bottom:100%;right:16px;max-width:min(90vw,420px);padding:12px 16px;border-radius:8px;background:#682d3b;color:#f0e2c9;font-size:13px;box-shadow:0 4px 20px #0005}
+@media(min-width:951px){
+ .expanded-library .library-column .library-toolbar{grid-row:1!important;justify-self:end;align-self:center;width:310px;padding:16px 32px 16px 0!important}
+ .expanded-library .library-toolbar .library-label{display:none}
+ .expanded-library.library-collection-open .library-column .disc-gallery{grid-row:2}
+ .expanded-library.library-home.library-searching .library-column .disc-gallery{grid-row:2}
+ body:not(.layered-ios-player) .library-mini-player{display:grid;grid-template-columns:minmax(160px,1fr) auto minmax(120px,1fr) auto auto;gap:20px;height:82px;padding:12px 28px;align-items:center;background:#202219;border-top:1px solid #dcccaa25;position:relative}
+ body:not(.layered-ios-player) .library-mini-player .mini-player-open{display:flex;align-items:center;gap:12px;padding:0;border:0;background:none;color:#eee3cf;text-align:left;min-width:0}
+ body:not(.layered-ios-player) .mini-player-open img{width:48px;height:48px;object-fit:cover;border-radius:5px}
+ body:not(.layered-ios-player) .mini-player-open>div{min-width:0}
+ body:not(.layered-ios-player) #libraryPlayerTitle{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ body:not(.layered-ios-player) #libraryPlayerArtist{font-size:12px;color:#c8bea9}
+ .mini-transport{display:flex;gap:8px;align-items:center;grid-column:2;grid-row:1}
+ .mini-transport button{display:grid;place-items:center;min-width:44px;min-height:44px;border:0;background:transparent;color:#e8dfcc;padding:0}
+ .mini-transport svg{width:22px;height:22px}
+ .mini-transport #libraryPlayerPlay{border-radius:50%;background:#682d3b}
+ .mini-transport #libraryPlayerPlay[aria-pressed="true"]{background:#535b3c}
+ body:not(.layered-ios-player) #miniPlayerSeek{grid-column:3;grid-row:1;width:100%;accent-color:#b8c198;cursor:pointer}
+ #miniPlayerTime{grid-column:4;grid-row:1;font-size:11px;color:#d4ccb8;font-variant-numeric:tabular-nums}
+ .desktop-deck-toggle{grid-column:5;grid-row:1;min-height:44px}
+ .expanded-library .room-layout,.desktop-turntable .room-layout{height:calc(100% - 82px)}
+ .desktop-turntable .room-layout{grid-template-columns:190px minmax(310px,32%) minmax(0,1fr)}
+ .desktop-turntable .room-layout>.biblioteca-sidebar{display:flex;flex-direction:column;padding:22px 12px;background:#17181180;border-right:1px solid #dcccaa20;overflow:auto;grid-column:1;grid-row:1;gap:4px}
+ .desktop-turntable .library-column{grid-column:2}.desktop-turntable .deck-area{grid-column:3}
+ .desktop-turntable .library-view-switch{display:none}
+ .desktop-turntable .biblioteca-sidebar .library-deck-button{background:#535b3c70}
+ .desktop-turntable .selected-record{grid-template-columns:86px minmax(0,1fr);gap:16px}
+ .desktop-turntable .sleeve-zone{width:86px}.desktop-turntable .now-playing-copy{grid-template-columns:1fr}
+ .desktop-turntable .listening-panel h2{font-size:25px}
+}
+@media(min-width:951px) and (max-width:1150px){.desktop-turntable .room-layout{grid-template-columns:155px minmax(290px,35%) minmax(0,1fr)}.desktop-turntable .biblioteca-sidebar button{font-size:12px;padding:8px}.desktop-turntable .selected-record{grid-template-columns:1fr}.desktop-turntable .sleeve-zone{display:none}}
+@media(max-width:950px){
+ body:not(.layered-ios-player) .library-mini-player{display:flex;flex-wrap:wrap;gap:12px;position:fixed;bottom:0;left:0;right:0;z-index:20;padding:10px 5vw;background:#202219}
+ body:not(.layered-ios-player) .mini-player-open{display:flex;gap:10px;align-items:center;flex:1;border:0;background:none;color:#eee3cf;text-align:left;padding:0}
+ body:not(.layered-ios-player) .mini-player-open img{width:40px;height:40px;border-radius:4px}
+ .mini-transport{display:flex;align-items:center}.mini-transport button{min-width:44px;min-height:44px;background:none;color:#eee3cf;border:0}.mini-transport svg{width:22px;height:22px}
+ body:not(.layered-ios-player) #miniPlayerSeek{width:100%;accent-color:#b8c198}.desktop-deck-toggle{display:none}#miniPlayerTime{font-size:11px}
+ .desktop-turntable .room-layout>.biblioteca-sidebar{display:flex;overflow:auto;gap:6px;padding:10px 6vw;order:0}.desktop-turntable .biblioteca-sidebar .library-nav-caption,.desktop-turntable .biblioteca-sidebar .library-genres{display:none}
+}
+.shelf-controls{display:inline-flex;gap:4px;margin-left:auto}.shelf-controls[hidden]{display:none}.shelf-controls button{display:grid;place-items:center;width:36px;height:36px;min-height:36px;padding:0;background:#535b3c22;border:1px solid #dcccaa22;border-radius:50%;color:#eee3cf}.shelf-controls svg{width:18px;height:18px}.shelf-controls button:disabled{opacity:.25}.record-shelf-heading>button{margin-left:auto}.record-shelf-heading .shelf-controls{margin-left:0}
