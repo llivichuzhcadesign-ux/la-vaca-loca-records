@@ -989,3 +989,32 @@ body[data-page="discos"]{--pink:#c6cea7}
 .library-mini-player>.mini-transport{display:flex;flex:none;gap:8px;align-items:center}
 .library-mini-player .mini-transport button{padding:0;border:0;width:44px;height:44px;flex:none}
 @media(min-width:951px){body:not(.layered-ios-player) .library-mini-player{box-sizing:border-box;overflow:visible;grid-template-rows:1fr}.desktop-turntable .now-playing-copy{gap:8px}.desktop-turntable .record-buy{text-align:left;justify-self:start}.desktop-turntable .record-actions{justify-content:flex-start}}
+
+/* Disc detail: artwork first, listening and collecting as distinct actions. */
+.library-disc-hero{grid-template-columns:minmax(200px,340px) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:center}
+.library-disc-copy{min-width:0}.library-disc-copy h2{font-size:clamp(28px,3.3vw,46px);line-height:1.08;margin:10px 0 12px}
+.library-disc-artist{font-size:clamp(18px,2vw,24px)}
+.library-disc-buttons{margin-top:24px;gap:10px}
+#libraryDiscTurntable{display:inline-flex;align-items:center;gap:9px;border-color:transparent;background:none}
+#libraryDiscTurntable svg{width:24px;height:24px;flex:none}
+.library-disc-purchase{border-top:1px solid #dcccaa24;padding-top:22px;margin-top:24px;gap:12px}
+.library-disc-price{display:flex;flex-direction:column;gap:5px;margin-right:auto}
+.library-disc-price strong{font-size:24px;font-weight:500;letter-spacing:-.02em;margin:0}
+.library-disc-price>span{font-size:12px;color:#c4cba8}
+.library-disc-purchase .library-add-button{display:inline-flex;align-items:center;gap:9px;background:#535b3c;border-color:#a3ad7c44;min-height:46px}
+.library-add-button img{width:24px;height:24px;object-fit:contain}
+.library-disc-purchase #libraryDiscLike{border-color:transparent;background:none;padding:10px}
+#libraryDiscLike[aria-pressed="true"]{color:#e1b4b9}
+.library-disc-information{max-width:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(270px,.9fr);gap:40px;align-items:start;margin-top:36px}
+.library-disc-information p{margin:0;max-width:55ch}
+.library-disc-information dl{margin:0;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.artwork-expand-cue{position:absolute;right:12px;bottom:12px;z-index:3;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#111a;color:#f0e2c9;opacity:.75;transition:opacity .2s}
+.artwork-expand-cue svg{width:19px;height:19px}.library-disc-hero>.sleeve-art:hover .artwork-expand-cue{opacity:1}
+.library-disc-hero>.sleeve-art{transition:box-shadow .3s,border-color .3s}
+.library-disc-detail.is-playing .library-disc-hero>.sleeve-art{border-color:#a1ae7866;box-shadow:0 8px 32px #0005,0 0 30px #a9b77016}
+.library-listening-context{display:block;max-width:100%;border:0;background:none;padding:5px 0;color:#c9d2aa;font-size:12px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.library-listening-context[hidden]{display:none}.library-listening-context.is-current{opacity:1;cursor:default}
+.library-listening-context:before{content:"";display:inline-block;width:6px;height:6px;margin-right:8px;border-radius:50%;background:#aebc80;vertical-align:1px}
+.library-mini-player.is-playing #miniPlayerArtwork{box-shadow:0 0 0 1px #b6c68b88,0 0 16px #b6c68b22}
+@media(max-width:1100px){.library-disc-hero{grid-template-columns:minmax(180px,280px) minmax(0,1fr);gap:26px}.library-disc-information{grid-template-columns:1fr;gap:24px}}
+@media(max-width:650px){.library-disc-hero{grid-template-columns:1fr;gap:24px}.library-disc-copy h2{font-size:30px}.library-disc-hero>button.sleeve-art{width:min(76vw,340px)}.library-disc-purchase{gap:8px}.library-disc-purchase #libraryDiscLike span{display:none}.library-disc-price strong{font-size:22px}.library-disc-information dl{gap:12px}.library-disc-information dd{overflow-wrap:anywhere}}
