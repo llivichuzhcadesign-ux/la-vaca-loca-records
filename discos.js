@@ -219,7 +219,7 @@ const viewStorageKey=iosDiscView?'lvl-ios-disc-view':'lvl-disc-view';
 const playbackTimeline=document.querySelector('.deck-playback-timeline');
 const timelineDeck=document.querySelector('.deck-area');
 let discView='player',libraryScope='all';
-let libraryPage={type:'home'},libraryTrail=[];
+let libraryPage={type:'home'},libraryTrail=history.state?.lvlLibraryTrail||[];
 let libraryShelfObserver=null;
 const miniPlayer=document.querySelector('.library-mini-player');
 let iosSheet=null,sheetTurntable=false,sheetPosition='compact',iosStartedId=null;
@@ -816,7 +816,7 @@ function saveLibraryHistory(replace){
  if(page.type==='disc')url.searchParams.set('disc',page.record.id);
  else if(page.type==='collection'){url.searchParams.set('collection',page.scope||'all');if(page.genre)url.searchParams.set('genre',page.genre)}
  if(page.query)url.searchParams.set('q',page.query);
- history[replace?'replaceState':'pushState']({lvlLibrary:page},'',url);
+ history[replace?'replaceState':'pushState']({lvlLibrary:page,lvlLibraryTrail:[...libraryTrail]},'',url);
 }
 function libraryPageFromUrl(){
  const params=new URL(location.href).searchParams;let hash='';try{hash=decodeURIComponent(location.hash.slice(1))}catch{}const record=records.find(r=>r.id===(params.get('disc')||hash));
@@ -824,7 +824,14 @@ function libraryPageFromUrl(){
  if(params.has('collection')||params.has('q'))return {type:'collection',scope:params.get('collection')==='liked'?'liked':'all',genre:params.get('genre')||'',query:params.get('q')||''};
  return {type:'home'};
 }
-window.addEventListener('popstate',e=>navigateLibrary(e.state?.lvlLibrary||libraryPageFromUrl(),false));
+window.addEventListener('popstate',e=>{
+ libraryTrail=e.state?.lvlLibraryTrail||[];
+ navigateLibrary(e.state?.lvlLibrary||libraryPageFromUrl(),false);
+});
+function goBackInLibrary(){
+ if(libraryTrail.length)history.back();
+ else navigateLibrary({type:'home'});
+}
 function openLibraryCollection(scope,genre=''){navigateLibrary({type:'collection',scope,genre})}
 function syncLibraryPage(){
  const home=libraryPage.type==='home',detail=libraryPage.type==='disc';
@@ -904,7 +911,13 @@ function setLibraryScope(scope){
 }
 renderLibraryCovers();
 $('libraryNavHome').onclick=()=>navigateLibrary({type:'home'});
-$('libraryBack').onclick=()=>{if(libraryTrail.length){libraryTrail.pop();history.back()}else navigateLibrary({type:'home'})};
+$('libraryBack').onclick=goBackInLibrary;
+let libraryScrollTimer=0;
+collectionPanel.addEventListener('scroll',()=>{
+ if(discView!=='library')return;
+ clearTimeout(libraryScrollTimer);
+ libraryScrollTimer=setTimeout(()=>{if(discView==='library')saveLibraryHistory(true)},180);
+},{passive:true});
 $('libraryNavAll').onclick=()=>openLibraryCollection('all');
 $('libraryNavLiked').onclick=()=>openLibraryCollection('liked');
 $('libraryNavBag').onclick=()=>window.openLVLBag?.();
@@ -1008,7 +1021,10 @@ if(records.length){
   const initialRecord=records.find(record=>record.id===requestedId)||records[0];
   updateSelectedInfo(initialRecord);
   mountRecord(initialRecord,false,true);
-  libraryPage=libraryPageFromUrl();navigateLibrary(libraryPage,false);saveLibraryHistory(true);
+  libraryPage=libraryPageFromUrl();
+  const restoredPage=history.state?.lvlLibrary;
+  if(restoredPage)libraryPage={...libraryPage,scroll:restoredPage.scroll||0};
+  navigateLibrary(libraryPage,false);saveLibraryHistory(true);
 }else{
   if(deckPlay)deckPlay.disabled=true;
   renderGallery();
