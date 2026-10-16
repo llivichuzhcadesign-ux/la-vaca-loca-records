@@ -46,3 +46,10 @@ context.goBackInLibrary();assert.equal(context.libraryPage.type,'home');assert.e
 // Opening another disc after going back discards the abandoned forward branch.
 context.navigateLibrary({type:'disc',record});assert.equal(context.libraryTrail.length,1);assert.equal(entries.length,2);
 console.log('PASS: mixed browser/in-page navigation restores filters and scroll, forward restores trail, new navigation replaces forward branch');
+let searchFocused=false;fields.recordSearch.focus=()=>{searchFocused=true};
+vm.runInContext(source.slice(source.indexOf('function clearLibrarySearch('),source.indexOf("$('librarySearchClear').onclick")),context);
+context.openLibraryCollection('liked');fields.recordSearch.value='missing';context.clearLibrarySearch();
+assert.equal(fields.recordSearch.value,'');assert.equal(context.libraryScope,'liked');assert.equal(searchFocused,true);
+context.openLibraryCollection('all','House');fields.recordSearch.value='missing';context.clearLibrarySearch();
+assert.equal(fields.genreFilter.value,'House');assert.equal(context.libraryPage.genre,'House');
+console.log('PASS: clearing search retains favorites/genre context and restores input focus');

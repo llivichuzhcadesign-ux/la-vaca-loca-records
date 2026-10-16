@@ -428,8 +428,12 @@ function renderGallery(){
     const shelf=(title,items,genre='')=>'<section class="record-shelf"><div class="record-shelf-heading"><h2>'+escape(title)+'</h2><button type="button" data-open-collection="'+escape(genre)+'">Ver todos <span aria-hidden="true">›</span></button></div><div class="record-shelf-row">'+libraryRecordCards(items)+'</div></section>';
     gallery.innerHTML=shelf('Discos',records);
     gallery.querySelectorAll('[data-open-collection]').forEach(button=>button.onclick=()=>openLibraryCollection('all',button.dataset.openCollection));
-  }else gallery.innerHTML=libraryRecordCards(results)||'<div class="library-empty"><h2>'+ (libraryScope==='liked'?'Guarda tus discos favoritos':'No encontramos discos')+'</h2><p>'+ (libraryScope==='liked'?'Usa el corazón en cada disco para reunirlos aquí.':'Prueba con otro artista, título o sello.')+'</p><button type="button" id="libraryEmptyBrowse">Explorar discos</button></div>';
-  if($('libraryEmptyBrowse'))$('libraryEmptyBrowse').onclick=()=>openLibraryCollection('all');
+  }else{
+    const searching=!!$('recordSearch').value.trim();
+    const emptyFavorites=libraryScope==='liked'&&!storedIds('lvl-liked-discs').length;
+    gallery.innerHTML=libraryRecordCards(results)||'<div class="library-empty"><h2>'+(emptyFavorites?'Guarda tus discos favoritos':'No encontramos discos')+'</h2><p>'+(emptyFavorites?'Usa el corazón en cada disco para reunirlos aquí.':searching?'Prueba otra búsqueda dentro de esta colección.':'No hay discos disponibles en esta selección.')+'</p><button type="button" id="libraryEmptyBrowse">'+(searching&&!emptyFavorites?'Borrar búsqueda':'Explorar discos')+'</button></div>';
+    if($('libraryEmptyBrowse'))$('libraryEmptyBrowse').onclick=searching&&!emptyFavorites?clearLibrarySearch:()=>openLibraryCollection('all');
+  }
   syncLibraryCardStates();
   wireLibraryShelves();
   gallery.querySelectorAll('img').forEach(img=>img.onerror=()=>img.remove());
@@ -839,6 +843,10 @@ function syncLibraryPage(){
  document.body.classList.toggle('library-detail-open',detail);
  document.body.classList.toggle('library-collection-open',!home&&!detail);
  $('libraryPageTitle').textContent=detail?'Biblioteca':$('recordSearch').value?'Resultados':home?'Biblioteca':libraryPage.scope==='liked'?'Discos que te gustan':libraryPage.genre||'Todos los discos';
+ const searching=!!$('recordSearch').value;
+ $('librarySearchClear').hidden=!searching;
+ const summary=$('librarySearchSummary');summary.hidden=detail||(!searching&&home);
+ summary.textContent=results.length+(results.length===1?' disco':' discos')+(searching?' · '+(libraryPage.scope==='liked'?'Tus favoritos':libraryPage.genre||'Toda la biblioteca'):'');
  $('libraryBack').hidden=home;
  $('libraryNavHome').setAttribute('aria-pressed',String(home&&discView==='library'));
  $('libraryNavAll').setAttribute('aria-pressed',String(!home&&!detail&&libraryPage.scope==='all'&&!libraryPage.genre));
@@ -924,6 +932,11 @@ $('libraryNavBag').onclick=()=>window.openLVLBag?.();
 ['',...[...new Set(records.map(r=>r.genre).filter(Boolean))].sort()].forEach(genre=>{const button=document.createElement('button');button.type='button';button.dataset.genre=genre;button.textContent=genre||'Todos los géneros';button.setAttribute('aria-pressed',String(!genre));button.onclick=()=>openLibraryCollection('all',genre);$('libraryGenres').append(button)});
 window.addEventListener('storage',()=>renderGallery());
 document.addEventListener('lvl-bag-change',()=>{if(libraryScope==='liked'||libraryPage.type==='disc')renderGallery()});
+function clearLibrarySearch(){
+ $('recordSearch').value='';renderGallery();saveLibraryHistory(true);$('recordSearch').focus();
+}
+$('librarySearchClear').onclick=clearLibrarySearch;
+$('recordSearch').onkeydown=e=>{if(e.key==='Escape'&&$('recordSearch').value){e.preventDefault();clearLibrarySearch()}};
 $('recordSearch').oninput=()=>{renderGallery();saveLibraryHistory(true)};
 $('genreFilter').onchange=()=>openLibraryCollection('all',$('genreFilter').value);
 if(libraryToggle)libraryToggle.onclick=()=>{if(discView!=='library')focusRecordView(false)};

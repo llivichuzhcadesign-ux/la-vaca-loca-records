@@ -1036,3 +1036,17 @@ body[data-page="discos"]{--pink:#c6cea7}
 .sleeve:focus-visible{border-radius:7px;outline:2px solid #d8dfb8;outline-offset:5px}
 @media(hover:hover){.record-shelf-row,.library-cover-row{scrollbar-color:transparent transparent}.record-shelf-row:hover,.library-cover-row:hover,.record-shelf-row:focus-within,.library-cover-row:focus-within{scrollbar-color:#dcccaa44 transparent}.sleeve:hover .sleeve-art{transform:translateY(-2px)}}
 @media(max-width:650px){.shelf-controls button{width:44px;height:44px;min-height:44px}.library-section-heading{gap:10px}.library-section-heading h2{font-size:17px;line-height:1.3}.record-shelf-heading{gap:10px}.record-shelf-heading h2{font-size:19px}.sleeve-listening,.sleeve-saved{width:28px;height:28px}.expanded-library .sleeve-detail{font-size:10px}}
+
+/* Search keeps collection context and offers the same clear control on touch and desktop. */
+.library-search-field{position:relative;min-width:0;display:grid;gap:6px}
+.library-search-field label{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#c9ad93}
+.library-column .library-search-field input{padding-right:44px}
+.library-search-field input::-webkit-search-cancel-button{-webkit-appearance:none}
+#librarySearchClear{position:absolute;right:0;bottom:0;width:40px;height:38px;padding:10px;border:0;background:transparent;color:#e9dcbf;cursor:pointer;border-radius:4px}
+#librarySearchClear[hidden]{display:none}
+#librarySearchClear svg{display:block;width:18px;height:18px}
+#librarySearchClear:hover{background:#d6dcb612}
+#librarySearchClear:focus-visible,.library-search-field input:focus-visible{outline:2px solid #c6cea7;outline-offset:2px}
+.library-search-summary{margin:8px 0 0;color:#c8bea9;font-size:12px;line-height:1.4;letter-spacing:0}
+.library-search-summary[hidden]{display:none}
+@media(max-width:950px){#librarySearchClear{width:44px;height:44px}.library-column .library-search-field input{min-height:44px}}
