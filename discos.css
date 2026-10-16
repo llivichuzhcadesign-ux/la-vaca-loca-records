@@ -1050,3 +1050,13 @@ body[data-page="discos"]{--pink:#c6cea7}
 .library-search-summary{margin:8px 0 0;color:#c8bea9;font-size:12px;line-height:1.4;letter-spacing:0}
 .library-search-summary[hidden]{display:none}
 @media(max-width:950px){#librarySearchClear{width:44px;height:44px}.library-column .library-search-field input{min-height:44px}}
+
+/* The bottom transport owns the waveform throughout desktop browsing and listening. */
+body:not(.layered-ios-player) .library-mini-player>.deck-playback-timeline{display:grid;grid-template-columns:34px minmax(0,1fr) 34px;gap:10px;align-items:center;position:relative;inset:auto;transform:none;width:100%;min-width:0;margin:0;padding:0;grid-column:3/5;grid-row:1}
+body:not(.layered-ios-player) .library-mini-player .deck-waveform,
+body:not(.layered-ios-player) .library-mini-player .deck-waveform canvas{height:48px}
+body:not(.layered-ios-player) .library-mini-player .deck-waveform .deck-seek{position:absolute;inset:0;z-index:2;width:100%;height:48px;margin:0;opacity:1;touch-action:none;cursor:ew-resize}
+body:not(.layered-ios-player) .library-mini-player .deck-time{font-size:10px;color:#d4ccb8;font-variant-numeric:tabular-nums}
+.library-deck-button[aria-pressed="true"],.desktop-deck-toggle[aria-pressed="true"]{background:#59613e!important;border-color:#b7c18c!important;color:#fff0d4!important;box-shadow:inset 0 0 0 1px #c6cea733}
+.library-deck-button[aria-pressed="false"],.desktop-deck-toggle[aria-pressed="false"]{background:#54293444;border-color:#dcccaa33;color:#eee3cf}
+@media(max-width:950px){body:not(.layered-ios-player) .library-mini-player>.deck-playback-timeline{grid-column:1/-1;grid-row:auto;flex-basis:100%}}

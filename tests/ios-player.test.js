@@ -3,7 +3,7 @@ const source=fs.readFileSync(require.resolve('../discos.js'),'utf8');
 function node(){return {dataset:{},style:{setProperty(){}},classList:{remove(){},add(){}},setAttribute(k,v){this[k]=v},focus(){},querySelector(){return node()}}}
 const sheet=node(),opener=node();
 const context={window:{innerHeight:800},iosSheet:sheet,sheetPosition:'compact',document:{body:node(),querySelector:selector=>selector==='.editorial-header'?{getBoundingClientRect:()=>({height:62})}:opener},requestAnimationFrame:f=>f(),syncDeckTimeline(){},setTimeout:f=>f()};
-vm.createContext(context);vm.runInContext(source.slice(source.indexOf('function sheetHeights()'),source.indexOf("document.querySelectorAll('[data-disc-view]')")),context);
+vm.createContext(context);vm.runInContext(source.slice(source.indexOf('function sheetHeights()'),source.indexOf("document.querySelectorAll('[data-disc-view]')",source.indexOf('function sheetHeights()'))),context);
 context.setSheetPosition('compact');assert.equal(sheet.inert,true);
 context.openIosPlayer();assert.equal(sheet.dataset.position,'expanded');assert.equal(sheet.style.height,'730px');assert.equal(sheet.inert,false);assert.equal(opener['aria-expanded'],'true');
 assert.deepEqual(Object.keys(context.sheetHeights()),['compact','expanded']);

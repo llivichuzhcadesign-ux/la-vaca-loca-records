@@ -230,7 +230,10 @@ function setDiscView(view){
   return;
  }
  discView=view==='library'?'library':'player';document.body.classList.toggle('expanded-library',discView==='library');
- document.querySelectorAll('.library-view-switch [data-disc-view]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.discView===discView)));
+ document.querySelectorAll('[data-disc-view]').forEach(button=>{
+  button.setAttribute('aria-pressed',String(button.dataset.discView===discView));
+  if(button.dataset.discView==='player')button.setAttribute('aria-label',discView==='player'?'Ocultar tocadiscos':'Mostrar tocadiscos');
+ });
  if(miniPlayer)miniPlayer.hidden=false;
  const rail=document.querySelector('.biblioteca-sidebar');
  if(rail){if(discView==='player')document.querySelector('.room-layout').prepend(rail);else collectionPanel.prepend(rail)}
@@ -270,7 +273,7 @@ function wireSheetDrag(target){
  target.addEventListener('pointercancel',()=>{drag=null;setSheetPosition(sheetPosition)});target.addEventListener('lostpointercapture',()=>{if(drag){drag=null;setSheetPosition(sheetPosition)}});
  target.addEventListener('click',e=>{if(suppressClick){e.preventDefault();e.stopImmediatePropagation()}},true);
 }
-document.querySelectorAll('[data-disc-view]').forEach(button=>button.addEventListener('click',()=>{setDiscView(button.dataset.discView);renderGallery()}));
+document.querySelectorAll('[data-disc-view]').forEach(button=>button.addEventListener('click',()=>{if(button.dataset.discView==='player'&&!iosDiscView)setDiscView(discView==='player'?'library':'player');else if(button.dataset.discView==='player'&&sheetPosition==='expanded'&&sheetTurntable)setSheetPosition('compact');else setDiscView(button.dataset.discView);renderGallery()}));
 $('libraryPlayerPlay').onclick=()=>deckPlay?.click();
 if(iosDiscView){
  iosSheet=document.createElement('section');iosSheet.id='iosPlayerSheet';iosSheet.className='ios-player-sheet';iosSheet.setAttribute('aria-label','Reproductor');iosSheet.setAttribute('role','region');
@@ -294,11 +297,11 @@ if(iosDiscView){
  const transport=document.createElement('div');transport.className='mini-transport';
  [-1,1].forEach(direction=>{const b=document.createElement('button');b.type='button';b.id=direction<0?'miniPrevious':'miniNext';b.setAttribute('aria-label',direction<0?'Reproducir disco anterior':'Reproducir disco siguiente');b.innerHTML=playerControlIcon(direction<0?'previous':'next');b.onclick=()=>{const queue=records.filter(r=>audioUrl(r,document.baseURI)),index=queue.indexOf(selected),r=queue[index+direction];if(r){mountRecord(r);togglePlayback()}};transport.append(b)});
  transport.insertBefore($('libraryPlayerPlay'),transport.lastChild);miniPlayer.append(transport);
- const seek=document.createElement('input');seek.type='range';seek.id='miniPlayerSeek';seek.min=0;seek.max=100;seek.step=.1;seek.disabled=true;seek.setAttribute('aria-label','Posición del audio');seek.oninput=()=>{$('seek').value=seek.value;$('seek').dispatchEvent(new Event('input',{bubbles:true}))};miniPlayer.append(seek);
+ miniPlayer.append(playbackTimeline);
  const opener=miniPlayer.querySelector('[data-disc-view]');opener.innerHTML=$('iosTurntableToggle').innerHTML;opener.classList.add('desktop-deck-toggle');opener.setAttribute('aria-label','Abrir tocadiscos');setDiscView('library')}
 
 const feedback=document.createElement('span');feedback.id='libraryPlaybackStatus';feedback.setAttribute('role','status');miniPlayer.append(feedback);
-if(!iosDiscView){const clock=document.createElement('span');clock.id='miniPlayerTime';clock.textContent='0:00 / 0:00';miniPlayer.append(clock)}
+
 
 function buildIosJackets(){
  const rail=document.createElement('div');rail.id='iosJacketRail';rail.className='ios-jacket-rail';rail.setAttribute('aria-label','Explorar portadas');
