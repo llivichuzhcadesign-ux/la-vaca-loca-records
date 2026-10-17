@@ -407,11 +407,16 @@ async function setupHomepageHero(){
 }
 window.addEventListener('beforeunload',()=>heroObjectUrls.forEach(url=>URL.revokeObjectURL(url)));
 
+function upcomingHomeEvent(events,today){
+ const dated=event=>{const match=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec(event.date||'');return match?match[3]+'-'+match[2]+'-'+match[1]:/^\d{4}-\d{2}-\d{2}$/.test(event.date||'')?event.date:''};
+ return events.filter(event=>!event.hideFromPublic&&!/^(archivo|pasado|cancelado|cancelled|draft|hidden|private listing)$/i.test(event.status||'')&&(!dated(event)||dated(event)>=today)).sort((a,b)=>(dated(a)||'9999').localeCompare(dated(b)||'9999'))[0]||null;
+}
+
 function renderRecordPreview(){
  if(!grid)return;
  const publicRecords=window.RECORDS.filter(r=>!['DRAFT','PRIVATE LISTING','HIDDEN'].includes(String(r.status||'').toUpperCase()));
  const records=publicRecords.sort((a,b)=>Number(b.year||0)-Number(a.year||0)||Number(!!b.featured)-Number(!!a.featured)).slice(0,5);
- const colors=['#864833','#35493f','#827451','#493d57','#a25439'];
+ const colors=['#864833','#35493f','#827451','#493d57','#a25439','#394c5a'];
  const section=document.getElementById('shop');
  const feature=section.querySelector('.showcase-feature');
  const dialog=document.getElementById('showcaseDialog');
@@ -421,7 +426,7 @@ function renderRecordPreview(){
  grid.innerHTML=records.map((r,index)=>`<button class="showcase-thumb" type="button" data-showcase-index="${index}" aria-label="Ver portada de ${escapeText(r.artist)} — ${escapeText(r.title)}" aria-pressed="false"><span class="showcase-art showcase-thumb-art">${artMarkup}</span><span class="showcase-thumb-caption"><strong>${escapeText(r.title)}</strong><small>${escapeText(r.artist)}</small></span></button>`).join('');
 
  function setArtwork(container,record,index){
-  container.style.setProperty('--sleeve-color',colors[index%colors.length]);
+  container.style.setProperty('--sleeve-color',colors[Math.max(0,window.RECORDS.indexOf(record))%colors.length]);
   container.querySelector('.showcase-art-title').textContent=record.title||'';
   container.querySelector('.showcase-art-code').textContent=`${record.id||'LVL'} / LVL RECORDS`;
   const img=container.querySelector('img');
@@ -521,6 +526,14 @@ function enhancePublicSite(){
  const archiveSection=document.querySelector('.archive-section');
  if(archiveSection&&!document.querySelector('.events-section')){
   archiveSection.insertAdjacentHTML('beforebegin',`<section class="events-section motion-section" id="events"><div class="events-copy motion-copy"><p class="eyebrow">03 / PRÓXIMOS ENCUENTROS</p><h2>Buenas <em>noches.</em></h2><a href="eventos.html" style="display:inline-block;margin-top:24px;font-weight:900;text-underline-offset:6px">ABRIR EL CALENDARIO ↗</a></div><a href="eventos.html" aria-label="Explorar el calendario de eventos" class="home-calendar-art" style="display:block;overflow:hidden"><img data-calendar-image src="assets/images/events/calendar-pinup.jpg" alt="Pin-up vintage en una tienda de discos" loading="lazy" width="1536" height="1024" style="display:block;width:100%;height:100%;object-fit:cover"></a></section>`);
+ }
+ const upcoming=upcomingHomeEvent(EVENTS,new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()));
+ const eventCopy=document.querySelector('.events-copy');
+ if(eventCopy&&!eventCopy.querySelector('.home-event-preview')){
+  const preview=document.createElement('a');preview.className='home-event-preview';preview.href=upcoming?'eventos.html#'+encodeURIComponent(upcoming.id):'eventos.html';
+  const title=document.createElement('strong');title.textContent=upcoming?.title||'La próxima fecha, pronto';
+  const meta=document.createElement('span');meta.textContent=upcoming?[upcoming.place,/^(\d{2}\.\d{2}\.\d{4}|\d{4}-\d{2}-\d{2})$/.test(upcoming.date||'')?upcoming.date:'Fecha por confirmar'].filter(Boolean).join(' · '):'Explora el calendario y los encuentros anteriores';
+  preview.append(title,meta);eventCopy.insertBefore(preview,eventCopy.querySelector('a'));
  }
  const panel=document.getElementById('cartPanel');
  if(panel&&!panel.classList.contains('bag-experience')){
