@@ -65,7 +65,7 @@
  };
  // Map the cursor to the nearest real point on the cow's vector contour.
  // Cache path samples so each discharge is cheap, even on touch screens.
- let contourSamples=null,lastDischargeAt=-Infinity,lastArcPoint=null;
+ let contourSamples=null,lastDischargeAt=-Infinity,lastBurstAt=-Infinity,lastArcPoint=null;
  function nearestContour(point){
   if(!cowContour||typeof cowContour.getTotalLength!=='function')return null;
   try{
@@ -104,7 +104,9 @@
   }
   return d+' L '+x2.toFixed(1)+' '+y2.toFixed(1);
  }
- // Stage 2: a visible pyrotechnic burst, sized for the mural rather than a cursor icon.
+ // Each interaction samples a new organic scatter. Unlike a perfect radial wheel,
+ // sparks have uneven spacing, lateral motion, and a few slower falling embers.
+ const random=(min,max)=>min+Math.random()*(max-min);
  function emitFirework(point){
   if(motion.matches||!isVisible||document.hidden)return;
   const burst=document.createElement('div');
@@ -112,21 +114,42 @@
   burst.setAttribute('aria-hidden','true');
   burst.style.left=point.x+'%';
   burst.style.top=point.y+'%';
-  for(let i=0;i<16;i++){
+  const count=18;
+  const mobile=footer.getBoundingClientRect().width<720;
+  const size=mobile?.72:1;
+  for(let i=0;i<count;i++){
    const spark=document.createElement('span');
    spark.className='footer-firework-spark';
-   spark.style.setProperty('--spark-angle',i*22.5+'deg');
-   spark.style.setProperty('--spark-distance',(62+(i*17%68))+'px');
-   spark.style.setProperty('--spark-delay',(i%4)*24+'ms');
-   spark.style.setProperty('--spark-width',(14+i%3*4)+'px');
+   // Loose golden-angle distribution avoids the mechanical evenly spaced starburst.
+   const theta=i*137.50776+random(-19,19);
+   const reach=random(73,204)*size;
+   spark.style.setProperty('--spark-angle',theta.toFixed(2)+'deg');
+   spark.style.setProperty('--spark-distance',reach.toFixed(1)+'px');
+   spark.style.setProperty('--spark-curve',random(-21,21).toFixed(1)+'px');
+   spark.style.setProperty('--spark-fall',random(3,43).toFixed(1)+'px');
+   spark.style.setProperty('--spark-delay',Math.round(random(0,115))+'ms');
+   spark.style.setProperty('--spark-width',random(8,22).toFixed(1)+'px');
+   spark.style.setProperty('--spark-height',random(1.3,3.8).toFixed(1)+'px');
+   spark.style.setProperty('--spark-duration',random(.94,1.48).toFixed(2)+'s');
    burst.appendChild(spark);
+  }
+  for(let i=0;i<7;i++){
+   const ember=document.createElement('span');
+   ember.className='footer-firework-ember';
+   const angle=random(0,Math.PI*2),dist=random(38,142)*size;
+   ember.style.setProperty('--ember-x',(Math.cos(angle)*dist).toFixed(1)+'px');
+   ember.style.setProperty('--ember-y',(Math.sin(angle)*dist+random(42,104)*size).toFixed(1)+'px');
+   ember.style.setProperty('--ember-delay',Math.round(random(120,390))+'ms');
+   ember.style.setProperty('--ember-duration',random(1.1,1.8).toFixed(2)+'s');
+   burst.appendChild(ember);
   }
   const older=backdrop.querySelectorAll('.footer-firework-burst');
   if(older.length>=2)older[0].remove();
   backdrop.appendChild(burst);
-  window.setTimeout(()=>burst.remove(),1500);
+  window.setTimeout(()=>burst.remove(),2400);
  }
- // Stage 3: smoke starts AFTER the electrical impact, not at the same instant.
+ // Several uneven, backlit plumes drift at different speeds and directions.
+ // A shared diffuse bloom stays behind the finer, changing lobes.
  function emitAfterglow(point){
   if(motion.matches||!isVisible||document.hidden)return;
   const cloud=document.createElement('div');
@@ -139,20 +162,35 @@
    layer.className=cls;
    cloud.appendChild(layer);
   }
-  for(let i=0;i<6;i++)cloud.appendChild(document.createElement('i'));
+  for(let i=0;i<7;i++){
+   const wisp=document.createElement('i');
+   // Uneven translucent lobes with variable turbulence; no seamless particle loop.
+   const driftX=random(-122,122)+(i%2?33:-33);
+   const driftY=random(-170,-70);
+   wisp.style.setProperty('--fog-x',driftX.toFixed(1)+'px');
+   wisp.style.setProperty('--fog-y',driftY.toFixed(1)+'px');
+   wisp.style.setProperty('--fog-turn',random(-27,27).toFixed(1)+'deg');
+   wisp.style.setProperty('--fog-opacity',random(.37,.67).toFixed(2));
+   wisp.style.setProperty('--fog-delay',Math.round(random(0,500))+'ms');
+   wisp.style.setProperty('--fog-duration',random(3.9,5).toFixed(2)+'s');
+   wisp.style.setProperty('--fog-blur',random(11,25).toFixed(1)+'px');
+   wisp.style.setProperty('--fog-scale',random(1.4,2.1).toFixed(2));
+   cloud.appendChild(wisp);
+  }
   const older=backdrop.querySelectorAll('.footer-fog-cloud');
   if(older.length>=2)older[0].remove();
   backdrop.appendChild(cloud);
-  window.setTimeout(()=>cloud.remove(),4900);
+  window.setTimeout(()=>cloud.remove(),5700);
  }
  // Stage 1: a real contour-anchored, multi-branch electric bolt runs toward the pointer.
  function emitDischarge(point,force=false){
   if(motion.matches||!isVisible||document.hidden)return false;
   const now=performance.now();
-  const moved=lastArcPoint?Math.hypot(point.x-lastArcPoint.x,point.y-lastArcPoint.y):Infinity;
-  // One strong moment at a time; moving the pointer gently should not produce a swarm.
-  if(!force&&(now-lastDischargeAt<2700||moved<8))return false;
-  if(force&&now-lastDischargeAt<550)return false;
+  const moved=lastArcPoint?Math.hypot(point.clientX-lastArcPoint.clientX,point.clientY-lastArcPoint.clientY):Infinity;
+  // Arcs may follow the pointer after 380ms + 22px of travel. Bigger fireworks
+  // have their own longer cadence to keep the visual legible and inexpensive.
+  if(!force&&(now-lastDischargeAt<380||moved<22))return false;
+  if(force&&now-lastDischargeAt<240)return false;
   const origin=nearestContour(point);
   if(!origin)return false;
   const box=backdrop.getBoundingClientRect();
@@ -186,11 +224,15 @@
   if(older.length>=2)older[0].remove();
   electric.appendChild(group);
   window.setTimeout(()=>group.remove(),1190);
-  // A single visual phrase: strike -> bright sparks -> illuminated vapor.
-  window.setTimeout(()=>emitFirework(point),230);
-  window.setTimeout(()=>emitAfterglow(point),490);
+  // Every meaningful movement can spark; a fuller firework and haze follows
+  // only when there has been room for the previous burst to be perceived.
+  if(now-lastBurstAt>=1550){
+   lastBurstAt=now;
+   window.setTimeout(()=>emitFirework(point),175);
+   window.setTimeout(()=>emitAfterglow(point),430);
+  }
   lastDischargeAt=now;
-  lastArcPoint={x:point.x,y:point.y};
+  lastArcPoint={clientX:point.clientX,clientY:point.clientY};
   return true;
  }
  function deactivate(){
