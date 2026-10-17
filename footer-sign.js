@@ -80,9 +80,11 @@
    const wisp=document.createElement('i');
    cloud.appendChild(wisp);
   }
-  // Temporary effect only, not a permanent particle system.
+  // Bound the number of simultaneously rendered smoke plumes on mobile and desktop.
+  const olderClouds=backdrop.querySelectorAll('.footer-fog-cloud');
+  if(olderClouds.length>=2)olderClouds[0].remove();
   backdrop.appendChild(cloud);
-  window.setTimeout(()=>cloud.remove(),5100);
+  window.setTimeout(()=>cloud.remove(),5500);
   lastFogAt=performance.now();
   lastFogPoint={x:point.x,y:point.y};
  }
