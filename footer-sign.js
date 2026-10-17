@@ -68,32 +68,21 @@
   cloud.style.left=point.x+'%';
   cloud.style.top=point.y+'%';
   cloud.setAttribute('aria-hidden','true');
-  // A small abstract, stepped-diamond embroidery motif appears through the vapor.
-  // Inspired by Andean weaving geometry; not presented as a specific sacred symbol.
-  const motif=document.createElementNS('http://www.w3.org/2000/svg','svg');
-  motif.setAttribute('class','footer-fog-motif');
-  motif.setAttribute('viewBox','0 0 160 160');
-  motif.setAttribute('focusable','false');
-  motif.setAttribute('aria-hidden','true');
-  motif.innerHTML=`
-   <g class="fog-woven-lines" fill="none" stroke-linecap="round" stroke-linejoin="miter">
-    <path class="woven-outer" pathLength="100" d="M80 18 L94 32 H108 V46 H122 V60 L136 74 L122 88 V102 H108 V116 H94 L80 130 L66 116 H52 V102 H38 V88 L24 74 L38 60 V46 H52 V32 H66 Z"/>
-    <path class="woven-inner" pathLength="100" d="M80 45 L92 57 H102 V67 L114 79 L102 91 H92 V101 H80 L68 91 H58 V81 L46 69 L58 57 H68 Z"/>
-    <path class="woven-stitch" pathLength="100" d="M80 35 V43 M80 108 V118 M32 74 H41 M121 74 H130 M55 36 L61 42 M100 106 L106 112 M55 111 L62 104 M100 43 L107 36"/>
-    <path class="woven-center" pathLength="100" d="M80 65 L92 77 L80 89 L68 77 Z M74 77 H86 M80 71 V83"/>
-   </g>
-  `;
-  const vapors=[];
-  for(let i=0;i<4;i++){const vapor=document.createElement('i');vapors.push(vapor);}
-  // Place translucent smoke both behind and in front of the woven geometry.
-  cloud.appendChild(vapors[0]);
-  cloud.appendChild(vapors[1]);
-  cloud.appendChild(motif);
-  cloud.appendChild(vapors[2]);
-  cloud.appendChild(vapors[3]);
-  // Smoke and the woven mark disappear together; nothing runs on an endless timer.
+  // The effect is atmospheric, not illustrative: one flash, backlit smoke, and a soft light falloff.
+  const flash=document.createElement('span');
+  flash.className='footer-fog-ignition';
+  const beam=document.createElement('span');
+  beam.className='footer-haze-beam';
+  const bloom=document.createElement('span');
+  bloom.className='footer-haze-bloom';
+  cloud.append(flash,beam,bloom);
+  for(let i=0;i<6;i++){
+   const wisp=document.createElement('i');
+   cloud.appendChild(wisp);
+  }
+  // Temporary effect only, not a permanent particle system.
   backdrop.appendChild(cloud);
-  window.setTimeout(()=>cloud.remove(),4900);
+  window.setTimeout(()=>cloud.remove(),5100);
   lastFogAt=performance.now();
   lastFogPoint={x:point.x,y:point.y};
  }
