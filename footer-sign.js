@@ -77,10 +77,10 @@
   motif.setAttribute('aria-hidden','true');
   motif.innerHTML=`
    <g class="fog-woven-lines" fill="none" stroke-linecap="round" stroke-linejoin="miter">
-    <path class="woven-outer" d="M80 18 L94 32 H108 V46 H122 V60 L136 74 L122 88 V102 H108 V116 H94 L80 130 L66 116 H52 V102 H38 V88 L24 74 L38 60 V46 H52 V32 H66 Z"/>
-    <path class="woven-inner" d="M80 45 L92 57 H102 V67 L114 79 L102 91 H92 V101 H80 L68 91 H58 V81 L46 69 L58 57 H68 Z"/>
-    <path class="woven-stitch" d="M80 35 V43 M80 108 V118 M32 74 H41 M121 74 H130 M55 36 L61 42 M100 106 L106 112 M55 111 L62 104 M100 43 L107 36"/>
-    <path class="woven-center" d="M80 65 L92 77 L80 89 L68 77 Z M74 77 H86 M80 71 V83"/>
+    <path class="woven-outer" pathLength="100" d="M80 18 L94 32 H108 V46 H122 V60 L136 74 L122 88 V102 H108 V116 H94 L80 130 L66 116 H52 V102 H38 V88 L24 74 L38 60 V46 H52 V32 H66 Z"/>
+    <path class="woven-inner" pathLength="100" d="M80 45 L92 57 H102 V67 L114 79 L102 91 H92 V101 H80 L68 91 H58 V81 L46 69 L58 57 H68 Z"/>
+    <path class="woven-stitch" pathLength="100" d="M80 35 V43 M80 108 V118 M32 74 H41 M121 74 H130 M55 36 L61 42 M100 106 L106 112 M55 111 L62 104 M100 43 L107 36"/>
+    <path class="woven-center" pathLength="100" d="M80 65 L92 77 L80 89 L68 77 Z M74 77 H86 M80 71 V83"/>
    </g>
   `;
   const vapors=[];
