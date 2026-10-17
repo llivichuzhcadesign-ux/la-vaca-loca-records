@@ -171,8 +171,8 @@
  // A shared diffuse bloom stays behind the finer, changing lobes.
  function emitAfterglow(point,kind='cursor'){
   if(motion.matches||!isVisible||document.hidden)return;
-  // Mobile uses a single source plume to limit large blurred layers.
-  if(kind==='cursor'&&footer.getBoundingClientRect().width<=720)return;
+  // Keep both cow-side and cursor-side smoke on mobile, with fewer blur layers.
+  const mobile=footer.getBoundingClientRect().width<=720;
   const cloud=document.createElement('div');
   cloud.className='footer-fog-cloud '+(kind==='cow'?'footer-fog-source':'footer-fog-cursor');
   cloud.style.left=point.x+'%';
@@ -183,7 +183,7 @@
    layer.className=cls;
    cloud.appendChild(layer);
   }
-  for(let i=0;i<(kind==='cow'?5:3);i++){
+  for(let i=0;i<(kind==='cow'?(mobile?3:5):(mobile?1:3));i++){
    const wisp=document.createElement('i');
    // Uneven translucent lobes with variable turbulence; no seamless particle loop.
    const driftX=random(-122,122)+(i%2?33:-33);
