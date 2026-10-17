@@ -23,7 +23,7 @@
  if(!etched)return;
  etched.classList.replace('footer-sign-outline','footer-laser-etch');
  backdrop.querySelectorAll('.footer-sign-face,.footer-sign-sweep').forEach(el=>el.remove());
- // Animate only the main cow contour. The remaining paths are dimly etched.
+ // Keep the brand's original illustration; the main contour is energized only on interaction.
  for(const layerName of ['footer-laser-trail','footer-laser-core']){
   const svg=etched.cloneNode(true);
   svg.classList.remove('footer-laser-etch');
@@ -33,11 +33,81 @@
   svg.querySelectorAll('path,circle').forEach(part=>{if(part!==cow)part.remove()});
   backdrop.appendChild(svg);
  }
+ const halo=document.createElement('div');
+ halo.className='footer-interaction-halo';
+ backdrop.insertBefore(halo,backdrop.firstChild);
  footer.insertBefore(backdrop,footer.firstChild);
- // Stop animation while out of view; honor reduced-motion settings in CSS.
+
+ const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
+ let isVisible=true, energized=false, lastFogAt=0, lastFogPoint=null, touchOff=0;
+ const clamp=(n,low,high)=>Math.min(high,Math.max(low,n));
+ const pointFromEvent=event=>{
+  const rect=footer.getBoundingClientRect();
+  if(!rect.width||!rect.height)return null;
+  const x=clamp((event.clientX-rect.left)/rect.width*100,0,100);
+  const y=clamp((event.clientY-rect.top)/rect.height*100,0,100);
+  // The drawing is the interaction surface. Preserve ordinary link hover behavior.
+  const mobile=rect.width<=720;
+  return {x,y,inside: mobile ? (y>=7&&y<=72) : (x>=19&&x<=81&&y>=8&&y<=89)};
+ };
+ function emitAfterglow(point){
+  if(motion.matches||!isVisible)return;
+  const cloud=document.createElement('div');
+  cloud.className='footer-fog-cloud';
+  cloud.style.left=point.x+'%';
+  cloud.style.top=point.y+'%';
+  cloud.setAttribute('aria-hidden','true');
+  for(let i=0;i<4;i++)cloud.appendChild(document.createElement('i'));
+  // Smoke is brief and finite, with no animation loop and no external assets.
+  backdrop.appendChild(cloud);
+  window.setTimeout(()=>cloud.remove(),4900);
+  lastFogAt=performance.now();
+  lastFogPoint={x:point.x,y:point.y};
+ }
+ function deactivate(){
+  energized=false;
+  footer.classList.remove('is-energized');
+ }
+ function activate(point,allowAnotherCloud){
+  if(!point||!point.inside||motion.matches||!isVisible)return;
+  const targetX=point.x.toFixed(2)+'%',targetY=point.y.toFixed(2)+'%';
+  backdrop.style.setProperty('--hover-x',targetX);
+  backdrop.style.setProperty('--hover-y',targetY);
+  if(!energized){
+   energized=true;
+   footer.classList.add('is-energized');
+   emitAfterglow(point);
+  }else if(allowAnotherCloud&&performance.now()-lastFogAt>2600&&lastFogPoint&&Math.hypot(point.x-lastFogPoint.x,point.y-lastFogPoint.y)>12){
+   emitAfterglow(point);
+  }
+ }
+ footer.addEventListener('pointermove',event=>{
+  if(event.pointerType!=='mouse'&&event.pointerType!=='pen')return;
+  if(event.target.closest('a')){deactivate();return;}
+  const point=pointFromEvent(event);
+  if(!point||!point.inside)deactivate();
+  else activate(point,true);
+ },{passive:true});
+ footer.addEventListener('pointerleave',deactivate);
+ footer.addEventListener('pointerdown',event=>{
+  if(event.target.closest('a')||!event.isPrimary)return;
+  const point=pointFromEvent(event);
+  if(!point||!point.inside)return;
+  if(event.pointerType==='touch'){
+   // A tap produces the same effect on iOS/Android without needing hover.
+   deactivate();
+   activate(point,false);
+   clearTimeout(touchOff);
+   touchOff=window.setTimeout(deactivate,1900);
+  }else activate(point,false);
+ },{passive:true});
+ const stopMotion=()=>{if(motion.matches){deactivate();backdrop.querySelectorAll('.footer-fog-cloud').forEach(cloud=>cloud.remove());}};
+ if(motion.addEventListener)motion.addEventListener('change',stopMotion);
  if('IntersectionObserver' in window){
   const observer=new IntersectionObserver(entries=>{
-   footer.classList.toggle('sign-visible',entries.some(entry=>entry.isIntersecting));
+   isVisible=entries.some(entry=>entry.isIntersecting);
+   footer.classList.toggle('sign-visible',isVisible);
+   if(!isVisible)deactivate();
   },{rootMargin:'80px 0px 80px 0px',threshold:0});
   observer.observe(footer);
  }else footer.classList.add('sign-visible');
