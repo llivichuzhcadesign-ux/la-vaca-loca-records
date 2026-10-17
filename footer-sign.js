@@ -6,9 +6,6 @@
  footer.classList.add('lvl-footer','illuminated-footer','sign-revealed');
  // One canonical footer: no small logo; the laser artwork is the only large brand mark.
  footer.innerHTML=`
-  <div class="footer-copy">
-   <p>Gualaceo, Ecuador · discos · sessions · cultura</p>
-  </div>
   <nav aria-label="Explorar La Vaca Loca">
    <a href="index.html">Inicio</a>
    <a href="discos.html">Discos</a>
