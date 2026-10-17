@@ -402,14 +402,35 @@
    lastBurstAt=now;
    const atCow={x:origin.x/box.width*100,y:origin.y/box.height*100};
    const heading=Math.atan2(y-origin.y,x-origin.x)*180/Math.PI;
-   window.setTimeout(()=>emitFirework(atCow,'cow',heading),90);
-   window.setTimeout(()=>emitFirework(point,'cursor'),225);
+   // A new pyrotechnic style is explored with each substantial hover.
+   // The existing cursor fireworks remain as a softer spherical echo.
+   const style=fireworks[patternIndex++%fireworks.length];
+   window.setTimeout(()=>emitFirework(atCow,'cow',heading,style),90);
+   window.setTimeout(()=>emitFirework(point,'cursor',heading,'peony'),225);
    window.setTimeout(()=>emitAfterglow(atCow,'cow'),375);
    window.setTimeout(()=>emitAfterglow(point,'cursor'),520);
   }
   lastDischargeAt=now;
   lastArcPoint={clientX:point.clientX,clientY:point.clientY};
   return true;
+ }
+ // Press/tap is a second interaction: a paired finale on the cow and cursor.
+ // It keeps the current electric arc, rather than replacing the hover sequence.
+ function finale(point){
+  if(motion.matches||!isVisible||document.hidden||!point?.inside)return;
+  const now=performance.now();
+  if(now-lastFinaleAt<1800)return;
+  const origin=nearestContour(point),box=backdrop.getBoundingClientRect();
+  if(!origin||box.width<=0||box.height<=0)return;
+  lastFinaleAt=now;
+  lastBurstAt=now; // Preserve the normal larger-burst cadence after a finale.
+  const cow={x:origin.x/box.width*100,y:origin.y/box.height*100};
+  const degrees=Math.atan2(point.clientY-(box.top+origin.y),point.clientX-(box.left+origin.x))*180/Math.PI;
+  const first=fireworks[patternIndex++%fireworks.length];
+  const second=fireworks[patternIndex++%fireworks.length];
+  window.setTimeout(()=>emitFirework(cow,'cow',degrees,first),180);
+  window.setTimeout(()=>emitFirework(point,'cursor',degrees,second),460);
+  window.setTimeout(()=>emitAfterglow(cow,'cow'),560);
  }
  function deactivate(){
   energized=false;
@@ -441,12 +462,16 @@
   const point=pointFromEvent(event);
   if(!point||!point.inside)return;
   if(event.pointerType==='touch'){
-   // A tap produces the same effect on iOS/Android without needing hover.
+   // Touch gets the same electrical connection plus a lightweight paired finale.
    deactivate();
    activate(point,false);
+   finale(point);
    clearTimeout(touchOff);
    touchOff=window.setTimeout(deactivate,1900);
-  }else activate(point,false);
+  }else{
+   activate(point,false);
+   finale(point);
+  }
  },{passive:true});
  // Link the footer to actual decoded frequencies from Discos. The record player's audio is never rerouted.
  let spectrum=null, spectrumReference={bass:1,mid:1};
@@ -583,8 +608,12 @@
    else stopSound();
   },true);
  }
- document.addEventListener('visibilitychange',()=>document.hidden?stopSound():startSound());
+ document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){stopSound();stopFireworks();}
+  else startSound();
+ });
  const clearSparks=()=>{
+  stopFireworks();
   clearTimeout(glowOff);
   footer.classList.remove('is-striking');
   electric.replaceChildren();
