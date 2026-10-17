@@ -126,7 +126,7 @@
   if(motion.matches||!isVisible||document.hidden)return;
   const now=performance.now(),moved=lastArcPoint
    ?Math.hypot(point.x-lastArcPoint.x,point.y-lastArcPoint.y):Infinity;
-  if(!force&&(now-lastDischargeAt<720||moved<9))return;
+  if(!force&&(now-lastDischargeAt<720||moved<3.5))return;
   if(force&&now-lastDischargeAt<340)return;
   const origin=nearestContour(point);
   if(!origin||origin.distance>295)return;
