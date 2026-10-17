@@ -164,6 +164,63 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
 .footer-fog-cloud i:nth-child(2) {--drift-x:42px;--drift-y:-58px;animation-delay:.15s;background:radial-gradient(ellipse,rgba(183,164,149,.29),rgba(178,146,161,.13) 48%,transparent 76%);}
 .footer-fog-cloud i:nth-child(3) {--drift-x:-9px;--drift-y:-104px;animation-delay:.34s;}
 .footer-fog-cloud i:nth-child(4) {--drift-x:64px;--drift-y:-90px;animation-delay:.27s;background:radial-gradient(ellipse,rgba(178,169,171,.26),rgba(148,146,135,.11) 52%,transparent 77%);}
+/* One fleeting woven echo inside the firework-like vapor.
+   Abstract highland textile geometry, not a literal sacred emblem. */
+.footer-fog-motif {
+  position:absolute;
+  z-index:1;
+  left:50%;
+  top:47%;
+  display:block;
+  width:61%;
+  height:auto;
+  overflow:visible;
+  opacity:0;
+  pointer-events:none;
+  transform:translate(-50%,-50%) rotate(-9deg) scale(.68);
+  filter:drop-shadow(0 0 4px rgba(235,161,165,.26));
+  animation:footer-woven-appear 4.55s cubic-bezier(.2,.65,.24,1) both;
+}
+.footer-fog-motif .fog-woven-lines {
+  stroke-width:1.1px;
+  vector-effect:non-scaling-stroke;
+}
+.footer-fog-motif .woven-outer {
+  stroke:rgba(221,179,121,.7);
+  stroke-width:1.1px;
+}
+.footer-fog-motif .woven-inner {
+  stroke:rgba(239,161,185,.67);
+  stroke-width:1.15px;
+}
+.footer-fog-motif .woven-stitch {
+  stroke:rgba(228,198,161,.8);
+  stroke-width:1.25px;
+}
+.footer-fog-motif .woven-center {
+  stroke:rgba(255,225,198,.86);
+  stroke-width:1.4px;
+}
+.footer-fog-motif path {
+  fill:none;
+  stroke-dasharray:100;
+  stroke-dashoffset:100;
+  animation:footer-woven-trace 2.15s cubic-bezier(.3,.65,.3,1) .35s both;
+}
+.footer-fog-motif .woven-inner {animation-delay:.53s;}
+.footer-fog-motif .woven-stitch {animation-delay:.73s;}
+.footer-fog-motif .woven-center {animation-delay:.84s;}
+@keyframes footer-woven-appear {
+  0%,9% {opacity:0;transform:translate(-50%,-43%) rotate(-9deg) scale(.62);}
+  23% {opacity:.08;}
+  40% {opacity:.42;transform:translate(-50%,-53%) rotate(-2deg) scale(.92);}
+  56% {opacity:.3;}
+  78%,100% {opacity:0;transform:translate(-50%,-67%) rotate(4deg) scale(1.05);}
+}
+@keyframes footer-woven-trace {
+  0% {stroke-dashoffset:100;}
+  80%,100% {stroke-dashoffset:0;}
+}
 @keyframes footer-smoke-drift {
   0% {opacity:0;transform:translate3d(0,8px,0) scale(.42);}
   17% {opacity:.5;}
@@ -339,7 +396,7 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
   }
 }
 @media (prefers-reduced-motion:reduce) {
-  .footer-laser-trail,.footer-laser-core,.footer-fog-cloud,.footer-interaction-halo,
+  .footer-laser-trail,.footer-laser-core,.footer-fog-cloud,.footer-fog-motif,.footer-interaction-halo,
   .footer-sonic-field,.footer-sonic-ink {display:none!important;}
   .footer-laser-etch path,.footer-laser-etch circle {stroke-opacity:.32;transition:none;}
   body .lvl-footer.illuminated-footer nav a,
