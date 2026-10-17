@@ -71,7 +71,11 @@
   try{
    if(!contourSamples){
     const length=cowContour.getTotalLength();
-    contourSamples=Array.from({length:180},(_,i)=>cowContour.getPointAtLength(length*i/179));
+    contourSamples=Array.from({length:180},(_,i)=>{
+     const at=length*i/179;
+     const sample=cowContour.getPointAtLength(at);
+     return {x:sample.x,y:sample.y,at};
+    });
    }
    const matrix=cowContour.getScreenCTM();
    if(!matrix)return null;
@@ -86,8 +90,22 @@
    if(!best)return null;
    const at=etched.createSVGPoint();at.x=best.x;at.y=best.y;
    const screen=at.matrixTransform(matrix),box=backdrop.getBoundingClientRect();
+   const total=cowContour.getTotalLength();
+   // Illuminate a short, genuine segment of the original silhouette.
+   const localScale=Math.max(.01,Math.hypot(matrix.a,matrix.b));
+   const start=Math.max(0,best.at-58/localScale);
+   const finish=Math.min(total,best.at+84/localScale);
+   const stepCount=14;
+   let contourD='';
+   for(let i=0;i<=stepCount;i++){
+    const p=cowContour.getPointAtLength(start+(finish-start)*i/stepCount);
+    const screenP=etched.createSVGPoint();screenP.x=p.x;screenP.y=p.y;
+    const px=screenP.matrixTransform(matrix);
+    contourD+=(i?' L ':'M ')+(px.x-box.left).toFixed(1)+' '+(px.y-box.top).toFixed(1);
+   }
    return {x:screen.x-box.left,y:screen.y-box.top,
-    distance:Math.hypot(screen.x-point.clientX,screen.y-point.clientY)};
+    distance:Math.hypot(screen.x-point.clientX,screen.y-point.clientY),
+    contourD};
   }catch{return null;}
  }
  // Controlled angled offsets give a crackling arc without continuous particle loops.
@@ -107,22 +125,24 @@
  // Each interaction samples a new organic scatter. Unlike a perfect radial wheel,
  // sparks have uneven spacing, lateral motion, and a few slower falling embers.
  const random=(min,max)=>min+Math.random()*(max-min);
- function emitFirework(point){
+ function emitFirework(point,kind='cursor',heading=0){
   if(motion.matches||!isVisible||document.hidden)return;
   const burst=document.createElement('div');
-  burst.className='footer-firework-burst';
+  burst.className='footer-firework-burst '+(kind==='cow'?'footer-firework-source':'footer-firework-cursor');
   burst.setAttribute('aria-hidden','true');
   burst.style.left=point.x+'%';
   burst.style.top=point.y+'%';
-  const count=18;
+  const count=kind==='cow'?13:18;
   const mobile=footer.getBoundingClientRect().width<720;
-  const size=mobile?.72:1;
+  const size=(mobile?.72:1)*(kind==='cow'?.92:1);
   for(let i=0;i<count;i++){
    const spark=document.createElement('span');
    spark.className='footer-firework-spark';
    // Loose golden-angle distribution avoids the mechanical evenly spaced starburst.
-   const theta=i*137.50776+random(-19,19);
-   const reach=random(73,204)*size;
+   // At the silhouette, sparks are directional, following the discharge;
+   // the original cursor-side explosion remains a smaller radial echo.
+   const theta=kind==='cow'?heading+random(-85,85):i*137.50776+random(-19,19);
+   const reach=(kind==='cow'?random(52,144):random(73,204))*size;
    spark.style.setProperty('--spark-angle',theta.toFixed(2)+'deg');
    spark.style.setProperty('--spark-distance',reach.toFixed(1)+'px');
    spark.style.setProperty('--spark-curve',random(-21,21).toFixed(1)+'px');
@@ -133,7 +153,7 @@
    spark.style.setProperty('--spark-duration',random(.94,1.48).toFixed(2)+'s');
    burst.appendChild(spark);
   }
-  for(let i=0;i<7;i++){
+  for(let i=0;i<(kind==='cow'?5:7);i++){
    const ember=document.createElement('span');
    ember.className='footer-firework-ember';
    const angle=random(0,Math.PI*2),dist=random(38,142)*size;
@@ -149,10 +169,12 @@
  }
  // Several uneven, backlit plumes drift at different speeds and directions.
  // A shared diffuse bloom stays behind the finer, changing lobes.
- function emitAfterglow(point){
+ function emitAfterglow(point,kind='cursor'){
   if(motion.matches||!isVisible||document.hidden)return;
+  // Mobile uses a single source plume to limit large blurred layers.
+  if(kind==='cursor'&&footer.getBoundingClientRect().width<=720)return;
   const cloud=document.createElement('div');
-  cloud.className='footer-fog-cloud';
+  cloud.className='footer-fog-cloud '+(kind==='cow'?'footer-fog-source':'footer-fog-cursor');
   cloud.style.left=point.x+'%';
   cloud.style.top=point.y+'%';
   cloud.setAttribute('aria-hidden','true');
@@ -161,7 +183,7 @@
    layer.className=cls;
    cloud.appendChild(layer);
   }
-  for(let i=0;i<7;i++){
+  for(let i=0;i<(kind==='cow'?6:5);i++){
    const wisp=document.createElement('i');
    // Uneven translucent lobes with variable turbulence; no seamless particle loop.
    const driftX=random(-122,122)+(i%2?33:-33);
@@ -199,6 +221,13 @@
   const group=document.createElementNS(ns,'g');
   group.setAttribute('class','footer-electric-strike');
   const shape=jaggedPath(origin.x,origin.y,x,y,now/100);
+  if(origin.contourD){
+   const warmTrack=document.createElementNS(ns,'path');
+   warmTrack.setAttribute('class','footer-electric-contour');
+   warmTrack.setAttribute('d',origin.contourD);
+   warmTrack.setAttribute('pathLength','100');
+   group.appendChild(warmTrack);
+  }
   for(const layer of ['aura','core']){
    const path=document.createElementNS(ns,'path');
    path.setAttribute('class','footer-electric-'+layer);
@@ -231,11 +260,16 @@
   footer.classList.add('is-striking');
   clearTimeout(glowOff);
   glowOff=window.setTimeout(()=>footer.classList.remove('is-striking'),980);
-  // A fuller firework and haze follows only after the previous burst is perceived.
+  // The silhouette is the source; the previous cursor-facing lightning and
+  // fireworks remain as an echo at the other end of the same discharge.
   if(now-lastBurstAt>=1550){
    lastBurstAt=now;
-   window.setTimeout(()=>emitFirework(point),175);
-   window.setTimeout(()=>emitAfterglow(point),430);
+   const atCow={x:origin.x/box.width*100,y:origin.y/box.height*100};
+   const heading=Math.atan2(y-origin.y,x-origin.x)*180/Math.PI;
+   window.setTimeout(()=>emitFirework(atCow,'cow',heading),90);
+   window.setTimeout(()=>emitFirework(point,'cursor'),225);
+   window.setTimeout(()=>emitAfterglow(atCow,'cow'),375);
+   window.setTimeout(()=>emitAfterglow(point,'cursor'),520);
   }
   lastDischargeAt=now;
   lastArcPoint={clientX:point.clientX,clientY:point.clientY};
