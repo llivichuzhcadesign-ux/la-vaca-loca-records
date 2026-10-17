@@ -356,9 +356,9 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
 @keyframes footer-haze-wisp {
   0% {opacity:0;transform:translate3d(0,12px,0) rotate(-7deg) scale(.36);}
   16% {opacity:var(--fog-opacity,.57);}
-  38% {opacity:calc(var(--fog-opacity,.57) * .85);
+  38% {opacity:var(--fog-opacity,.57);
        transform:translate3d(calc(var(--fog-x) * .23),calc(var(--fog-y) * .26),0) rotate(calc(var(--fog-turn) * .25)) scale(.96);}
-  70% {opacity:calc(var(--fog-opacity,.57) * .38);}
+  70% {opacity:.18;}
   100% {opacity:0;transform:translate3d(var(--fog-x),var(--fog-y),0) rotate(var(--fog-turn)) scale(var(--fog-scale,1.8));}
 }
 @keyframes footer-haze-echo {
