@@ -27,10 +27,17 @@
  function schedule(){if(!frame)frame=requestAnimationFrame(draw)}
  root.drawVinylWaveform=value=>{progress=value;schedule()};
  root.addEventListener('vinyl-audio-buffer',e=>{
-  worker?.terminate();worker=null;values=null;progress=0;schedule();if(!e.detail)return;
+  worker?.terminate();worker=null;values=null;progress=0;schedule();root.dispatchEvent(new CustomEvent('lvl:record-analysis',{detail:null}));if(!e.detail)return;
   const buffer=e.detail;worker=new Worker('waveform-analysis.js?v=20261007');
   const channels=Array.from({length:buffer.numberOfChannels},(_,i)=>buffer.getChannelData(i).slice());
-  worker.onmessage=event=>{values=event.data;worker.terminate();worker=null;schedule()};
+  worker.onmessage=event=>{
+   values=event.data;
+   worker.terminate();worker=null;schedule();
+   // Reuse real decoded audio measurements for the shared footer without tapping the turntable.
+   root.dispatchEvent(new CustomEvent('lvl:record-analysis',{
+    detail:{low:values.low,mid:values.mid,rms:values.rms,duration:buffer.duration}
+   }));
+  };
   worker.postMessage({channels,sampleRate:buffer.sampleRate,count:Math.min(32768,Math.max(8192,Math.ceil(buffer.duration*40)))},channels.map(a=>a.buffer));
  });
  new ResizeObserver(schedule).observe(canvas);schedule();
