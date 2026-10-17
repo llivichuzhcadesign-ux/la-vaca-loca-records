@@ -208,11 +208,13 @@
   if(now-lastSample>=33){
    const measured=readSound(audio);
    if(measured){
-    bassLevel+=(measured.bass-bassLevel)*(measured.bass>bassLevel?.26:.12);
-    midLevel+=(measured.mid-midLevel)*(measured.mid>midLevel?.22:.11);
+    const bassTarget=measured.bass*Math.sqrt(audio.volume);
+    const midTarget=measured.mid*Math.sqrt(audio.volume);
+    bassLevel+=(bassTarget-bassLevel)*(bassTarget>bassLevel?.26:.12);
+    midLevel+=(midTarget-midLevel)*(midTarget>midLevel?.22:.11);
     backdrop.style.setProperty('--sound-bass',bassLevel.toFixed(3));
     backdrop.style.setProperty('--sound-mid',midLevel.toFixed(3));
-    footer.classList.add('has-live-audio');
+    footer.classList.toggle('has-live-audio',bassLevel>.018||midLevel>.018);
    }else footer.classList.remove('has-live-audio');
    lastSample=now;
   }
