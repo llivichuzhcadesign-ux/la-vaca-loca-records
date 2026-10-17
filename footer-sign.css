@@ -41,6 +41,35 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
 }
 
 
+/* iOS drag-to-hover capture layer. Only active for touch pointers. It owns
+   gestures over the artwork so Safari cannot select text or show blue highlights.
+   Navigation/credit stay above this surface and keep native tap/scroll behavior. */
+.footer-touch-surface {
+  display:none;
+  position:absolute;
+  z-index:2;
+  left:0;
+  top:0;
+  width:100%;
+  height:79%;
+  pointer-events:none;
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:none;
+}
+@media (pointer:coarse) {
+  body .lvl-footer.illuminated-footer .footer-touch-surface {
+    display:block;
+    pointer-events:auto;
+  }
+}
+body .lvl-footer.illuminated-footer .footer-laser-backdrop {
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+}
 .footer-laser-backdrop {
   position:absolute;
   inset:0;
