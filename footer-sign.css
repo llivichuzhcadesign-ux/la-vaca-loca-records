@@ -1,4 +1,4 @@
-/* Shared public footer styling for index, discos, sessions, eventos, and archivo. */
+/* Shared footer for homepage, discos, sessions, eventos, and archivo. */
 body .lvl-footer.illuminated-footer {
   position:relative;
   isolation:isolate;
@@ -197,7 +197,36 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
     grid-row:1;
     gap:12px;
   }
-  @media (prefers-reduced-motion:reduce) {
+  body .lvl-footer.illuminated-footer > .footer-copy > p {
+    max-width:250px;
+    font-size:11px;
+  }
+  .footer-laser-backdrop svg {
+    width:min(132vw,570px);
+    left:52%;
+    top:52%;
+  }
+  body .lvl-footer.illuminated-footer nav {
+    grid-column:1;
+    grid-row:3;
+    align-self:end;
+    flex-direction:row;
+    justify-content:flex-start;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:4px 20px;
+    margin:0;
+  }
+  body .lvl-footer.illuminated-footer nav a {
+    min-height:42px;
+    font-size:13px;
+  }
+  body .lvl-footer.illuminated-footer .design-credit {
+    grid-column:1;
+    grid-row:4;
+  }
+}
+@media (prefers-reduced-motion:reduce) {
   .footer-laser-trail,.footer-laser-core {display:none;}
   .footer-laser-etch path,.footer-laser-etch circle {stroke-opacity:.32;}
   body .lvl-footer.illuminated-footer nav a,
