@@ -39,7 +39,7 @@
  footer.insertBefore(backdrop,footer.firstChild);
 
  const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
- let isVisible=true, energized=false, lastFogAt=0, lastFogPoint=null, touchOff=0;
+ let isVisible=true, energized=false, lastFogAt=-Infinity, lastFogPoint=null, touchOff=0;
  const clamp=(n,low,high)=>Math.min(high,Math.max(low,n));
  const pointFromEvent=event=>{
   const rect=footer.getBoundingClientRect();
@@ -76,11 +76,14 @@
   if(!energized){
    energized=true;
    footer.classList.add('is-energized');
-   emitAfterglow(point);
+   if(performance.now()-lastFogAt>1000)emitAfterglow(point);
   }else if(allowAnotherCloud&&performance.now()-lastFogAt>2600&&lastFogPoint&&Math.hypot(point.x-lastFogPoint.x,point.y-lastFogPoint.y)>12){
    emitAfterglow(point);
   }
  }
+ footer.addEventListener('pointerenter',event=>{
+  if((event.pointerType==='mouse'||event.pointerType==='pen')&&!event.target.closest('a'))activate(pointFromEvent(event),false);
+ },{passive:true});
  footer.addEventListener('pointermove',event=>{
   if(event.pointerType!=='mouse'&&event.pointerType!=='pen')return;
   if(event.target.closest('a')){deactivate();return;}
