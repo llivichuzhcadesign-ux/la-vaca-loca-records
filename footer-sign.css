@@ -205,13 +205,13 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   left:0;
   top:-1.5px;
   width:var(--spark-width,18px);
-  height:3px;
+  height:var(--spark-height,2.5px);
   border-radius:40%;
   background:linear-gradient(90deg,rgba(255,254,224,1),rgba(255,188,126,.96) 58%,transparent);
   box-shadow:0 0 4px rgba(255,218,162,.86),0 0 13px rgba(239,145,143,.34);
   opacity:0;
   transform-origin:0 50%;
-  animation:footer-firework-spark 1.23s var(--spark-delay,0ms) cubic-bezier(.13,.48,.23,1) both;
+  animation:footer-firework-spark var(--spark-duration,1.2s) var(--spark-delay,0ms) cubic-bezier(.13,.48,.23,1) both;
 }
 .footer-firework-spark:nth-child(3n+2) {
   background:linear-gradient(90deg,rgba(255,246,235,.95),rgba(255,142,189,.94),transparent);
@@ -231,11 +231,37 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   100% {opacity:0;transform:scale(1.42);}
 }
 @keyframes footer-firework-spark {
-  0% {opacity:0;transform:rotate(var(--spark-angle)) translateX(2px) scaleX(.42);}
+  0% {opacity:0;transform:rotate(var(--spark-angle)) translate(2px,0) scaleX(.32);}
   12% {opacity:1;}
-  38% {opacity:1;transform:rotate(var(--spark-angle)) translateX(calc(var(--spark-distance) * .7)) scaleX(1);}
-  75% {opacity:.62;}
-  100% {opacity:0;transform:rotate(var(--spark-angle)) translateX(var(--spark-distance)) scaleX(.11);}
+  39% {opacity:.98;transform:rotate(var(--spark-angle)) translate(calc(var(--spark-distance) * .66),var(--spark-curve)) scaleX(1);}
+  72% {opacity:.56;}
+  100% {opacity:0;transform:rotate(var(--spark-angle)) translate(var(--spark-distance),var(--spark-fall)) scaleX(.09);}
+}
+/* Cooling motes fall and fade more slowly than the initial burst. */
+.footer-firework-ember {
+  position:absolute;
+  display:block;
+  left:-2px;
+  top:-2px;
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  pointer-events:none;
+  background:radial-gradient(circle,#fff6d5 0%,#ffc194 44%,rgba(243,126,166,.19) 78%,transparent);
+  box-shadow:0 0 6px rgba(255,201,146,.65),0 0 15px rgba(240,144,149,.34);
+  opacity:0;
+  animation:footer-ember-fall var(--ember-duration,1.5s) var(--ember-delay,0ms) cubic-bezier(.2,.48,.37,1) both;
+}
+.footer-firework-ember:nth-of-type(3n) {
+  width:3px;
+  height:3px;
+  background:radial-gradient(circle,#ffe2e1,rgba(255,153,190,.42) 62%,transparent);
+}
+@keyframes footer-ember-fall {
+  0% {opacity:0;transform:translate(0,0) scale(.35);}
+  12% {opacity:1;}
+  55% {opacity:.78;transform:translate(calc(var(--ember-x) * .72),calc(var(--ember-y) * .36)) scale(.95);}
+  100% {opacity:0;transform:translate(var(--ember-x),var(--ember-y)) scale(.12);}
 }
 /* Electric contact -> short ignition -> layered, backlit, drifting haze.
    Six soft wisps with different shapes replace flat particles and decorative glyphs. */
@@ -248,7 +274,7 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   pointer-events:none;
   overflow:visible;
   isolation:isolate;
-  mix-blend-mode:screen;
+  mix-blend-mode:normal;
 }
 .footer-fog-cloud::before {
   content:"";
@@ -288,28 +314,33 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   opacity:0;
   animation:footer-haze-bloom 4.65s ease-out both;
 }
+/* Cool cores, warm rims and uneven edges give each plume more depth than one
+   large uniform blurred ellipse. Individual movements vary per ignition. */
 .footer-fog-cloud i {
   position:absolute;
   z-index:2;
   display:block;
-  width:67%;
-  height:37%;
+  width:69%;
+  height:43%;
   left:17%;
-  top:32%;
-  border-radius:48% 52% 47% 53%;
-  background:radial-gradient(ellipse at 43% 55%,rgba(214,199,196,.47) 0%,rgba(184,172,174,.3) 32%,rgba(137,132,136,.12) 59%,transparent 82%);
+  top:33%;
+  border-radius:43% 57% 65% 35% / 52% 38% 62% 48%;
+  background:
+    radial-gradient(ellipse 35% 46% at 24% 57%,rgba(223,196,193,.57),rgba(177,162,166,.27) 65%,transparent 100%),
+    radial-gradient(ellipse 41% 45% at 54% 33%,rgba(225,207,199,.49),rgba(153,140,147,.21) 66%,transparent 100%),
+    radial-gradient(ellipse 46% 50% at 77% 67%,rgba(189,173,179,.37),rgba(130,119,125,.18) 65%,transparent 100%);
   opacity:0;
-  filter:blur(15px);
-  transform:translate3d(0,0,0) scale(.42) rotate(0deg);
-  animation:footer-haze-wisp 4.45s cubic-bezier(.14,.43,.26,1) both;
+  filter:blur(var(--fog-blur,16px));
+  transform:translate3d(0,0,0) scale(.45);
+  animation:footer-haze-wisp var(--fog-duration,4.5s) var(--fog-delay,0ms) cubic-bezier(.17,.47,.25,1) both;
   will-change:transform,opacity;
 }
-.footer-fog-cloud i:nth-of-type(1) {--fog-x:-45px;--fog-y:-92px;--fog-turn:-18deg;animation-delay:0s;}
-.footer-fog-cloud i:nth-of-type(2) {--fog-x:49px;--fog-y:-78px;--fog-turn:13deg;top:28%;width:61%;background:radial-gradient(ellipse at 48% 57%,rgba(193,164,164,.22),rgba(153,143,146,.1) 46%,transparent 79%);animation-delay:.13s;}
-.footer-fog-cloud i:nth-of-type(3) {--fog-x:-17px;--fog-y:-130px;--fog-turn:22deg;left:24%;width:51%;height:43%;filter:blur(21px);animation-delay:.31s;}
-.footer-fog-cloud i:nth-of-type(4) {--fog-x:77px;--fog-y:-115px;--fog-turn:-9deg;left:24%;top:35%;width:51%;height:34%;background:radial-gradient(ellipse,rgba(181,170,162,.16),rgba(146,135,136,.06) 55%,transparent 81%);animation-delay:.25s;}
-.footer-fog-cloud i:nth-of-type(5) {--fog-x:-82px;--fog-y:-61px;--fog-turn:24deg;left:23%;top:35%;width:59%;filter:blur(23px);animation-delay:.47s;}
-.footer-fog-cloud i:nth-of-type(6) {--fog-x:32px;--fog-y:-156px;--fog-turn:-16deg;left:32%;top:33%;width:44%;height:40%;background:radial-gradient(ellipse,rgba(190,175,168,.20),rgba(147,135,139,.08) 52%,transparent 80%);filter:blur(22px);animation-delay:.53s;}
+.footer-fog-cloud i:nth-of-type(2) {left:30%;top:27%;width:55%;height:49%;border-radius:61% 39% 46% 54% / 34% 67% 33% 66%;}
+.footer-fog-cloud i:nth-of-type(3) {left:11%;top:34%;width:64%;height:35%;border-radius:35% 65% 48% 52% / 63% 44% 56% 37%;}
+.footer-fog-cloud i:nth-of-type(4) {left:26%;top:36%;width:71%;height:39%;border-radius:57% 43% 56% 44% / 42% 62% 38% 58%;}
+.footer-fog-cloud i:nth-of-type(5) {left:19%;top:19%;width:49%;height:51%;border-radius:43% 57% 29% 71% / 56% 42% 58% 44%;}
+.footer-fog-cloud i:nth-of-type(6) {left:37%;top:25%;width:41%;height:53%;border-radius:66% 34% 58% 42% / 37% 67% 33% 63%;}
+.footer-fog-cloud i:nth-of-type(7) {left:12%;top:30%;width:63%;height:43%;border-radius:38% 62% 47% 53% / 59% 35% 65% 41%;}
 @keyframes footer-haze-beam {
   0%,5% {opacity:0;transform:translateY(16px) scale(.82);}
   20% {opacity:.87;}
@@ -323,11 +354,12 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   100% {opacity:0;transform:scale(1.8) translateY(-40px);}
 }
 @keyframes footer-haze-wisp {
-  0% {opacity:0;transform:translate3d(0,10px,0) scale(.4) rotate(0);}
-  14% {opacity:.61;}
-  36% {opacity:.57;}
-  70% {opacity:.24;}
-  100% {opacity:0;transform:translate3d(var(--fog-x),var(--fog-y),0) scale(1.85) rotate(var(--fog-turn));}
+  0% {opacity:0;transform:translate3d(0,12px,0) rotate(-7deg) scale(.36);}
+  16% {opacity:var(--fog-opacity,.57);}
+  38% {opacity:calc(var(--fog-opacity,.57) * .85);
+       transform:translate3d(calc(var(--fog-x) * .23),calc(var(--fog-y) * .26),0) rotate(calc(var(--fog-turn) * .25)) scale(.96);}
+  70% {opacity:calc(var(--fog-opacity,.57) * .38);}
+  100% {opacity:0;transform:translate3d(var(--fog-x),var(--fog-y),0) rotate(var(--fog-turn)) scale(var(--fog-scale,1.8));}
 }
 @keyframes footer-haze-echo {
   0% {opacity:0;transform:scale(.18);}
@@ -483,6 +515,7 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
   .sonic-groove {left:52%;top:52%;width:min(112vw,475px);}
   .sonic-groove-inner {width:min(77vw,328px);}
   .footer-fog-cloud {width:min(123vw,520px);}
+  .footer-fog-cloud i:nth-of-type(n+6) {display:none;}
   .footer-firework-burst {transform:scale(.78);transform-origin:0 0;}
 
   body .lvl-footer.illuminated-footer nav {
