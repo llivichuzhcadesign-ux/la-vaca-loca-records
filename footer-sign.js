@@ -49,6 +49,12 @@
  electric.setAttribute('focusable','false');
  backdrop.appendChild(electric);
  footer.insertBefore(backdrop,footer.firstChild);
+ // On touch devices this transparent surface receives finger drags. It sits
+ // below the real navigation, so links and credits remain normally tappable.
+ const touchSurface=document.createElement('div');
+ touchSurface.className='footer-touch-surface';
+ touchSurface.setAttribute('aria-hidden','true');
+ footer.insertBefore(touchSurface,backdrop.nextSibling);
 
  const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
  let isVisible=true, energized=false, touchOff=0, glowOff=0;
@@ -449,8 +455,10 @@
  footer.addEventListener('pointerenter',event=>{
   if((event.pointerType==='mouse'||event.pointerType==='pen')&&!event.target.closest('a'))activate(pointFromEvent(event),false);
  },{passive:true});
+ let draggingTouchId=null;
  footer.addEventListener('pointermove',event=>{
-  if(event.pointerType!=='mouse'&&event.pointerType!=='pen')return;
+  const touchDrag=event.pointerType==='touch'&&draggingTouchId===event.pointerId;
+  if(!touchDrag&&event.pointerType!=='mouse'&&event.pointerType!=='pen')return;
   if(event.target.closest('a')){deactivate();return;}
   const point=pointFromEvent(event);
   if(!point||!point.inside)deactivate();
@@ -462,18 +470,31 @@
   const point=pointFromEvent(event);
   if(!point||!point.inside)return;
   if(event.pointerType==='touch'){
-   // Press triggers the original electrical arc plus a paired finale, not duplicate bursts.
+   if(event.target!==touchSurface)return;
+   draggingTouchId=event.pointerId;
+   try{touchSurface.setPointerCapture(event.pointerId);}catch{}
+   // First touch retains the paired finale; dragging now behaves like mouse hover.
    deactivate();
    activate(point,false,false);
    finale(point);
    clearTimeout(touchOff);
-   touchOff=window.setTimeout(deactivate,1900);
   }else{
    if(!energized)activate(point,false,false);
    else emitDischarge(point,true,false);
    finale(point);
   }
  },{passive:true});
+ const stopTouchDrag=event=>{
+  if(event.pointerId!==draggingTouchId)return;
+  draggingTouchId=null;
+  if(event.type!=='lostpointercapture'&&touchSurface.hasPointerCapture?.(event.pointerId)){
+   try{touchSurface.releasePointerCapture(event.pointerId);}catch{}
+  }
+  deactivate();
+ };
+ for(const eventName of ['pointerup','pointercancel','lostpointercapture'])
+  touchSurface.addEventListener(eventName,stopTouchDrag,{passive:true});
+ touchSurface.addEventListener('contextmenu',event=>event.preventDefault());
  // Link the footer to actual decoded frequencies from Discos. The record player's audio is never rerouted.
  let spectrum=null, spectrumReference={bass:1,mid:1};
  let liveFrame=0, lastSample=0, lastCaptureAttempt=-Infinity;
