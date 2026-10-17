@@ -175,6 +175,68 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   12% {opacity:.55;}
   70%,100% {opacity:0;transform:scale(2.35);}
 }
+/* Real audio levels drive the embossed, copper-pink groove field.
+   Neither ring uses a self-running animation; muted or unsupported audio stays still. */
+.footer-sonic-field {
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .65s ease;
+}
+.lvl-footer.has-live-audio .footer-sonic-field {opacity:1;}
+.footer-sonic-field::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse 38% 46% at 51% 49%,rgba(208,104,150,.12),transparent 80%);
+  opacity:calc(.12 + var(--sound-bass,0) * .7);
+  pointer-events:none;
+}
+.sonic-groove {
+  position:absolute;
+  left:51%;
+  top:49%;
+  display:block;
+  width:min(67vw,730px);
+  aspect-ratio:1;
+  border-radius:50%;
+  border:1px solid rgba(216,170,158,.32);
+  opacity:calc(.055 + var(--sound-bass,0) * .26);
+  transform:translate(-50%,-50%) scale(calc(1 + var(--sound-bass,0) * .068));
+  box-shadow:0 0 12px rgba(221,124,155,.07),inset 0 0 12px rgba(221,124,155,.05);
+  transition:transform .085s linear,opacity .12s linear;
+}
+.sonic-groove-inner {
+  width:min(50vw,520px);
+  border-color:rgba(191,168,115,.33);
+  opacity:calc(.045 + var(--sound-mid,0) * .23);
+  transform:translate(-50%,-50%) scale(calc(1 + var(--sound-mid,0) * .085));
+}
+.footer-sonic-ink {
+  opacity:0;
+  transition:opacity .55s ease;
+}
+.lvl-footer.has-live-audio .footer-sonic-ink {opacity:1;}
+.footer-sonic-ink path {
+  fill:none!important;
+  stroke:#f8c9ad!important;
+  stroke-opacity:calc(.06 + var(--sound-bass,0) * .53);
+  stroke-width:1.7px;
+  stroke-dasharray:none;
+  filter:drop-shadow(0 0 4px rgba(239,145,172,.36)) drop-shadow(0 0 14px rgba(240,140,162,.24));
+}
+.lvl-footer.has-live-audio .footer-laser-etch path,
+.lvl-footer.has-live-audio .footer-laser-etch circle {
+  stroke-opacity:calc(.2 + var(--sound-mid,0) * .19);
+}
+/* Keep the discrete hover-triggered electrical trace dominant over the quieter music light. */
+.lvl-footer.is-energized .footer-laser-etch path,
+.lvl-footer.is-energized .footer-laser-etch circle {
+  stroke-opacity:.4;
+}
+
 body .lvl-footer.illuminated-footer nav {
   grid-column:2;
   grid-row:1;
@@ -253,6 +315,9 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
     left:52%;
     top:52%;
   }
+  .sonic-groove {left:52%;top:52%;width:min(112vw,475px);}
+  .sonic-groove-inner {width:min(77vw,328px);}
+
   body .lvl-footer.illuminated-footer nav {
     grid-column:1;
     grid-row:2;
@@ -274,7 +339,8 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
   }
 }
 @media (prefers-reduced-motion:reduce) {
-  .footer-laser-trail,.footer-laser-core,.footer-fog-cloud,.footer-interaction-halo {display:none!important;}
+  .footer-laser-trail,.footer-laser-core,.footer-fog-cloud,.footer-interaction-halo,
+  .footer-sonic-field,.footer-sonic-ink {display:none!important;}
   .footer-laser-etch path,.footer-laser-etch circle {stroke-opacity:.32;transition:none;}
   body .lvl-footer.illuminated-footer nav a,
   body .lvl-footer.illuminated-footer nav a::after {transition:none;}
