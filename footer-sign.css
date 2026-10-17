@@ -95,10 +95,10 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
     radial-gradient(ellipse 430px 310px at var(--hover-x,50%) var(--hover-y,48%),rgba(200,145,104,.12),transparent 82%);
   transition:opacity .65s ease;
 }
-.lvl-footer.is-energized .footer-interaction-halo {opacity:1;}
-.lvl-footer.is-energized .footer-laser-etch path,
-.lvl-footer.is-energized .footer-laser-etch circle {stroke-opacity:.5;}
-.lvl-footer.is-energized .footer-laser-etch .footer-hero-contour {
+.lvl-footer.is-striking .footer-interaction-halo {opacity:1;}
+.lvl-footer.is-striking .footer-laser-etch path,
+.lvl-footer.is-striking .footer-laser-etch circle {stroke-opacity:.5;}
+.lvl-footer.is-striking .footer-laser-etch .footer-hero-contour {
   stroke-opacity:.91;
   animation:footer-sign-contact .95s ease-out 1;
 }
@@ -108,7 +108,7 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   26% {stroke-opacity:.65;}
   33%,47% {stroke-opacity:1;}
   57% {stroke-opacity:.73;}
-  100% {stroke-opacity:.91;}
+  100% {stroke-opacity:.62;}
 }
 /* Electric Afterhours: bold but finite, contour-anchored high-voltage interaction. */
 .footer-electric-circuit {
@@ -426,11 +426,11 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   stroke-opacity:calc(.62 + var(--sound-bass,0) * .26);
 }
 /* Keep the discrete hover-triggered electrical trace dominant over the quieter music light. */
-.lvl-footer.is-energized .footer-laser-etch path,
-.lvl-footer.is-energized .footer-laser-etch circle {
+.lvl-footer.is-striking .footer-laser-etch path,
+.lvl-footer.is-striking .footer-laser-etch circle {
   stroke-opacity:.5;
 }
-.lvl-footer.is-energized .footer-laser-etch .footer-hero-contour {
+.lvl-footer.is-striking .footer-laser-etch .footer-hero-contour {
   stroke-opacity:.91;
 }
 
