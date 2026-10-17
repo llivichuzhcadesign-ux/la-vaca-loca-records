@@ -1,5 +1,5 @@
-/* Homepage only: a spacious, continuously traced brand mural behind the original signature. */
-body .site-footer.illuminated-footer {
+/* Shared public footer styling for index, discos, sessions, eventos, and archivo. */
+body .lvl-footer.illuminated-footer {
   position:relative;
   isolation:isolate;
   display:grid;
@@ -16,7 +16,7 @@ body .site-footer.illuminated-footer {
   color:#eee5d3;
   text-align:left;
 }
-body .site-footer.illuminated-footer::before {
+body .lvl-footer.illuminated-footer::before {
   content:"";
   position:absolute;
   inset:0;
@@ -27,7 +27,7 @@ body .site-footer.illuminated-footer::before {
     radial-gradient(ellipse at 70% 62%,rgba(89,106,61,.14),transparent 50%),
     linear-gradient(180deg,#090907 0%,#100e0d 55%,#090907 100%);
 }
-body .site-footer.illuminated-footer::after {
+body .lvl-footer.illuminated-footer::after {
   content:"";
   position:absolute;
   inset:0;
@@ -35,11 +35,11 @@ body .site-footer.illuminated-footer::after {
   pointer-events:none;
   background:linear-gradient(90deg,rgba(9,9,7,.38),transparent 34%,transparent 70%,rgba(9,9,7,.3));
 }
-body .site-footer.illuminated-footer > :not(.footer-laser-backdrop) {
+body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   position:relative;
   z-index:3;
 }
-body .site-footer.illuminated-footer > div:not(.footer-laser-backdrop) {
+body .lvl-footer.illuminated-footer > .footer-copy {
   grid-column:1;
   grid-row:1;
   align-self:start;
@@ -49,24 +49,7 @@ body .site-footer.illuminated-footer > div:not(.footer-laser-backdrop) {
   gap:18px;
   min-width:0;
 }
-body .site-footer.illuminated-footer .footer-static-mark {
-  display:block;
-  width:clamp(132px,12vw,185px);
-  padding:0;
-  border:0;
-  background:transparent;
-  filter:drop-shadow(0 2px 12px rgba(0,0,0,.2));
-}
-body .site-footer.illuminated-footer .footer-static-mark img {
-  display:block;
-  width:100%;
-  height:auto;
-}
-body .site-footer.illuminated-footer .footer-static-mark:focus-visible {
-  outline:2px solid #c6cea7;
-  outline-offset:9px;
-}
-body .site-footer.illuminated-footer > div:not(.footer-laser-backdrop) > span {
+body .lvl-footer.illuminated-footer > .footer-copy > p {
   display:block;
   margin:0;
   max-width:260px;
@@ -136,7 +119,7 @@ body .site-footer.illuminated-footer > div:not(.footer-laser-backdrop) > span {
 @keyframes footer-laser-circuit {
   to { stroke-dashoffset:-1000; }
 }
-body .site-footer.illuminated-footer nav {
+body .lvl-footer.illuminated-footer nav {
   grid-column:2;
   grid-row:1;
   align-self:end;
@@ -147,7 +130,7 @@ body .site-footer.illuminated-footer nav {
   gap:3px;
   margin:0 0 6px;
 }
-body .site-footer.illuminated-footer nav a {
+body .lvl-footer.illuminated-footer nav a {
   position:relative;
   display:inline-flex;
   align-items:center;
@@ -162,7 +145,7 @@ body .site-footer.illuminated-footer nav a {
   text-decoration:none;
   transition:color .25s ease;
 }
-body .site-footer.illuminated-footer nav a::after {
+body .lvl-footer.illuminated-footer nav a::after {
   content:"";
   position:absolute;
   left:0;
@@ -172,11 +155,11 @@ body .site-footer.illuminated-footer nav a::after {
   background:#c6cea7;
   transition:right .25s ease;
 }
-body .site-footer.illuminated-footer nav a:hover,
-body .site-footer.illuminated-footer nav a:focus-visible {color:#fff;}
-body .site-footer.illuminated-footer nav a:hover::after,
-body .site-footer.illuminated-footer nav a:focus-visible::after {right:0;}
-body .site-footer.illuminated-footer .design-credit {
+body .lvl-footer.illuminated-footer nav a:hover,
+body .lvl-footer.illuminated-footer nav a:focus-visible {color:#fff;}
+body .lvl-footer.illuminated-footer nav a:hover::after,
+body .lvl-footer.illuminated-footer nav a:focus-visible::after {right:0;}
+body .lvl-footer.illuminated-footer .design-credit {
   grid-column:1/-1;
   grid-row:2;
   width:100%;
@@ -189,7 +172,7 @@ body .site-footer.illuminated-footer .design-credit {
   text-align:left;
   line-height:1.5;
 }
-body .site-footer.illuminated-footer .design-credit a {
+body .lvl-footer.illuminated-footer .design-credit a {
   display:inline-block;
   padding:6px 0;
   font-size:11px;
@@ -197,56 +180,26 @@ body .site-footer.illuminated-footer .design-credit a {
   color:#a99e90;
   text-decoration:none;
 }
-body .site-footer.illuminated-footer .design-credit a:hover {
+body .lvl-footer.illuminated-footer .design-credit a:hover {
   color:#e9e1d4;
   text-decoration:underline;
 }
 @media (max-width:720px) {
-  body .site-footer.illuminated-footer {
+  body .lvl-footer.illuminated-footer {
     min-height:clamp(580px,155vw,680px);
     grid-template-columns:minmax(0,1fr);
     grid-template-rows:auto minmax(180px,1fr) auto auto;
     gap:22px;
     padding:36px 22px 22px;
   }
-  body .site-footer.illuminated-footer > div:not(.footer-laser-backdrop) {
+  body .lvl-footer.illuminated-footer > .footer-copy {
     grid-column:1;
     grid-row:1;
     gap:12px;
   }
-  body .site-footer.illuminated-footer .footer-static-mark {width:132px;}
-  body .site-footer.illuminated-footer > div:not(.footer-laser-backdrop) > span {
-    max-width:250px;
-    font-size:11px;
-  }
-  .footer-laser-backdrop svg {
-    width:min(132vw,570px);
-    left:52%;
-    top:52%;
-  }
-  body .site-footer.illuminated-footer nav {
-    grid-column:1;
-    grid-row:3;
-    align-self:end;
-    flex-direction:row;
-    justify-content:flex-start;
-    align-items:center;
-    flex-wrap:wrap;
-    gap:4px 20px;
-    margin:0;
-  }
-  body .site-footer.illuminated-footer nav a {
-    min-height:42px;
-    font-size:13px;
-  }
-  body .site-footer.illuminated-footer .design-credit {
-    grid-column:1;
-    grid-row:4;
-  }
-}
-@media (prefers-reduced-motion:reduce) {
+  @media (prefers-reduced-motion:reduce) {
   .footer-laser-trail,.footer-laser-core {display:none;}
   .footer-laser-etch path,.footer-laser-etch circle {stroke-opacity:.32;}
-  body .site-footer.illuminated-footer nav a,
-  body .site-footer.illuminated-footer nav a::after {transition:none;}
+  body .lvl-footer.illuminated-footer nav a,
+  body .lvl-footer.illuminated-footer nav a::after {transition:none;}
 }
