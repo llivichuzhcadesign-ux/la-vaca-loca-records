@@ -149,6 +149,24 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
          drop-shadow(0 0 10px rgba(255,184,195,.62));
   animation:footer-electric-surge .91s ease-out both;
 }
+/* A real fragment of the cow's vector contour lights up before the bolt
+   reaches the pointer. The current now visibly comes from the artwork. */
+.footer-electric-contour {
+  stroke:#ffdebf!important;
+  stroke-width:4.5px;
+  opacity:0;
+  filter:drop-shadow(0 0 6px rgba(255,225,174,.96))
+         drop-shadow(0 0 18px rgba(235,119,173,.74))
+         drop-shadow(0 0 30px rgba(227,115,164,.3));
+  animation:footer-contour-conduction 1.06s cubic-bezier(.24,.58,.35,1) both;
+}
+@keyframes footer-contour-conduction {
+  0% {stroke-dashoffset:100;opacity:0;}
+  12% {opacity:1;}
+  43% {stroke-dashoffset:0;opacity:.96;}
+  62% {opacity:.78;}
+  100% {stroke-dashoffset:0;opacity:0;}
+}
 .footer-electric-branch {
   stroke:#fbc1b4!important;
   stroke-width:2.1px;
@@ -174,6 +192,16 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   pointer-events:none;
   filter:drop-shadow(0 0 9px rgba(255,197,150,.6));
 }
+/* Primary sparks erupt where electricity touches the cow. The original
+   cursor-side fireworks remain, intentionally quieter as a secondary echo. */
+.footer-firework-burst.footer-firework-source {
+  filter:drop-shadow(0 0 12px rgba(255,190,139,.85));
+}
+.footer-firework-burst.footer-firework-cursor {
+  transform:scale(.68);
+  transform-origin:0 0;
+  filter:drop-shadow(0 0 6px rgba(249,164,183,.35));
+}
 .footer-firework-burst::before {
   content:"";
   position:absolute;
@@ -185,6 +213,10 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   background:radial-gradient(circle,rgba(255,253,239,.96) 0%,rgba(255,236,204,.86) 7%,rgba(255,198,167,.58) 15%,rgba(241,132,181,.29) 35%,transparent 72%);
   opacity:0;
   animation:footer-firework-ignition .84s ease-out both;
+}
+.footer-firework-burst.footer-firework-source::before {
+  background:radial-gradient(circle,rgba(255,252,231,.98) 0%,rgba(255,229,178,.86) 9%,
+    rgba(241,144,175,.45) 26%,transparent 73%);
 }
 .footer-firework-burst::after {
   content:"";
@@ -275,6 +307,18 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   overflow:visible;
   isolation:isolate;
   mix-blend-mode:normal;
+}
+/* Smoke is born from the silhouette. The cursor retains a smaller,
+   fainter remainder of its previous explosion instead of competing with it. */
+.footer-fog-cloud.footer-fog-source {width:clamp(340px,39vw,535px);}
+.footer-fog-cloud.footer-fog-cursor {
+  width:clamp(230px,26vw,365px);
+  opacity:.68;
+}
+.footer-fog-source .footer-haze-beam {filter:blur(16px);}
+.footer-fog-source .footer-haze-bloom {
+  background:radial-gradient(ellipse at 49% 55%,rgba(244,204,175,.38) 0%,
+    rgba(208,159,171,.23) 32%,rgba(135,119,125,.09) 59%,transparent 79%);
 }
 .footer-fog-cloud::before {
   content:"";
@@ -515,8 +559,11 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
   .sonic-groove {left:52%;top:52%;width:min(112vw,475px);}
   .sonic-groove-inner {width:min(77vw,328px);}
   .footer-fog-cloud {width:min(123vw,520px);}
+  .footer-fog-cloud.footer-fog-source {width:min(110vw,410px);}
+  .footer-fog-cloud.footer-fog-cursor {display:none;}
   .footer-fog-cloud i:nth-of-type(n+6) {display:none;}
   .footer-firework-burst {transform:scale(.78);transform-origin:0 0;}
+  .footer-firework-burst.footer-firework-cursor {transform:scale(.58);}
 
   body .lvl-footer.illuminated-footer nav {
     grid-column:1;
