@@ -1,7 +1,23 @@
+/* Shared public footer. Update this module and footer-sign.css for every public page. */
 (function(){
- const footer=document.querySelector('.site-footer');
- const original=footer?.querySelector('.store-signature');
- if(!footer||!original)return;
+ const footer=document.querySelector('.site-footer, .editorial-footer');
+ if(!footer || footer.dataset.lvlFooterReady==='true')return;
+ footer.dataset.lvlFooterReady='true';
+ footer.classList.add('lvl-footer','illuminated-footer','sign-revealed');
+ // One canonical footer: no small logo; the laser artwork is the only large brand mark.
+ footer.innerHTML=`
+  <div class="footer-copy">
+   <p>Gualaceo, Ecuador · discos · sessions · cultura</p>
+  </div>
+  <nav aria-label="Explorar La Vaca Loca">
+   <a href="index.html">Inicio</a>
+   <a href="discos.html">Discos</a>
+   <a href="sessions.html">Sessions</a>
+   <a href="eventos.html">Eventos</a>
+   <a href="archivo.html">Archivo</a>
+  </nav>
+  <p class="design-credit"><a href="https://www.instagram.com/semiotice/" target="_blank" rel="noopener noreferrer">Website Design by Sebastian Llivichuzhca</a></p>
+ `;
  const backdrop=document.createElement('div');
  backdrop.className='footer-laser-backdrop';
  backdrop.setAttribute('aria-hidden','true');
@@ -10,7 +26,7 @@
  if(!etched)return;
  etched.classList.replace('footer-sign-outline','footer-laser-etch');
  backdrop.querySelectorAll('.footer-sign-face,.footer-sign-sweep').forEach(el=>el.remove());
- // Trace the main cow silhouette, preserving all other brand details in the etched layer.
+ // Animate only the main cow contour. The remaining paths are dimly etched.
  for(const layerName of ['footer-laser-trail','footer-laser-core']){
   const svg=etched.cloneNode(true);
   svg.classList.remove('footer-laser-etch');
@@ -21,12 +37,7 @@
   backdrop.appendChild(svg);
  }
  footer.insertBefore(backdrop,footer.firstChild);
- original.classList.add('footer-static-mark');
- const logo=original.querySelector('img');
- if(logo)logo.alt='La Vaca Loca Record Store';
- footer.classList.add('illuminated-footer','sign-revealed');
- footer.querySelector('nav')?.setAttribute('aria-label','Explorar La Vaca Loca');
- // Offscreen motion is paused to avoid needless repainting and battery use.
+ // Stop animation while out of view; honor reduced-motion settings in CSS.
  if('IntersectionObserver' in window){
   const observer=new IntersectionObserver(entries=>{
    footer.classList.toggle('sign-visible',entries.some(entry=>entry.isIntersecting));
