@@ -23,16 +23,9 @@
  if(!etched)return;
  etched.classList.replace('footer-sign-outline','footer-laser-etch');
  backdrop.querySelectorAll('.footer-sign-face,.footer-sign-sweep').forEach(el=>el.remove());
- // Keep the brand's original illustration; the main contour is energized only on interaction.
- for(const layerName of ['footer-laser-trail','footer-laser-core']){
-  const svg=etched.cloneNode(true);
-  svg.classList.remove('footer-laser-etch');
-  svg.classList.add(layerName);
-  const cow=[...svg.querySelectorAll('path')].find(path=>(path.getAttribute('d')||'').startsWith('M52.1,219.41'));
-  if(!cow)continue;
-  svg.querySelectorAll('path,circle').forEach(part=>{if(part!==cow)part.remove()});
-  backdrop.appendChild(svg);
- }
+ // The original contour is the electrical discharge's physical starting point.
+ const cowContour=[...etched.querySelectorAll('path')].find(path=>
+  (path.getAttribute('d')||'').startsWith('M52.1,219.41'));
  const halo=document.createElement('div');
  halo.className='footer-interaction-halo';
  backdrop.insertBefore(halo,backdrop.firstChild);
@@ -47,6 +40,13 @@
  const sonicCow=[...sonicInk.querySelectorAll('path')].find(path=>(path.getAttribute('d')||'').startsWith('M52.1,219.41'));
  sonicInk.querySelectorAll('path,circle').forEach(part=>{if(part!==sonicCow)part.remove()});
  if(sonicCow)backdrop.insertBefore(sonicInk,backdrop.querySelector('.footer-laser-trail'));
+ // Independent pixel-coordinate SVG; doesn't change the original brand illustration.
+ const ns='http://www.w3.org/2000/svg';
+ const electric=document.createElementNS(ns,'svg');
+ electric.setAttribute('class','footer-electric-circuit');
+ electric.setAttribute('aria-hidden','true');
+ electric.setAttribute('focusable','false');
+ backdrop.appendChild(electric);
  footer.insertBefore(backdrop,footer.firstChild);
 
  const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -59,8 +59,109 @@
   const y=clamp((event.clientY-rect.top)/rect.height*100,0,100);
   // The drawing is the interaction surface. Preserve ordinary link hover behavior.
   const mobile=rect.width<=720;
-  return {x,y,inside: mobile ? (y>=7&&y<=72) : (x>=19&&x<=81&&y>=8&&y<=89)};
+  return {x,y,clientX:event.clientX,clientY:event.clientY,
+   inside: mobile ? (y>=7&&y<=72) : (x>=19&&x<=81&&y>=8&&y<=89)};
  };
+ // Map the cursor to the nearest real point on the cow's vector contour.
+ // Cache path samples so each discharge is cheap, even on touch screens.
+ let contourSamples=null,lastDischargeAt=-Infinity,lastArcPoint=null;
+ function nearestContour(point){
+  if(!cowContour||typeof cowContour.getTotalLength!=='function')return null;
+  try{
+   if(!contourSamples){
+    const length=cowContour.getTotalLength();
+    contourSamples=Array.from({length:112},(_,i)=>cowContour.getPointAtLength(length*i/111));
+   }
+   const matrix=cowContour.getScreenCTM();
+   if(!matrix)return null;
+   const cursor=etched.createSVGPoint();cursor.x=point.clientX;cursor.y=point.clientY;
+   const local=cursor.matrixTransform(matrix.inverse());
+   let best=null,bestDistance=Infinity;
+   for(const sample of contourSamples){
+    const dx=sample.x-local.x,dy=sample.y-local.y;
+    const dist=dx*dx+dy*dy;
+    if(dist<bestDistance){bestDistance=dist;best=sample;}
+   }
+   if(!best)return null;
+   const at=etched.createSVGPoint();at.x=best.x;at.y=best.y;
+   const screen=at.matrixTransform(matrix),box=backdrop.getBoundingClientRect();
+   return {x:screen.x-box.left,y:screen.y-box.top,
+    distance:Math.hypot(screen.x-point.clientX,screen.y-point.clientY)};
+  }catch{return null;}
+ }
+ // Controlled angled offsets give a crackling arc without continuous particle loops.
+ function jaggedPath(x1,y1,x2,y2,seed){
+  const dx=x2-x1,dy=y2-y1,dist=Math.hypot(dx,dy)||1;
+  const nx=-dy/dist,ny=dx/dist;
+  const count=Math.max(5,Math.min(12,Math.round(dist/23)));
+  const phase=seed*.73;
+  let d='M '+x1.toFixed(1)+' '+y1.toFixed(1);
+  for(let i=1;i<count;i++){
+   const t=i/count,envelope=Math.sin(Math.PI*t);
+   const jitter=(Math.sin(i*3.8+phase)*.62+Math.sin(i*7.1+phase)*.38)*Math.min(13,dist*.065)*envelope;
+   d+=' L '+(x1+dx*t+nx*jitter).toFixed(1)+' '+(y1+dy*t+ny*jitter).toFixed(1);
+  }
+  return d+' L '+x2.toFixed(1)+' '+y2.toFixed(1);
+ }
+ function emitFirework(point){
+  const burst=document.createElement('div');
+  burst.className='footer-firework-burst';
+  burst.setAttribute('aria-hidden','true');
+  burst.style.left=point.x+'%';
+  burst.style.top=point.y+'%';
+  for(let i=0;i<10;i++){
+   const spark=document.createElement('span');
+   spark.className='footer-firework-spark';
+   spark.style.setProperty('--spark-angle',i*36+'deg');
+   spark.style.setProperty('--spark-distance',(22+(i%4)*7)+'px');
+   spark.style.setProperty('--spark-delay',(i%3)*26+'ms');
+   burst.appendChild(spark);
+  }
+  const existing=backdrop.querySelectorAll('.footer-firework-burst');
+  if(existing.length>=3)existing[0].remove();
+  backdrop.appendChild(burst);
+  window.setTimeout(()=>burst.remove(),1100);
+ }
+ function emitDischarge(point,force=false){
+  if(motion.matches||!isVisible||document.hidden)return;
+  const now=performance.now(),moved=lastArcPoint
+   ?Math.hypot(point.x-lastArcPoint.x,point.y-lastArcPoint.y):Infinity;
+  if(!force&&(now-lastDischargeAt<720||moved<9))return;
+  if(force&&now-lastDischargeAt<340)return;
+  const origin=nearestContour(point);
+  if(!origin||origin.distance>295)return;
+  const box=backdrop.getBoundingClientRect();
+  const x=point.clientX-box.left,y=point.clientY-box.top;
+  electric.setAttribute('viewBox','0 0 '+box.width+' '+box.height);
+  const group=document.createElementNS(ns,'g');
+  group.setAttribute('class','footer-electric-strike');
+  const shape=jaggedPath(origin.x,origin.y,x,y,now/100);
+  for(const layer of ['aura','core']){
+   const path=document.createElementNS(ns,'path');
+   path.setAttribute('class','footer-electric-'+layer);
+   path.setAttribute('d',shape);
+   path.setAttribute('pathLength','100');
+   group.appendChild(path);
+  }
+  if(origin.distance>85){
+   const branch=document.createElementNS(ns,'path');
+   branch.setAttribute('class','footer-electric-branch');
+   const mx=origin.x+(x-origin.x)*.68,my=origin.y+(y-origin.y)*.68;
+   const angle=Math.atan2(y-origin.y,x-origin.x)+Math.PI/2;
+   branch.setAttribute('d',jaggedPath(mx,my,
+    mx+Math.cos(angle)*Math.min(31,origin.distance*.2),
+    my+Math.sin(angle)*Math.min(31,origin.distance*.2),now/90));
+   branch.setAttribute('pathLength','100');
+   group.appendChild(branch);
+  }
+  const active=electric.querySelectorAll('.footer-electric-strike');
+  if(active.length>=2)active[0].remove();
+  electric.appendChild(group);
+  window.setTimeout(()=>group.remove(),870);
+  emitFirework(point);
+  lastDischargeAt=now;
+  lastArcPoint={x:point.x,y:point.y};
+ }
  function emitAfterglow(point){
   if(motion.matches||!isVisible)return;
   const cloud=document.createElement('div');
@@ -100,9 +201,12 @@
   if(!energized){
    energized=true;
    footer.classList.add('is-energized');
+   emitDischarge(point,true);
    if(performance.now()-lastFogAt>1000)emitAfterglow(point);
-  }else if(allowAnotherCloud&&performance.now()-lastFogAt>2600&&lastFogPoint&&Math.hypot(point.x-lastFogPoint.x,point.y-lastFogPoint.y)>12){
-   emitAfterglow(point);
+  }else{
+   if(allowAnotherCloud)emitDischarge(point);
+   if(allowAnotherCloud&&performance.now()-lastFogAt>2600&&lastFogPoint&&Math.hypot(point.x-lastFogPoint.x,point.y-lastFogPoint.y)>12)
+    emitAfterglow(point);
   }
  }
  footer.addEventListener('pointerenter',event=>{
@@ -264,13 +368,22 @@
   },true);
  }
  document.addEventListener('visibilitychange',()=>document.hidden?stopSound():startSound());
- const stopMotion=()=>{if(motion.matches){deactivate();stopSound();backdrop.querySelectorAll('.footer-fog-cloud').forEach(cloud=>cloud.remove());}else startSound();};
+ const clearSparks=()=>{
+  electric.replaceChildren();
+  backdrop.querySelectorAll('.footer-firework-burst').forEach(burst=>burst.remove());
+ };
+ const stopMotion=()=>{
+  if(motion.matches){
+   deactivate();stopSound();clearSparks();
+   backdrop.querySelectorAll('.footer-fog-cloud').forEach(cloud=>cloud.remove());
+  }else startSound();
+ };
  if(motion.addEventListener)motion.addEventListener('change',stopMotion);
  if('IntersectionObserver' in window){
   const observer=new IntersectionObserver(entries=>{
    isVisible=entries.some(entry=>entry.isIntersecting);
    footer.classList.toggle('sign-visible',isVisible);
-   if(!isVisible){deactivate();stopSound();}
+   if(!isVisible){deactivate();stopSound();clearSparks();}
    else startSound();
   },{rootMargin:'80px 0px 80px 0px',threshold:0});
   observer.observe(footer);
