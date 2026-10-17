@@ -340,7 +340,7 @@
   window.setTimeout(()=>cloud.remove(),5700);
  }
  // Stage 1: a real contour-anchored, multi-branch electric bolt runs toward the pointer.
- function emitDischarge(point,force=false){
+ function emitDischarge(point,force=false,includeFireworks=true){
   if(motion.matches||!isVisible||document.hidden)return false;
   const now=performance.now();
   const moved=lastArcPoint?Math.hypot(point.clientX-lastArcPoint.clientX,point.clientY-lastArcPoint.clientY):Infinity;
@@ -398,7 +398,7 @@
   glowOff=window.setTimeout(()=>footer.classList.remove('is-striking'),980);
   // The silhouette is the source; the previous cursor-facing lightning and
   // fireworks remain as an echo at the other end of the same discharge.
-  if(now-lastBurstAt>=1550){
+  if(includeFireworks&&now-lastBurstAt>=1550){
    lastBurstAt=now;
    const atCow={x:origin.x/box.width*100,y:origin.y/box.height*100};
    const heading=Math.atan2(y-origin.y,x-origin.x)*180/Math.PI;
@@ -436,14 +436,14 @@
   energized=false;
   // Do not cancel an existing strike; its timed glow and smoke finish naturally.
  }
- function activate(point,allowAnotherCloud){
+ function activate(point,allowAnotherCloud,includeFireworks=true){
   if(!point||!point.inside||motion.matches||!isVisible)return;
   const targetX=point.x.toFixed(2)+'%',targetY=point.y.toFixed(2)+'%';
   backdrop.style.setProperty('--hover-x',targetX);
   backdrop.style.setProperty('--hover-y',targetY);
   if(!energized){
    energized=true;
-   emitDischarge(point,true);
+   emitDischarge(point,true,includeFireworks);
   }else if(allowAnotherCloud)emitDischarge(point);
  }
  footer.addEventListener('pointerenter',event=>{
@@ -462,14 +462,15 @@
   const point=pointFromEvent(event);
   if(!point||!point.inside)return;
   if(event.pointerType==='touch'){
-   // Touch gets the same electrical connection plus a lightweight paired finale.
+   // Press triggers the original electrical arc plus a paired finale, not duplicate bursts.
    deactivate();
-   activate(point,false);
+   activate(point,false,false);
    finale(point);
    clearTimeout(touchOff);
    touchOff=window.setTimeout(deactivate,1900);
   }else{
-   activate(point,false);
+   if(!energized)activate(point,false,false);
+   else emitDischarge(point,true,false);
    finale(point);
   }
  },{passive:true});
