@@ -183,7 +183,7 @@
    layer.className=cls;
    cloud.appendChild(layer);
   }
-  for(let i=0;i<(kind==='cow'?6:5);i++){
+  for(let i=0;i<(kind==='cow'?5:3);i++){
    const wisp=document.createElement('i');
    // Uneven translucent lobes with variable turbulence; no seamless particle loop.
    const driftX=random(-122,122)+(i%2?33:-33);
