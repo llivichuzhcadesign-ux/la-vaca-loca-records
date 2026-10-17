@@ -51,7 +51,7 @@
  footer.insertBefore(backdrop,footer.firstChild);
 
  const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
- let isVisible=true, energized=false, touchOff=0;
+ let isVisible=true, energized=false, touchOff=0, glowOff=0;
  const clamp=(n,low,high)=>Math.min(high,Math.max(low,n));
  const pointFromEvent=event=>{
   const rect=footer.getBoundingClientRect();
@@ -143,8 +143,7 @@
    ember.style.setProperty('--ember-duration',random(1.1,1.8).toFixed(2)+'s');
    burst.appendChild(ember);
   }
-  const older=backdrop.querySelectorAll('.footer-firework-burst');
-  if(older.length>=2)older[0].remove();
+  // Each burst has its own cleanup; bursts are already throttled and won't cut off each other.
   backdrop.appendChild(burst);
   window.setTimeout(()=>burst.remove(),2400);
  }
@@ -177,8 +176,8 @@
    wisp.style.setProperty('--fog-scale',random(1.4,2.1).toFixed(2));
    cloud.appendChild(wisp);
   }
-  const older=backdrop.querySelectorAll('.footer-fog-cloud');
-  if(older.length>=2)older[0].remove();
+  // Allow every plume to finish its fade. The 1.55s burst interval naturally
+  // keeps at most four clouds alive during the 5.7s smoke lifetime.
   backdrop.appendChild(cloud);
   window.setTimeout(()=>cloud.remove(),5700);
  }
@@ -220,12 +219,19 @@
    branch.style.animationDelay=(i*65)+'ms';
    group.appendChild(branch);
   }
-  const older=electric.querySelectorAll('.footer-electric-strike');
-  if(older.length>=2)older[0].remove();
+  // Strikes live for 1.19s, with a 380ms trigger interval; natural cleanup
+  // means approximately four overlapping arcs at most, without sudden cuts.
   electric.appendChild(group);
   window.setTimeout(()=>group.remove(),1190);
-  // Every meaningful movement can spark; a fuller firework and haze follows
-  // only when there has been room for the previous burst to be perceived.
+  // The sign flashes once per actual discharge and returns to its resting
+  // engraving even if the cursor stays over it.
+  footer.classList.remove('is-striking');
+  // Reflow only on real discharges (max every 380ms), not every pointer movement.
+  void footer.offsetWidth;
+  footer.classList.add('is-striking');
+  clearTimeout(glowOff);
+  glowOff=window.setTimeout(()=>footer.classList.remove('is-striking'),980);
+  // A fuller firework and haze follows only after the previous burst is perceived.
   if(now-lastBurstAt>=1550){
    lastBurstAt=now;
    window.setTimeout(()=>emitFirework(point),175);
@@ -237,7 +243,7 @@
  }
  function deactivate(){
   energized=false;
-  footer.classList.remove('is-energized');
+  // Do not cancel an existing strike; its timed glow and smoke finish naturally.
  }
  function activate(point,allowAnotherCloud){
   if(!point||!point.inside||motion.matches||!isVisible)return;
@@ -246,7 +252,6 @@
   backdrop.style.setProperty('--hover-y',targetY);
   if(!energized){
    energized=true;
-   footer.classList.add('is-energized');
    emitDischarge(point,true);
   }else if(allowAnotherCloud)emitDischarge(point);
  }
@@ -410,6 +415,8 @@
  }
  document.addEventListener('visibilitychange',()=>document.hidden?stopSound():startSound());
  const clearSparks=()=>{
+  clearTimeout(glowOff);
+  footer.classList.remove('is-striking');
   electric.replaceChildren();
   backdrop.querySelectorAll('.footer-firework-burst').forEach(burst=>burst.remove());
  };
