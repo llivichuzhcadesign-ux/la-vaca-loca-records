@@ -53,7 +53,7 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   left:51%;
   top:49%;
   display:block;
-  width:min(73vw,790px);
+  width:min(76vw,825px);
   height:auto;
   max-width:none;
   overflow:visible;
@@ -68,11 +68,17 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   vector-effect:non-scaling-stroke;
 }
 .footer-laser-etch path,.footer-laser-etch circle {
-  stroke:#d6b4bd!important;
-  stroke-width:.8px;
-  stroke-opacity:.2;
+  stroke:#dcbbc1!important;
+  stroke-width:1.15px;
+  stroke-opacity:.35;
   stroke-dasharray:none!important;
   stroke-dashoffset:0!important;
+}
+.footer-laser-etch .footer-hero-contour {
+  stroke:#e5a7b8!important;
+  stroke-width:1.75px;
+  stroke-opacity:.62;
+  filter:drop-shadow(0 0 6px rgba(223,127,165,.14));
 }
 /* At rest, the vector artwork looks like an old printed sleeve. */
 .footer-laser-etch path,.footer-laser-etch circle {
@@ -85,15 +91,26 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   pointer-events:none;
   opacity:0;
   background:
-    radial-gradient(ellipse 190px 160px at var(--hover-x,50%) var(--hover-y,48%),rgba(241,139,170,.17),transparent 78%),
-    radial-gradient(ellipse 290px 215px at var(--hover-x,50%) var(--hover-y,48%),rgba(177,147,87,.065),transparent 83%);
+    radial-gradient(ellipse 280px 240px at var(--hover-x,50%) var(--hover-y,48%),rgba(245,139,178,.26),transparent 75%),
+    radial-gradient(ellipse 430px 310px at var(--hover-x,50%) var(--hover-y,48%),rgba(200,145,104,.12),transparent 82%);
   transition:opacity .65s ease;
 }
 .lvl-footer.is-energized .footer-interaction-halo {opacity:1;}
 .lvl-footer.is-energized .footer-laser-etch path,
-.lvl-footer.is-energized .footer-laser-etch circle {stroke-opacity:.36;}
-/* Electric discharge runs only when the pointer approaches the etched cow.
-   Its starting point is the nearest point on the real SVG path. */
+.lvl-footer.is-energized .footer-laser-etch circle {stroke-opacity:.5;}
+.lvl-footer.is-energized .footer-laser-etch .footer-hero-contour {
+  stroke-opacity:.91;
+  animation:footer-sign-contact .95s ease-out 1;
+}
+@keyframes footer-sign-contact {
+  0%,14% {stroke-opacity:.62;}
+  19% {stroke-opacity:1;}
+  26% {stroke-opacity:.65;}
+  33%,47% {stroke-opacity:1;}
+  57% {stroke-opacity:.73;}
+  100% {stroke-opacity:.91;}
+}
+/* Electric Afterhours: bold but finite, contour-anchored high-voltage interaction. */
 .footer-electric-circuit {
   position:absolute!important;
   z-index:6;
@@ -117,91 +134,115 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   vector-effect:non-scaling-stroke;
 }
 .footer-electric-aura {
-  stroke:#efa4c6!important;
-  stroke-width:5px;
+  stroke:#f0a7d0!important;
+  stroke-width:12px;
   opacity:0;
-  filter:drop-shadow(0 0 6px rgba(232,95,156,.66)) drop-shadow(0 0 17px rgba(237,119,160,.38));
-  animation:footer-electric-surge .83s ease-out both;
+  filter:drop-shadow(0 0 10px rgba(239,118,175,.88))
+         drop-shadow(0 0 28px rgba(220,85,156,.54));
+  animation:footer-electric-surge 1.03s ease-out both;
 }
 .footer-electric-core {
-  stroke:#fff7dc!important;
-  stroke-width:1.55px;
+  stroke:#fff5dc!important;
+  stroke-width:2.75px;
   opacity:0;
-  filter:drop-shadow(0 0 3px rgba(255,235,210,.89));
-  animation:footer-electric-surge .68s ease-out both;
+  filter:drop-shadow(0 0 5px rgba(255,241,207,.96))
+         drop-shadow(0 0 10px rgba(255,184,195,.62));
+  animation:footer-electric-surge .91s ease-out both;
 }
 .footer-electric-branch {
-  stroke:#ffc59c!important;
-  stroke-width:1.1px;
+  stroke:#fbc1b4!important;
+  stroke-width:2.1px;
   opacity:0;
-  filter:drop-shadow(0 0 4px rgba(234,154,130,.44));
-  animation:footer-electric-surge .64s .08s ease-out both;
+  filter:drop-shadow(0 0 6px rgba(244,143,157,.6));
+  animation:footer-electric-surge .86s ease-out both;
 }
 @keyframes footer-electric-surge {
   0% {stroke-dashoffset:100;opacity:0;}
-  9% {opacity:.95;}
-  47% {stroke-dashoffset:0;opacity:1;}
-  72% {stroke-dashoffset:0;opacity:.54;}
+  9% {opacity:.94;}
+  43% {stroke-dashoffset:0;opacity:1;}
+  53% {opacity:.25;}
+  63% {stroke-dashoffset:0;opacity:.97;}
+  79% {opacity:.56;}
   100% {stroke-dashoffset:0;opacity:0;}
 }
-/* Tight, silent firework sparks: hot center, short rays, then vapor. */
+/* A genuine punctuation mark: one ignition flash and long, rapidly cooling embers. */
 .footer-firework-burst {
   position:absolute;
   z-index:7;
   width:0;
   height:0;
   pointer-events:none;
-  filter:drop-shadow(0 0 5px rgba(255,206,159,.39));
+  filter:drop-shadow(0 0 9px rgba(255,197,150,.6));
 }
 .footer-firework-burst::before {
   content:"";
   position:absolute;
-  left:-17px;
-  top:-17px;
-  width:34px;
-  height:34px;
+  left:-74px;
+  top:-74px;
+  width:148px;
+  height:148px;
   border-radius:50%;
-  background:radial-gradient(circle,rgba(255,250,232,.82) 0%,rgba(250,200,154,.4) 18%,rgba(237,127,166,.18) 45%,transparent 75%);
+  background:radial-gradient(circle,rgba(255,253,239,.96) 0%,rgba(255,236,204,.86) 7%,rgba(255,198,167,.58) 15%,rgba(241,132,181,.29) 35%,transparent 72%);
   opacity:0;
-  animation:footer-firework-ignition .68s ease-out both;
+  animation:footer-firework-ignition .84s ease-out both;
+}
+.footer-firework-burst::after {
+  content:"";
+  position:absolute;
+  left:-132px;
+  top:-132px;
+  width:264px;
+  height:264px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,212,159,.28) 0%,rgba(224,101,153,.17) 27%,transparent 69%);
+  opacity:0;
+  filter:blur(10px);
+  animation:footer-firework-flare 1.14s ease-out both;
 }
 .footer-firework-spark {
   position:absolute;
   display:block;
   left:0;
-  top:-1px;
-  width:11px;
-  height:2px;
-  border-radius:50%;
-  background:linear-gradient(90deg,rgba(255,246,214,.95),rgba(255,186,136,.83),transparent);
+  top:-1.5px;
+  width:var(--spark-width,18px);
+  height:3px;
+  border-radius:40%;
+  background:linear-gradient(90deg,rgba(255,254,224,1),rgba(255,188,126,.96) 58%,transparent);
+  box-shadow:0 0 4px rgba(255,218,162,.86),0 0 13px rgba(239,145,143,.34);
   opacity:0;
   transform-origin:0 50%;
-  animation:footer-firework-spark .94s var(--spark-delay,0ms) cubic-bezier(.12,.52,.24,1) both;
+  animation:footer-firework-spark 1.23s var(--spark-delay,0ms) cubic-bezier(.13,.48,.23,1) both;
 }
 .footer-firework-spark:nth-child(3n+2) {
-  background:linear-gradient(90deg,rgba(255,234,225,.95),rgba(242,137,178,.88),transparent);
+  background:linear-gradient(90deg,rgba(255,246,235,.95),rgba(255,142,189,.94),transparent);
 }
 .footer-firework-spark:nth-child(5n) {
-  background:linear-gradient(90deg,rgba(255,248,222,.9),rgba(207,203,154,.6),transparent);
+  background:linear-gradient(90deg,rgba(255,248,222,.95),rgba(211,206,159,.72),transparent);
 }
 @keyframes footer-firework-ignition {
-  0% {opacity:0;transform:scale(.2);}
-  14% {opacity:1;transform:scale(.77);}
-  43% {opacity:.4;transform:scale(1.15);}
-  100% {opacity:0;transform:scale(1.85);}
+  0% {opacity:0;transform:scale(.19);}
+  12% {opacity:1;transform:scale(.55);}
+  31% {opacity:.74;transform:scale(1);}
+  100% {opacity:0;transform:scale(1.73);}
+}
+@keyframes footer-firework-flare {
+  0% {opacity:0;transform:scale(.22);}
+  21% {opacity:.78;}
+  100% {opacity:0;transform:scale(1.42);}
 }
 @keyframes footer-firework-spark {
-  0% {opacity:0;transform:rotate(var(--spark-angle)) translateX(1px) scaleX(.35);}
-  10% {opacity:1;}
-  43% {opacity:.89;transform:rotate(var(--spark-angle)) translateX(calc(var(--spark-distance) * .67)) scaleX(.85);}
-  100% {opacity:0;transform:rotate(var(--spark-angle)) translateX(var(--spark-distance)) scaleX(.12);}
+  0% {opacity:0;transform:rotate(var(--spark-angle)) translateX(2px) scaleX(.42);}
+  12% {opacity:1;}
+  38% {opacity:1;transform:rotate(var(--spark-angle)) translateX(calc(var(--spark-distance) * .7)) scaleX(1);}
+  75% {opacity:.62;}
+  100% {opacity:0;transform:rotate(var(--spark-angle)) translateX(var(--spark-distance)) scaleX(.11);}
 }
 /* Electric contact -> short ignition -> layered, backlit, drifting haze.
    Six soft wisps with different shapes replace flat particles and decorative glyphs. */
 .footer-fog-cloud {
   position:absolute;
   z-index:4;
-  width:clamp(240px,29vw,420px);
+  width:clamp(440px,49vw,690px);
   aspect-ratio:1;
   transform:translate(-50%,-50%);
   pointer-events:none;
@@ -213,31 +254,18 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   content:"";
   position:absolute;
   z-index:3;
-  inset:42%;
-  border:1px solid rgba(242,190,173,.22);
+  inset:44%;
+  border:1px solid rgba(255,211,190,.25);
   border-radius:50%;
   box-shadow:0 0 18px rgba(255,197,177,.16);
   opacity:0;
   animation:footer-haze-echo 1.75s ease-out both;
 }
-.footer-fog-ignition,
 .footer-haze-beam,
 .footer-haze-bloom {
   position:absolute;
   display:block;
   pointer-events:none;
-}
-.footer-fog-ignition {
-  z-index:5;
-  width:33%;
-  aspect-ratio:1;
-  left:33.5%;
-  top:32%;
-  border-radius:50%;
-  background:radial-gradient(circle,rgba(255,242,220,.77) 0%,rgba(255,203,177,.40) 13%,rgba(234,126,157,.16) 37%,transparent 73%);
-  filter:blur(5px);
-  opacity:0;
-  animation:footer-haze-flash .92s cubic-bezier(.16,.69,.3,1) both;
 }
 .footer-haze-beam {
   z-index:0;
@@ -245,7 +273,7 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   height:100%;
   left:-15%;
   top:-36%;
-  background:linear-gradient(180deg,rgba(185,142,127,0) 0%,rgba(194,150,152,.08) 36%,rgba(247,192,170,.14) 69%,rgba(246,172,165,.03) 100%);
+  background:linear-gradient(180deg,rgba(185,142,127,0) 0%,rgba(194,150,152,.13) 36%,rgba(247,192,170,.23) 69%,rgba(246,172,165,.06) 100%);
   clip-path:polygon(26% 0,74% 0,56% 98%,44% 98%);
   filter:blur(20px);
   opacity:0;
@@ -255,7 +283,7 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   z-index:1;
   inset:17% 13% 12%;
   border-radius:50%;
-  background:radial-gradient(ellipse at 49% 55%,rgba(222,171,164,.22) 0%,rgba(189,152,161,.13) 34%,rgba(114,103,106,.07) 59%,transparent 78%);
+  background:radial-gradient(ellipse at 49% 55%,rgba(229,194,177,.37) 0%,rgba(197,169,169,.24) 34%,rgba(139,127,137,.1) 59%,transparent 78%);
   filter:blur(18px);
   opacity:0;
   animation:footer-haze-bloom 4.65s ease-out both;
@@ -269,11 +297,11 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   left:17%;
   top:32%;
   border-radius:48% 52% 47% 53%;
-  background:radial-gradient(ellipse at 43% 55%,rgba(214,195,189,.24) 0%,rgba(167,158,160,.17) 32%,rgba(137,130,131,.06) 59%,transparent 82%);
+  background:radial-gradient(ellipse at 43% 55%,rgba(214,199,196,.47) 0%,rgba(184,172,174,.3) 32%,rgba(137,132,136,.12) 59%,transparent 82%);
   opacity:0;
   filter:blur(15px);
   transform:translate3d(0,0,0) scale(.42) rotate(0deg);
-  animation:footer-haze-wisp 4.7s cubic-bezier(.14,.43,.26,1) both;
+  animation:footer-haze-wisp 4.45s cubic-bezier(.14,.43,.26,1) both;
   will-change:transform,opacity;
 }
 .footer-fog-cloud i:nth-of-type(1) {--fog-x:-45px;--fog-y:-92px;--fog-turn:-18deg;animation-delay:0s;}
@@ -282,29 +310,23 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
 .footer-fog-cloud i:nth-of-type(4) {--fog-x:77px;--fog-y:-115px;--fog-turn:-9deg;left:24%;top:35%;width:51%;height:34%;background:radial-gradient(ellipse,rgba(181,170,162,.16),rgba(146,135,136,.06) 55%,transparent 81%);animation-delay:.25s;}
 .footer-fog-cloud i:nth-of-type(5) {--fog-x:-82px;--fog-y:-61px;--fog-turn:24deg;left:23%;top:35%;width:59%;filter:blur(23px);animation-delay:.47s;}
 .footer-fog-cloud i:nth-of-type(6) {--fog-x:32px;--fog-y:-156px;--fog-turn:-16deg;left:32%;top:33%;width:44%;height:40%;background:radial-gradient(ellipse,rgba(190,175,168,.20),rgba(147,135,139,.08) 52%,transparent 80%);filter:blur(22px);animation-delay:.53s;}
-@keyframes footer-haze-flash {
-  0% {opacity:0;transform:scale(.32);}
-  9% {opacity:.83;transform:scale(.74);}
-  22% {opacity:.45;transform:scale(1);}
-  49%,100% {opacity:0;transform:scale(1.43);}
-}
 @keyframes footer-haze-beam {
   0%,5% {opacity:0;transform:translateY(16px) scale(.82);}
-  20% {opacity:.7;}
-  46% {opacity:.38;transform:translateY(-8px) scale(1);}
+  20% {opacity:.87;}
+  46% {opacity:.45;transform:translateY(-8px) scale(1);}
   100% {opacity:0;transform:translateY(-58px) scale(1.19);}
 }
 @keyframes footer-haze-bloom {
   0% {opacity:0;transform:scale(.34) translateY(8px);}
-  18% {opacity:.48;}
-  43% {opacity:.34;}
+  18% {opacity:.76;}
+  43% {opacity:.47;}
   100% {opacity:0;transform:scale(1.8) translateY(-40px);}
 }
 @keyframes footer-haze-wisp {
   0% {opacity:0;transform:translate3d(0,10px,0) scale(.4) rotate(0);}
-  14% {opacity:.42;}
-  36% {opacity:.39;}
-  70% {opacity:.19;}
+  14% {opacity:.61;}
+  36% {opacity:.57;}
+  70% {opacity:.24;}
   100% {opacity:0;transform:translate3d(var(--fog-x),var(--fog-y),0) scale(1.85) rotate(var(--fog-turn));}
 }
 @keyframes footer-haze-echo {
@@ -366,12 +388,18 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
 }
 .lvl-footer.has-live-audio .footer-laser-etch path,
 .lvl-footer.has-live-audio .footer-laser-etch circle {
-  stroke-opacity:calc(.2 + var(--sound-mid,0) * .19);
+  stroke-opacity:calc(.35 + var(--sound-mid,0) * .2);
+}
+.lvl-footer.has-live-audio .footer-laser-etch .footer-hero-contour {
+  stroke-opacity:calc(.62 + var(--sound-bass,0) * .26);
 }
 /* Keep the discrete hover-triggered electrical trace dominant over the quieter music light. */
 .lvl-footer.is-energized .footer-laser-etch path,
 .lvl-footer.is-energized .footer-laser-etch circle {
-  stroke-opacity:.265;
+  stroke-opacity:.5;
+}
+.lvl-footer.is-energized .footer-laser-etch .footer-hero-contour {
+  stroke-opacity:.91;
 }
 
 body .lvl-footer.illuminated-footer nav {
@@ -454,7 +482,8 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
   }
   .sonic-groove {left:52%;top:52%;width:min(112vw,475px);}
   .sonic-groove-inner {width:min(77vw,328px);}
-  .footer-fog-cloud {width:min(90vw,335px);}
+  .footer-fog-cloud {width:min(123vw,520px);}
+  .footer-firework-burst {transform:scale(.78);transform-origin:0 0;}
 
   body .lvl-footer.illuminated-footer nav {
     grid-column:1;
@@ -479,7 +508,8 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
 @media (prefers-reduced-motion:reduce) {
   .footer-electric-circuit,.footer-firework-burst,.footer-fog-cloud,.footer-interaction-halo,
   .footer-sonic-field,.footer-sonic-ink {display:none!important;}
-  .footer-laser-etch path,.footer-laser-etch circle {stroke-opacity:.32;transition:none;}
+  .footer-laser-etch path,.footer-laser-etch circle {stroke-opacity:.42;transition:none;}
+  .footer-laser-etch .footer-hero-contour {stroke-opacity:.7;animation:none!important;}
   body .lvl-footer.illuminated-footer nav a,
   body .lvl-footer.illuminated-footer nav a::after {transition:none;}
 }
