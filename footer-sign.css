@@ -127,110 +127,121 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
 }
 /* A restrained, firework-like smoke aftermath: drifting vapor and one vinyl-shaped echo.
    Each cloud is created once on interaction, then removed. */
+/* Electric contact -> short ignition -> layered, backlit, drifting haze.
+   Six soft wisps with different shapes replace flat particles and decorative glyphs. */
 .footer-fog-cloud {
   position:absolute;
   z-index:4;
-  width:clamp(190px,24vw,310px);
+  width:clamp(240px,29vw,420px);
   aspect-ratio:1;
   transform:translate(-50%,-50%);
   pointer-events:none;
   overflow:visible;
+  isolation:isolate;
   mix-blend-mode:screen;
 }
 .footer-fog-cloud::before {
   content:"";
   position:absolute;
-  inset:31%;
-  border:1px solid rgba(230,188,160,.35);
+  z-index:3;
+  inset:42%;
+  border:1px solid rgba(242,190,173,.22);
   border-radius:50%;
-  box-shadow:0 0 10px rgba(240,177,177,.22);
-  animation:footer-vinyl-echo 1.85s ease-out both;
+  box-shadow:0 0 18px rgba(255,197,177,.16);
+  opacity:0;
+  animation:footer-haze-echo 1.75s ease-out both;
+}
+.footer-fog-ignition,
+.footer-haze-beam,
+.footer-haze-bloom {
+  position:absolute;
+  display:block;
+  pointer-events:none;
+}
+.footer-fog-ignition {
+  z-index:5;
+  width:33%;
+  aspect-ratio:1;
+  left:33.5%;
+  top:32%;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,242,220,.77) 0%,rgba(255,203,177,.40) 13%,rgba(234,126,157,.16) 37%,transparent 73%);
+  filter:blur(5px);
+  opacity:0;
+  animation:footer-haze-flash .92s cubic-bezier(.16,.69,.3,1) both;
+}
+.footer-haze-beam {
+  z-index:0;
+  width:130%;
+  height:100%;
+  left:-15%;
+  top:-36%;
+  background:linear-gradient(180deg,rgba(185,142,127,0) 0%,rgba(194,150,152,.08) 36%,rgba(247,192,170,.14) 69%,rgba(246,172,165,.03) 100%);
+  clip-path:polygon(26% 0,74% 0,56% 98%,44% 98%);
+  filter:blur(20px);
+  opacity:0;
+  animation:footer-haze-beam 3.6s ease-out both;
+}
+.footer-haze-bloom {
+  z-index:1;
+  inset:17% 13% 12%;
+  border-radius:50%;
+  background:radial-gradient(ellipse at 49% 55%,rgba(222,171,164,.22) 0%,rgba(189,152,161,.13) 34%,rgba(114,103,106,.07) 59%,transparent 78%);
+  filter:blur(18px);
+  opacity:0;
+  animation:footer-haze-bloom 4.65s ease-out both;
 }
 .footer-fog-cloud i {
-  display:block;
   position:absolute;
-  width:64%;
-  height:43%;
-  left:19%;
-  top:27%;
-  border-radius:50%;
-  background:radial-gradient(ellipse at 43% 50%,rgba(208,185,188,.36) 0%,rgba(178,145,160,.2) 36%,rgba(158,144,146,.09) 56%,transparent 76%);
-  opacity:0;
-  filter:blur(12px);
-  transform:translate3d(0,0,0) scale(.45);
-  animation:footer-smoke-drift 4.55s cubic-bezier(.16,.55,.3,1) both;
-}
-.footer-fog-cloud i:nth-child(1) {--drift-x:-40px;--drift-y:-72px;animation-delay:0s;}
-.footer-fog-cloud i:nth-child(2) {--drift-x:42px;--drift-y:-58px;animation-delay:.15s;background:radial-gradient(ellipse,rgba(183,164,149,.29),rgba(178,146,161,.13) 48%,transparent 76%);}
-.footer-fog-cloud i:nth-child(3) {--drift-x:-9px;--drift-y:-104px;animation-delay:.34s;}
-.footer-fog-cloud i:nth-child(4) {--drift-x:64px;--drift-y:-90px;animation-delay:.27s;background:radial-gradient(ellipse,rgba(178,169,171,.26),rgba(148,146,135,.11) 52%,transparent 77%);}
-/* One fleeting woven echo inside the firework-like vapor.
-   Abstract highland textile geometry, not a literal sacred emblem. */
-.footer-fog-motif {
-  position:absolute;
-  z-index:1;
-  left:50%;
-  top:47%;
+  z-index:2;
   display:block;
-  width:61%;
-  height:auto;
-  overflow:visible;
+  width:67%;
+  height:37%;
+  left:17%;
+  top:32%;
+  border-radius:48% 52% 47% 53%;
+  background:radial-gradient(ellipse at 43% 55%,rgba(214,195,189,.24) 0%,rgba(167,158,160,.17) 32%,rgba(137,130,131,.06) 59%,transparent 82%);
   opacity:0;
-  pointer-events:none;
-  transform:translate(-50%,-50%) rotate(-9deg) scale(.68);
-  filter:drop-shadow(0 0 4px rgba(235,161,165,.26));
-  animation:footer-woven-appear 4.55s cubic-bezier(.2,.65,.24,1) both;
+  filter:blur(15px);
+  transform:translate3d(0,0,0) scale(.42) rotate(0deg);
+  animation:footer-haze-wisp 4.7s cubic-bezier(.14,.43,.26,1) both;
+  will-change:transform,opacity;
 }
-.footer-fog-motif .fog-woven-lines {
-  stroke-width:1.1px;
-  vector-effect:non-scaling-stroke;
+.footer-fog-cloud i:nth-of-type(1) {--fog-x:-45px;--fog-y:-92px;--fog-turn:-18deg;animation-delay:0s;}
+.footer-fog-cloud i:nth-of-type(2) {--fog-x:49px;--fog-y:-78px;--fog-turn:13deg;top:28%;width:61%;background:radial-gradient(ellipse at 48% 57%,rgba(193,164,164,.22),rgba(153,143,146,.1) 46%,transparent 79%);animation-delay:.13s;}
+.footer-fog-cloud i:nth-of-type(3) {--fog-x:-17px;--fog-y:-130px;--fog-turn:22deg;left:24%;width:51%;height:43%;filter:blur(21px);animation-delay:.31s;}
+.footer-fog-cloud i:nth-of-type(4) {--fog-x:77px;--fog-y:-115px;--fog-turn:-9deg;left:24%;top:35%;width:51%;height:34%;background:radial-gradient(ellipse,rgba(181,170,162,.16),rgba(146,135,136,.06) 55%,transparent 81%);animation-delay:.25s;}
+.footer-fog-cloud i:nth-of-type(5) {--fog-x:-82px;--fog-y:-61px;--fog-turn:24deg;left:23%;top:35%;width:59%;filter:blur(23px);animation-delay:.47s;}
+.footer-fog-cloud i:nth-of-type(6) {--fog-x:32px;--fog-y:-156px;--fog-turn:-16deg;left:32%;top:33%;width:44%;height:40%;background:radial-gradient(ellipse,rgba(190,175,168,.20),rgba(147,135,139,.08) 52%,transparent 80%);filter:blur(22px);animation-delay:.53s;}
+@keyframes footer-haze-flash {
+  0% {opacity:0;transform:scale(.32);}
+  9% {opacity:.83;transform:scale(.74);}
+  22% {opacity:.45;transform:scale(1);}
+  49%,100% {opacity:0;transform:scale(1.43);}
 }
-.footer-fog-motif .woven-outer {
-  stroke:rgba(221,179,121,.7);
-  stroke-width:1.1px;
+@keyframes footer-haze-beam {
+  0%,5% {opacity:0;transform:translateY(16px) scale(.82);}
+  20% {opacity:.7;}
+  46% {opacity:.38;transform:translateY(-8px) scale(1);}
+  100% {opacity:0;transform:translateY(-58px) scale(1.19);}
 }
-.footer-fog-motif .woven-inner {
-  stroke:rgba(239,161,185,.67);
-  stroke-width:1.15px;
+@keyframes footer-haze-bloom {
+  0% {opacity:0;transform:scale(.34) translateY(8px);}
+  18% {opacity:.48;}
+  43% {opacity:.34;}
+  100% {opacity:0;transform:scale(1.8) translateY(-40px);}
 }
-.footer-fog-motif .woven-stitch {
-  stroke:rgba(228,198,161,.8);
-  stroke-width:1.25px;
+@keyframes footer-haze-wisp {
+  0% {opacity:0;transform:translate3d(0,10px,0) scale(.4) rotate(0);}
+  14% {opacity:.42;}
+  36% {opacity:.39;}
+  70% {opacity:.19;}
+  100% {opacity:0;transform:translate3d(var(--fog-x),var(--fog-y),0) scale(1.85) rotate(var(--fog-turn));}
 }
-.footer-fog-motif .woven-center {
-  stroke:rgba(255,225,198,.86);
-  stroke-width:1.4px;
-}
-.footer-fog-motif path {
-  fill:none;
-  stroke-dasharray:100;
-  stroke-dashoffset:100;
-  animation:footer-woven-trace 2.15s cubic-bezier(.3,.65,.3,1) .35s both;
-}
-.footer-fog-motif .woven-inner {animation-delay:.53s;}
-.footer-fog-motif .woven-stitch {animation-delay:.73s;}
-.footer-fog-motif .woven-center {animation-delay:.84s;}
-@keyframes footer-woven-appear {
-  0%,9% {opacity:0;transform:translate(-50%,-43%) rotate(-9deg) scale(.62);}
-  23% {opacity:.08;}
-  40% {opacity:.42;transform:translate(-50%,-53%) rotate(-2deg) scale(.92);}
-  56% {opacity:.3;}
-  78%,100% {opacity:0;transform:translate(-50%,-67%) rotate(4deg) scale(1.05);}
-}
-@keyframes footer-woven-trace {
-  0% {stroke-dashoffset:100;}
-  80%,100% {stroke-dashoffset:0;}
-}
-@keyframes footer-smoke-drift {
-  0% {opacity:0;transform:translate3d(0,8px,0) scale(.42);}
-  17% {opacity:.5;}
-  54% {opacity:.3;}
-  100% {opacity:0;transform:translate3d(var(--drift-x),var(--drift-y),0) scale(1.75);}
-}
-@keyframes footer-vinyl-echo {
-  0% {opacity:0;transform:scale(.28);}
-  12% {opacity:.55;}
-  70%,100% {opacity:0;transform:scale(2.35);}
+@keyframes footer-haze-echo {
+  0% {opacity:0;transform:scale(.18);}
+  13% {opacity:.34;}
+  68%,100% {opacity:0;transform:scale(2.6);}
 }
 /* Real audio levels drive the embossed, copper-pink groove field.
    Neither ring uses a self-running animation; muted or unsupported audio stays still. */
@@ -374,6 +385,7 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
   }
   .sonic-groove {left:52%;top:52%;width:min(112vw,475px);}
   .sonic-groove-inner {width:min(77vw,328px);}
+  .footer-fog-cloud {width:min(90vw,335px);}
 
   body .lvl-footer.illuminated-footer nav {
     grid-column:1;
@@ -396,7 +408,7 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
   }
 }
 @media (prefers-reduced-motion:reduce) {
-  .footer-laser-trail,.footer-laser-core,.footer-fog-cloud,.footer-fog-motif,.footer-interaction-halo,
+  .footer-laser-trail,.footer-laser-core,.footer-fog-cloud,.footer-interaction-halo,
   .footer-sonic-field,.footer-sonic-ink {display:none!important;}
   .footer-laser-etch path,.footer-laser-etch circle {stroke-opacity:.32;transition:none;}
   body .lvl-footer.illuminated-footer nav a,
