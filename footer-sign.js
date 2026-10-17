@@ -131,18 +131,18 @@
  backdrop.appendChild(fireworkCanvas);
  let fireworksContext=null;
  try{fireworksContext=fireworkCanvas.getContext('2d',{alpha:true});}catch{}
- let fireworkFrame=0,fireworkFrameAt=0,particles=[],canvasScale=1;
+ let fireworkFrame=0,fireworkFrameAt=0,particles=[],particleBudget=440;
  const fireworks=['peony','willow','crackle','fountain','palm'];
  let patternIndex=0,lastFinaleAt=-Infinity;
- const maxParticles=()=>footer.getBoundingClientRect().width<=720?220:440;
+ const maxParticles=()=>particleBudget;
  function sizeFireworkCanvas(){
   if(!fireworksContext)return;
   const rect=backdrop.getBoundingClientRect();
   if(!rect.width||!rect.height)return;
+  particleBudget=rect.width<=720?210:440;
   const scale=Math.min(window.devicePixelRatio||1,1.6);
   const w=Math.round(rect.width*scale),h=Math.round(rect.height*scale);
   if(fireworkCanvas.width!==w||fireworkCanvas.height!==h){
-   canvasScale=scale;
    fireworkCanvas.width=w;fireworkCanvas.height=h;
    fireworksContext.setTransform(scale,0,0,scale,0,0);
   }
