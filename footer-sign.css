@@ -183,6 +183,19 @@ body .lvl-footer.illuminated-footer > :not(.footer-laser-backdrop) {
   79% {opacity:.56;}
   100% {stroke-dashoffset:0;opacity:0;}
 }
+/* The canvas draws physically varied trails only while a firework is alive.
+   Retain the CSS burst below as a graceful fallback when Canvas is unavailable. */
+.footer-firework-canvas {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  z-index:7;
+  pointer-events:none;
+  mix-blend-mode:screen;
+  opacity:.98;
+}
 /* A genuine punctuation mark: one ignition flash and long, rapidly cooling embers. */
 .footer-firework-burst {
   position:absolute;
@@ -586,7 +599,7 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
   }
 }
 @media (prefers-reduced-motion:reduce) {
-  .footer-electric-circuit,.footer-firework-burst,.footer-fog-cloud,.footer-interaction-halo,
+  .footer-electric-circuit,.footer-firework-canvas,.footer-firework-burst,.footer-fog-cloud,.footer-interaction-halo,
   .footer-sonic-field,.footer-sonic-ink {display:none!important;}
   .footer-laser-etch path,.footer-laser-etch circle {stroke-opacity:.42;transition:none;}
   .footer-laser-etch .footer-hero-contour {stroke-opacity:.7;animation:none!important;}
