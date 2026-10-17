@@ -122,50 +122,186 @@
   }
   return d+' L '+x2.toFixed(1)+' '+y2.toFixed(1);
  }
- // Each interaction samples a new organic scatter. Unlike a perfect radial wheel,
- // sparks have uneven spacing, lateral motion, and a few slower falling embers.
+ // A finite, physically animated canvas replaces identical CSS spark trails.
+ // Five distinctly different firework forms share the same cow-to-cursor discharge.
  const random=(min,max)=>min+Math.random()*(max-min);
- function emitFirework(point,kind='cursor',heading=0){
-  if(motion.matches||!isVisible||document.hidden)return;
+ const fireworkCanvas=document.createElement('canvas');
+ fireworkCanvas.className='footer-firework-canvas';
+ fireworkCanvas.setAttribute('aria-hidden','true');
+ backdrop.appendChild(fireworkCanvas);
+ let fireworksContext=null;
+ try{fireworksContext=fireworkCanvas.getContext('2d',{alpha:true});}catch{}
+ let fireworkFrame=0,fireworkFrameAt=0,particles=[],canvasScale=1;
+ const fireworks=['peony','willow','crackle','fountain','palm'];
+ let patternIndex=0,lastFinaleAt=-Infinity;
+ const maxParticles=()=>footer.getBoundingClientRect().width<=720?220:440;
+ function sizeFireworkCanvas(){
+  if(!fireworksContext)return;
+  const rect=backdrop.getBoundingClientRect();
+  if(!rect.width||!rect.height)return;
+  const scale=Math.min(window.devicePixelRatio||1,1.6);
+  const w=Math.round(rect.width*scale),h=Math.round(rect.height*scale);
+  if(fireworkCanvas.width!==w||fireworkCanvas.height!==h){
+   canvasScale=scale;
+   fireworkCanvas.width=w;fireworkCanvas.height=h;
+   fireworksContext.setTransform(scale,0,0,scale,0,0);
+  }
+ }
+ if('ResizeObserver' in window){
+  const observer=new ResizeObserver(sizeFireworkCanvas);
+  observer.observe(backdrop);
+ }else window.addEventListener('resize',sizeFireworkCanvas,{passive:true});
+ function fireworkParticle(x,y,vx,vy,opts={}){
+  if(particles.length>=maxParticles())return;
+  particles.push({
+   x,y,vx,vy,drag:opts.drag??.983,gravity:opts.gravity??.075,
+   life:opts.life??66,age:0,radius:opts.radius??1.7,
+   color:opts.color??'255,216,184',trail:opts.trail??7,
+   points:[{x,y}],twinkle:opts.twinkle??false,split:opts.split??false,
+   seed:Math.random()*Math.PI*2
+  });
+ }
+ const palette={
+  peony:['255,248,220','246,167,200','255,199,147','255,234,204'],
+  willow:['255,226,158','248,179,98','255,241,195'],
+  crackle:['255,252,231','252,196,156','247,160,181'],
+  fountain:['255,244,216','253,178,178','236,134,183'],
+  palm:['255,226,174','255,197,121','255,234,213']
+ };
+ function flashParticle(x,y,size=24){
+  fireworkParticle(x,y,0,0,{life:12,drag:1,gravity:0,radius:size,
+   color:'255,245,215',trail:0});
+ }
+ function launchParticles(x,y,type='peony',strength=1,heading=0){
+  if(!fireworksContext||motion.matches||!isVisible||document.hidden)return false;
+  sizeFireworkCanvas();
+  const mobile=footer.getBoundingClientRect().width<=720;
+  const scale=(mobile?.73:1)*strength;
+  const budget=mobile?.65:1;
+  const choose=(i)=>palette[type][i%palette[type].length];
+  let count=0;
+  if(type==='peony')count=Math.round(58*budget);
+  else if(type==='willow')count=Math.round(36*budget);
+  else if(type==='crackle')count=Math.round(37*budget);
+  else if(type==='fountain')count=Math.round(43*budget);
+  else count=Math.round(23*budget); // Palm creates broader, heavier branching trails.
+  for(let i=0;i<count;i++){
+   const a=type==='fountain'?-Math.PI/2+random(-.84,.84):
+     (Math.PI*2*(i+random(-.36,.36))/count);
+   const speed=(type==='fountain'?random(3.8,7.3):
+    type==='willow'?random(2.7,4.9):
+    type==='palm'?random(3.2,5.7):random(2.6,5.7))*scale;
+   // Slightly favor the cow-to-cursor direction without erasing the signature pattern.
+   const directional=type==='fountain'?0:(strength>=.95?.17:.06);
+   const vx=Math.cos(a)*speed+Math.cos(heading)*directional*speed;
+   const vy=Math.sin(a)*speed+Math.sin(heading)*directional*speed;
+   fireworkParticle(x,y,vx,vy,{
+    color:choose(i),
+    life:type==='willow'?random(98,145):
+     type==='palm'?random(85,119):type==='fountain'?random(59,89):random(52,87),
+    drag:type==='willow'?.992:type==='palm'?.988:.984,
+    gravity:type==='fountain'?.19:type==='willow'?.13:type==='palm'?.105:.065,
+    trail:type==='willow'?17:type==='palm'?16:type==='fountain'?9:7,
+    radius:type==='palm'?random(1.65,2.3):random(.8,1.75),
+    twinkle:type==='crackle'||type==='peony',
+    split:type==='crackle'&&i%4===0
+   });
+  }
+  flashParticle(x,y,(type==='crackle'?21:30)*scale);
+  if(!fireworkFrame)fireworkFrame=requestAnimationFrame(drawFireworks);
+  return true;
+ }
+ function drawFireworks(time){
+  fireworkFrame=0;
+  if(!fireworksContext||document.hidden||motion.matches||!isVisible){stopFireworks();return;}
+  if(!particles.length){fireworksContext.clearRect(0,0,fireworkCanvas.width,fireworkCanvas.height);return;}
+  const dt=Math.min(2.2,Math.max(.55,(time-(fireworkFrameAt||time-16.67))/16.67));
+  fireworkFrameAt=time;
+  const ctx=fireworksContext;
+  const rect=backdrop.getBoundingClientRect();
+  ctx.clearRect(0,0,rect.width,rect.height);
+  ctx.save();
+  ctx.globalCompositeOperation='lighter';
+  const newCrackles=[];
+  for(let i=particles.length-1;i>=0;i--){
+   const p=particles[i];
+   p.age+=dt;
+   if(p.age>=p.life){particles.splice(i,1);continue;}
+   if(p.split&&p.age>p.life*.53){
+    p.split=false;newCrackles.push({x:p.x,y:p.y,color:p.color});
+   }
+   p.vx*=Math.pow(p.drag,dt);
+   p.vy=p.vy*Math.pow(p.drag,dt)+p.gravity*dt;
+   p.x+=p.vx*dt;p.y+=p.vy*dt;
+   p.points.push({x:p.x,y:p.y});
+   if(p.points.length>p.trail+1)p.points.shift();
+   const remaining=1-p.age/p.life;
+   const twinkle=p.twinkle?.73+.27*Math.abs(Math.sin(p.age*.34+p.seed)):1;
+   const alpha=Math.min(1,remaining*1.36)*twinkle;
+   ctx.strokeStyle='rgba('+p.color+','+(alpha*.6).toFixed(3)+')';
+   ctx.fillStyle='rgba('+p.color+','+alpha.toFixed(3)+')';
+   ctx.shadowColor='rgba('+p.color+','+(alpha*.8).toFixed(3)+')';
+   ctx.shadowBlur=7;
+   if(p.points.length>1){
+    ctx.lineWidth=p.radius*.95;
+    ctx.beginPath();
+    ctx.moveTo(p.points[0].x,p.points[0].y);
+    for(let k=1;k<p.points.length;k++)ctx.lineTo(p.points[k].x,p.points[k].y);
+    ctx.stroke();
+   }
+   ctx.beginPath();
+   ctx.arc(p.x,p.y,Math.max(.38,p.radius*remaining),0,Math.PI*2);
+   ctx.fill();
+  }
+  ctx.restore();
+  for(const puff of newCrackles){
+   for(let i=0;i<4;i++){
+    const angle=random(0,Math.PI*2),speed=random(.7,2.4);
+    fireworkParticle(puff.x,puff.y,Math.cos(angle)*speed,Math.sin(angle)*speed,{
+     life:random(18,37),gravity:.14,drag:.95,trail:3,
+     radius:random(.55,1.1),color:puff.color,twinkle:true});
+   }
+  }
+  if(particles.length)fireworkFrame=requestAnimationFrame(drawFireworks);
+  else fireworkFrameAt=0;
+ }
+ function stopFireworks(){
+  if(fireworkFrame){cancelAnimationFrame(fireworkFrame);fireworkFrame=0;}
+  fireworkFrameAt=0;particles=[];
+  if(fireworksContext){
+   const rect=backdrop.getBoundingClientRect();
+   fireworksContext.clearRect(0,0,rect.width,rect.height);
+  }
+ }
+ // Fallback to the existing DOM burst where canvas is unavailable.
+ function legacyFirework(point,kind='cursor',heading=0){
   const burst=document.createElement('div');
   burst.className='footer-firework-burst '+(kind==='cow'?'footer-firework-source':'footer-firework-cursor');
   burst.setAttribute('aria-hidden','true');
-  burst.style.left=point.x+'%';
-  burst.style.top=point.y+'%';
+  burst.style.left=point.x+'%';burst.style.top=point.y+'%';
   const count=kind==='cow'?13:18;
-  const mobile=footer.getBoundingClientRect().width<720;
-  const size=(mobile?.72:1)*(kind==='cow'?.92:1);
+  const size=(footer.getBoundingClientRect().width<720?.72:1)*(kind==='cow'?.92:1);
   for(let i=0;i<count;i++){
    const spark=document.createElement('span');
    spark.className='footer-firework-spark';
-   // Loose golden-angle distribution avoids the mechanical evenly spaced starburst.
-   // At the silhouette, sparks are directional, following the discharge;
-   // the original cursor-side explosion remains a smaller radial echo.
-   const theta=kind==='cow'?heading+random(-85,85):i*137.50776+random(-19,19);
-   const reach=(kind==='cow'?random(52,144):random(73,204))*size;
-   spark.style.setProperty('--spark-angle',theta.toFixed(2)+'deg');
-   spark.style.setProperty('--spark-distance',reach.toFixed(1)+'px');
-   spark.style.setProperty('--spark-curve',random(-21,21).toFixed(1)+'px');
-   spark.style.setProperty('--spark-fall',random(3,43).toFixed(1)+'px');
+   spark.style.setProperty('--spark-angle',(kind==='cow'?heading+random(-85,85):i*137.50776+random(-19,19))+'deg');
+   spark.style.setProperty('--spark-distance',random(65,180)*size+'px');
+   spark.style.setProperty('--spark-curve',random(-21,21)+'px');
+   spark.style.setProperty('--spark-fall',random(3,43)+'px');
    spark.style.setProperty('--spark-delay',Math.round(random(0,115))+'ms');
-   spark.style.setProperty('--spark-width',random(8,22).toFixed(1)+'px');
-   spark.style.setProperty('--spark-height',random(1.3,3.8).toFixed(1)+'px');
-   spark.style.setProperty('--spark-duration',random(.94,1.48).toFixed(2)+'s');
    burst.appendChild(spark);
   }
-  for(let i=0;i<(kind==='cow'?5:7);i++){
-   const ember=document.createElement('span');
-   ember.className='footer-firework-ember';
-   const angle=random(0,Math.PI*2),dist=random(38,142)*size;
-   ember.style.setProperty('--ember-x',(Math.cos(angle)*dist).toFixed(1)+'px');
-   ember.style.setProperty('--ember-y',(Math.sin(angle)*dist+random(42,104)*size).toFixed(1)+'px');
-   ember.style.setProperty('--ember-delay',Math.round(random(120,390))+'ms');
-   ember.style.setProperty('--ember-duration',random(1.1,1.8).toFixed(2)+'s');
-   burst.appendChild(ember);
-  }
-  // Each burst has its own cleanup; bursts are already throttled and won't cut off each other.
   backdrop.appendChild(burst);
-  window.setTimeout(()=>burst.remove(),2400);
+  window.setTimeout(()=>burst.remove(),2300);
+ }
+ function emitFirework(point,kind='cursor',heading=0,type='peony'){
+  if(motion.matches||!isVisible||document.hidden)return;
+  const rect=backdrop.getBoundingClientRect();
+  if(!rect.width||!rect.height)return;
+  const x=rect.width*point.x/100,y=rect.height*point.y/100;
+  const strength=kind==='cow'?1:.53;
+  if(!fireworksContext){legacyFirework(point,kind,heading);return;}
+  launchParticles(x,y,type,strength,heading*Math.PI/180);
  }
  // Several uneven, backlit plumes drift at different speeds and directions.
  // A shared diffuse bloom stays behind the finer, changing lobes.
