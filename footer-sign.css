@@ -560,7 +560,7 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
   .sonic-groove-inner {width:min(77vw,328px);}
   .footer-fog-cloud {width:min(123vw,520px);}
   .footer-fog-cloud.footer-fog-source {width:min(110vw,410px);}
-  .footer-fog-cloud.footer-fog-cursor {display:none;}
+  .footer-fog-cloud.footer-fog-cursor {width:min(53vw,210px);opacity:.55;}
   .footer-fog-cloud i:nth-of-type(n+6) {display:none;}
   .footer-firework-burst {transform:scale(.78);transform-origin:0 0;}
   .footer-firework-burst.footer-firework-cursor {transform:scale(.58);}
