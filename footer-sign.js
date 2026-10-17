@@ -160,9 +160,9 @@
   try{
    const stream=capture.call(audio);
    if(!stream.getAudioTracks().some(track=>track.readyState==='live'))return;
-   if(audioContext){audioContext.close().catch(()=>{});audioContext=null;}
+   if(audioContext&&analyser){audioContext.close().catch(()=>{});audioContext=null;}
    const Context=window.AudioContext||window.webkitAudioContext;
-   const context=new Context();
+   const context=audioContext&&audioContext.state!=='closed'?audioContext:new Context();
    const source=context.createMediaStreamSource(stream);
    const node=context.createAnalyser();
    node.fftSize=2048;
@@ -223,6 +223,23 @@
   if(!isVisible||motion.matches||document.hidden||!audioReady(audio))return;
   if(!liveFrame)liveFrame=requestAnimationFrame(soundFrame);
  }
+ // Prime the preview analyser's context inside the user's play gesture, avoiding autoplay suspensions.
+ function primePreviewAudio(event){
+  if(motion.matches||document.hidden||document.getElementById('recordAudio'))return;
+  const isPlayerAction=event.target?.closest?.('#playerToggle, #player, .record-card, .record-modal, [data-record-id]');
+  if(!isPlayerAction&&audioContext?.state!=='suspended')return;
+  const Context=window.AudioContext||window.webkitAudioContext;
+  if(!Context)return;
+  try{
+   if(!audioContext||audioContext.state==='closed')audioContext=new Context();
+   if(audioContext.state==='suspended')audioContext.resume().catch(()=>{});
+  }catch{}
+ }
+ document.addEventListener('pointerdown',primePreviewAudio,{capture:true,passive:true});
+ document.addEventListener('keydown',event=>{
+  if(event.key==='Enter'||event.key===' ')primePreviewAudio(event);
+ },true);
+ window.addEventListener('pagehide',()=>{if(audioContext&&audioContext.state!=='closed')audioContext.close().catch(()=>{});});
  // Capture media events, including the homepage audio element created after this script loads.
  for(const event of ['play','playing','pause','ended','volumechange','emptied']){
   document.addEventListener(event,e=>{
