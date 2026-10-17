@@ -26,6 +26,7 @@
  // The original contour is the electrical discharge's physical starting point.
  const cowContour=[...etched.querySelectorAll('path')].find(path=>
   (path.getAttribute('d')||'').startsWith('M52.1,219.41'));
+ cowContour?.classList.add('footer-hero-contour');
  const halo=document.createElement('div');
  halo.className='footer-interaction-halo';
  backdrop.insertBefore(halo,backdrop.firstChild);
@@ -50,7 +51,7 @@
  footer.insertBefore(backdrop,footer.firstChild);
 
  const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
- let isVisible=true, energized=false, lastFogAt=-Infinity, lastFogPoint=null, touchOff=0;
+ let isVisible=true, energized=false, touchOff=0;
  const clamp=(n,low,high)=>Math.min(high,Math.max(low,n));
  const pointFromEvent=event=>{
   const rect=footer.getBoundingClientRect();
@@ -60,7 +61,7 @@
   // The drawing is the interaction surface. Preserve ordinary link hover behavior.
   const mobile=rect.width<=720;
   return {x,y,clientX:event.clientX,clientY:event.clientY,
-   inside: mobile ? (y>=7&&y<=72) : (x>=19&&x<=81&&y>=8&&y<=89)};
+   inside: mobile ? (y>=5&&y<=77) : (x>=12&&x<=85&&y>=6&&y<=90)};
  };
  // Map the cursor to the nearest real point on the cow's vector contour.
  // Cache path samples so each discharge is cheap, even on touch screens.
@@ -70,7 +71,7 @@
   try{
    if(!contourSamples){
     const length=cowContour.getTotalLength();
-    contourSamples=Array.from({length:112},(_,i)=>cowContour.getPointAtLength(length*i/111));
+    contourSamples=Array.from({length:180},(_,i)=>cowContour.getPointAtLength(length*i/179));
    }
    const matrix=cowContour.getScreenCTM();
    if(!matrix)return null;
@@ -93,44 +94,69 @@
  function jaggedPath(x1,y1,x2,y2,seed){
   const dx=x2-x1,dy=y2-y1,dist=Math.hypot(dx,dy)||1;
   const nx=-dy/dist,ny=dx/dist;
-  const count=Math.max(5,Math.min(12,Math.round(dist/23)));
+  const count=Math.max(8,Math.min(19,Math.round(dist/17)));
   const phase=seed*.73;
   let d='M '+x1.toFixed(1)+' '+y1.toFixed(1);
   for(let i=1;i<count;i++){
    const t=i/count,envelope=Math.sin(Math.PI*t);
-   const jitter=(Math.sin(i*3.8+phase)*.62+Math.sin(i*7.1+phase)*.38)*Math.min(13,dist*.065)*envelope;
+   const jitter=(Math.sin(i*3.8+phase)*.62+Math.sin(i*7.1+phase)*.38)*Math.min(19,dist*.075)*envelope;
    d+=' L '+(x1+dx*t+nx*jitter).toFixed(1)+' '+(y1+dy*t+ny*jitter).toFixed(1);
   }
   return d+' L '+x2.toFixed(1)+' '+y2.toFixed(1);
  }
+ // Stage 2: a visible pyrotechnic burst, sized for the mural rather than a cursor icon.
  function emitFirework(point){
+  if(motion.matches||!isVisible||document.hidden)return;
   const burst=document.createElement('div');
   burst.className='footer-firework-burst';
   burst.setAttribute('aria-hidden','true');
   burst.style.left=point.x+'%';
   burst.style.top=point.y+'%';
-  for(let i=0;i<10;i++){
+  for(let i=0;i<16;i++){
    const spark=document.createElement('span');
    spark.className='footer-firework-spark';
-   spark.style.setProperty('--spark-angle',i*36+'deg');
-   spark.style.setProperty('--spark-distance',(22+(i%4)*7)+'px');
-   spark.style.setProperty('--spark-delay',(i%3)*26+'ms');
+   spark.style.setProperty('--spark-angle',i*22.5+'deg');
+   spark.style.setProperty('--spark-distance',(62+(i*17%68))+'px');
+   spark.style.setProperty('--spark-delay',(i%4)*24+'ms');
+   spark.style.setProperty('--spark-width',(14+i%3*4)+'px');
    burst.appendChild(spark);
   }
-  const existing=backdrop.querySelectorAll('.footer-firework-burst');
-  if(existing.length>=3)existing[0].remove();
+  const older=backdrop.querySelectorAll('.footer-firework-burst');
+  if(older.length>=2)older[0].remove();
   backdrop.appendChild(burst);
-  window.setTimeout(()=>burst.remove(),1100);
+  window.setTimeout(()=>burst.remove(),1500);
  }
- function emitDischarge(point,force=false){
+ // Stage 3: smoke starts AFTER the electrical impact, not at the same instant.
+ function emitAfterglow(point){
   if(motion.matches||!isVisible||document.hidden)return;
-  const now=performance.now(),moved=lastArcPoint
-   ?Math.hypot(point.x-lastArcPoint.x,point.y-lastArcPoint.y):Infinity;
-  if(!force&&(now-lastDischargeAt<720||moved<3.5))return;
-  if(force&&now-lastDischargeAt<340)return;
+  const cloud=document.createElement('div');
+  cloud.className='footer-fog-cloud';
+  cloud.style.left=point.x+'%';
+  cloud.style.top=point.y+'%';
+  cloud.setAttribute('aria-hidden','true');
+  for(const cls of ['footer-haze-beam','footer-haze-bloom']){
+   const layer=document.createElement('span');
+   layer.className=cls;
+   cloud.appendChild(layer);
+  }
+  for(let i=0;i<6;i++)cloud.appendChild(document.createElement('i'));
+  const older=backdrop.querySelectorAll('.footer-fog-cloud');
+  if(older.length>=2)older[0].remove();
+  backdrop.appendChild(cloud);
+  window.setTimeout(()=>cloud.remove(),4900);
+ }
+ // Stage 1: a real contour-anchored, multi-branch electric bolt runs toward the pointer.
+ function emitDischarge(point,force=false){
+  if(motion.matches||!isVisible||document.hidden)return false;
+  const now=performance.now();
+  const moved=lastArcPoint?Math.hypot(point.x-lastArcPoint.x,point.y-lastArcPoint.y):Infinity;
+  // One strong moment at a time; moving the pointer gently should not produce a swarm.
+  if(!force&&(now-lastDischargeAt<2700||moved<8))return false;
+  if(force&&now-lastDischargeAt<550)return false;
   const origin=nearestContour(point);
-  if(!origin||origin.distance>295)return;
+  if(!origin)return false;
   const box=backdrop.getBoundingClientRect();
+  if(box.width<1||box.height<1)return false;
   const x=point.clientX-box.left,y=point.clientY-box.top;
   electric.setAttribute('viewBox','0 0 '+box.width+' '+box.height);
   const group=document.createElementNS(ns,'g');
@@ -143,51 +169,29 @@
    path.setAttribute('pathLength','100');
    group.appendChild(path);
   }
-  if(origin.distance>85){
+  // Short, staggered forks along the main discharge suggest real high-voltage arcs.
+  for(let i=0;i<3;i++){
    const branch=document.createElementNS(ns,'path');
    branch.setAttribute('class','footer-electric-branch');
-   const mx=origin.x+(x-origin.x)*.68,my=origin.y+(y-origin.y)*.68;
-   const angle=Math.atan2(y-origin.y,x-origin.x)+Math.PI/2;
-   branch.setAttribute('d',jaggedPath(mx,my,
-    mx+Math.cos(angle)*Math.min(31,origin.distance*.2),
-    my+Math.sin(angle)*Math.min(31,origin.distance*.2),now/90));
+   const t=.31+i*.2;
+   const mx=origin.x+(x-origin.x)*t,my=origin.y+(y-origin.y)*t;
+   const a=Math.atan2(y-origin.y,x-origin.x)+(i%2?1:-1)*Math.PI/2;
+   const reach=Math.min(116,Math.max(49,origin.distance*.21))*(1-i*.13);
+   branch.setAttribute('d',jaggedPath(mx,my,mx+Math.cos(a)*reach,my+Math.sin(a)*reach,now/(82+i*9)));
    branch.setAttribute('pathLength','100');
+   branch.style.animationDelay=(i*65)+'ms';
    group.appendChild(branch);
   }
-  const active=electric.querySelectorAll('.footer-electric-strike');
-  if(active.length>=2)active[0].remove();
+  const older=electric.querySelectorAll('.footer-electric-strike');
+  if(older.length>=2)older[0].remove();
   electric.appendChild(group);
-  window.setTimeout(()=>group.remove(),870);
-  emitFirework(point);
+  window.setTimeout(()=>group.remove(),1190);
+  // A single visual phrase: strike -> bright sparks -> illuminated vapor.
+  window.setTimeout(()=>emitFirework(point),230);
+  window.setTimeout(()=>emitAfterglow(point),490);
   lastDischargeAt=now;
   lastArcPoint={x:point.x,y:point.y};
- }
- function emitAfterglow(point){
-  if(motion.matches||!isVisible)return;
-  const cloud=document.createElement('div');
-  cloud.className='footer-fog-cloud';
-  cloud.style.left=point.x+'%';
-  cloud.style.top=point.y+'%';
-  cloud.setAttribute('aria-hidden','true');
-  // The effect is atmospheric, not illustrative: one flash, backlit smoke, and a soft light falloff.
-  const flash=document.createElement('span');
-  flash.className='footer-fog-ignition';
-  const beam=document.createElement('span');
-  beam.className='footer-haze-beam';
-  const bloom=document.createElement('span');
-  bloom.className='footer-haze-bloom';
-  cloud.append(flash,beam,bloom);
-  for(let i=0;i<6;i++){
-   const wisp=document.createElement('i');
-   cloud.appendChild(wisp);
-  }
-  // Bound the number of simultaneously rendered smoke plumes on mobile and desktop.
-  const olderClouds=backdrop.querySelectorAll('.footer-fog-cloud');
-  if(olderClouds.length>=2)olderClouds[0].remove();
-  backdrop.appendChild(cloud);
-  window.setTimeout(()=>cloud.remove(),5500);
-  lastFogAt=performance.now();
-  lastFogPoint={x:point.x,y:point.y};
+  return true;
  }
  function deactivate(){
   energized=false;
@@ -202,12 +206,7 @@
    energized=true;
    footer.classList.add('is-energized');
    emitDischarge(point,true);
-   if(performance.now()-lastFogAt>1000)emitAfterglow(point);
-  }else{
-   if(allowAnotherCloud)emitDischarge(point);
-   if(allowAnotherCloud&&performance.now()-lastFogAt>2600&&lastFogPoint&&Math.hypot(point.x-lastFogPoint.x,point.y-lastFogPoint.y)>12)
-    emitAfterglow(point);
-  }
+  }else if(allowAnotherCloud)emitDischarge(point);
  }
  footer.addEventListener('pointerenter',event=>{
   if((event.pointerType==='mouse'||event.pointerType==='pen')&&!event.target.closest('a'))activate(pointFromEvent(event),false);
