@@ -661,12 +661,33 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
     padding:36px 22px 22px;
   }
   /* Keep the complete animated cow inside the iPhone viewport. */
+  /* Edge-to-edge artwork, rising from the footer's bottom boundary. */
   .footer-laser-backdrop svg:not(.footer-electric-circuit) {
-    width:min(88vw,440px);
-    max-width:calc(100% - 24px);
+    width:100vw;
+    max-width:none;
     height:auto;
     left:50%;
-    top:42%;
+    top:auto;
+    bottom:0;
+    transform:translateX(-50%);
+  }
+  .lvl-footer.footer-intro-pending .footer-laser-etch,
+  .lvl-footer.footer-intro-pending .footer-sonic-ink {
+    transform:translateX(-50%) translateY(5%) scale(.955) rotate(-1.25deg);
+  }
+  .lvl-footer.footer-intro-active .footer-laser-etch,
+  .lvl-footer.footer-intro-active .footer-sonic-ink {
+    animation:footer-cow-arrive-bottom 2.7s cubic-bezier(.21,.72,.22,1) both;
+  }
+  .lvl-footer.footer-intro-complete .footer-laser-etch,
+  .lvl-footer.footer-intro-complete .footer-sonic-ink {
+    transform:translateX(-50%);
+  }
+  @keyframes footer-cow-arrive-bottom {
+    0% {opacity:.08;transform:translateX(-50%) translateY(5%) scale(.955) rotate(-1.25deg);}
+    29% {opacity:.38;transform:translateX(-50%) translateY(1%) scale(.985) rotate(-.45deg);}
+    62% {opacity:1;transform:translateX(-50%) translateY(-1%) scale(1.012) rotate(.25deg);}
+    100% {opacity:1;transform:translateX(-50%) scale(1) rotate(0);}
   }
   .sonic-groove {left:52%;top:52%;width:min(112vw,475px);}
   .sonic-groove-inner {width:min(77vw,328px);}
