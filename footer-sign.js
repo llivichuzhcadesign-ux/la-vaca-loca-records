@@ -456,55 +456,73 @@
   const i=Math.floor(x),f=x-i,u=f*f*f*(f*(f*6-15)+10);
   return 2*(ambientGrad[(i+256)%256]*f*(1-u)+ambientGrad[(i+257)%256]*(f-1)*u);
  }
- function ambientStop(){clearTimeout(ambientTimer);ambientTimer=0;}
+ function ambientStop(){clearTimeout(ambientTimer);ambientTimer=0;stopOutlineBurn();}
  function ambientStart(){
   if(ambientTimer||!introComplete||!isVisible||document.hidden||motion.matches)return;
   ambientTimer=setTimeout(ambientPulse,350);
  }
+ // The entire logo outline crackles continuously, like a burning electric fuse.
+ let outlineLayer=null,outlineSegments=[],outlineFrame=0,outlineLast=0;
+ function ensureOutline(){
+  if(outlineLayer)return;
+  outlineLayer=document.createElementNS(ns,'g');
+  outlineLayer.setAttribute('class','footer-outline-burn');
+  electric.appendChild(outlineLayer);
+  const paths=[...etched.querySelectorAll('path')].filter(p=>{
+   try{return p.getTotalLength()>2;}catch(e){return false;}
+  });
+  for(const path of paths){
+   const length=path.getTotalLength();
+   const pieces=Math.max(2,Math.min(28,Math.ceil(length/28)));
+   for(let i=0;i<pieces;i++){
+    const glow=document.createElementNS(ns,'path');
+    glow.setAttribute('class','footer-electric-aura');
+    const core=document.createElementNS(ns,'path');
+    core.setAttribute('class','footer-electric-core');
+    outlineLayer.append(glow,core);
+    outlineSegments.push({path,length,start:i/pieces,end:(i+1)/pieces,glow,core,seed:Math.random()*100});
+   }
+  }
+ }
+ function drawOutlineBurn(now){
+  outlineFrame=0;
+  if(!introComplete||!isVisible||document.hidden||motion.matches)return;
+  if(now-outlineLast<65){outlineFrame=requestAnimationFrame(drawOutlineBurn);return;}
+  outlineLast=now;
+  const box=backdrop.getBoundingClientRect();
+  if(!box.width||!box.height)return;
+  electric.setAttribute('viewBox','0 0 '+box.width+' '+box.height);
+  const time=now*.001;
+  for(const seg of outlineSegments){
+   const matrix=seg.path.getScreenCTM();
+   if(!matrix)continue;
+   const points=[];
+   const intensity=ambientNoise(time*.9+seg.seed)*.5+.5;
+   const steps=4;
+   for(let j=0;j<=steps;j++){
+    const f=seg.start+(seg.end-seg.start)*j/steps;
+    const p=seg.path.getPointAtLength(seg.length*f).matrixTransform(matrix);
+    const jitter=j===0||j===steps?0:(ambientNoise(time*2.3+seg.seed+j*.43)*(.65+intensity*1.8));
+    points.push([p.x-box.left+jitter,p.y-box.top-jitter*.55]);
+   }
+   const d=points.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+   seg.glow.setAttribute('d',d);
+   seg.core.setAttribute('d',d);
+   const brightness=.28+intensity*.72;
+   seg.glow.style.opacity=brightness.toFixed(2);
+   seg.core.style.opacity=(brightness*.85).toFixed(2);
+  }
+  outlineFrame=requestAnimationFrame(drawOutlineBurn);
+ }
+ function stopOutlineBurn(){
+  if(outlineFrame)cancelAnimationFrame(outlineFrame);
+  outlineFrame=0;
+ }
  function ambientPulse(){
   ambientTimer=0;
   if(!introComplete||!isVisible||document.hidden||motion.matches)return;
-  try{
-   // Reproduce the touch ignition across the entire SVG, including its extremities.
-   const paths=[...etched.querySelectorAll('path')].filter(p=>{
-    try{return p.getTotalLength()>1&&p.getScreenCTM();}catch(e){return false;}
-   });
-   const box=backdrop.getBoundingClientRect(),t=ambientStep++;
-   const mobile=box.width<=720;
-   const count=mobile?4:7;
-   const kinds=['peony','willow','crackle','fountain','palm'];
-   for(let k=0;k<count;k++){
-    const path=paths[(t*3+k*19)%paths.length];
-    if(!path)continue;
-    const fraction=k===0?0:k===1?1:Math.min(1,Math.max(0,(k-1)/(count-2)+ambientNoise(t*.12+k*3)*.12));
-    const p=path.getPointAtLength(path.getTotalLength()*fraction);
-    const q=p.matrixTransform(path.getScreenCTM());
-    const x=q.x-box.left,y=q.y-box.top;
-    if(x<0||x>box.width||y<0||y>box.height)continue;
-    const point={x:x/box.width*100,y:y/box.height*100};
-    // Each location burns like a tap: spark burst, hot halo and a short electric fork.
-    const kind=kinds[(t+k)%kinds.length];
-    emitFirework(point,'cow',ambientNoise(t*.17+k*5)*180,kind);
-    if(k%2===0)emitAfterglow(point,'cow');
-    const group=document.createElementNS(ns,'g');
-    group.setAttribute('class','footer-electric-strike');
-    const angle=(ambientNoise(t*.21+k*7)+k/count)*Math.PI;
-    const reach=(mobile?28:45)+Math.abs(ambientNoise(t*.3+k))*28;
-    const targetX=Math.max(0,Math.min(box.width,x+Math.cos(angle)*reach));
-    const targetY=Math.max(0,Math.min(box.height,y+Math.sin(angle)*reach));
-    electric.setAttribute('viewBox','0 0 '+box.width+' '+box.height);
-    for(const layer of ['aura','core']){
-     const arc=document.createElementNS(ns,'path');
-     arc.setAttribute('class','footer-electric-'+layer);
-     arc.setAttribute('d',jaggedPath(x,y,targetX,targetY,t*13+k));
-     arc.setAttribute('pathLength','100');
-     group.appendChild(arc);
-    }
-    electric.appendChild(group);
-    setTimeout(()=>group.remove(),950);
-   }
-  }catch(e){}
-  ambientTimer=setTimeout(ambientPulse,Math.round(800+(ambientNoise(ambientStep*.23+81)+1)*300));
+  ensureOutline();
+  if(!outlineFrame)outlineFrame=requestAnimationFrame(drawOutlineBurn);
  }
  // Press/tap is a second interaction: a paired finale on the cow and cursor.
  // It keeps the current electric arc, rather than replacing the hover sequence.
@@ -731,6 +749,7 @@
   clearTimeout(glowOff);
   footer.classList.remove('is-striking');
   electric.replaceChildren();
+  outlineLayer=null;outlineSegments=[];
   backdrop.querySelectorAll('.footer-firework-burst').forEach(burst=>burst.remove());
  };
  const stopMotion=()=>{
