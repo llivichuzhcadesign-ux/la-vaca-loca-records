@@ -465,16 +465,32 @@
   ambientTimer=0;
   if(!introComplete||!isVisible||document.hidden||motion.matches)return;
   try{
+   // Traverse every drawable element in the complete brand SVG, not only the cow outline.
+   const paths=[...etched.querySelectorAll('path')].filter(p=>{
+    try{return p.getTotalLength()>1&&p.getScreenCTM();}catch(e){return false;}
+   });
    const t=ambientStep++;
-   const distance=t*.087+ambientNoise(t*.19)*.22+ambientNoise(t*.047)*.14;
-   const p=cowContour.getPointAtLength((((distance%1)+1)%1)*cowContour.getTotalLength());
-   const q=p.matrixTransform(etched.getScreenCTM()),box=backdrop.getBoundingClientRect();
-   const point={x:(q.x-box.left)/box.width*100,y:(q.y-box.top)/box.height*100};
+   const box=backdrop.getBoundingClientRect();
    const kinds=['peony','willow','crackle','fountain','palm'];
-   const type=kinds[Math.min(4,Math.floor((ambientNoise(t*.27+11)+1)*2.5))];
-   if(point.x>1&&point.x<99&&point.y>1&&point.y<99)emitFirework(point,'cow',ambientNoise(t*.21+37)*180,type);
+   const mobile=box.width<=720;
+   const count=mobile?3:5;
+   // Spatially distributed simultaneous bursts light up the full logo.
+   for(let k=0;k<count;k++){
+    const phase=t*.061+k*.61803398875+ambientNoise(t*.09+k*7)*.19;
+    const index=Math.floor((((phase%1)+1)%1)*paths.length);
+    const path=paths[index];
+    if(!path)continue;
+    const length=path.getTotalLength();
+    const travel=t*.11+k*.31+ambientNoise(t*.17+k*11)*.24;
+    const local=path.getPointAtLength(((((travel%1)+1)%1))*length);
+    const q=local.matrixTransform(path.getScreenCTM());
+    const point={x:(q.x-box.left)/box.width*100,y:(q.y-box.top)/box.height*100};
+    if(point.x<1||point.x>99||point.y<1||point.y>99)continue;
+    const type=kinds[Math.min(4,Math.floor((ambientNoise(t*.27+k*5+11)+1)*2.5))];
+    emitFirework(point,'cow',ambientNoise(t*.21+k*3+37)*180,type);
+   }
   }catch(e){}
-  ambientTimer=setTimeout(ambientPulse,Math.round(500+(ambientNoise(ambientStep*.23+81)+1)*425));
+  ambientTimer=setTimeout(ambientPulse,Math.round(850+(ambientNoise(ambientStep*.23+81)+1)*350));
  }
  // Press/tap is a second interaction: a paired finale on the cow and cursor.
  // It keeps the current electric arc, rather than replacing the hover sequence.
