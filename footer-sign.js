@@ -64,7 +64,9 @@
  introTrace.classList.remove('footer-laser-etch');
  introTrace.classList.add('footer-intro-trace');
  introTrace.querySelectorAll('path,circle').forEach(part=>{
-  if((part.getAttribute('d')||'').startsWith('M52.1,219.41'))part.classList.add('footer-intro-path');
+  if((part.getAttribute('d')||'').startsWith('M52.1,219.41')){
+   part.classList.add('footer-intro-path');part.setAttribute('pathLength','100');
+  }
   else part.remove();
  });
  backdrop.insertBefore(introTrace,electric);
