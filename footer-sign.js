@@ -465,32 +465,46 @@
   ambientTimer=0;
   if(!introComplete||!isVisible||document.hidden||motion.matches)return;
   try{
-   // Traverse every drawable element in the complete brand SVG, not only the cow outline.
+   // Reproduce the touch ignition across the entire SVG, including its extremities.
    const paths=[...etched.querySelectorAll('path')].filter(p=>{
     try{return p.getTotalLength()>1&&p.getScreenCTM();}catch(e){return false;}
    });
-   const t=ambientStep++;
-   const box=backdrop.getBoundingClientRect();
-   const kinds=['peony','willow','crackle','fountain','palm'];
+   const box=backdrop.getBoundingClientRect(),t=ambientStep++;
    const mobile=box.width<=720;
-   const count=mobile?3:5;
-   // Spatially distributed simultaneous bursts light up the full logo.
+   const count=mobile?4:7;
+   const kinds=['peony','willow','crackle','fountain','palm'];
    for(let k=0;k<count;k++){
-    const phase=t*.061+k*.61803398875+ambientNoise(t*.09+k*7)*.19;
-    const index=Math.floor((((phase%1)+1)%1)*paths.length);
-    const path=paths[index];
+    const path=paths[(t*3+k*19)%paths.length];
     if(!path)continue;
-    const length=path.getTotalLength();
-    const travel=t*.11+k*.31+ambientNoise(t*.17+k*11)*.24;
-    const local=path.getPointAtLength(((((travel%1)+1)%1))*length);
-    const q=local.matrixTransform(path.getScreenCTM());
-    const point={x:(q.x-box.left)/box.width*100,y:(q.y-box.top)/box.height*100};
-    if(point.x<1||point.x>99||point.y<1||point.y>99)continue;
-    const type=kinds[Math.min(4,Math.floor((ambientNoise(t*.27+k*5+11)+1)*2.5))];
-    emitFirework(point,'cow',ambientNoise(t*.21+k*3+37)*180,type);
+    const fraction=k===0?0:k===1?1:Math.min(1,Math.max(0,(k-1)/(count-2)+ambientNoise(t*.12+k*3)*.12));
+    const p=path.getPointAtLength(path.getTotalLength()*fraction);
+    const q=p.matrixTransform(path.getScreenCTM());
+    const x=q.x-box.left,y=q.y-box.top;
+    if(x<0||x>box.width||y<0||y>box.height)continue;
+    const point={x:x/box.width*100,y:y/box.height*100};
+    // Each location burns like a tap: spark burst, hot halo and a short electric fork.
+    const kind=kinds[(t+k)%kinds.length];
+    emitFirework(point,'cow',ambientNoise(t*.17+k*5)*180,kind);
+    if(k%2===0)emitAfterglow(point,'cow');
+    const group=document.createElementNS(ns,'g');
+    group.setAttribute('class','footer-electric-strike');
+    const angle=(ambientNoise(t*.21+k*7)+k/count)*Math.PI;
+    const reach=(mobile?28:45)+Math.abs(ambientNoise(t*.3+k))*28;
+    const targetX=Math.max(0,Math.min(box.width,x+Math.cos(angle)*reach));
+    const targetY=Math.max(0,Math.min(box.height,y+Math.sin(angle)*reach));
+    electric.setAttribute('viewBox','0 0 '+box.width+' '+box.height);
+    for(const layer of ['aura','core']){
+     const arc=document.createElementNS(ns,'path');
+     arc.setAttribute('class','footer-electric-'+layer);
+     arc.setAttribute('d',jaggedPath(x,y,targetX,targetY,t*13+k));
+     arc.setAttribute('pathLength','100');
+     group.appendChild(arc);
+    }
+    electric.appendChild(group);
+    setTimeout(()=>group.remove(),950);
    }
   }catch(e){}
-  ambientTimer=setTimeout(ambientPulse,Math.round(850+(ambientNoise(ambientStep*.23+81)+1)*350));
+  ambientTimer=setTimeout(ambientPulse,Math.round(800+(ambientNoise(ambientStep*.23+81)+1)*300));
  }
  // Press/tap is a second interaction: a paired finale on the cow and cursor.
  // It keeps the current electric arc, rather than replacing the hover sequence.
