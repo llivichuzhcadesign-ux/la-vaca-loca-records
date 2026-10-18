@@ -75,6 +75,7 @@
   footer.classList.remove('footer-intro-pending','footer-intro-active');
   footer.classList.add('footer-intro-complete');
   introComplete=true;
+  ambientStart();
  }
  function startFooterIntro(){
   if(introStarted||introComplete||document.hidden)return;
@@ -448,6 +449,33 @@
   lastArcPoint={clientX:point.clientX,clientY:point.clientY};
   return true;
  }
+ // Perlin-gradient driven autonomous fireworks, independent of hover and touch.
+ let ambientTimer=0,ambientStep=0;
+ const ambientGrad=Array.from({length:256},()=>Math.random()*2-1);
+ function ambientNoise(x){
+  const i=Math.floor(x),f=x-i,u=f*f*f*(f*(f*6-15)+10);
+  return 2*(ambientGrad[(i+256)%256]*f*(1-u)+ambientGrad[(i+257)%256]*(f-1)*u);
+ }
+ function ambientStop(){clearTimeout(ambientTimer);ambientTimer=0;}
+ function ambientStart(){
+  if(ambientTimer||!introComplete||!isVisible||document.hidden||motion.matches)return;
+  ambientTimer=setTimeout(ambientPulse,350);
+ }
+ function ambientPulse(){
+  ambientTimer=0;
+  if(!introComplete||!isVisible||document.hidden||motion.matches)return;
+  try{
+   const t=ambientStep++;
+   const distance=t*.087+ambientNoise(t*.19)*.22+ambientNoise(t*.047)*.14;
+   const p=cowContour.getPointAtLength((((distance%1)+1)%1)*cowContour.getTotalLength());
+   const q=p.matrixTransform(etched.getScreenCTM()),box=backdrop.getBoundingClientRect();
+   const point={x:(q.x-box.left)/box.width*100,y:(q.y-box.top)/box.height*100};
+   const kinds=['peony','willow','crackle','fountain','palm'];
+   const type=kinds[Math.min(4,Math.floor((ambientNoise(t*.27+11)+1)*2.5))];
+   if(point.x>1&&point.x<99&&point.y>1&&point.y<99)emitFirework(point,'cow',ambientNoise(t*.21+37)*180,type);
+  }catch(e){}
+  ambientTimer=setTimeout(ambientPulse,Math.round(500+(ambientNoise(ambientStep*.23+81)+1)*425));
+ }
  // Press/tap is a second interaction: a paired finale on the cow and cursor.
  // It keeps the current electric arc, rather than replacing the hover sequence.
  function finale(point){
@@ -665,8 +693,8 @@
   },true);
  }
  document.addEventListener('visibilitychange',()=>{
-  if(document.hidden){stopSound();stopFireworks();}
-  else startSound();
+  if(document.hidden){ambientStop();stopSound();stopFireworks();}
+  else {startSound();ambientStart();}
  });
  const clearSparks=()=>{
   stopFireworks();
@@ -678,18 +706,18 @@
  const stopMotion=()=>{
   if(motion.matches){
    finishFooterIntro();
-   deactivate();stopSound();clearSparks();
+   deactivate();ambientStop();stopSound();clearSparks();
    backdrop.querySelectorAll('.footer-fog-cloud').forEach(cloud=>cloud.remove());
-  }else startSound();
+  }else {startSound();ambientStart();}
  };
  if(motion.addEventListener)motion.addEventListener('change',stopMotion);
  if('IntersectionObserver' in window){
   const observer=new IntersectionObserver(entries=>{
    isVisible=entries.some(entry=>entry.isIntersecting);
    footer.classList.toggle('sign-visible',isVisible);
-   if(!isVisible){deactivate();stopSound();clearSparks();}
+   if(!isVisible){deactivate();ambientStop();stopSound();clearSparks();}
    else {
-    startSound();
+    startSound();ambientStart();
     if(!introStarted&&!introComplete){
      const rect=footer.getBoundingClientRect();
      if(rect.top<window.innerHeight*.78||entries.some(entry=>entry.intersectionRatio>=.25))startFooterIntro();
@@ -700,5 +728,6 @@
  }else {
   footer.classList.add('sign-visible');
   if(!introComplete)startFooterIntro();
+  else ambientStart();
  }
 })();
