@@ -6,14 +6,25 @@
  footer.classList.add('lvl-footer','illuminated-footer','sign-revealed');
  // One canonical footer: no small logo; the laser artwork is the only large brand mark.
  footer.innerHTML=`
-  <nav aria-label="Explorar La Vaca Loca">
+  <nav class="footer-explore" aria-label="Explorar La Vaca Loca">
+   <span class="footer-column-label">Explorar</span>
    <a href="index.html">Inicio</a>
    <a href="discos.html">Discos</a>
    <a href="sessions.html">Sessions</a>
    <a href="eventos.html">Eventos</a>
    <a href="archivo.html">Archivo</a>
   </nav>
-  <p class="design-credit"><a href="https://www.instagram.com/semiotice/" target="_blank" rel="noopener noreferrer">Website Design by Sebastian Llivichuzhca</a></p>
+  <div class="footer-connect" aria-label="Conectar con La Vaca Loca">
+   <span class="footer-column-label">Conectar</span>
+   <a href="https://www.instagram.com/explore/search/keyword/?q=La%20Vaca%20Loca%20Records" target="_blank" rel="noopener noreferrer" aria-label="Buscar La Vaca Loca Records en Instagram">Instagram <span aria-hidden="true">↗</span></a>
+   <a href="https://www.youtube.com/results?search_query=La+Vaca+Loca+Records" target="_blank" rel="noopener noreferrer" aria-label="Buscar La Vaca Loca Records en YouTube">YouTube <span aria-hidden="true">↗</span></a>
+   <a href="https://open.spotify.com/search/La%20Vaca%20Loca%20Records" target="_blank" rel="noopener noreferrer" aria-label="Buscar La Vaca Loca Records en Spotify">Spotify <span aria-hidden="true">↗</span></a>
+  </div>
+  <div class="footer-bottom">
+   <span>© ${new Date().getFullYear()} La Vaca Loca Records</span>
+   <a class="footer-back-top" href="#top" aria-label="Volver arriba">Volver arriba ↑</a>
+   <span class="design-credit"><a href="https://www.instagram.com/semiotice/" target="_blank" rel="noopener noreferrer">Website Design by Sebastian Llivichuzhca</a></span>
+  </div>
  `;
  const backdrop=document.createElement('div');
  backdrop.className='footer-laser-backdrop';
