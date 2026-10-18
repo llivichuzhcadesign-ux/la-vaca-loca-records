@@ -145,8 +145,8 @@
   if(!fireworksContext)return;
   const rect=backdrop.getBoundingClientRect();
   if(!rect.width||!rect.height)return;
-  particleBudget=rect.width<=720?210:440;
-  const scale=Math.min(window.devicePixelRatio||1,1.6);
+  particleBudget=rect.width<=720?210:260;
+  const scale=Math.min(window.devicePixelRatio||1,1.25);
   const w=Math.round(rect.width*scale),h=Math.round(rect.height*scale);
   if(fireworkCanvas.width!==w||fireworkCanvas.height!==h){
    fireworkCanvas.width=w;fireworkCanvas.height=h;
@@ -220,12 +220,15 @@
  function drawFireworks(time){
   fireworkFrame=0;
   if(!fireworksContext||document.hidden||motion.matches||!isVisible){stopFireworks();return;}
+  // Limit the expensive particle renderer to ~30 fps on desktop.
+  if(particleBudget>210&&fireworkFrameAt&&time-fireworkFrameAt<30){
+   fireworkFrame=requestAnimationFrame(drawFireworks);return;
+  }
   if(!particles.length){fireworksContext.clearRect(0,0,fireworkCanvas.width,fireworkCanvas.height);return;}
   const dt=Math.min(2.2,Math.max(.55,(time-(fireworkFrameAt||time-16.67))/16.67));
   fireworkFrameAt=time;
   const ctx=fireworksContext;
-  const rect=backdrop.getBoundingClientRect();
-  ctx.clearRect(0,0,rect.width,rect.height);
+  ctx.clearRect(0,0,fireworkCanvas.width,fireworkCanvas.height);
   ctx.save();
   ctx.globalCompositeOperation='lighter';
   const newCrackles=[];
@@ -246,8 +249,8 @@
    const alpha=Math.min(1,remaining*1.36)*twinkle;
    ctx.strokeStyle='rgba('+p.color+','+(alpha*.6).toFixed(3)+')';
    ctx.fillStyle='rgba('+p.color+','+alpha.toFixed(3)+')';
-   ctx.shadowColor='rgba('+p.color+','+(alpha*.8).toFixed(3)+')';
-   ctx.shadowBlur=7;
+   ctx.shadowColor='rgba('+p.color+','+(alpha*.45).toFixed(3)+')';
+   ctx.shadowBlur=particleBudget>210?2:5;
    if(p.points.length>1){
     ctx.lineWidth=p.radius*.95;
     ctx.beginPath();
