@@ -67,7 +67,7 @@
   // The drawing is the interaction surface. Preserve ordinary link hover behavior.
   const mobile=rect.width<=720;
   return {x,y,clientX:event.clientX,clientY:event.clientY,
-   inside: mobile ? (y>=5&&y<=77) : (x>=12&&x<=85&&y>=6&&y<=90)};
+   inside: mobile ? (y>=5&&y<=79) : (x>=12&&x<=85&&y>=6&&y<=90)};
  };
  // Map the cursor to the nearest real point on the cow's vector contour.
  // Cache path samples so each discharge is cheap, even on touch screens.
@@ -158,7 +158,7 @@
   observer.observe(backdrop);
  }else window.addEventListener('resize',sizeFireworkCanvas,{passive:true});
  function fireworkParticle(x,y,vx,vy,opts={}){
-  if(particles.length>=maxParticles())return;
+  if(particles.length>=maxParticles())particles.splice(0,Math.min(12,Math.max(1,particles.length-maxParticles()+1)));
   particles.push({
    x,y,vx,vy,drag:opts.drag??.983,gravity:opts.gravity??.075,
    life:opts.life??66,age:0,radius:opts.radius??1.7,
@@ -192,11 +192,11 @@
   else if(type==='fountain')count=Math.round(43*budget);
   else count=Math.round(23*budget); // Palm creates broader, heavier branching trails.
   for(let i=0;i<count;i++){
-   const a=type==='fountain'?-Math.PI/2+random(-.84,.84):
+   const a=type==='fountain'?-Math.PI/2+random(-.58,.58):
      (Math.PI*2*(i+random(-.36,.36))/count);
    const speed=(type==='fountain'?random(3.8,7.3):
-    type==='willow'?random(2.7,4.9):
-    type==='palm'?random(3.2,5.7):random(2.6,5.7))*scale;
+    type==='willow'?random(2.3,3.7):
+    type==='palm'?random(4.4,6.4):random(2.6,5.7))*scale;
    // Slightly favor the cow-to-cursor direction without erasing the signature pattern.
    const directional=type==='fountain'?0:(strength>=.95?.17:.06);
    const vx=Math.cos(a)*speed+Math.cos(heading)*directional*speed;
@@ -204,9 +204,9 @@
    fireworkParticle(x,y,vx,vy,{
     color:choose(i),
     life:type==='willow'?random(98,145):
-     type==='palm'?random(85,119):type==='fountain'?random(59,89):random(52,87),
+     type==='palm'?random(95,130):type==='fountain'?random(45,72):random(52,87),
     drag:type==='willow'?.992:type==='palm'?.988:.984,
-    gravity:type==='fountain'?.19:type==='willow'?.13:type==='palm'?.105:.065,
+    gravity:type==='fountain'?.27:type==='willow'?.17:type==='palm'?.10:.065,
     trail:type==='willow'?17:type==='palm'?16:type==='fountain'?9:7,
     radius:type==='palm'?random(1.65,2.3):random(.8,1.75),
     twinkle:type==='crackle'||type==='peony',
@@ -397,9 +397,8 @@
   // The sign flashes once per actual discharge and returns to its resting
   // engraving even if the cursor stays over it.
   footer.classList.remove('is-striking');
-  // Reflow only on real discharges (max every 380ms), not every pointer movement.
-  void footer.offsetWidth;
-  footer.classList.add('is-striking');
+  // Restart the pulse on a fresh frame without forcing a layout read.
+  requestAnimationFrame(()=>{if(isVisible&&!motion.matches)footer.classList.add('is-striking');});
   clearTimeout(glowOff);
   glowOff=window.setTimeout(()=>footer.classList.remove('is-striking'),980);
   // The silhouette is the source; the previous cursor-facing lightning and
@@ -455,28 +454,30 @@
  footer.addEventListener('pointerenter',event=>{
   if((event.pointerType==='mouse'||event.pointerType==='pen')&&!event.target.closest('a'))activate(pointFromEvent(event),false);
  },{passive:true});
- let draggingTouchId=null;
+ let draggingTouchId=null,touchStart=null,touchMoved=false;
  footer.addEventListener('pointermove',event=>{
   const touchDrag=event.pointerType==='touch'&&draggingTouchId===event.pointerId;
   if(!touchDrag&&event.pointerType!=='mouse'&&event.pointerType!=='pen')return;
-  if(event.target.closest('a')){deactivate();return;}
+  if(!touchDrag&&event.target.closest('a')){deactivate();return;}
   const point=pointFromEvent(event);
-  if(!point||!point.inside)deactivate();
+  if(touchDrag&&touchStart&&!touchMoved){
+   if(Math.hypot(event.clientX-touchStart.x,event.clientY-touchStart.y)<12)return;
+   touchMoved=true;
+   if(point?.inside)activate(point,true);
+  }else if(!point||!point.inside)deactivate();
   else activate(point,true);
  },{passive:true});
- footer.addEventListener('pointerleave',deactivate);
+ footer.addEventListener('pointerleave',event=>{if(event.pointerType!=='touch')deactivate();});
  footer.addEventListener('pointerdown',event=>{
   if(event.target.closest('a')||!event.isPrimary)return;
   const point=pointFromEvent(event);
   if(!point||!point.inside)return;
   if(event.pointerType==='touch'){
-   if(event.target!==touchSurface)return;
+   if(event.target!==touchSurface||draggingTouchId!==null)return;
    draggingTouchId=event.pointerId;
+   touchStart={x:event.clientX,y:event.clientY,point};
+   touchMoved=false;
    try{touchSurface.setPointerCapture(event.pointerId);}catch{}
-   // First touch retains the paired finale; dragging now behaves like mouse hover.
-   deactivate();
-   activate(point,false,false);
-   finale(point);
    clearTimeout(touchOff);
   }else{
    if(!energized)activate(point,false,false);
@@ -486,7 +487,11 @@
  },{passive:true});
  const stopTouchDrag=event=>{
   if(event.pointerId!==draggingTouchId)return;
-  draggingTouchId=null;
+  if(event.type==='pointerup'&&!touchMoved&&touchStart){
+   activate(touchStart.point,false,false);
+   finale(touchStart.point);
+  }
+  draggingTouchId=null;touchStart=null;touchMoved=false;
   if(event.type!=='lostpointercapture'&&touchSurface.hasPointerCapture?.(event.pointerId)){
    try{touchSurface.releasePointerCapture(event.pointerId);}catch{}
   }
