@@ -57,6 +57,30 @@
  footer.insertBefore(touchSurface,backdrop.nextSibling);
 
  const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
+ // One arrival per page visit: motion is on the artwork, never on the navigation.
+ let introComplete=motion.matches,introStarted=false,introTimer=0;
+ if(!introComplete)footer.classList.add('footer-intro-pending');
+ const introTrace=etched.cloneNode(true);
+ introTrace.classList.remove('footer-laser-etch');
+ introTrace.classList.add('footer-intro-trace');
+ introTrace.querySelectorAll('path,circle').forEach(part=>{
+  if((part.getAttribute('d')||'').startsWith('M52.1,219.41'))part.classList.add('footer-intro-path');
+  else part.remove();
+ });
+ backdrop.insertBefore(introTrace,electric);
+ function finishFooterIntro(){
+  clearTimeout(introTimer);
+  footer.classList.remove('footer-intro-pending','footer-intro-active');
+  footer.classList.add('footer-intro-complete');
+  introComplete=true;
+ }
+ function startFooterIntro(){
+  if(introStarted||introComplete||document.hidden)return;
+  introStarted=true;
+  footer.classList.remove('footer-intro-pending');
+  footer.classList.add('footer-intro-active');
+  introTimer=window.setTimeout(finishFooterIntro,2950);
+ }
  let isVisible=true, energized=false, touchOff=0, glowOff=0;
  const clamp=(n,low,high)=>Math.min(high,Math.max(low,n));
  const pointFromEvent=event=>{
@@ -350,7 +374,7 @@
  }
  // Stage 1: a real contour-anchored, multi-branch electric bolt runs toward the pointer.
  function emitDischarge(point,force=false,includeFireworks=true){
-  if(motion.matches||!isVisible||document.hidden)return false;
+  if(!introComplete||motion.matches||!isVisible||document.hidden)return false;
   const now=performance.now();
   const moved=lastArcPoint?Math.hypot(point.clientX-lastArcPoint.clientX,point.clientY-lastArcPoint.clientY):Infinity;
   // Arcs may follow the pointer after 380ms + 22px of travel. Bigger fireworks
@@ -425,7 +449,7 @@
  // Press/tap is a second interaction: a paired finale on the cow and cursor.
  // It keeps the current electric arc, rather than replacing the hover sequence.
  function finale(point){
-  if(motion.matches||!isVisible||document.hidden||!point?.inside)return;
+  if(!introComplete||motion.matches||!isVisible||document.hidden||!point?.inside)return;
   const now=performance.now();
   if(now-lastFinaleAt<1800)return;
   const origin=nearestContour(point),box=backdrop.getBoundingClientRect();
@@ -445,7 +469,7 @@
   // Do not cancel an existing strike; its timed glow and smoke finish naturally.
  }
  function activate(point,allowAnotherCloud,includeFireworks=true){
-  if(!point||!point.inside||motion.matches||!isVisible)return;
+  if(!introComplete||!point||!point.inside||motion.matches||!isVisible)return;
   const targetX=point.x.toFixed(2)+'%',targetY=point.y.toFixed(2)+'%';
   backdrop.style.setProperty('--hover-x',targetX);
   backdrop.style.setProperty('--hover-y',targetY);
@@ -651,6 +675,7 @@
  };
  const stopMotion=()=>{
   if(motion.matches){
+   finishFooterIntro();
    deactivate();stopSound();clearSparks();
    backdrop.querySelectorAll('.footer-fog-cloud').forEach(cloud=>cloud.remove());
   }else startSound();
@@ -661,8 +686,17 @@
    isVisible=entries.some(entry=>entry.isIntersecting);
    footer.classList.toggle('sign-visible',isVisible);
    if(!isVisible){deactivate();stopSound();clearSparks();}
-   else startSound();
+   else {
+    startSound();
+    if(!introStarted&&!introComplete){
+     const rect=footer.getBoundingClientRect();
+     if(rect.top<window.innerHeight*.78)startFooterIntro();
+    }
+   }
   },{rootMargin:'80px 0px 80px 0px',threshold:0});
   observer.observe(footer);
- }else footer.classList.add('sign-visible');
+ }else {
+  footer.classList.add('sign-visible');
+  if(!introComplete)startFooterIntro();
+ }
 })();
