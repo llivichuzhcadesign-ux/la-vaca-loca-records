@@ -139,6 +139,73 @@ body .lvl-footer.illuminated-footer .footer-laser-backdrop {
   57% {stroke-opacity:.73;}
   100% {stroke-opacity:.62;}
 }
+/* One-time atmospheric entrance: the actual engraved cow physically rises,
+   tilts gently and settles. Navigation, audio and the pointer layer stay still. */
+.lvl-footer.footer-intro-pending .footer-laser-etch,
+.lvl-footer.footer-intro-pending .footer-sonic-ink {
+  opacity:.08;
+  transform:translate(-50%,-45%) scale(.955) rotate(-1.25deg);
+}
+.lvl-footer.footer-intro-active .footer-laser-etch,
+.lvl-footer.footer-intro-active .footer-sonic-ink {
+  animation:footer-cow-arrive 2.7s cubic-bezier(.21,.72,.22,1) both;
+}
+@keyframes footer-cow-arrive {
+  0% {opacity:.08;transform:translate(-50%,-45%) scale(.955) rotate(-1.25deg);}
+  29% {opacity:.38;transform:translate(-50%,-49%) scale(.985) rotate(-.45deg);}
+  62% {opacity:1;transform:translate(-50%,-51%) scale(1.012) rotate(.25deg);}
+  100% {opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0);}
+}
+.lvl-footer.footer-intro-active .footer-laser-backdrop::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse 47% 55% at 48% 46%,rgba(205,91,145,.16),transparent 80%);
+  pointer-events:none;
+  animation:footer-atmosphere-arrive 2.8s ease-out both;
+}
+@keyframes footer-atmosphere-arrive {
+  0% {opacity:0;transform:scale(.91);}
+  40% {opacity:.7;transform:scale(1);}
+  100% {opacity:0;transform:scale(1.05);}
+}
+.footer-laser-backdrop svg.footer-intro-trace {
+  opacity:0;
+  pointer-events:none;
+  filter:drop-shadow(0 0 9px rgba(255,199,175,.7));
+}
+.footer-intro-trace .footer-intro-path {
+  fill:none!important;
+  stroke:#ffe4c6!important;
+  stroke-width:2.7px;
+  stroke-dasharray:100;
+  stroke-dashoffset:100;
+  stroke-opacity:1;
+}
+.lvl-footer.footer-intro-active .footer-intro-trace {
+  opacity:1;
+  animation:footer-trace-arrival 1.6s 1.06s ease-in-out both;
+}
+.lvl-footer.footer-intro-active .footer-intro-path {
+  animation:footer-trace-draw 1.6s 1.06s cubic-bezier(.2,.62,.3,1) both;
+}
+@keyframes footer-trace-arrival {
+  0%,100% {opacity:0;}
+  15%,72% {opacity:1;}
+}
+@keyframes footer-trace-draw {
+  0% {stroke-dashoffset:100;}
+  78%,100% {stroke-dashoffset:0;}
+}
+.lvl-footer.footer-intro-complete .footer-laser-etch,
+.lvl-footer.footer-intro-complete .footer-sonic-ink {
+  opacity:1;
+  transform:translate(-50%,-50%) scale(1);
+}
+@media (prefers-reduced-motion:reduce) {
+ .lvl-footer .footer-intro-trace {display:none!important;}
+ .lvl-footer .footer-laser-etch,.lvl-footer .footer-sonic-ink {animation:none!important;}
+}
 /* Electric Afterhours: bold but finite, contour-anchored high-voltage interaction. */
 .footer-electric-circuit {
   position:absolute!important;
