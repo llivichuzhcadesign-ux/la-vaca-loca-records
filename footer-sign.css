@@ -825,3 +825,22 @@ body .lvl-footer.illuminated-footer .footer-back-top {white-space:nowrap;}
  body .lvl-footer.illuminated-footer .footer-bottom {grid-row:2;gap:9px 14px;font-size:10px;}
  body .lvl-footer.illuminated-footer .footer-bottom .design-credit {flex-basis:100%;text-align:left;}
 }
+
+/* Keep the artwork's pointer surface unobstructed by the editorial columns.
+   Only actual links accept pointer input; whitespace passes through. */
+body .lvl-footer.illuminated-footer .footer-explore,
+body .lvl-footer.illuminated-footer .footer-connect,
+body .lvl-footer.illuminated-footer .footer-bottom {
+ pointer-events:none;
+}
+body .lvl-footer.illuminated-footer .footer-explore a,
+body .lvl-footer.illuminated-footer .footer-connect a,
+body .lvl-footer.illuminated-footer .footer-bottom a {
+ pointer-events:auto;
+}
+@media (pointer:coarse) {
+ body .lvl-footer.illuminated-footer .footer-touch-surface {
+  z-index:2;
+  height:79%;
+ }
+}
