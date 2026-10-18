@@ -660,10 +660,13 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
     gap:22px;
     padding:36px 22px 22px;
   }
-  .footer-laser-backdrop svg {
-    width:min(132vw,570px);
-    left:52%;
-    top:52%;
+  /* Keep the complete animated cow inside the iPhone viewport. */
+  .footer-laser-backdrop svg:not(.footer-electric-circuit) {
+    width:min(88vw,440px);
+    max-width:calc(100% - 24px);
+    height:auto;
+    left:50%;
+    top:42%;
   }
   .sonic-groove {left:52%;top:52%;width:min(112vw,475px);}
   .sonic-groove-inner {width:min(77vw,328px);}
