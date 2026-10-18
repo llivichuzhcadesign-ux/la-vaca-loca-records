@@ -16,13 +16,13 @@
   </nav>
   <div class="footer-connect" aria-label="Conectar con La Vaca Loca">
    <span class="footer-column-label">Conectar</span>
-   <a href="https://www.instagram.com/explore/search/keyword/?q=La%20Vaca%20Loca%20Records" target="_blank" rel="noopener noreferrer" aria-label="Buscar La Vaca Loca Records en Instagram">Instagram <span aria-hidden="true">↗</span></a>
-   <a href="https://www.youtube.com/results?search_query=La+Vaca+Loca+Records" target="_blank" rel="noopener noreferrer" aria-label="Buscar La Vaca Loca Records en YouTube">YouTube <span aria-hidden="true">↗</span></a>
-   <a href="https://open.spotify.com/search/La%20Vaca%20Loca%20Records" target="_blank" rel="noopener noreferrer" aria-label="Buscar La Vaca Loca Records en Spotify">Spotify <span aria-hidden="true">↗</span></a>
+   <a href="https://www.instagram.com/explore/search/keyword/?q=La%20Vaca%20Loca%20Records" target="_blank" rel="noopener noreferrer" aria-label="Buscar La Vaca Loca Records en Instagram">Instagram</a>
+   <a href="https://www.youtube.com/results?search_query=La+Vaca+Loca+Records" target="_blank" rel="noopener noreferrer" aria-label="Buscar La Vaca Loca Records en YouTube">YouTube</a>
+   <a href="https://open.spotify.com/search/La%20Vaca%20Loca%20Records" target="_blank" rel="noopener noreferrer" aria-label="Buscar La Vaca Loca Records en Spotify">Spotify</a>
   </div>
   <div class="footer-bottom">
    <span>© ${new Date().getFullYear()} La Vaca Loca Records</span>
-   <a class="footer-back-top" href="#top" aria-label="Volver arriba">Volver arriba ↑</a>
+   <a class="footer-back-top" href="#top" aria-label="Volver arriba">Volver arriba</a>
    <span class="design-credit"><a href="https://www.instagram.com/semiotice/" target="_blank" rel="noopener noreferrer">Website Design by Sebastian Llivichuzhca</a></span>
   </div>
  `;
