@@ -690,10 +690,10 @@
     startSound();
     if(!introStarted&&!introComplete){
      const rect=footer.getBoundingClientRect();
-     if(rect.top<window.innerHeight*.78)startFooterIntro();
+     if(rect.top<window.innerHeight*.78||entries.some(entry=>entry.intersectionRatio>=.25))startFooterIntro();
     }
    }
-  },{rootMargin:'80px 0px 80px 0px',threshold:0});
+  },{rootMargin:'80px 0px 80px 0px',threshold:[0,.25]});
   observer.observe(footer);
  }else {
   footer.classList.add('sign-visible');
