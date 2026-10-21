@@ -1,0 +1,84 @@
+/* Public-site design system: the landing page is the visual source of truth. */
+:root{--lvl-ink:#090907;--lvl-paper:#eee5d3;--lvl-muted:#b8ad9d;--lvl-pink:#ef9aab;--lvl-wine:#682d3b;--lvl-olive:#535b3c;--lvl-line:#eee5d325;--lvl-gutter:clamp(20px,6vw,96px)}
+body[data-page]{--ink:var(--lvl-ink);--paper:var(--lvl-paper);--pink:var(--lvl-pink);--muted:var(--lvl-muted);font-family:Arial,Helvetica,sans-serif;background:var(--lvl-ink);color:var(--lvl-paper)}
+body .site-header,body[data-page] .editorial-header{background:#090907f5;color:var(--lvl-paper);border-bottom:1px solid #eee5d31a;box-shadow:none;--header-line:var(--lvl-pink)}
+body[data-page] .editorial-header{position:sticky;top:0;z-index:1001}
+body[data-page] .editorial-header .brand img{filter:brightness(0) saturate(100%) invert(54%) sepia(76%) saturate(2371%) hue-rotate(300deg) brightness(102%) contrast(104%)}
+body .site-header .main-nav a,body[data-page] .editorial-header>nav a{color:var(--lvl-paper);font-family:Arial,Helvetica,sans-serif;letter-spacing:.015em;text-decoration:none}
+body[data-page] .editorial-header>nav a[aria-current],body[data-page] .editorial-header>nav a:hover{color:var(--lvl-paper)}
+body[data-page] :where(button,input,select){font-family:inherit}
+body[data-page] :where(a,button,input,summary):focus-visible{outline:2px solid var(--lvl-pink);outline-offset:4px}
+@media(hover:none){body .site-header .main-nav a::after,body[data-page] .editorial-header>nav a::after{display:none}}
+/* Editorial pages follow the same open, centered compositions as the homepage. */
+body[data-page] .page-intro{padding:clamp(36px,5vw,72px) var(--lvl-gutter) clamp(56px,7vw,100px);border:0;background:none;text-align:center}
+body[data-page] .back-link{display:block;width:max-content;margin:0 0 48px;font-size:11px;text-decoration:none;color:var(--muted)}
+body[data-page] .page-intro .eyebrow{font-size:10px;font-weight:500;letter-spacing:.16em}
+body[data-page] .page-intro h1{font-weight:400;font-size:clamp(54px,8vw,116px);line-height:.98;letter-spacing:-.065em;margin:24px auto;max-width:1000px;overflow-wrap:normal}
+body[data-page] .page-intro h1 em{font-family:Georgia,serif;font-weight:400}
+body[data-page] .intro-copy{font-size:clamp(15px,1.5vw,19px);line-height:1.65;margin:24px auto 0;max-width:580px;color:var(--muted)}
+body[data-page] .page-index{justify-content:center;gap:12px 28px;margin-top:36px}
+body[data-page] .page-index a{border:0;border-bottom:1px solid currentColor;padding:12px 0;font-size:11px;font-weight:500;min-height:44px;color:inherit}
+body[data-page] .editorial-content{max-width:1500px;margin:auto;padding:0 var(--lvl-gutter) 80px}
+body[data-page] .entry{grid-template-columns:64px minmax(0,1fr);gap:clamp(20px,4vw,64px);padding:clamp(36px,5vw,72px) 0;border-color:var(--lvl-line)}
+body[data-page] .entry-number{font-size:14px;letter-spacing:.04em;font-weight:400;color:var(--muted);padding-top:4px}
+body[data-page] .entry-meta{color:var(--muted);font-size:10px;letter-spacing:.1em;font-weight:500}
+body[data-page] .entry h2{font-size:clamp(32px,4.6vw,64px);line-height:1.05;letter-spacing:-.045em;font-weight:400}
+body[data-page] .entry p{font-size:15px;line-height:1.75}
+body[data-page] .entry details{padding:20px 0;border:0;border-top:1px solid var(--lvl-line)}
+body[data-page] .entry img{max-height:660px;margin-top:32px}
+body[data-page] .status{font-weight:500;letter-spacing:.04em;border-color:var(--lvl-line)}
+body[data-page="sessions"] #contenido{background:radial-gradient(ellipse at 15% 15%,#40232350,transparent 55%),var(--lvl-ink)}
+body[data-page="archivo"],body[data-page="eventos"]{background:var(--lvl-paper);color:#1e1b16;--muted:#74695c;--lvl-line:#1e1b1628}
+body[data-page="archivo"] .page-intro{background:transparent}
+body[data-page="archivo"] .page-index a,body[data-page="archivo"] .entry-links a{color:#1e1b16}
+/* Calendar keeps its illustrated artwork and gains the landing page's cream rhythm. */
+body[data-page="eventos"]{--cream:var(--lvl-paper);--red:var(--lvl-wine)}
+body[data-page="eventos"] .calendar-topline{max-width:1320px;margin:36px auto;color:#74695c;padding:0 var(--lvl-gutter);line-height:1.6}
+body[data-page="eventos"] .wall-calendar{max-width:1200px;width:calc(100% - var(--lvl-gutter)*2);box-shadow:none}
+body[data-page="eventos"] .calendar-paper{background:var(--lvl-paper);border-top:1px solid #1e1b1633;padding-top:40px}
+body[data-page="eventos"] .calendar-controls button{min-height:44px;min-width:44px}
+body[data-page="eventos"] .agenda-section{max-width:1200px;margin:80px auto;padding:0 var(--lvl-gutter);color:#1e1b16}
+body[data-page="eventos"] .agenda-section>div>p:last-child{color:#74695c}
+body[data-page="eventos"] .agenda-item{border-color:#1e1b1628}
+body[data-page="eventos"] .agenda-item>span:last-child{color:var(--lvl-wine)}
+body[data-page="eventos"] .archive-strip{max-width:1200px;margin:0 var(--lvl-gutter) 80px;border:0;border-top:1px solid #1e1b1628;padding:28px 0;color:#1e1b16}
+body[data-page="eventos"] #eventDialog{background:var(--lvl-paper);color:#1e1b16}
+/* Biblioteca belongs to the same dark room. Keep its functional sans-serif hierarchy. */
+body[data-page="discos"]{--accent:#c6cea7;--pink:var(--lvl-pink)}
+body[data-page="discos"] .listening-room{background:var(--lvl-ink)}
+body[data-page="discos"] .library-column{background:radial-gradient(ellipse at 65% 0%,#40232348,transparent 65%),var(--lvl-ink);color:var(--lvl-paper)}
+body[data-page="discos"] .biblioteca-sidebar{background:#10100e;border-color:#eee5d31a;color:var(--lvl-paper)}
+body[data-page="discos"] .library-mini-player{background:#171913;color:var(--lvl-paper);border-color:#eee5d325;box-shadow:0 -5px 24px #0003}
+body[data-page="discos"] .deck-area{background:radial-gradient(ellipse at 45% 38%,#682d3b66,transparent 64%),radial-gradient(ellipse at 85% 80%,#535b3c30,transparent 65%),#11110e;box-shadow:inset 0 0 70px #0004;border-color:#eee5d31a}
+body[data-page="discos"] .ios-player-sheet{background:radial-gradient(ellipse at 20% 10%,#682d3b50,transparent 60%),radial-gradient(ellipse at 90% 85%,#535b3c30,transparent 60%),#11110e;color:var(--lvl-paper);border-color:#eee5d325}
+body[data-page="discos"] .ios-player-sheet .deck-area{background:transparent;box-shadow:none}
+body[data-page="discos"] .library-nav-caption,body[data-page="discos"] .library-search-field label,body[data-page="discos"] .sleeve-detail,body[data-page="discos"] .record-facts dt{color:var(--lvl-muted)}
+body[data-page="discos"] .library-page-heading h1{color:var(--lvl-paper);font-size:clamp(30px,3vw,44px);font-weight:400;letter-spacing:-.045em}
+body[data-page="discos"].library-detail-open .library-page-heading h1{font-size:13px;letter-spacing:0}
+body[data-page="discos"] .library-section-heading h2,body[data-page="discos"] .record-shelf-heading h2{font-weight:500;color:var(--lvl-paper)}
+body[data-page="discos"] .library-search-field input{background:#eee5d308;border-color:#eee5d333;color:var(--lvl-paper)}
+body[data-page="discos"] .ios-liked-dialog{background:#11110e;color:var(--lvl-paper);border-color:#eee5d333}
+body[data-page="discos"] .ios-liked-row button{color:var(--lvl-pink)}
+@media(max-width:950px){body[data-page="discos"] .biblioteca-sidebar{background:transparent}body[data-page="discos"] .library-page-heading h1{font-size:30px}}
+@media(max-width:600px){
+ body[data-page] .page-intro{padding-top:28px;padding-bottom:44px}
+ body[data-page] .back-link{margin-bottom:36px}
+ body[data-page] .entry{grid-template-columns:1fr;gap:12px}
+ body[data-page] .editorial-content{padding-bottom:48px}
+ body[data-page="eventos"] .wall-calendar{width:calc(100% - 24px);margin-inline:12px}
+ body[data-page="eventos"] .calendar-topline{margin:24px auto}
+ body[data-page="eventos"] .agenda-section{margin:48px auto}
+}
+/* Non-Apple narrow screens get the same tidy header structure and menu. */
+@media(max-width:800px){
+ html:not(.ios-header) body[data-page] .editorial-header{display:grid;grid-template-columns:minmax(0,1fr) 44px 44px;gap:8px;height:68px;padding:10px 16px}
+ html:not(.ios-header) body[data-page] .editorial-header .brand{grid-column:1;grid-row:1;width:min(100%,180px)}
+ html:not(.ios-header) body[data-page] .editorial-header .brand img{max-height:44px}
+ html:not(.ios-header) body[data-page] .editorial-header>.header-bag{position:static;grid-column:3;grid-row:1;width:44px}
+ .public-menu-toggle{grid-column:2;grid-row:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;width:44px;height:44px;border:0;background:none;color:var(--lvl-paper)}
+ .public-menu-toggle span{width:19px;height:1.5px;background:currentColor}
+ html:not(.ios-header) body[data-page] .editorial-header>nav{display:none;position:absolute;top:68px;left:0;right:0;background:#090907;padding:16px 24px;flex-direction:column;gap:4px;border-bottom:1px solid #eee5d325}
+ html:not(.ios-header) body[data-page] .editorial-header.public-menu-open>nav{display:flex}
+ html:not(.ios-header) body[data-page] .editorial-header>nav a{display:flex;align-items:center;min-height:44px}
+}
+@media(min-width:801px){.public-menu-toggle{display:none}}
