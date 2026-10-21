@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin — La Vaca Loca Records</title>
-<link rel="stylesheet" href="admin.css?v=gallery-only-20260929">
+<link rel="stylesheet" href="admin.css?v=team-redesign-20261021">
 </head>
 <body>
 <header class="admin-header">
@@ -87,18 +87,36 @@
     </section>
 
 <section class="panel" id="team">
- <p class="eyebrow">Administration</p><h2>Administrators</h2>
- <p class="intro">Only owners can create accounts or manage permissions. New administrators sign in with the password you set here; share it privately and have them change it through the owner until self-service password changes are added.</p>
- <div id="teamList" class="editor-list">Loading accounts…</div>
- <h3>Add administrator</h3>
- <form id="teamCreate" style="display:grid;gap:12px;max-width:440px">
- <label>Email<input type="email" name="email" required autocomplete="off"></label>
- <label>Initial password (14+ characters)<input type="password" name="password" required minlength="14" autocomplete="new-password"></label>
- <label>Role<select name="role"><option value="editor">Editor</option><option value="admin">Administrator</option><option value="owner">Owner</option></select></label>
- <button class="admin-action" type="submit">Create account</button>
- </form><p id="teamStatus" role="status"></p>
- </section>
-     <section class="panel" id="export">
+  <p class="eyebrow">ADMINISTRATION</p>
+  <h2>Administrators</h2>
+  <p class="team-intro">Manage who can access La Vaca Loca Records. Owners manage accounts, administrators publish content and upload media, and editors prepare drafts.</p>
+  <div id="teamList" class="team-list" aria-live="polite">Loading accounts…</div>
+  <div class="team-create">
+    <p class="eyebrow">ACCESS MANAGEMENT</p>
+    <h3>Add administrator</h3>
+    <p class="team-hint">Create an account with a temporary password. Share credentials privately.</p>
+    <form id="teamCreate" class="team-form">
+      <div class="team-field"><label for="teamEmail">Email address</label><input id="teamEmail" type="email" name="email" required autocomplete="off"></div>
+      <div class="team-field"><label for="teamPassword">Initial password (14+ characters)</label><input id="teamPassword" type="password" name="password" minlength="14" required autocomplete="new-password"></div>
+      <div class="team-field"><label for="teamRole">Account role</label><select id="teamRole" name="role"><option value="editor">Editor</option><option value="admin">Administrator</option><option value="owner">Owner</option></select></div>
+      <button class="team-submit" type="submit">Create account</button>
+    </form>
+    <p id="teamStatus" class="team-status" role="status" aria-live="polite"></p>
+  </div>
+</section>
+<dialog id="teamResetDialog" class="team-dialog" aria-labelledby="teamResetTitle">
+  <form id="teamResetForm" class="team-reset-form">
+    <p class="eyebrow">ACCOUNT SECURITY</p>
+    <h3 id="teamResetTitle">Reset password</h3>
+    <p id="teamResetEmail" class="team-hint"></p>
+    <input type="hidden" name="id" id="teamResetId">
+    <div class="team-field"><label for="teamNewPassword">New password</label><input id="teamNewPassword" type="password" name="password" autocomplete="new-password" minlength="14" required></div>
+    <div class="team-field"><label for="teamConfirmPassword">Confirm new password</label><input id="teamConfirmPassword" type="password" autocomplete="new-password" minlength="14" required></div>
+    <p id="teamResetStatus" class="team-status" role="alert"></p>
+    <div class="team-dialog-actions"><button class="team-button" type="button" data-reset-cancel>Cancel</button><button class="team-submit" type="submit">Save new password</button></div>
+  </form>
+</dialog>
+<section class="panel" id="export">
       <p class="eyebrow">07 / Backup</p>
       <h2>Export content</h2>
       <p class="intro">Cloudflare is now the normal publishing path. This section remains as a portable backup of the content model in case you ever need to restore or migrate the site.</p>
@@ -138,6 +156,6 @@ document.addEventListener('click',function(event){
 <script src="../calendar-content.js"></script>
 <script src="admin.js?v=gallery-only-20260929"></script>
 <script src="gallery.js?v=gallery-only-20260929"></script>
-<script src="audio-upload.js"></script><script src="team.js"></script>
+<script src="audio-upload.js"></script><script src="team.js?v=team-redesign-20261021"></script>
 </body>
 </html>
