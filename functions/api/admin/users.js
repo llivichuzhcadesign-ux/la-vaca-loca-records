@@ -1,4 +1,4 @@
-import {json,currentSession,sameOrigin,passwordHash} from '../../../_lib/auth.js';
+import {json,currentSession,sameOrigin,passwordHash} from '../../_lib/auth.js';
 const roles=new Set(['owner','admin','editor']);
 async function owner(context){const s=await currentSession(context);return s?.role==='owner'&&s.active?null:json({ok:false,error:'Owner access required.'},403)}
 export async function onRequestGet(context){
