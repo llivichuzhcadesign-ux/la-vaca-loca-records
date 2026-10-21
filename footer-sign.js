@@ -108,12 +108,12 @@
  };
  // Map the cursor to the nearest real point on the cow's vector contour.
  // Cache path samples so each discharge is cheap, even on touch screens.
- let contourSamples=null,lastDischargeAt=-Infinity,lastBurstAt=-Infinity,lastArcPoint=null;
+ let contourSamples=null,contourLength=0,lastDischargeAt=-Infinity,lastBurstAt=-Infinity,lastArcPoint=null;
  function nearestContour(point){
   if(!cowContour||typeof cowContour.getTotalLength!=='function')return null;
   try{
    if(!contourSamples){
-    const length=cowContour.getTotalLength();
+    const length=contourLength=cowContour.getTotalLength();
     contourSamples=Array.from({length:180},(_,i)=>{
      const at=length*i/179;
      const sample=cowContour.getPointAtLength(at);
@@ -133,7 +133,7 @@
    if(!best)return null;
    const at=etched.createSVGPoint();at.x=best.x;at.y=best.y;
    const screen=at.matrixTransform(matrix),box=backdrop.getBoundingClientRect();
-   const total=cowContour.getTotalLength();
+   const total=contourLength;
    // Illuminate a short, genuine segment of the original silhouette.
    const localScale=Math.max(.01,Math.hypot(matrix.a,matrix.b));
    const start=Math.max(0,best.at-58/localScale);
@@ -182,7 +182,7 @@
   if(!fireworksContext)return;
   const rect=backdrop.getBoundingClientRect();
   if(!rect.width||!rect.height)return;
-  particleBudget=rect.width<=720?210:260;
+  particleBudget=rect.width<=720?140:190;
   const scale=Math.min(window.devicePixelRatio||1,1.25);
   const w=Math.round(rect.width*scale),h=Math.round(rect.height*scale);
   if(fireworkCanvas.width!==w||fireworkCanvas.height!==h){
@@ -211,6 +211,20 @@
   fountain:['255,244,216','253,178,178','236,134,183'],
   palm:['255,226,174','255,197,121','255,234,213']
  };
+ // Cache the soft light once per palette color instead of blurring each frame.
+ const particleGlows=new Map();
+ function particleGlow(color){
+  if(particleGlows.has(color))return particleGlows.get(color);
+  const tile=document.createElement('canvas');tile.width=32;tile.height=32;
+  const ctx=tile.getContext('2d');
+  if(!ctx){particleGlows.set(color,null);return null;}
+  const light=ctx.createRadialGradient(16,16,0,16,16,16);
+  light.addColorStop(0,'rgba('+color+',.8)');
+  light.addColorStop(.25,'rgba('+color+',.3)');
+  light.addColorStop(1,'rgba('+color+',0)');
+  ctx.fillStyle=light;ctx.fillRect(0,0,32,32);
+  particleGlows.set(color,tile);return tile;
+ }
  function flashParticle(x,y,size=24){
   fireworkParticle(x,y,0,0,{life:12,drag:1,gravity:0,radius:size,
    color:'255,245,215',trail:0});
@@ -257,12 +271,12 @@
  function drawFireworks(time){
   fireworkFrame=0;
   if(!fireworksContext||document.hidden||motion.matches||!isVisible){stopFireworks();return;}
-  // Limit the expensive particle renderer to ~30 fps on desktop.
-  if(particleBudget>210&&fireworkFrameAt&&time-fireworkFrameAt<30){
+  // One consistent 60 Hz ceiling, including high-refresh screens.
+  if(fireworkFrameAt&&time-fireworkFrameAt<15){
    fireworkFrame=requestAnimationFrame(drawFireworks);return;
   }
   if(!particles.length){fireworksContext.clearRect(0,0,fireworkCanvas.width,fireworkCanvas.height);return;}
-  const dt=Math.min(2.2,Math.max(.55,(time-(fireworkFrameAt||time-16.67))/16.67));
+  const dt=Math.min(2.2,Math.max(0,(time-(fireworkFrameAt||time-16.67))/16.67));
   fireworkFrameAt=time;
   const ctx=fireworksContext;
   ctx.clearRect(0,0,fireworkCanvas.width,fireworkCanvas.height);
@@ -286,8 +300,14 @@
    const alpha=Math.min(1,remaining*1.36)*twinkle;
    ctx.strokeStyle='rgba('+p.color+','+(alpha*.6).toFixed(3)+')';
    ctx.fillStyle='rgba('+p.color+','+alpha.toFixed(3)+')';
-   ctx.shadowColor='rgba('+p.color+','+(alpha*.45).toFixed(3)+')';
-   ctx.shadowBlur=particleBudget>210?2:5;
+   // Reuse a tiny pre-rendered glow; no per-particle blur during animation.
+   const glow=particleGlow(p.color);
+   if(glow){
+    const size=Math.max(4,p.radius*remaining*5);
+    ctx.globalAlpha=alpha*.55;
+    ctx.drawImage(glow,p.x-size,p.y-size,size*2,size*2);
+    ctx.globalAlpha=1;
+   }
    if(p.points.length>1){
     ctx.lineWidth=p.radius*.95;
     ctx.beginPath();
@@ -355,17 +375,18 @@
   if(motion.matches||!isVisible||document.hidden)return;
   // Keep both cow-side and cursor-side smoke on mobile, with fewer blur layers.
   const mobile=footer.getBoundingClientRect().width<=720;
+  if(backdrop.querySelectorAll('.footer-fog-cloud').length>=4)return;
   const cloud=document.createElement('div');
   cloud.className='footer-fog-cloud '+(kind==='cow'?'footer-fog-source':'footer-fog-cursor');
   cloud.style.left=point.x+'%';
   cloud.style.top=point.y+'%';
   cloud.setAttribute('aria-hidden','true');
-  for(const cls of ['footer-haze-beam','footer-haze-bloom']){
+  for(const cls of ['footer-haze-bloom']){
    const layer=document.createElement('span');
    layer.className=cls;
    cloud.appendChild(layer);
   }
-  for(let i=0;i<(kind==='cow'?(mobile?3:5):(mobile?1:3));i++){
+  for(let i=0;i<(kind==='cow'?(mobile?2:3):1);i++){
    const wisp=document.createElement('i');
    // Uneven translucent lobes with variable turbulence; no seamless particle loop.
    const driftX=random(-122,122)+(i%2?33:-33);
@@ -484,8 +505,8 @@
  function activate(point,allowAnotherCloud,includeFireworks=true){
   if(!introComplete||!point||!point.inside||motion.matches||!isVisible)return;
   const targetX=point.x.toFixed(2)+'%',targetY=point.y.toFixed(2)+'%';
-  backdrop.style.setProperty('--hover-x',targetX);
-  backdrop.style.setProperty('--hover-y',targetY);
+  halo.style.left=targetX;
+  halo.style.top=targetY;
   if(!energized){
    energized=true;
    emitDischarge(point,true,includeFireworks);
@@ -495,7 +516,7 @@
   if((event.pointerType==='mouse'||event.pointerType==='pen')&&!event.target.closest('a'))activate(pointFromEvent(event),false);
  },{passive:true});
  let draggingTouchId=null,touchStart=null,touchMoved=false;
- footer.addEventListener('pointermove',event=>{
+ function handlePointerMove(event){
   const touchDrag=event.pointerType==='touch'&&draggingTouchId===event.pointerId;
   if(!touchDrag&&event.pointerType!=='mouse'&&event.pointerType!=='pen')return;
   if(!touchDrag&&event.target.closest('a')){deactivate();return;}
@@ -506,8 +527,20 @@
    if(point?.inside)activate(point,true);
   }else if(!point||!point.inside)deactivate();
   else activate(point,true);
+ }
+ let pointerFrame=0,pendingPointer=null;
+ footer.addEventListener('pointermove',event=>{
+  pendingPointer={pointerType:event.pointerType,pointerId:event.pointerId,
+   clientX:event.clientX,clientY:event.clientY,target:event.target};
+  if(!pointerFrame)pointerFrame=requestAnimationFrame(()=>{
+   pointerFrame=0;
+   const point=pendingPointer;pendingPointer=null;
+   if(point)handlePointerMove(point);
+  });
  },{passive:true});
- footer.addEventListener('pointerleave',event=>{if(event.pointerType!=='touch')deactivate();});
+ footer.addEventListener('pointerleave',event=>{
+  if(event.pointerType!=='touch'){pendingPointer=null;deactivate();}
+ });
  footer.addEventListener('pointerdown',event=>{
   if(event.target.closest('a')||!event.isPrimary)return;
   const point=pointFromEvent(event);
@@ -676,11 +709,15 @@
   },true);
  }
  document.addEventListener('visibilitychange',()=>{
-  if(document.hidden){stopSound();stopFireworks();}
+  footer.classList.toggle('footer-motion-paused',document.hidden);
+  if(document.hidden){stopSound();clearSparks();}
   else startSound();
  });
  const clearSparks=()=>{
   stopFireworks();
+  if(pointerFrame){cancelAnimationFrame(pointerFrame);pointerFrame=0;}
+  pendingPointer=null;
+  backdrop.querySelectorAll('.footer-fog-cloud').forEach(cloud=>cloud.remove());
   clearTimeout(glowOff);
   footer.classList.remove('is-striking');
   electric.replaceChildren();
@@ -713,3 +750,4 @@
   if(!introComplete)startFooterIntro();
  }
 })();
+
