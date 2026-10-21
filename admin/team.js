@@ -1,19 +1,65 @@
 (()=>{
- const nav=document.getElementById('teamNav'),list=document.getElementById('teamList'),form=document.getElementById('teamCreate'),status=document.getElementById('teamStatus');
+ const nav=document.getElementById('teamNav'),list=document.getElementById('teamList'),create=document.getElementById('teamCreate'),status=document.getElementById('teamStatus');
+ const dialog=document.getElementById('teamResetDialog'),resetForm=document.getElementById('teamResetForm'),resetStatus=document.getElementById('teamResetStatus');
+ if(!nav||!list||!create||!dialog)return;
  const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- let role='';
- const api=async(method='GET',body)=>{const r=await fetch('../api/admin/users',{method,headers:body?{'content-type':'application/json'}:{},body:body?JSON.stringify(body):undefined});const d=await r.json();if(!r.ok)throw Error(d.error||'Request failed');return d};
- async function load(){try{const d=await api();list.innerHTML=d.users.map(u=>`<div class="publish-card" style="margin-bottom:12px"><strong>${escape(u.email)}</strong><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px"><select data-role="${escape(u.id)}"><option value="editor" ${u.role==='editor'?'selected':''}>Editor</option><option value="admin" ${u.role==='admin'?'selected':''}>Administrator</option><option value="owner" ${u.role==='owner'?'selected':''}>Owner</option></select><button type="button" class="admin-action secondary" data-toggle="${escape(u.id)}" data-active="${u.active?1:0}">${u.active?'Deactivate':'Reactivate'}</button><button class="admin-action secondary" type="button" data-reset="${escape(u.id)}">Reset password</button><small>${u.active?'Active':'Deactivated'}</small></div></div>`).join('')||'No accounts';}catch(e){status.textContent=e.message}}
- async function change(payload,method='PATCH'){try{status.textContent='Saving…';await api(method,payload);status.textContent='Changes saved';await load()}catch(e){status.textContent=e.message;await load()}}
- document.addEventListener('change',e=>{const x=e.target.closest('[data-role]');if(x)change({id:x.dataset.role,role:x.value})});
- document.addEventListener('click',e=>{const t=e.target.closest('[data-toggle]');if(t){change({id:t.dataset.toggle,active:t.dataset.active!=='1'});return}const reset=e.target.closest('[data-reset]');if(reset){const password=prompt('New password (minimum 14 characters):');if(password!==null)change({id:reset.dataset.reset,password},'DELETE')}});
- form.addEventListener('submit',async e=>{e.preventDefault();const b=Object.fromEntries(new FormData(form));try{status.textContent='Creating account…';await api('POST',b);form.reset();status.textContent='Account created';await load()}catch(ex){status.textContent=ex.message}});
- fetch('../api/auth/me',{cache:'no-store'}).then(r=>r.json()).then(d=>{
-  if(!d.ok)return;role=d.role;
-  if(role==='owner'){nav.hidden=false;load()}
-  if(role==='editor'){
+ const message=(el,text,isError=false)=>{el.textContent=text;el.classList.toggle('error',isError)};
+ const api=async(method='GET',body)=>{
+  const r=await fetch('../api/admin/users',{method,headers:body?{'content-type':'application/json'}:{},body:body?JSON.stringify(body):undefined,cache:'no-store'});
+  const type=r.headers.get('content-type')||'';
+  if(!type.includes('application/json'))throw Error('The admin service is unavailable. Check the Cloudflare deployment.');
+  const data=await r.json();if(!r.ok)throw Error(data.error||'Request failed');return data;
+ };
+ const option=(name,current)=>`<option value="${name}" ${current===name?'selected':''}>${name==='admin'?'Administrator':name[0].toUpperCase()+name.slice(1)}</option>`;
+ async function load(){
+  try{
+   const {users}=await api();
+   list.innerHTML=users.map(user=>`<article class="team-card">
+    <div class="team-card-top"><h3 class="team-email">${escape(user.email)}</h3>
+     <div class="team-meta"><span class="team-badge">${escape(user.role)}</span><span class="team-badge ${user.active?'active':'inactive'}">${user.active?'Active':'Inactive'}</span></div></div>
+    <div class="team-card-controls"><div class="team-field"><label for="team-role-${escape(user.id)}">Account role</label>
+     <select id="team-role-${escape(user.id)}" data-role="${escape(user.id)}">${option('owner',user.role)}${option('admin',user.role)}${option('editor',user.role)}</select></div>
+    <div class="team-actions"><button type="button" class="team-button" data-reset="${escape(user.id)}" data-email="${escape(user.email)}">Reset password</button>
+     <button type="button" class="team-button ${user.active?'danger':''}" data-toggle="${escape(user.id)}" data-active="${user.active?1:0}">${user.active?'Deactivate':'Reactivate'}</button></div></div></article>`).join('')||'<p class="team-hint">No accounts found.</p>';
+  }catch(error){message(status,error.message,true)}
+ }
+ async function update(payload,method='PATCH'){
+  message(status,'Saving changes…');
+  try{await api(method,payload);message(status,'Changes saved.');await load();return true}
+  catch(error){message(status,error.message,true);await load();return false}
+ }
+ document.addEventListener('change',e=>{const select=e.target.closest('[data-role]');if(select)update({id:select.dataset.role,role:select.value})});
+ document.addEventListener('click',e=>{
+  const toggle=e.target.closest('[data-toggle]');
+  if(toggle){update({id:toggle.dataset.toggle,active:toggle.dataset.active!=='1'});return}
+  const reset=e.target.closest('[data-reset]');
+  if(reset){resetForm.reset();resetStatus.textContent='';document.getElementById('teamResetId').value=reset.dataset.reset;document.getElementById('teamResetEmail').textContent=reset.dataset.email;dialog.showModal();document.getElementById('teamNewPassword').focus()}
+  if(e.target.closest('[data-reset-cancel]'))dialog.close();
+ });
+ resetForm.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const password=document.getElementById('teamNewPassword').value,confirm=document.getElementById('teamConfirmPassword').value;
+  if(password!==confirm){message(resetStatus,'Passwords do not match.',true);return}
+  if(password.length<14){message(resetStatus,'Use a password of at least 14 characters.',true);return}
+  const button=resetForm.querySelector('[type="submit"]');button.disabled=true;
+  try{
+   await api('DELETE',{id:document.getElementById('teamResetId').value,password});
+   dialog.close();resetForm.reset();message(status,'Password changed. Existing sessions for this account were revoked.');await load();
+  }catch(error){message(resetStatus,error.message,true)}
+  finally{button.disabled=false}
+ });
+ create.addEventListener('submit',async e=>{
+  e.preventDefault();const button=create.querySelector('[type="submit"]');button.disabled=true;
+  try{message(status,'Creating account…');await api('POST',Object.fromEntries(new FormData(create)));create.reset();message(status,'Account created successfully.');await load()}
+  catch(error){message(status,error.message,true)}
+  finally{button.disabled=false}
+ });
+ fetch('../api/auth/me',{cache:'no-store'}).then(r=>r.json()).then(user=>{
+  if(!user.ok)return;
+  if(user.role==='owner'){nav.hidden=false;load()}
+  if(user.role==='editor'){
    document.querySelectorAll('[data-cloud-publish]').forEach(b=>{b.disabled=true;b.title='Editors cannot publish'});
-   document.querySelectorAll('#galleryUpload, input[type="file"]').forEach(b=>{b.disabled=true;b.title='Editors cannot upload media'});
+   document.querySelectorAll('#galleryUpload,input[type="file"]').forEach(b=>{b.disabled=true;b.title='Editors cannot upload media'});
   }
  }).catch(()=>{});
 })();
