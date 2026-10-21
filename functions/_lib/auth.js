@@ -7,7 +7,7 @@ export const hex=bytes=>Array.from(new Uint8Array(bytes),b=>b.toString(16).padSt
 export async function digest(value){return hex(await crypto.subtle.digest('SHA-256',encoder.encode(value)))}
 export async function passwordHash(password,salt){
  const key=await crypto.subtle.importKey('raw',encoder.encode(password),'PBKDF2',false,['deriveBits']);
- return hex(await crypto.subtle.deriveBits({name:'PBKDF2',salt:encoder.encode(salt),iterations:210000,hash:'SHA-256'},key,256));
+ return hex(await crypto.subtle.deriveBits({name:'PBKDF2',salt:encoder.encode(salt),iterations:100000,hash:'SHA-256'},key,256));
 }
 export function cookie(token,maxAge){return `${COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`}
 export function getToken(request){const match=(request.headers.get('cookie')||'').match(/(?:^|;\s*)lvl_admin_session=([^;]+)/);return match?.[1]||''}
