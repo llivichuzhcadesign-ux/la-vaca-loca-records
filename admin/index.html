@@ -26,7 +26,7 @@
     <button class="nav-item" data-panel="events">Events</button>
     <button class="nav-item" data-panel="archive">Archive</button>
     <button class="nav-item" data-panel="gallery">Gallery</button>
-    <button class="nav-item" data-panel="settings">Settings</button>
+    <button class="nav-item" data-panel="settings">Settings</button><button class="nav-item" data-panel="team" id="teamNav" hidden>Administrators</button>
     <button class="nav-item" data-panel="export">Export</button>
   </aside>
 
@@ -86,7 +86,19 @@
       <div class="form-card" id="settingsForm"></div>
     </section>
 
-    <section class="panel" id="export">
+<section class="panel" id="team">
+ <p class="eyebrow">Administration</p><h2>Administrators</h2>
+ <p class="intro">Only owners can create accounts or manage permissions. New administrators sign in with the password you set here; share it privately and have them change it through the owner until self-service password changes are added.</p>
+ <div id="teamList" class="editor-list">Loading accounts…</div>
+ <h3>Add administrator</h3>
+ <form id="teamCreate" style="display:grid;gap:12px;max-width:440px">
+ <label>Email<input type="email" name="email" required autocomplete="off"></label>
+ <label>Initial password (14+ characters)<input type="password" name="password" required minlength="14" autocomplete="new-password"></label>
+ <label>Role<select name="role"><option value="editor">Editor</option><option value="admin">Administrator</option><option value="owner">Owner</option></select></label>
+ <button class="admin-action" type="submit">Create account</button>
+ </form><p id="teamStatus" role="status"></p>
+ </section>
+     <section class="panel" id="export">
       <p class="eyebrow">07 / Backup</p>
       <h2>Export content</h2>
       <p class="intro">Cloudflare is now the normal publishing path. This section remains as a portable backup of the content model in case you ever need to restore or migrate the site.</p>
@@ -126,6 +138,6 @@ document.addEventListener('click',function(event){
 <script src="../calendar-content.js"></script>
 <script src="admin.js?v=gallery-only-20260929"></script>
 <script src="gallery.js?v=gallery-only-20260929"></script>
-<script src="audio-upload.js"></script>
+<script src="audio-upload.js"></script><script src="team.js"></script>
 </body>
 </html>
