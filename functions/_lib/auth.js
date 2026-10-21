@@ -15,8 +15,8 @@ export function sameOrigin(request){const origin=request.headers.get('Origin');r
 export async function currentSession(context){
  const token=getToken(context.request);if(!/^[a-f0-9]{64}$/.test(token)||!context.env.DB)return null;
  const tokenHash=await digest(token);
- const row=await context.env.DB.prepare('SELECT s.id,s.user_id,u.email FROM admin_sessions s JOIN admin_users u ON s.user_id=u.id WHERE s.token_hash=? AND s.expires_at>?').bind(tokenHash,Date.now()).first();
- return row||null;
+ const row=await context.env.DB.prepare('SELECT s.id,s.user_id,u.email,u.role,u.active FROM admin_sessions s JOIN admin_users u ON s.user_id=u.id WHERE s.token_hash=? AND s.expires_at>?').bind(tokenHash,Date.now()).first();
+ return row?.active?row:null;
 }
 export async function requireSession(context){
  if(!context.env.DB)return json({ok:false,error:'Admin database is not configured.'},503);
