@@ -5,7 +5,7 @@ const MEDIA_DB_NAME='lvl-admin-media-v1';
 const MEDIA_STORE='files';
 
 const heroPreviewUrls=new Map();
-let cloudState={available:false,mediaBinding:false,publishedContent:false,publishedAt:null,authenticated:false};
+let cloudState={available:false,mediaBinding:false,publishedContent:false,publishedAt:null,authenticated:false,role:''};
 let liveSnapshot=null;
 let publishBusy=false;
 let publishError=false;
@@ -69,7 +69,8 @@ async function checkCloudStatus(){
   const [status,me]=await Promise.all([fetch('../api/status',{cache:'no-store'}),fetch('../api/auth/me',{cache:'no-store'})]);
   if(!status.ok)throw Error('status unavailable');
   const data=await status.json();
-  cloudState={...cloudState,available:!!data.cloudflare,mediaBinding:!!data.mediaBinding,publishedContent:!!data.publishedContent,authenticated:me.ok};
+  const user=me.ok?await me.json():null;
+  cloudState={...cloudState,available:!!data.cloudflare,mediaBinding:!!data.mediaBinding,publishedContent:!!data.publishedContent,authenticated:me.ok,role:user?.role||''};
   if(!me.ok){location.replace('login.html');return}
   if(cloudState.mediaBinding){
    const live=await fetch('../api/admin/content',{cache:'no-store'});
@@ -93,6 +94,7 @@ async function uploadOriginalToCloudflare(file,scope='site'){
 async function publishCloudContent(){
  if(publishBusy)return;
  if(!cloudState.authenticated||!cloudState.mediaBinding){showToast('Cloudflare is not connected. Check your session and R2 binding.');return}
+ if(cloudState.role==='editor'){showToast('Editors cannot publish live content.');return}
  syncMediaAliases();
  const payload=publishableDraft();
  const snapshot=contentSnapshot(payload);
@@ -260,11 +262,11 @@ function updatePublishStatus(){
  if(status){status.textContent=draftLabel;status.title=lastSavedAt?'Last saved locally: '+lastSavedAt:'This browser has no saved draft';status.classList.toggle('dirty',dirty)}
  if(liveBadge){liveBadge.textContent=siteLabel;liveBadge.classList.toggle('is-live',live);liveBadge.classList.toggle('not-live',!live);liveBadge.setAttribute('aria-label','Website publication: '+siteLabel)}
  if(button){
-  button.disabled=publishBusy||!connected||inSync;
+  button.disabled=publishBusy||!connected||inSync||cloudState.role==='editor';
   button.classList.toggle('is-live',inSync);
   button.classList.toggle('is-publishing',publishBusy);
   button.textContent=publishBusy?'PUBLISHING…':inSync?'LIVE':publishError?'RETRY PUBLISH':live?'PUBLISH CHANGES':'PUBLISH LIVE';
-  button.title=inSync?'Current draft matches the live website':!connected?'Cloudflare connection required':dirty?'Unsaved edits will be published; save your draft first to retain them locally':'Publish this draft to the live website';
+  button.title=inSync?'Current draft matches the live website':cloudState.role==='editor'?'Only owners and administrators may publish':!connected?'Cloudflare connection required':dirty?'Unsaved edits will be published; save your draft first to retain them locally':'Publish this draft to the live website';
  }
  if(summary){
   const current=publishBusy?'Publishing…':live?'LIVE':'Not published';
