@@ -38,3 +38,16 @@ export async function onRequestPost(context){
     headers:{'cache-control':'no-store'}
   });
 }
+
+export async function onRequestGet(context){
+  if(!context.env.MEDIA)return Response.json({ok:false,error:'R2 binding MEDIA is not configured.'},{status:503,headers:{'cache-control':'no-store'}});
+  try{
+    const object=await context.env.MEDIA.get('__content/site.json');
+    if(!object)return Response.json({ok:true,content:null,publishedAt:null},{headers:{'cache-control':'no-store'}});
+    const content=JSON.parse(await object.text());
+    return Response.json({ok:true,content,publishedAt:object.customMetadata?.publishedAt||null},{headers:{'cache-control':'no-store'}});
+  }catch(error){
+    console.error('Failed reading current live content',error?.name||'Error');
+    return Response.json({ok:false,error:'Unable to read the currently published content.'},{status:503,headers:{'cache-control':'no-store'}});
+  }
+}
