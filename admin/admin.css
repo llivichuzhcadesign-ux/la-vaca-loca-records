@@ -41,3 +41,43 @@
 .team-dialog-actions{display:flex;gap:10px;margin-top:10px}
 .team-dialog-actions>*{flex:1}
 @media(max-width:760px){.team-form{grid-template-columns:1fr}.team-card{padding:18px}.team-card-controls,.team-actions{align-items:stretch;flex-direction:column;width:100%}.team-card-controls .team-field{flex:auto;width:100%}.team-actions>*{width:100%}.team-meta{margin-left:0}.team-dialog{padding:20px}}
+
+
+/* Publication states and interface clarity */
+[hidden]{display:none!important}
+.status-pill.live-status{white-space:nowrap;letter-spacing:.05em;transition:background .2s,border-color .2s}
+.status-pill.live-status.is-live{background:#c7f0ce;border-color:#c7f0ce;color:#0b2915}
+.status-pill.live-status.not-live{background:#201e1b;border-color:#51483c;color:#c4b9a8}
+#publishButton{white-space:nowrap;transition:background .2s,color .2s,border-color .2s}
+#publishButton.is-live,#publishButton.is-live:disabled{background:#c7f0ce;border:1px solid #c7f0ce;color:#0b2915;opacity:1;cursor:default}
+#publishButton.is-publishing{background:#9a8c7e;color:#111}
+#publishButton:disabled:not(.is-live){opacity:.6;cursor:not-allowed}
+.publish-bar .text-live{color:#bcecc3}
+.dashboard-note{border-left:2px solid #857b6b;padding:10px 14px;color:var(--muted);font-size:13px;line-height:1.55;max-width:850px}
+.dashboard-note strong{color:var(--paper)}
+.connection-details,.export-advanced{max-width:860px;border:1px solid var(--line);background:var(--panel);padding:16px 18px;margin:18px 0;color:var(--muted)}
+.connection-details summary,.export-advanced summary{font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:800;color:var(--paper);cursor:pointer}
+.connection-details p,.export-advanced p{font-size:13px;line-height:1.6;margin:14px 0 0}
+.export-advanced #jsonOutput{margin-top:15px;min-height:300px;display:block}
+.export-danger{border-color:rgba(240,130,130,.23)}
+.export-danger .admin-action{margin-top:15px}
+.admin-header{gap:18px}
+.admin-header-actions{min-width:0}
+.admin-header-actions .status-pill{white-space:nowrap}
+.admin-header-actions .admin-action{white-space:nowrap}
+.admin-action:focus-visible,.nav-item:focus-visible,.status-pill:focus-visible{outline:2px solid var(--pink);outline-offset:3px}
+@media(max-width:1100px){
+ .admin-header{height:auto;min-height:68px;flex-wrap:wrap;padding-top:12px;padding-bottom:12px}
+ .admin-header-actions{flex-wrap:wrap;justify-content:flex-start}
+ .admin-shell{min-height:calc(100vh - 68px)}
+ .admin-sidebar{position:static;height:auto}
+}
+@media(max-width:700px){
+ .admin-header-actions{width:100%;gap:8px}
+ .admin-header-actions .admin-action{flex:0 0 auto}
+ .admin-header-actions #publishButton{order:1}
+ .admin-header-actions [data-save-draft]{order:2}
+ .admin-header-actions a[href*="preview=admin-draft"]{order:3}
+ .admin-header-actions #adminLogout{order:4}
+ .admin-header-actions .status-pill{font-size:9px}
+}
