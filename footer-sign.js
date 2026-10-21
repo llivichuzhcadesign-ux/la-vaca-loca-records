@@ -233,7 +233,8 @@
   if(!fireworksContext||motion.matches||!isVisible||document.hidden)return false;
   sizeFireworkCanvas();
   const mobile=footer.getBoundingClientRect().width<=720;
-  const scale=(mobile?.73:1)*strength;
+  // Expand travel distance, keeping the same bounded number of particles.
+  const scale=(mobile?1.22:1.85)*strength;
   const budget=mobile?.65:1;
   const choose=(i)=>palette[type][i%palette[type].length];
   let count=0;
@@ -365,7 +366,7 @@
   const rect=backdrop.getBoundingClientRect();
   if(!rect.width||!rect.height)return;
   const x=rect.width*point.x/100,y=rect.height*point.y/100;
-  const strength=kind==='cow'?1:.53;
+  const strength=kind==='cow'?1:.72;
   if(!fireworksContext){legacyFirework(point,kind,heading);return;}
   launchParticles(x,y,type,strength,heading*Math.PI/180);
  }

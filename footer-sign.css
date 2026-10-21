@@ -862,3 +862,15 @@ body .lvl-footer.illuminated-footer .footer-bottom a {
 .footer-sonic-ink path {filter:none;}
 .lvl-footer:not(.sign-visible) .footer-laser-backdrop *,
 .lvl-footer.footer-motion-paused .footer-laser-backdrop * {animation-play-state:paused!important;}
+
+/* Fit the complete original viewBox, including horns and bottom lettering. */
+.footer-laser-backdrop svg:not(.footer-electric-circuit) {
+ left:50%;top:calc(50% - 28px);bottom:auto;
+ width:calc(100% - 48px);height:calc(100% - 112px);
+}
+@media(max-width:720px) {
+ .footer-laser-backdrop svg:not(.footer-electric-circuit) {
+  left:50%;top:auto;bottom:90px;
+  width:calc(100% - 24px);height:calc(100% - 122px);
+ }
+}
