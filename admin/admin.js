@@ -5,7 +5,17 @@ const MEDIA_DB_NAME='lvl-admin-media-v1';
 const MEDIA_STORE='files';
 
 const heroPreviewUrls=new Map();
-let cloudState={available:false,mediaBinding:false,adminSecret:false,publishedContent:false,authenticated:false};
+let cloudState={available:false,mediaBinding:false,publishedContent:false,publishedAt:null,authenticated:false};
+let liveSnapshot=null;
+let publishBusy=false;
+let publishError=false;
+let editRevision=0;
+function canonical(value){
+ if(Array.isArray(value))return value.map(canonical);
+ if(value&&typeof value==='object')return Object.fromEntries(Object.keys(value).sort().map(key=>[key,canonical(value[key])]));
+ return value;
+}
+function contentSnapshot(content){return JSON.stringify(canonical(content))}
 function calendarDefaults(){draft.settings=draft.settings||{};const c=CalendarContent.artwork(original.settings);draft.settings.calendar={image:c.image,imageAlt:c.alt,showTitle:c.showTitle,...(draft.settings.calendar||{})};}
 function homepageDefaults(){
   draft.homepage=draft.homepage||{};
@@ -38,7 +48,7 @@ function byId(id){return document.getElementById(id)}
 function escapeText(value=''){return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]))}
 function getValue(path){return path.split('.').reduce((obj,key)=>obj&&obj[key],draft)}
 function setValue(path,value){const parts=path.split('.');let target=draft;while(parts.length>1){const key=parts.shift();target[key]=target[key]||{};target=target[key]}target[parts[0]]=value;markDirty()}
-function markDirty(){dirty=true;updatePublishStatus()}
+function markDirty(){dirty=true;editRevision++;publishError=false;updatePublishStatus()}
 function showToast(message){const toast=byId('adminToast');if(!toast)return;toast.textContent=message;toast.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.classList.remove('show'),1800)}
 function cloudAdminKey(){return cloudState.authenticated?'session':''}
 function cloudScope(path='site'){const root=String(path).split('.')[0]||'site';if(root==='homepage')return'hero';if(root==='records')return'records';if(root==='sessions')return'sessions';if(root==='events')return'events';if(root==='archiveItems')return'archive';return'site'}
@@ -52,15 +62,25 @@ function updateCloudUi(){
  else{label='Login required';message='Your session has expired. Sign in again.'}
  if(pill){pill.textContent=label;pill.classList.toggle('cloud-ok',cloudState.authenticated)}
  if(hint)hint.textContent=message;
+ updatePublishStatus();
 }
 async function checkCloudStatus(){
  try{
   const [status,me]=await Promise.all([fetch('../api/status',{cache:'no-store'}),fetch('../api/auth/me',{cache:'no-store'})]);
-  if(!status.ok)throw Error('Cloudflare unavailable');
+  if(!status.ok)throw Error('status unavailable');
   const data=await status.json();
   cloudState={...cloudState,available:!!data.cloudflare,mediaBinding:!!data.mediaBinding,publishedContent:!!data.publishedContent,authenticated:me.ok};
   if(!me.ok){location.replace('login.html');return}
- }catch{cloudState={...cloudState,available:false,authenticated:false}}
+  if(cloudState.mediaBinding){
+   const live=await fetch('../api/admin/content',{cache:'no-store'});
+   if(live.ok){
+    const result=await live.json();
+    cloudState.publishedContent=!!result.content;
+    cloudState.publishedAt=result.publishedAt||null;
+    liveSnapshot=result.content?contentSnapshot(result.content):null;
+   }else{liveSnapshot=null}
+  }
+ }catch{cloudState={...cloudState,available:false,authenticated:false};liveSnapshot=null}
  updateCloudUi();
 }
 async function uploadOriginalToCloudflare(file,scope='site'){
@@ -71,22 +91,32 @@ async function uploadOriginalToCloudflare(file,scope='site'){
   return readCloudResponse(response);
 }
 async function publishCloudContent(){
-  const key=cloudAdminKey();if(!key){showToast('Connect Cloudflare publishing first');return}
-  syncMediaAliases();
-  try{
-    showToast('Publishing live…');
-    const response=await fetch('../api/admin/content',{
-      method:'POST',
-      headers:{'content-type':'application/json'},
-      body:JSON.stringify(publishableDraft())
-    });
-    const data=await readCloudResponse(response);
-    cloudState.authenticated=true;cloudState.publishedContent=true;updateCloudUi();
-    lastSavedAt=new Date().toLocaleString();dirty=false;
-    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(draft));localStorage.setItem(`${STORAGE_KEY}-saved-at`,lastSavedAt)}catch{}
-    updatePublishStatus();showToast('Published live on Cloudflare');
-    return data;
-  }catch(error){showToast(error.message||'Publish failed')}
+ if(publishBusy)return;
+ if(!cloudState.authenticated||!cloudState.mediaBinding){showToast('Cloudflare is not connected. Check your session and R2 binding.');return}
+ syncMediaAliases();
+ const payload=publishableDraft();
+ const snapshot=contentSnapshot(payload);
+ const revisionAtStart=editRevision;
+ publishBusy=true;publishError=false;updatePublishStatus();
+ try{
+  const response=await fetch('../api/admin/content',{
+   method:'POST',
+   headers:{'content-type':'application/json'},
+   body:JSON.stringify(payload)
+  });
+  const data=await readCloudResponse(response);
+  // LIVE is only set after Cloudflare confirms the R2 write.
+  liveSnapshot=snapshot;
+  cloudState.publishedContent=true;
+  cloudState.publishedAt=data.publishedAt||new Date().toISOString();
+  if(editRevision===revisionAtStart){
+   dirty=false;lastSavedAt=new Date().toLocaleString();
+   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(draft));localStorage.setItem(`${STORAGE_KEY}-saved-at`,lastSavedAt)}catch{}
+  }
+  showToast('Published successfully — site is LIVE');
+  return data;
+ }catch(error){publishError=true;showToast(error.message||'Publish failed')}
+ finally{publishBusy=false;updateCloudUi()}
 }
 function syncMediaAliases(){
   (draft.records||[]).forEach(r=>{r.media=r.media||{};r.media.artwork={...(r.media.artwork||{}),type:'image',provider:r.coverImage&&r.coverImage.startsWith('data:')?'browser-draft':((r.media.artwork||{}).provider||'local'),url:r.coverImage||((r.media.artwork||{}).url||''),alt:(r.media.artwork||{}).alt||`${r.artist||'Record'} — ${r.title||'cover'}`};r.media.audio={...(r.media.audio||{}),type:(r.media.audio||{}).type||'file',provider:(r.media.audio||{}).provider||'local',url:r.audioPreview||((r.media.audio||{}).url||'')}});
@@ -209,7 +239,7 @@ function counts(){
   const hidden=[...records,...sessions,...events,...archive].filter(item=>item.hideFromPublic).length;
   return {records,sessions,events,archive,media,hidden};
 }
-function renderStats(){const c=counts();byId('stats').innerHTML=[['Records',`${visibleCount(c.records)} / ${c.records.length}`],['Sessions',`${visibleCount(c.sessions)} / ${c.sessions.length}`],['Events',`${visibleCount(c.events)} / ${c.events.length}`],['Media files',c.media]].map(([label,value])=>`<article class="stat-card"><strong>${value}</strong><span>${label}</span></article>`).join('')}
+function renderStats(){const c=counts();byId('stats').innerHTML=[['Records',`${visibleCount(c.records)} / ${c.records.length}`],['Sessions',`${visibleCount(c.sessions)} / ${c.sessions.length}`],['Events',`${visibleCount(c.events)} / ${c.events.length}`],['Images used',c.media]].map(([label,value])=>`<article class="stat-card"><strong>${value}</strong><span>${label}</span></article>`).join('')}
 function renderRecords(){const list=draft.records||[];byId('recordsList').innerHTML=list.length?list.map((r,i)=>card('records',i,r.artist||'Untitled record',`${r.id||'NO ID'} / ${r.genre||'Genre'}`,r.status,[field(`records.${i}.id`,'ID',r.id),field(`records.${i}.artist`,'Artist',r.artist),field(`records.${i}.title`,'Title',r.title),field(`records.${i}.genre`,'Genre',r.genre),field(`records.${i}.price`,'Price',r.price,'number'),field(`records.${i}.stock`,'Stock',r.stock,'number'),selectField(`records.${i}.status`,'Status',r.status,STATUS_OPTIONS.records),toggleField(`records.${i}.featured`,'Featured',!!r.featured,'Use for homepage or highlighted store sections later.'),toggleField(`records.${i}.featuredInPlayer`,'Featured in player',!!r.featuredInPlayer,'Can be used for random/player recommendations.'),toggleField(`records.${i}.hideFromPublic`,'Hide from public',!!r.hideFromPublic,'Keep the item in admin without showing it publicly.'),field(`records.${i}.condition`,'Condition',r.condition),field(`records.${i}.label`,'Label',r.label),field(`records.${i}.year`,'Year',r.year),mediaField(`records.${i}.coverImage`,'Artwork',mediaUrl(r,'coverImage','artwork'),'Upload or replace the record cover from files/camera roll.'),field(`records.${i}.audioPreview`,'Audio preview',r.audioPreview||r.media?.audio?.url||'','text','Upload an original MP3/M4A below or paste an existing audio URL.'),field(`records.${i}.description`,'Description',r.description,'textarea')].join(''),r)).join(''):'<div class="empty">No records yet.</div>'}
 function renderSessions(){const list=draft.sessions||[];byId('sessionsList').innerHTML=list.length?list.map((s,i)=>card('sessions',i,s.title||'Untitled session',`${s.id||'NO ID'} / ${s.type||'Type'}`,s.status,[field(`sessions.${i}.id`,'ID',s.id),field(`sessions.${i}.title`,'Title',s.title),field(`sessions.${i}.type`,'Type',s.type),field(`sessions.${i}.date`,'Date',s.date),selectField(`sessions.${i}.status`,'Status',s.status,STATUS_OPTIONS.sessions),toggleField(`sessions.${i}.featured`,'Featured',!!s.featured),toggleField(`sessions.${i}.hideFromPublic`,'Hide from public',!!s.hideFromPublic),mediaField(`sessions.${i}.heroImage`,'Session image',mediaUrl(s,'heroImage','hero'),'Upload the main session photo from files/camera roll.'),field(`sessions.${i}.audio`,'Session audio',s.audio||s.media?.audio?.url||'','text','Upload audio below, or use the video field for long-form YouTube sessions.'),field(`sessions.${i}.video`,'YouTube / video link',s.video||s.media?.video?.url||'','url','Paste a YouTube link for sessions, interviews, or long sets.'),field(`sessions.${i}.relatedRecords`,'Related records',Array.isArray(s.relatedRecords)?s.relatedRecords.join(', '):s.relatedRecords,'text','Comma-separated record IDs.'),field(`sessions.${i}.detail`,'Description',s.detail,'textarea')].join(''),s)).join(''):'<div class="empty">No sessions yet.</div>'}
 function renderCalendarSettings(){const c=draft.settings.calendar;byId('calendarSettings').innerHTML='<h3>Calendar artwork</h3><div class="field-grid">'+mediaField('settings.calendar.image','Featured calendar image',c.image,'Replace the pin-up with your own image. Landscape 3:2 recommended; keep the left side clear for the title. Upload is included in the data.js export.')+field('settings.calendar.imageAlt','Image description',c.imageAlt)+toggleField('settings.calendar.showTitle','Show text over artwork',c.showTitle!==false,'Turn off if your image already contains text.')+'</div><div class="card-actions"><button class="admin-action" data-save-draft>Save draft</button></div>';}
@@ -219,7 +249,30 @@ function renderSettings(){draft.settings=draft.settings||{};const s=draft.settin
 function publishableDraft(){const output=clone(draft);(output.homepage?.hero?.slides||[]).forEach(slide=>{delete slide.draftBlobKey;delete slide.fileName;delete slide.mimeType;delete slide.originalBytes});return output}
 function makeDataJs(){syncMediaAliases();const output=publishableDraft();return `window.SITE_CONTENT = ${JSON.stringify(output,null,2)};\n\nwindow.RECORDS = window.SITE_CONTENT.records;\nwindow.SESSIONS = window.SITE_CONTENT.sessions;\nwindow.EVENTS = window.SITE_CONTENT.events;\nwindow.ARCHIVE_ITEMS = window.SITE_CONTENT.archiveItems;\n\n(function setupWhatsAppRouting(){\n  const settings=window.SITE_CONTENT&&window.SITE_CONTENT.settings?window.SITE_CONTENT.settings:{};\n  const cleanNumber=String(settings.whatsappNumber||'').replace(/\\D/g,'');\n  const footer=String(settings.orderFooter||'').trim();\n  function routedHref(currentHref){\n    let text='';\n    try{text=new URL(currentHref,window.location.href).searchParams.get('text')||''}catch{text=''}\n    if(footer&&text&&!text.includes(footer))text=\`${'${text}'}\\n\\n${'${footer}'}\`;\n    const base=cleanNumber?\`https://wa.me/${'${cleanNumber}'}\`:'https://wa.me/';\n    return \`${'${base}'}?text=${'${encodeURIComponent(text)}'}\`;\n  }\n  function route(){const link=document.getElementById('whatsappCheckout');if(!link||!link.href)return;link.href=routedHref(link.href)}\n  window.addEventListener('load',route);document.addEventListener('click',()=>setTimeout(route,0));setInterval(route,1000);\n})();\n`}
 function renderExport(){const out=byId('jsonOutput');if(out)out.value=makeDataJs();updatePublishStatus()}
-function updatePublishStatus(){const c=counts();const status=byId('draftStatus');const summary=byId('publishSummary');const label=dirty?'Unsaved changes':'Draft saved';if(status){status.textContent=lastSavedAt&&!dirty?`Saved ${lastSavedAt}`:label;status.classList.toggle('dirty',dirty)}if(summary){summary.innerHTML=`<article><strong>${dirty?'Needs save':'Ready'}</strong><span>Draft status</span></article><article><strong>${c.hidden}</strong><span>Hidden items</span></article><article><strong>${c.media}</strong><span>Media files</span></article><article><strong>data.js</strong><span>Export target</span></article>`}}
+function updatePublishStatus(){
+ const c=counts(),status=byId('draftStatus'),summary=byId('publishSummary'),liveBadge=byId('liveStatus'),button=byId('publishButton');
+ const connected=cloudState.authenticated&&cloudState.available&&cloudState.mediaBinding;
+ const pending=liveSnapshot!==null&&contentSnapshot(publishableDraft())!==liveSnapshot;
+ const live=connected&&cloudState.publishedContent;
+ const inSync=live&&liveSnapshot!==null&&!pending&&!dirty;
+ const siteLabel=!cloudState.available?'CHECKING':!connected?'OFFLINE':live?'LIVE':'NOT LIVE';
+ const draftLabel=dirty?'UNSAVED DRAFT':lastSavedAt?'DRAFT SAVED':'LOCAL DRAFT';
+ if(status){status.textContent=draftLabel;status.title=lastSavedAt?'Last saved locally: '+lastSavedAt:'This browser has no saved draft';status.classList.toggle('dirty',dirty)}
+ if(liveBadge){liveBadge.textContent=siteLabel;liveBadge.classList.toggle('is-live',live);liveBadge.classList.toggle('not-live',!live);liveBadge.setAttribute('aria-label','Website publication: '+siteLabel)}
+ if(button){
+  button.disabled=publishBusy||!connected||inSync;
+  button.classList.toggle('is-live',inSync);
+  button.classList.toggle('is-publishing',publishBusy);
+  button.textContent=publishBusy?'PUBLISHING…':inSync?'LIVE':publishError?'RETRY PUBLISH':live?'PUBLISH CHANGES':'PUBLISH LIVE';
+  button.title=inSync?'Current draft matches the live website':!connected?'Cloudflare connection required':dirty?'Unsaved edits will be published; save your draft first to retain them locally':'Publish this draft to the live website';
+ }
+ if(summary){
+  const current=publishBusy?'Publishing…':live?'LIVE':'Not published';
+  const changeText=dirty?'Unsaved changes':pending?'Unpublished draft':liveSnapshot===null&&live?'Checking content':live?'Up to date':'Draft only';
+  const publishedAt=cloudState.publishedAt?new Date(cloudState.publishedAt).toLocaleString():'Not yet';
+  summary.innerHTML=`<article><strong class="${live?'text-live':''}">${current}</strong><span>Website</span></article><article><strong>${changeText}</strong><span>Local work</span></article><article><strong title="${escapeText(publishedAt)}">${cloudState.publishedAt?escapeText(new Date(cloudState.publishedAt).toLocaleDateString()):'—'}</strong><span>Last published</span></article><article><strong>${c.hidden}</strong><span>Hidden items</span></article>`;
+ }
+}
 function refreshAll(){renderStats();renderHomepage();renderRecords();renderSessions();renderCalendarSettings();renderEvents();renderArchive();renderSettings();renderExport()}
 function addItem(type){const templates={records:{id:`LVL${String((draft.records||[]).length+1).padStart(3,'0')}`,artist:'New Artist',title:'New Release',genre:'House',price:0,stock:1,status:'DRAFT',featured:false,featuredInPlayer:false,hideFromPublic:true,coverImage:'',audioPreview:'',description:'',condition:'',label:'',year:'',media:{artwork:{type:'image',provider:'local',url:'',alt:''},audio:{type:'file',provider:'local',url:''}}},sessions:{id:`S${String((draft.sessions||[]).length+1).padStart(2,'0')}`,title:'New Session',type:'Escucha',date:'Próximamente',status:'Draft',featured:false,hideFromPublic:true,detail:'',heroImage:'',audio:'',video:'',relatedRecords:[],media:{hero:{type:'image',provider:'local',url:'',alt:''},audio:{type:'file',provider:'local',url:''},video:{type:'youtube',provider:'youtube',url:''}}},events:{id:`E${String((draft.events||[]).length+1).padStart(2,'0')}`,title:'New Event',date:'Próximamente',place:'Gualaceo',status:'Draft',featured:false,hideFromPublic:true,posterImage:'',video:'',detail:'',media:{poster:{type:'image',provider:'local',url:'',alt:''},video:{type:'youtube',provider:'youtube',url:''}}},archiveItems:{id:`A${String((draft.archiveItems||[]).length+1).padStart(2,'0')}`,title:'New Archive Item',category:'Archive',featured:false,hideFromPublic:true,image:'',detail:'',relatedSession:'',relatedEvent:'',media:{image:{type:'image',provider:'local',url:'',alt:''}}}};draft[type]=draft[type]||[];if(type==='events'){templates.events.id='E'+Date.now().toString(36);templates.events.time='';}draft[type].push(templates[type]);saveDraft()}
 function applyFieldChange(input){if(!input)return;let value=input.value;if(input.type==='number')value=Number(input.value);if(input.dataset.path&&input.dataset.path.endsWith('relatedRecords'))value=String(input.value).split(',').map(x=>x.trim()).filter(Boolean);if(/^events\.\d+\.date$/.test(input.dataset.path))value=CalendarContent.storedDate(value);
