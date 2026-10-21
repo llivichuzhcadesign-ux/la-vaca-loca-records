@@ -4,17 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin — La Vaca Loca Records</title>
-<link rel="stylesheet" href="admin.css?v=team-redesign-20261021">
+<link rel="stylesheet" href="admin.css?v=live-states-20261021">
 </head>
 <body>
 <header class="admin-header">
   <a class="brand" href="../index.html">La Vaca Loca Records</a>
   <div class="admin-header-actions">
-    <span class="status-pill" id="cloudStatus">Cloudflare checking…</span>
-    <button class="admin-action compact secondary" type="button" id="adminLogout">Log out</button><span class="status-pill" id="draftStatus">Draft saved</span>
-    <button class="admin-action compact" type="button" data-save-draft>Save</button>
-    <button class="admin-action compact" type="button" data-cloud-publish>Publish live</button>
-    <a class="admin-action compact secondary" href="../index.html?preview=admin-draft" target="_blank" rel="noopener">Draft preview</a>
+    <span id="liveStatus" class="status-pill live-status" role="status" aria-live="polite">CHECKING</span>
+    <span class="status-pill" id="cloudStatus">Checking connection</span>
+    <span class="status-pill" id="draftStatus">LOCAL DRAFT</span>
+    <button class="admin-action compact secondary" type="button" data-save-draft>Save draft</button>
+    <button class="admin-action compact" id="publishButton" type="button" data-cloud-publish disabled>Publish live</button>
+    <a class="admin-action compact secondary" href="../index.html?preview=admin-draft" target="_blank" rel="noopener">Preview</a>
+    <button class="admin-action compact secondary" type="button" id="adminLogout">Log out</button>
   </div>
 </header>
 <main class="admin-shell">
@@ -34,11 +36,11 @@
     <section class="panel active" id="dashboard">
       <p class="eyebrow">01 / Overview</p>
       <h1>Content dashboard</h1>
-      <p class="intro">Manage the live site from one place. Save locally while editing, upload original media to Cloudflare, preview changes, then Publish Live when ready.</p>
+      <p class="intro">Edit and preview your content here. Saving a draft keeps it in this browser; publishing sends it to the live website.</p>
       <div class="publish-bar" id="publishSummary"></div>
       <div class="stat-grid" id="stats"></div>
-      <div class="notice"><strong>Cloudflare publishing:</strong> edits can still be saved as a local draft. Once signed in, original images upload to Cloudflare R2 unchanged and <strong>Publish live</strong> updates production content without editing GitHub files.</div>
-      <div class="publish-card cloud-connect-card"><strong>Admin account</strong><p>Signed in securely. Cloudflare publishing is connected automatically.</p><small id="cloudSetupHint">Checking your session and storage…</small></div></section>
+      <p class="dashboard-note"><strong>Drafts are local to this browser.</strong> Other administrators will not see your unpublished edits until they are published.</p>
+      <details class="connection-details"><summary>Connection details</summary><p id="cloudSetupHint">Checking your session and storage…</p></details></section>
 
     <section class="panel" id="homepage">
       <div class="panel-head"><div><p class="eyebrow">02 / Landing page</p><h2>Homepage hero</h2></div><button class="admin-action" type="button" data-add-hero-slide>Add image</button></div>
@@ -117,29 +119,23 @@
   </form>
 </dialog>
 <section class="panel" id="export">
-      <p class="eyebrow">07 / Backup</p>
-      <h2>Export content</h2>
-      <p class="intro">Cloudflare is now the normal publishing path. This section remains as a portable backup of the content model in case you ever need to restore or migrate the site.</p>
-      <div class="publish-card">
-        <strong>Normal workflow</strong>
-        <ol>
-          <li>Edit content and upload media.</li>
-          <li>Save Draft while you work.</li>
-          <li>Preview the relevant public page.</li>
-          <li>Press Publish Live when ready.</li>
-          <li>Use this data.js export only as a backup or migration copy.</li>
-        </ol>
-      </div>
-      <div class="export-actions">
-        <button class="admin-action" data-save-draft>Save draft</button>
-        <button class="admin-action secondary" data-reset-draft>Reset local draft</button>
-        <button class="admin-action" data-refresh-json>Refresh data.js</button>
-        <button class="admin-action" data-copy-datajs>Copy full data.js</button>
-        <button class="admin-action" data-download-datajs>Download data.js</button>
-        <a class="admin-action secondary" href="../index.html?preview=admin-draft" target="_blank" rel="noopener">Open draft preview</a>
-      </div>
-      <textarea id="jsonOutput" spellcheck="false"></textarea>
-    </section>
+  <p class="eyebrow">BACKUP / ADVANCED</p>
+  <h2>Export</h2>
+  <p class="intro">Download or copy the content currently in this editor as a backup. Exporting does not publish anything to the live website.</p>
+  <div class="export-actions">
+    <button class="admin-action" data-download-datajs>Download data.js</button>
+    <button class="admin-action secondary" data-copy-datajs>Copy data.js</button>
+  </div>
+  <details class="export-advanced">
+    <summary>View generated data.js</summary>
+    <textarea id="jsonOutput" spellcheck="false" readonly aria-label="Generated data.js backup"></textarea>
+  </details>
+  <details class="export-advanced export-danger">
+    <summary>Discard local draft</summary>
+    <p>This resets only the current browser's draft; it does not undo published website changes.</p>
+    <button class="admin-action danger" data-reset-draft>Reset local draft</button>
+  </details>
+</section>
   </section>
 </main>
 <dialog id="galleryPicker" class="gallery-picker"><div class="panel-head"><h2>Choose a photo</h2><button class="admin-action secondary" id="galleryPickerClose" type="button">Close</button></div><input id="galleryPickerSearch" type="search" placeholder="Search photos" aria-label="Search gallery photos"><p id="galleryPickerStatus" role="status"></p><div class="gallery-grid" id="galleryPickerGrid"></div><button class="admin-action secondary" id="galleryPickerMore" type="button" hidden>Load more</button></dialog>
@@ -154,7 +150,7 @@ document.addEventListener('click',function(event){
 });
 </script>
 <script src="../calendar-content.js"></script>
-<script src="admin.js?v=gallery-only-20260929"></script>
+<script src="admin.js?v=live-states-20261021"></script>
 <script src="gallery.js?v=gallery-only-20260929"></script>
 <script src="audio-upload.js"></script><script src="team.js?v=team-redesign-20261021"></script>
 </body>
