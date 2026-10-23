@@ -265,3 +265,53 @@
   body .admin-sidebar{transition:none}
   .admin-header .admin-header-actions *{transition:none}
 }
+
+
+/* Mobile navigation revision: keep horizontally swipeable sections below the header. */
+.admin-mobile-header-logout{display:none}
+@media (max-width:900px){
+  html{scroll-padding-top:calc(118px + env(safe-area-inset-top,0px))}
+  body .admin-header-primary #liveStatus{display:none}
+  body .admin-header-primary .admin-mobile-header-logout{
+    display:inline-flex;flex:none;align-items:center;justify-content:center;
+    min-height:44px;min-width:69px;padding:10px 11px;margin-left:auto;
+    border:1px solid var(--line);background:transparent;color:var(--paper);
+    font-size:11px;letter-spacing:.025em;white-space:nowrap
+  }
+  body .admin-header-primary .admin-mobile-header-logout:focus-visible{
+    outline:2px solid var(--pink);outline-offset:2px
+  }
+  body .admin-sidebar{
+    position:sticky;z-index:54;top:calc(61px + env(safe-area-inset-top,0px));
+    bottom:auto;left:auto;right:auto;
+    display:flex;align-items:stretch;gap:5px;flex-wrap:nowrap;
+    width:100%;min-width:0;height:auto;max-height:none;
+    margin:0;padding:0 13px;
+    overflow-x:auto;overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
+    scrollbar-width:none;scroll-snap-type:x proximity;
+    border:0;border-bottom:1px solid var(--line);
+    background:#100e0d;
+    transform:none;visibility:visible;transition:none;
+    touch-action:pan-x
+  }
+  body .admin-sidebar::-webkit-scrollbar{display:none}
+  body .admin-sidebar .nav-item{
+    flex:0 0 auto;width:auto;min-width:max-content;min-height:49px;
+    padding:13px 13px 11px;margin:0;
+    background:transparent;color:var(--muted);
+    border:0;border-bottom:2px solid transparent;
+    font-size:12px;line-height:1.2;text-align:center;white-space:nowrap;
+    scroll-snap-align:center
+  }
+  body .admin-sidebar .nav-item:hover,
+  body .admin-sidebar .nav-item.active,
+  body .admin-sidebar .nav-item[aria-current="page"]{
+    background:rgba(255,90,167,.08);color:var(--paper);
+    border-bottom-color:var(--pink)
+  }
+  body .admin-sidebar .nav-item:focus-visible{
+    outline:2px solid var(--pink);outline-offset:-4px
+  }
+  body .admin-content{padding-top:20px}
+}
