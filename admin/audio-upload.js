@@ -146,7 +146,7 @@
   window.addEventListener('beforeunload',()=>objectUrls.forEach(url=>URL.revokeObjectURL(url)));
 
   const style=document.createElement('style');
-  style.textContent=`.audio-field{background:rgba(238,229,211,.035);border:1px solid rgba(238,229,211,.12);padding:14px}.audio-upload-panel{display:grid;gap:9px;margin-top:10px}.audio-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.audio-preview-player{width:100%;height:42px;display:block}.audio-preview-player[hidden]{display:none}.audio-upload-button{background:var(--pink);color:var(--ink)}.audio-status{color:var(--pink)!important;font-weight:900!important}.audio-field>input{font-family:monospace;font-size:10px}`;
+  style.textContent=`.audio-field{background:rgba(238,229,211,.035);border:1px solid rgba(238,229,211,.12);padding:14px}.audio-upload-panel{display:grid;gap:9px;margin-top:10px}.audio-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.audio-preview-player{width:100%;height:42px;display:block}.audio-preview-player[hidden]{display:none}.audio-upload-button{background:var(--pink);color:var(--ink)}.audio-status{color:var(--pink)!important;font-weight:900!important}.audio-field>input{font-family:monospace;font-size:14px}@media(max-width:900px){.audio-field>input{font-size:16px}.audio-row{display:grid;grid-template-columns:minmax(0,1fr);gap:9px}.audio-row .upload-button,.audio-row .admin-action{min-height:46px;width:100%;justify-content:center}.audio-upload-panel small{font-size:12px;line-height:1.45}}`;
   document.head.appendChild(style);
 
   enhanceAudioFields();
