@@ -427,3 +427,37 @@
  .publish-control[data-publish-state="publishing"] .publish-fill{opacity:1;width:45%}
  .publish-control[data-publish-state="finishing"] .publish-fill{transition:none}
 }
+
+
+/* Protected primary designer and permanent account deletion */
+.team-card-primary{
+ border-color:rgba(255,90,167,.36);
+ background:linear-gradient(120deg,rgba(255,90,167,.055),rgba(255,255,255,.015) 55%),#13120f;
+}
+.team-account-heading{min-width:0;flex:1 1 240px}
+.team-primary-detail{font-size:12px;line-height:1.5;color:var(--muted);margin:10px 0 0}
+.team-badge-primary{background:rgba(255,90,167,.12);color:#ffc3df;border-color:rgba(255,90,167,.38)}
+.team-protected-role{display:flex;gap:9px;align-items:center;min-height:49px;padding:11px 14px;border:1px solid var(--line);color:#d6c8b9;font-size:12px;font-weight:800;letter-spacing:.02em}
+.team-lock-symbol{color:var(--pink);font-size:12px}
+.team-card-controls .team-protected-role{flex:0 1 240px}
+.team-delete-button{color:#ffb5b5;border-color:rgba(255,181,181,.38)}
+.team-delete-button:hover{background:rgba(255,70,70,.12);border-color:#ff9393;color:#fff}
+.team-delete-target{padding:12px 14px;border:1px solid rgba(238,229,211,.2);background:#0b0a09;color:var(--paper);font-weight:800;font-size:14px;overflow-wrap:anywhere;margin:3px 0 8px}
+.team-delete-dialog{border-color:rgba(255,140,140,.4)}
+.team-delete-submit{background:#a63636;color:#fff;border-color:#d26e6e}
+.team-delete-submit:hover:not(:disabled){background:#c34c4c;color:#fff;border-color:#eb9999}
+.team-delete-submit:disabled{opacity:.43;cursor:not-allowed}
+.team-reset-form input[type="hidden"]{display:none}
+@media(max-width:900px){
+ .team-account-heading{flex-basis:100%}
+ .team-meta{margin-left:0}
+ .team-card-controls .team-protected-role{width:100%;flex:1 1 100%;min-height:48px}
+ .team-card .team-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .team-card .team-actions>.team-delete-button{grid-column:1/-1}
+ .team-primary-detail{font-size:12px}
+ .team-delete-dialog{max-height:calc(100dvh - 34px)}
+}
+@media(max-width:420px){
+ .team-card .team-actions{grid-template-columns:1fr}
+ .team-card .team-actions>.team-delete-button{grid-column:auto}
+}
