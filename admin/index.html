@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Admin — La Vaca Loca Records</title>
-<link rel="stylesheet" href="admin.css?v=scroll-tabs-20261023">
+<link rel="stylesheet" href="admin.css?v=publish-states-20261023">
 </head>
 <body>
 <header class="admin-header">
@@ -17,7 +17,16 @@
     <span class="status-pill" id="cloudStatus">Checking connection</span>
     <span class="status-pill" id="draftStatus" role="status" aria-live="polite">LOCAL DRAFT</span>
     <button class="admin-action compact secondary" type="button" data-save-draft>Save draft</button>
-    <button class="admin-action compact" id="publishButton" type="button" data-cloud-publish disabled>Publish live</button>
+    <div class="publish-control" id="publishControl" data-publish-state="checking">
+      <div class="publish-history" id="publishHistory" hidden aria-live="polite">
+        <span class="publish-history-title">Last published</span>
+        <time id="publishHistoryTime"></time>
+      </div>
+      <button class="admin-action compact publish-button" id="publishButton" type="button" data-cloud-publish disabled aria-label="Checking publication status">
+        <span class="publish-fill" id="publishFill" aria-hidden="true"></span>
+        <span class="publish-button-text" id="publishButtonText">Checking…</span>
+      </button>
+    </div>
     <a class="admin-action compact secondary" href="../index.html?preview=admin-draft" target="_blank" rel="noopener">Preview</a>
     <button class="admin-action compact secondary" type="button" id="adminLogout">Log out</button>
   </div>
@@ -153,7 +162,7 @@ document.addEventListener('click',function(event){
 });
 </script>
 <script src="../calendar-content.js"></script>
-<script src="admin.js?v=desktop-save-20261023"></script>
+<script src="admin.js?v=publish-states-20261023"></script>
 <script src="gallery.js?v=gallery-only-20260929"></script>
 <script src="audio-upload.js"></script><script src="mobile.js?v=scroll-tabs-20261023"></script><script src="team.js?v=team-redesign-20261021"></script>
 </body>
