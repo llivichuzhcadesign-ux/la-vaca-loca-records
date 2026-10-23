@@ -131,7 +131,24 @@ function syncMediaAliases(){
   (draft.events||[]).forEach(ev=>{ev.media=ev.media||{};ev.media.poster={...(ev.media.poster||{}),type:'image',provider:ev.posterImage&&ev.posterImage.startsWith('data:')?'browser-draft':((ev.media.poster||{}).provider||'local'),url:ev.posterImage||((ev.media.poster||{}).url||''),alt:(ev.media.poster||{}).alt||`${ev.title||'Event'} poster`};ev.media.video={...(ev.media.video||{}),type:(ev.media.video||{}).type||'youtube',provider:(ev.media.video||{}).provider||'youtube',url:ev.video||((ev.media.video||{}).url||'')}});
   (draft.archiveItems||[]).forEach(a=>{a.media=a.media||{};a.media.image={...(a.media.image||{}),type:'image',provider:a.image&&a.image.startsWith('data:')?'browser-draft':((a.media.image||{}).provider||'local'),url:a.image||((a.media.image||{}).url||''),alt:(a.media.image||{}).alt||`${a.title||'Archive'} image`}});
 }
-function saveDraft(){syncMediaAliases();try{localStorage.setItem(STORAGE_KEY,JSON.stringify(draft));}catch{showToast('Browser storage is full. Download data.js to keep your edits, or use a smaller image.');return false;}lastSavedAt=new Date().toLocaleString();localStorage.setItem(`${STORAGE_KEY}-saved-at`,lastSavedAt);dirty=false;refreshAll();showToast('Draft saved');return true}
+function saveDraft(refreshEditors=true){
+ syncMediaAliases();
+ try{
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(draft));
+  lastSavedAt=new Date().toLocaleString();
+  localStorage.setItem(`${STORAGE_KEY}-saved-at`,lastSavedAt);
+ }catch{
+  showToast('Browser storage is full. Download data.js to keep your edits, or use a smaller image.');
+  return false;
+ }
+ dirty=false;
+ // Manual saves and previews keep existing desktop/mobile inputs, cursor and open cards intact.
+ // Structural edits (new/deleted/reordered items or media uploads) can request a full refresh.
+ if(refreshEditors)refreshAll();
+ else renderExport();
+ showToast('Draft saved');
+ return true;
+}
 function resetDraft(){localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(`${STORAGE_KEY}-saved-at`);draft=clone(original);calendarDefaults();homepageDefaults();lastSavedAt='';dirty=false;refreshAll();showToast('Local draft reset')}
 function field(path,label,value,type='text',hint=''){
   const tag=type==='textarea'?'textarea':'input';
@@ -269,7 +286,8 @@ function renderExport(){
 function updatePublishStatus(){
  const c=counts(),status=byId('draftStatus'),summary=byId('publishSummary'),liveBadge=byId('liveStatus'),button=byId('publishButton');
  const connected=cloudState.authenticated&&cloudState.available&&cloudState.mediaBinding;
- const pending=liveSnapshot!==null&&contentSnapshot(publishableDraft())!==liveSnapshot;
+ // Unsaved edits already have their own state; do not serialize the entire draft on each keystroke.
+ const pending=dirty||(liveSnapshot!==null&&contentSnapshot(publishableDraft())!==liveSnapshot);
  const live=connected&&cloudState.publishedContent;
  const inSync=live&&liveSnapshot!==null&&!pending&&!dirty;
  const siteLabel=!cloudState.available?'CHECKING':!connected?'OFFLINE':live?'LIVE':'NOT LIVE';
@@ -320,7 +338,18 @@ async function handleImageUpload(input){
 }
 function clearMedia(path){setValue(path,'');saveDraft();showToast('Image removed')}
 function downloadDataJs(){const blob=new Blob([makeDataJs()],{type:'text/javascript'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='data.js';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);showToast('data.js downloaded')}
-async function copyDataJs(){try{await navigator.clipboard.writeText(makeDataJs());showToast('Full data.js copied')}catch{const out=byId('jsonOutput');out&&out.select();document.execCommand('copy');showToast('Full data.js selected/copied')}}
+async function copyDataJs(){
+ const content=makeDataJs();
+ try{await navigator.clipboard.writeText(content);showToast('Full data.js copied')}
+ catch{
+  const out=byId('jsonOutput');
+  if(!out){showToast('Unable to copy data.js');return}
+  out.value=content;
+  out.select();
+  const copied=document.execCommand('copy');
+  showToast(copied?'Full data.js copied':'Select and copy the generated data.js');
+ }
+}
 function injectAdminEnhancements(){const style=document.createElement('style');style.textContent=`.admin-header-actions{display:flex;align-items:center;gap:10px}.admin-action.compact{padding:8px 10px}.status-pill.dirty{background:var(--pink);color:var(--ink);border-color:var(--pink)}.status-pill.cloud-ok{background:transparent;color:var(--muted);border-color:var(--line)}.cloud-key-row{display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:10px;margin:12px 0}.cloud-key-row input{margin:0;background:#090908;color:var(--paper);border:1px solid var(--line);padding:11px}.cloud-connect-card code{font-size:11px}.publish-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}.publish-bar article,.publish-card{background:var(--panel);border:1px solid var(--line);padding:16px}.publish-bar strong,.publish-card strong{display:block;font-size:22px;line-height:.95;letter-spacing:-.04em}.publish-bar span{display:block;color:var(--muted);font-size:10px;font-weight:900;text-transform:uppercase;margin-top:8px}.publish-card ol{margin:14px 0 0;padding-left:20px;color:var(--muted);line-height:1.65}.toast{position:fixed;right:18px;bottom:18px;z-index:90;background:var(--pink);color:var(--ink);padding:12px 14px;font-size:12px;font-weight:900;opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:none}.field select{width:100%;background:#090908;color:var(--paper);border:1px solid var(--line);padding:11px}.toggle{width:100%;background:#090908;color:var(--muted);border:1px solid var(--line);padding:11px;font-weight:900;cursor:pointer}.toggle.on{background:var(--pink);color:var(--ink);border-color:var(--pink)}.media-field{background:rgba(255,90,167,.045);border:1px solid rgba(255,90,167,.16);padding:14px}.media-row{display:grid;grid-template-columns:140px 1fr;gap:14px;align-items:stretch}.media-preview{min-height:140px;background:#090908;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);font-size:11px;text-transform:uppercase;font-weight:900;overflow:hidden}.media-preview img{width:100%;height:100%;object-fit:cover;display:block}.media-preview.broken{background:repeating-linear-gradient(45deg,#190b0b,#190b0b 8px,#2b1010 8px,#2b1010 16px)}.media-preview.broken:after{content:'Image not loading';color:#ffb5b5;background:#090908;padding:8px}.media-preview.broken img{display:none}.media-controls{display:flex;flex-direction:column;gap:9px}.media-controls input{margin:0}.upload-button{display:inline-flex;align-items:center;justify-content:center;width:max-content;background:var(--pink);color:var(--ink);border:1px solid var(--pink);padding:11px 13px;font-size:11px;font-weight:900;cursor:pointer;text-transform:uppercase}.upload-button input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}.advanced-media{border-top:1px solid var(--line);padding-top:8px}.advanced-media summary{cursor:pointer;color:var(--muted);font-size:10px;font-weight:900;text-transform:uppercase}.advanced-media input{margin:9px 0}.copy-flash{outline:2px solid var(--pink)}@media(max-width:900px){.publish-bar{grid-template-columns:repeat(2,1fr)}.admin-header-actions{gap:6px}.admin-action.compact{font-size:10px}}@media(max-width:700px){.media-row,.publish-bar{grid-template-columns:1fr}.media-preview{min-height:210px}.admin-header{height:auto;min-height:68px;gap:10px}.admin-header-actions{flex-wrap:wrap;justify-content:flex-end}.status-pill{font-size:8px}}`;document.head.appendChild(style)}
 function injectHomepageAdminStyles(){const style=document.createElement('style');style.textContent=`.hero-copy-card{margin-bottom:18px}.hero-admin-list{display:grid;gap:16px}.hero-admin-card{display:grid;grid-template-columns:minmax(220px,.72fr) 1.28fr;border:1px solid var(--line);background:var(--panel);overflow:hidden}.hero-admin-preview{min-height:300px;background:#090908;overflow:hidden}.hero-admin-preview img{display:block;width:100%;height:100%;min-height:300px;object-fit:cover}.hero-admin-fields{padding:18px}.hero-admin-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:14px}.hero-admin-top strong{font-size:22px;letter-spacing:-.04em}.hero-admin-top span{max-width:330px;color:var(--muted);font-size:10px;line-height:1.4;text-align:right}.hero-upload{margin-bottom:16px}.hero-order-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.hero-order-actions button:disabled{opacity:.35;cursor:not-allowed}@media(max-width:850px){.hero-admin-card{grid-template-columns:1fr}.hero-admin-preview,.hero-admin-preview img{min-height:260px}.hero-admin-top{display:block}.hero-admin-top span{display:block;text-align:left;margin-top:6px}}`;document.head.appendChild(style)}
 
@@ -335,7 +364,7 @@ document.addEventListener('click',e=>{
   if(e.target.closest('[data-cloud-publish]')){publishCloudContent();return}
   if(e.target.closest('[data-copy-datajs]')){copyDataJs();return}
   if(e.target.closest('[data-download-datajs]')){downloadDataJs();return}
-  if(e.target.closest('[data-save-draft]')){saveDraft();return}
+  if(e.target.closest('[data-save-draft]')){saveDraft(false);return}
   if(e.target.closest('[data-reset-draft]')){if(confirm('Discard your local edits and restore the published content?'))resetDraft();return}
   if(e.target.closest('[data-refresh-json]')){renderExport();showToast('data.js refreshed');return}
   if(e.target.closest('[data-add-hero-slide]')){addHeroSlide();return}
