@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Admin — La Vaca Loca Records</title>
-<link rel="stylesheet" href="admin.css?v=publish-states-20261023">
+<link rel="stylesheet" href="admin.css?v=primary-owner-20261023">
 </head>
 <body>
 <header class="admin-header">
@@ -130,6 +130,19 @@
     <div class="team-dialog-actions"><button class="team-button" type="button" data-reset-cancel>Cancel</button><button class="team-submit" type="submit">Save new password</button></div>
   </form>
 </dialog>
+<dialog id="teamDeleteDialog" class="team-dialog team-delete-dialog" aria-labelledby="teamDeleteTitle" aria-describedby="teamDeleteDescription">
+  <form id="teamDeleteForm" class="team-reset-form">
+    <p class="eyebrow">PERMANENT ACCOUNT REMOVAL</p>
+    <h3 id="teamDeleteTitle">Delete administrator</h3>
+    <p id="teamDeleteDescription" class="team-hint">This permanently removes the account and signs out its active sessions. This action cannot be undone.</p>
+    <p class="team-delete-target" id="teamDeleteEmail"></p>
+    <input type="hidden" id="teamDeleteId" name="id">
+    <div class="team-field"><label for="teamDeleteEmailConfirm">Enter the account email to confirm</label><input id="teamDeleteEmailConfirm" name="email" type="email" autocomplete="off" required spellcheck="false"></div>
+    <div class="team-field"><label for="teamDeleteConfirmWord">Type DELETE</label><input id="teamDeleteConfirmWord" name="confirm" type="text" autocomplete="off" autocapitalize="characters" required spellcheck="false"></div>
+    <p id="teamDeleteStatus" class="team-status" role="alert"></p>
+    <div class="team-dialog-actions"><button type="button" class="team-button" data-delete-cancel>Cancel</button><button type="submit" class="team-button team-delete-submit" disabled>Delete account</button></div>
+  </form>
+</dialog>
 <section class="panel" id="export">
   <p class="eyebrow">BACKUP / ADVANCED</p>
   <h2>Export</h2>
@@ -164,6 +177,6 @@ document.addEventListener('click',function(event){
 <script src="../calendar-content.js"></script>
 <script src="admin.js?v=publish-states-20261023"></script>
 <script src="gallery.js?v=gallery-only-20260929"></script>
-<script src="audio-upload.js"></script><script src="mobile.js?v=scroll-tabs-20261023"></script><script src="team.js?v=team-redesign-20261021"></script>
+<script src="audio-upload.js"></script><script src="mobile.js?v=scroll-tabs-20261023"></script><script src="team.js?v=primary-owner-20261023"></script>
 </body>
 </html>
