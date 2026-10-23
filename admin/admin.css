@@ -315,3 +315,115 @@
   }
   body .admin-content{padding-top:20px}
 }
+
+
+/* ----------------------------------------------------
+   Publishing control: neutral, changed, writing, live
+   ---------------------------------------------------- */
+.publish-control{position:relative;display:flex;align-items:stretch;flex:0 0 auto;min-width:140px;isolation:isolate}
+.publish-control #publishButton{
+ position:relative;display:inline-flex;align-items:center;justify-content:center;
+ min-height:42px;width:100%;margin:0;padding:10px 14px;overflow:hidden;
+ border:1px solid rgba(238,229,211,.23);background:#292521;color:#ccbead;
+ font-size:11px;font-weight:900;letter-spacing:.055em;line-height:1.2;
+ white-space:nowrap;cursor:pointer;transition:background .24s,color .24s,border-color .24s,box-shadow .24s
+}
+.publish-control .publish-button-text{position:relative;z-index:2;pointer-events:none}
+.publish-control .publish-fill{
+ position:absolute;z-index:1;inset:0 auto 0 0;width:0;opacity:0;
+ background:linear-gradient(100deg,#df3888 0%,#ff69b8 75%,#ffc4de 100%);
+ pointer-events:none
+}
+.publish-control[data-publish-state="checking"] #publishButton,
+.publish-control[data-publish-state="offline"] #publishButton,
+.publish-control[data-publish-state="idle"] #publishButton{
+ background:#25211e;color:#baaea0;border-color:rgba(238,229,211,.21);
+ box-shadow:none;cursor:default;opacity:1
+}
+.publish-control[data-publish-state="changes"] #publishButton{
+ background:rgba(255,90,167,.11);color:#ffe7f2;border-color:var(--pink);
+ animation:publishGlow 2.6s ease-in-out infinite;opacity:1
+}
+.publish-control[data-publish-state="changes"] #publishButton:hover{
+ background:rgba(255,90,167,.23);border-color:#ff9dcb
+}
+.publish-control[data-publish-state="error"] #publishButton{
+ background:rgba(197,65,65,.14);border-color:#ff9191;color:#ffe0e0;opacity:1
+}
+.publish-control[data-publish-state="publishing"] #publishButton,
+.publish-control[data-publish-state="finishing"] #publishButton{
+ background:#271723;border-color:var(--pink);color:#fffaf5;
+ box-shadow:0 0 0 1px rgba(255,90,167,.14);cursor:progress;opacity:1
+}
+.publish-control[data-publish-state="publishing"] .publish-fill{
+ opacity:1;animation:publishFillWaiting 3.4s cubic-bezier(.22,.85,.3,1) forwards
+}
+.publish-control[data-publish-state="finishing"] .publish-fill{
+ opacity:1;transition:width .35s cubic-bezier(.18,.74,.24,1)
+}
+.publish-control[data-publish-state="success"] #publishButton{
+ background:#bdeac5;border-color:#bdeac5;color:#14351d;box-shadow:0 0 18px rgba(123,235,147,.2);
+ cursor:default;opacity:1
+}
+.publish-control[data-publish-state="success"] .publish-button-text::before{
+ content:"✓";display:inline-block;margin-right:7px;font-size:15px;line-height:0;vertical-align:-1px
+}
+.publish-control #publishButton:focus-visible{outline:2px solid var(--paper);outline-offset:3px}
+.publish-control #publishButton:disabled{opacity:1}
+.publish-control .publish-history{
+ position:absolute;z-index:5;top:calc(100% + 10px);right:0;
+ display:flex;align-items:center;gap:9px;min-width:max-content;
+ padding:9px 12px;background:#1c1916;color:var(--paper);
+ border:1px solid rgba(238,229,211,.24);box-shadow:0 8px 20px rgba(0,0,0,.3);
+ font-size:10px;letter-spacing:.035em;white-space:nowrap;line-height:1.1
+}
+.publish-control .publish-history[hidden]{display:none!important}
+.publish-history-title{font-size:9px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.publish-history time{font-size:11px;font-weight:800;color:#efe5d3;font-variant-numeric:tabular-nums}
+.publish-control .publish-history::before{
+ content:"";position:absolute;right:18px;top:-5px;width:8px;height:8px;
+ border-left:1px solid rgba(238,229,211,.24);border-top:1px solid rgba(238,229,211,.24);
+ background:#1c1916;transform:rotate(45deg)
+}
+.publish-history.just-published{animation:publishHistoryDrop .48s cubic-bezier(.18,.77,.17,1) both}
+@keyframes publishGlow{
+ 0%,100%{box-shadow:0 0 0 1px rgba(255,90,167,.15),0 0 9px rgba(255,90,167,.13)}
+ 50%{box-shadow:0 0 0 1px rgba(255,90,167,.45),0 0 20px rgba(255,90,167,.35)}
+}
+@keyframes publishFillWaiting{
+ 0%{width:2%}40%{width:60%}75%{width:79%}100%{width:90%}
+}
+@keyframes publishHistoryDrop{
+ from{opacity:0;translate:0 -7px}
+ to{opacity:1;translate:0 0}
+}
+@media(max-width:900px){
+ body .admin-header .admin-header-actions .publish-control{
+  grid-area:publish;display:flex;align-self:stretch;min-width:0;width:100%;margin:0
+ }
+ body .admin-header .admin-header-actions .publish-control #publishButton{
+  grid-area:auto;width:100%;min-width:0;min-height:47px;
+  font-size:11px;letter-spacing:0;padding:10px 7px;white-space:normal
+ }
+ body .admin-header .admin-header-actions .publish-control .publish-history{
+  top:auto;bottom:calc(100% + 12px);right:auto;left:50%;
+  max-width:calc(100vw - 20px);min-width:max-content;
+  transform:translateX(-50%);font-size:10px;padding:10px 12px;
+  box-shadow:0 -8px 20px rgba(0,0,0,.2)
+ }
+ body .admin-header .admin-header-actions .publish-control .publish-history::before{
+  top:auto;bottom:-5px;right:calc(50% - 4px);transform:rotate(225deg)
+ }
+ .publish-history.just-published{animation:publishHistoryRise .48s cubic-bezier(.18,.77,.17,1) both}
+}
+@keyframes publishHistoryRise{
+ from{opacity:0;translate:0 8px}
+ to{opacity:1;translate:0 0}
+}
+@media(prefers-reduced-motion:reduce){
+ .publish-control[data-publish-state="changes"] #publishButton,
+ .publish-control[data-publish-state="publishing"] .publish-fill,
+ .publish-history.just-published{animation:none}
+ .publish-control[data-publish-state="publishing"] .publish-fill{opacity:1;width:45%}
+ .publish-control[data-publish-state="finishing"] .publish-fill{transition:none}
+}
