@@ -154,11 +154,11 @@
 document.addEventListener('click',function(event){
   const previewLink=event.target.closest('a[href*="preview=admin-draft"]');
   if(!previewLink)return;
-  if(!saveDraft())event.preventDefault();
+  if(!saveDraft(false))event.preventDefault();
 });
 </script>
 <script src="../calendar-content.js"></script>
-<script src="admin.js?v=mobile-admin-20261023"></script>
+<script src="admin.js?v=desktop-save-20261023"></script>
 <script src="gallery.js?v=gallery-only-20260929"></script>
 <script src="audio-upload.js"></script><script src="mobile.js?v=mobile-admin-20261023"></script><script src="team.js?v=team-redesign-20261021"></script>
 </body>
