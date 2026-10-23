@@ -4,23 +4,30 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin — La Vaca Loca Records</title>
-<link rel="stylesheet" href="admin.css?v=live-states-20261021">
+<link rel="stylesheet" href="admin.css?v=mobile-admin-20261023">
 </head>
 <body>
 <header class="admin-header">
-  <a class="brand" href="../index.html">La Vaca Loca Records</a>
-  <div class="admin-header-actions">
+  <div class="admin-header-primary">
+    <button id="adminMenuToggle" class="admin-menu-toggle" type="button" aria-label="Open admin navigation" aria-expanded="false" aria-controls="adminNavigation">
+      <span class="menu-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+    </button>
+    <a class="brand" href="../index.html">La Vaca Loca Records</a>
     <span id="liveStatus" class="status-pill live-status" role="status" aria-live="polite">CHECKING</span>
+  </div>
+  <div class="admin-header-actions" aria-label="Content actions">
     <span class="status-pill" id="cloudStatus">Checking connection</span>
-    <span class="status-pill" id="draftStatus">LOCAL DRAFT</span>
+    <span class="status-pill" id="draftStatus" role="status" aria-live="polite">LOCAL DRAFT</span>
     <button class="admin-action compact secondary" type="button" data-save-draft>Save draft</button>
     <button class="admin-action compact" id="publishButton" type="button" data-cloud-publish disabled>Publish live</button>
     <a class="admin-action compact secondary" href="../index.html?preview=admin-draft" target="_blank" rel="noopener">Preview</a>
     <button class="admin-action compact secondary" type="button" id="adminLogout">Log out</button>
   </div>
 </header>
+<div id="adminNavBackdrop" class="admin-nav-backdrop" hidden></div>
 <main class="admin-shell">
-  <aside class="admin-sidebar" aria-label="Admin navigation">
+  <aside class="admin-sidebar" id="adminNavigation" aria-label="Admin navigation">
+    <div class="admin-sidebar-head"><strong>Navigation</strong><button type="button" class="admin-nav-close" id="adminNavClose" aria-label="Close admin navigation">Close <span aria-hidden="true">×</span></button></div>
     <button class="nav-item active" data-panel="dashboard">Dashboard</button>
     <button class="nav-item" data-panel="homepage">Homepage</button>
     <button class="nav-item" data-panel="records">Records</button>
@@ -30,6 +37,7 @@
     <button class="nav-item" data-panel="gallery">Gallery</button>
     <button class="nav-item" data-panel="settings">Settings</button><button class="nav-item" data-panel="team" id="teamNav" hidden>Administrators</button>
     <button class="nav-item" data-panel="export">Export</button>
+    <button type="button" class="nav-item admin-mobile-logout" id="adminMobileLogout">Log out</button>
   </aside>
 
   <section class="admin-content">
@@ -150,8 +158,8 @@ document.addEventListener('click',function(event){
 });
 </script>
 <script src="../calendar-content.js"></script>
-<script src="admin.js?v=live-states-20261021"></script>
+<script src="admin.js?v=mobile-admin-20261023"></script>
 <script src="gallery.js?v=gallery-only-20260929"></script>
-<script src="audio-upload.js"></script><script src="team.js?v=team-redesign-20261021"></script>
+<script src="audio-upload.js"></script><script src="mobile.js?v=mobile-admin-20261023"></script><script src="team.js?v=team-redesign-20261021"></script>
 </body>
 </html>
