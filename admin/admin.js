@@ -10,6 +10,64 @@ let liveSnapshot=null;
 let publishBusy=false;
 let publishError=false;
 let editRevision=0;
+let cloudChecked=false;
+let publishPhase='publishing';
+let publishSuccessUntil=0;
+let publishSuccessTimer=null;
+let diffCacheRevision=-1;
+let diffCacheLive=null;
+let diffCacheValue=true;
+function hasUnpublishedChanges(){
+ if(liveSnapshot===null)return true;
+ if(diffCacheRevision!==editRevision||diffCacheLive!==liveSnapshot){
+  diffCacheValue=contentSnapshot(publishableDraft())!==liveSnapshot;
+  diffCacheRevision=editRevision;
+  diffCacheLive=liveSnapshot;
+ }
+ return diffCacheValue;
+}
+function updatePublishHistory(animate=false){
+ const tab=byId('publishHistory'),time=byId('publishHistoryTime');
+ if(!tab||!time)return;
+ const date=cloudState.publishedAt?new Date(cloudState.publishedAt):null;
+ if(!date||!Number.isFinite(date.getTime())){tab.hidden=true;return}
+ const readable=new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}).format(date);
+ const full=new Intl.DateTimeFormat(undefined,{dateStyle:'full',timeStyle:'long'}).format(date);
+ time.dateTime=date.toISOString();
+ time.textContent=readable;
+ tab.title='Last published: '+full;
+ tab.hidden=false;
+ if(animate){
+  tab.classList.remove('just-published');
+  void tab.offsetWidth;
+  tab.classList.add('just-published');
+ }
+}
+function resetPublishFill(){
+ const fill=byId('publishFill');
+ if(fill){fill.style.animation='';fill.style.width=''}
+}
+async function completePublishFill(){
+ const fill=byId('publishFill'),button=byId('publishButton');
+ const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+ if(!fill||!button||reduced)return;
+ const width=button.getBoundingClientRect().width;
+ const current=width?Math.min(90,Math.max(3,fill.getBoundingClientRect().width/width*100)):3;
+ fill.style.animation='none';
+ fill.style.width=current+'%';
+ publishPhase='finishing';
+ updatePublishStatus();
+ void fill.offsetWidth;
+ fill.style.width='100%';
+ await new Promise(resolve=>setTimeout(resolve,360));
+}
+function showPublishSuccess(){
+ clearTimeout(publishSuccessTimer);
+ publishSuccessUntil=Date.now()+1600;
+ publishSuccessTimer=setTimeout(()=>{publishSuccessUntil=0;updatePublishStatus()},1600);
+ updatePublishHistory(true);
+}
+
 function canonical(value){
  if(Array.isArray(value))return value.map(canonical);
  if(value&&typeof value==='object')return Object.fromEntries(Object.keys(value).sort().map(key=>[key,canonical(value[key])]));
@@ -87,6 +145,9 @@ async function checkCloudStatus(){
    }else{liveSnapshot=null}
   }
  }catch{cloudState={...cloudState,available:false,authenticated:false};liveSnapshot=null}
+ cloudChecked=true;
+ diffCacheRevision=-1;
+ updatePublishHistory();
  updateCloudUi();
 }
 async function uploadOriginalToCloudflare(file,scope='site'){
@@ -104,7 +165,10 @@ async function publishCloudContent(){
  const payload=publishableDraft();
  const snapshot=contentSnapshot(payload);
  const revisionAtStart=editRevision;
- publishBusy=true;publishError=false;updatePublishStatus();
+ publishBusy=true;publishError=false;publishPhase='publishing';
+ publishSuccessUntil=0;clearTimeout(publishSuccessTimer);
+ resetPublishFill();
+ updatePublishStatus();
  try{
   const response=await fetch('../api/admin/content',{
    method:'POST',
@@ -112,18 +176,30 @@ async function publishCloudContent(){
    body:JSON.stringify(payload)
   });
   const data=await readCloudResponse(response);
-  // LIVE is only set after Cloudflare confirms the R2 write.
+  // The server confirmed the R2 write; only now can the fill finish.
   liveSnapshot=snapshot;
+  diffCacheRevision=-1;
   cloudState.publishedContent=true;
-  cloudState.publishedAt=data.publishedAt||new Date().toISOString();
+  cloudState.publishedAt=data.publishedAt||null;
   if(editRevision===revisionAtStart){
    dirty=false;lastSavedAt=new Date().toLocaleString();
    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(draft));localStorage.setItem(`${STORAGE_KEY}-saved-at`,lastSavedAt)}catch{}
   }
-  showToast('Published successfully — site is LIVE');
+  await completePublishFill();
+  publishBusy=false;
+  resetPublishFill();
+  showPublishSuccess();
+  updateCloudUi();
+  showToast('Published successfully');
   return data;
- }catch(error){publishError=true;showToast(error.message||'Publish failed')}
- finally{publishBusy=false;updateCloudUi()}
+ }catch(error){
+  publishError=true;
+  resetPublishFill();
+  showToast(error.message||'Publish failed');
+ }finally{
+  publishBusy=false;
+  updateCloudUi();
+ }
 }
 function syncMediaAliases(){
   (draft.records||[]).forEach(r=>{r.media=r.media||{};r.media.artwork={...(r.media.artwork||{}),type:'image',provider:r.coverImage&&r.coverImage.startsWith('data:')?'browser-draft':((r.media.artwork||{}).provider||'local'),url:r.coverImage||((r.media.artwork||{}).url||''),alt:(r.media.artwork||{}).alt||`${r.artist||'Record'} — ${r.title||'cover'}`};r.media.audio={...(r.media.audio||{}),type:(r.media.audio||{}).type||'file',provider:(r.media.audio||{}).provider||'local',url:r.audioPreview||((r.media.audio||{}).url||'')}});
@@ -142,6 +218,7 @@ function saveDraft(refreshEditors=true){
   return false;
  }
  dirty=false;
+ diffCacheRevision=-1;
  // Manual saves and previews keep existing desktop/mobile inputs, cursor and open cards intact.
  // Structural edits (new/deleted/reordered items or media uploads) can request a full refresh.
  if(refreshEditors)refreshAll();
@@ -284,28 +361,47 @@ function renderExport(){
  schedulePublishStatus();
 }
 function updatePublishStatus(){
- const c=counts(),status=byId('draftStatus'),summary=byId('publishSummary'),liveBadge=byId('liveStatus'),button=byId('publishButton');
+ const c=counts(),status=byId('draftStatus'),summary=byId('publishSummary'),liveBadge=byId('liveStatus');
+ const control=byId('publishControl'),button=byId('publishButton'),label=byId('publishButtonText');
  const connected=cloudState.authenticated&&cloudState.available&&cloudState.mediaBinding;
- // Unsaved edits already have their own state; do not serialize the entire draft on each keystroke.
- const pending=dirty||(liveSnapshot!==null&&contentSnapshot(publishableDraft())!==liveSnapshot);
  const live=connected&&cloudState.publishedContent;
- const inSync=live&&liveSnapshot!==null&&!pending&&!dirty;
+ const pending=live?hasUnpublishedChanges():true;
+ const inSync=live&&liveSnapshot!==null&&!pending;
+ const recentlyPublished=Date.now()<publishSuccessUntil;
+ const state=!cloudChecked?'checking':publishBusy?publishPhase:recentlyPublished?'success':!connected?'offline':publishError?'error':inSync?'idle':'changes';
  const siteLabel=!cloudState.available?'CHECKING':!connected?'OFFLINE':live?'LIVE':'NOT LIVE';
- const draftLabel=dirty?'UNSAVED DRAFT':lastSavedAt?'DRAFT SAVED':'LOCAL DRAFT';
- if(status){status.textContent=draftLabel;status.title=lastSavedAt?'Last saved locally: '+lastSavedAt:'This browser has no saved draft';status.classList.toggle('dirty',dirty)}
- if(liveBadge){liveBadge.textContent=siteLabel;liveBadge.classList.toggle('is-live',live);liveBadge.classList.toggle('not-live',!live);liveBadge.setAttribute('aria-label','Website publication: '+siteLabel)}
+ if(status){
+  const draftLabel=dirty?'UNSAVED DRAFT':lastSavedAt?'DRAFT SAVED':'LOCAL DRAFT';
+  status.textContent=draftLabel;
+  status.title=lastSavedAt?'Last saved locally: '+lastSavedAt:'This browser has no saved draft';
+  status.classList.toggle('dirty',dirty);
+ }
+ if(liveBadge){
+  liveBadge.textContent=siteLabel;
+  liveBadge.classList.toggle('is-live',live);
+  liveBadge.classList.toggle('not-live',!live);
+  liveBadge.setAttribute('aria-label','Website publication: '+siteLabel);
+ }
+ if(control)control.dataset.publishState=state;
  if(button){
-  button.disabled=publishBusy||!connected||inSync||cloudState.role==='editor';
-  button.classList.toggle('is-live',inSync);
-  button.classList.toggle('is-publishing',publishBusy);
-  button.textContent=publishBusy?'PUBLISHING…':inSync?'LIVE':publishError?'RETRY PUBLISH':live?'PUBLISH CHANGES':'PUBLISH LIVE';
-  button.title=inSync?'Current draft matches the live website':cloudState.role==='editor'?'Only owners and administrators may publish':!connected?'Cloudflare connection required':dirty?'Unsaved edits will be published; save your draft first to retain them locally':'Publish this draft to the live website';
+  const wording=state==='changes'?(live?'PUBLISH CHANGES':'PUBLISH LIVE'):({checking:'CHECKING…',publishing:'PUBLISHING…',finishing:'PUBLISHING…',success:'LIVE',offline:'UNAVAILABLE',error:'RETRY PUBLISH',idle:'NO CHANGES'}[state]||'PUBLISH CHANGES');
+  if(label)label.textContent=wording;
+  button.disabled=state==='checking'||state==='offline'||state==='idle'||state==='publishing'||state==='finishing'||state==='success'||cloudState.role==='editor';
+  button.setAttribute('aria-label',state==='idle'?'No unpublished changes':state==='success'?'Published successfully — live':wording);
+  button.setAttribute('aria-busy',String(publishBusy));
+  button.title=state==='idle'?'Content matches the published website':
+   cloudState.role==='editor'?'Only owners and administrators may publish':
+   state==='offline'?'Cloudflare connection required':
+   state==='changes'&&dirty?'Unsaved edits can be published; save a draft to retain a local copy':
+   state==='error'?'Previous publication failed. Retry publishing.':
+   'Publish the current site content';
  }
  if(summary){
   const current=publishBusy?'Publishing…':live?'LIVE':'Not published';
-  const changeText=dirty?'Unsaved changes':pending?'Unpublished draft':liveSnapshot===null&&live?'Checking content':live?'Up to date':'Draft only';
-  const publishedAt=cloudState.publishedAt?new Date(cloudState.publishedAt).toLocaleString():'Not yet';
-  summary.innerHTML=`<article><strong class="${live?'text-live':''}">${current}</strong><span>Website</span></article><article><strong>${changeText}</strong><span>Local work</span></article><article><strong title="${escapeText(publishedAt)}">${cloudState.publishedAt?escapeText(new Date(cloudState.publishedAt).toLocaleDateString()):'—'}</strong><span>Last published</span></article><article><strong>${c.hidden}</strong><span>Hidden items</span></article>`;
+  const changeText=pending?(dirty?'Unsaved changes':'Unpublished draft'):live?'Up to date':'Draft only';
+  const publishedAt=cloudState.publishedAt?new Date(cloudState.publishedAt):null;
+  const validDate=publishedAt&&Number.isFinite(publishedAt.getTime());
+  summary.innerHTML=`<article><strong class="${live?'text-live':''}">${current}</strong><span>Website</span></article><article><strong>${changeText}</strong><span>Local work</span></article><article><strong>${validDate?escapeText(publishedAt.toLocaleDateString()):'—'}</strong><span>Last published</span></article><article><strong>${c.hidden}</strong><span>Hidden items</span></article>`;
  }
 }
 function refreshAll(){
