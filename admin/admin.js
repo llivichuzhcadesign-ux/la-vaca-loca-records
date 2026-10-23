@@ -48,7 +48,12 @@ function byId(id){return document.getElementById(id)}
 function escapeText(value=''){return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]))}
 function getValue(path){return path.split('.').reduce((obj,key)=>obj&&obj[key],draft)}
 function setValue(path,value){const parts=path.split('.');let target=draft;while(parts.length>1){const key=parts.shift();target[key]=target[key]||{};target=target[key]}target[parts[0]]=value;markDirty()}
-function markDirty(){dirty=true;editRevision++;publishError=false;updatePublishStatus()}
+let publishStatusUpdateTimer=0;
+function schedulePublishStatus(){
+ if(publishStatusUpdateTimer)return;
+ publishStatusUpdateTimer=setTimeout(()=>{publishStatusUpdateTimer=0;updatePublishStatus()},120);
+}
+function markDirty(){dirty=true;editRevision++;publishError=false;schedulePublishStatus()}
 function showToast(message){const toast=byId('adminToast');if(!toast)return;toast.textContent=message;toast.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.classList.remove('show'),1800)}
 function cloudAdminKey(){return cloudState.authenticated?'session':''}
 function cloudScope(path='site'){const root=String(path).split('.')[0]||'site';if(root==='homepage')return'hero';if(root==='records')return'records';if(root==='sessions')return'sessions';if(root==='events')return'events';if(root==='archiveItems')return'archive';return'site'}
@@ -255,7 +260,12 @@ function renderArchive(){const list=draft.archiveItems||[];byId('archiveList').i
 function renderSettings(){draft.settings=draft.settings||{};const s=draft.settings;const clean=String(s.whatsappNumber||'').replace(/\D/g,'');const preview=clean?`https://wa.me/${clean}`:'Waiting for number';byId('settingsForm').innerHTML=`<div class="settings-note"><strong>WhatsApp routing</strong><span>${preview}</span><p>Use country code and number only. Ecuador example: 593999999999. USA example: 19175551212.</p></div><div class="field-grid">${field('settings.brandName','Brand name',s.brandName)}${field('settings.location','Location',s.location)}${field('settings.currency','Currency',s.currency)}${field('settings.whatsappNumber','WhatsApp number',s.whatsappNumber,'tel','Country code + number, no plus sign needed.')}${field('settings.instagramUrl','Instagram link',s.instagramUrl,'url')}${field('settings.businessHours','Business hours',s.businessHours)}${field('settings.pickupNotes','Pickup notes',s.pickupNotes,'textarea')}${field('settings.deliveryNotes','Delivery notes',s.deliveryNotes,'textarea')}${field('settings.whatsappText','WhatsApp intro',s.whatsappText,'textarea')}${field('settings.orderFooter','Order message footer',s.orderFooter,'textarea','Customer fields added after the bag total.')}</div><div class="card-actions"><button class="admin-action" data-save-draft>Save draft</button></div>`}
 function publishableDraft(){const output=clone(draft);(output.homepage?.hero?.slides||[]).forEach(slide=>{delete slide.draftBlobKey;delete slide.fileName;delete slide.mimeType;delete slide.originalBytes});return output}
 function makeDataJs(){syncMediaAliases();const output=publishableDraft();return `window.SITE_CONTENT = ${JSON.stringify(output,null,2)};\n\nwindow.RECORDS = window.SITE_CONTENT.records;\nwindow.SESSIONS = window.SITE_CONTENT.sessions;\nwindow.EVENTS = window.SITE_CONTENT.events;\nwindow.ARCHIVE_ITEMS = window.SITE_CONTENT.archiveItems;\n\n(function setupWhatsAppRouting(){\n  const settings=window.SITE_CONTENT&&window.SITE_CONTENT.settings?window.SITE_CONTENT.settings:{};\n  const cleanNumber=String(settings.whatsappNumber||'').replace(/\\D/g,'');\n  const footer=String(settings.orderFooter||'').trim();\n  function routedHref(currentHref){\n    let text='';\n    try{text=new URL(currentHref,window.location.href).searchParams.get('text')||''}catch{text=''}\n    if(footer&&text&&!text.includes(footer))text=\`${'${text}'}\\n\\n${'${footer}'}\`;\n    const base=cleanNumber?\`https://wa.me/${'${cleanNumber}'}\`:'https://wa.me/';\n    return \`${'${base}'}?text=${'${encodeURIComponent(text)}'}\`;\n  }\n  function route(){const link=document.getElementById('whatsappCheckout');if(!link||!link.href)return;link.href=routedHref(link.href)}\n  window.addEventListener('load',route);document.addEventListener('click',()=>setTimeout(route,0));setInterval(route,1000);\n})();\n`}
-function renderExport(){const out=byId('jsonOutput');if(out)out.value=makeDataJs();updatePublishStatus()}
+function renderExport(){
+ const out=byId('jsonOutput');
+ // Avoid serializing the entire content model for every mobile keystroke.
+ if(out&&byId('export')?.classList.contains('active'))out.value=makeDataJs();
+ schedulePublishStatus();
+}
 function updatePublishStatus(){
  const c=counts(),status=byId('draftStatus'),summary=byId('publishSummary'),liveBadge=byId('liveStatus'),button=byId('publishButton');
  const connected=cloudState.authenticated&&cloudState.available&&cloudState.mediaBinding;
@@ -280,7 +290,19 @@ function updatePublishStatus(){
   summary.innerHTML=`<article><strong class="${live?'text-live':''}">${current}</strong><span>Website</span></article><article><strong>${changeText}</strong><span>Local work</span></article><article><strong title="${escapeText(publishedAt)}">${cloudState.publishedAt?escapeText(new Date(cloudState.publishedAt).toLocaleDateString()):'—'}</strong><span>Last published</span></article><article><strong>${c.hidden}</strong><span>Hidden items</span></article>`;
  }
 }
-function refreshAll(){renderStats();renderHomepage();renderRecords();renderSessions();renderCalendarSettings();renderEvents();renderArchive();renderSettings();renderExport()}
+function refreshAll(){
+ // Refreshing a draft should not collapse the form the editor is currently working in.
+ const expanded=new Map();
+ document.querySelectorAll('.admin-content .panel').forEach(panel=>{
+  const sections=Array.from(panel.querySelectorAll('details'));
+  expanded.set(panel.id,sections.flatMap((element,index)=>element.open?[index]:[]));
+ });
+ renderStats();renderHomepage();renderRecords();renderSessions();renderCalendarSettings();renderEvents();renderArchive();renderSettings();renderExport();
+ for(const [id,indices] of expanded){
+  const sections=Array.from(byId(id)?.querySelectorAll('details')||[]);
+  indices.forEach(index=>{if(sections[index])sections[index].open=true});
+ }
+}
 function addItem(type){const templates={records:{id:`LVL${String((draft.records||[]).length+1).padStart(3,'0')}`,artist:'New Artist',title:'New Release',genre:'House',price:0,stock:1,status:'DRAFT',featured:false,featuredInPlayer:false,hideFromPublic:true,coverImage:'',audioPreview:'',description:'',condition:'',label:'',year:'',media:{artwork:{type:'image',provider:'local',url:'',alt:''},audio:{type:'file',provider:'local',url:''}}},sessions:{id:`S${String((draft.sessions||[]).length+1).padStart(2,'0')}`,title:'New Session',type:'Escucha',date:'Próximamente',status:'Draft',featured:false,hideFromPublic:true,detail:'',heroImage:'',audio:'',video:'',relatedRecords:[],media:{hero:{type:'image',provider:'local',url:'',alt:''},audio:{type:'file',provider:'local',url:''},video:{type:'youtube',provider:'youtube',url:''}}},events:{id:`E${String((draft.events||[]).length+1).padStart(2,'0')}`,title:'New Event',date:'Próximamente',place:'Gualaceo',status:'Draft',featured:false,hideFromPublic:true,posterImage:'',video:'',detail:'',media:{poster:{type:'image',provider:'local',url:'',alt:''},video:{type:'youtube',provider:'youtube',url:''}}},archiveItems:{id:`A${String((draft.archiveItems||[]).length+1).padStart(2,'0')}`,title:'New Archive Item',category:'Archive',featured:false,hideFromPublic:true,image:'',detail:'',relatedSession:'',relatedEvent:'',media:{image:{type:'image',provider:'local',url:'',alt:''}}}};draft[type]=draft[type]||[];if(type==='events'){templates.events.id='E'+Date.now().toString(36);templates.events.time='';}draft[type].push(templates[type]);saveDraft()}
 function applyFieldChange(input){if(!input)return;let value=input.value;if(input.type==='number')value=Number(input.value);if(input.dataset.path&&input.dataset.path.endsWith('relatedRecords'))value=String(input.value).split(',').map(x=>x.trim()).filter(Boolean);if(/^events\.\d+\.date$/.test(input.dataset.path))value=CalendarContent.storedDate(value);
 setValue(input.dataset.path,value);renderStats();renderExport();updateMediaPreview(input)}
@@ -305,7 +327,7 @@ function injectHomepageAdminStyles(){const style=document.createElement('style')
 document.addEventListener('input',e=>applyFieldChange(e.target.closest('[data-path]')));
 document.addEventListener('change',e=>{const visibility=e.target.closest('[data-visibility-path]');if(visibility){const hidden=visibility.value==='hidden';setValue(visibility.dataset.visibilityPath,hidden);const label=visibility.closest('.editor-card')?.querySelector('.summary-status');if(label){const parts=label.textContent.split(' · ');if(parts.length>1){parts[1]=hidden?'Hidden':(['DRAFT','HIDDEN','PRIVATE LISTING'].includes(String(parts[0]).toUpperCase())&&visibility.dataset.visibilityPath.startsWith('records.'))?'Unlisted by status':'Visible after publishing';label.textContent=parts.join(' · ')}}renderStats();renderExport();return}const heroUpload=e.target.closest('[data-hero-upload]');if(heroUpload){handleHeroUpload(heroUpload);return}const upload=e.target.closest('[data-upload-path]');if(upload){handleImageUpload(upload);return}applyFieldChange(e.target.closest('[data-path]'))});
 document.addEventListener('click',e=>{
-  const nav=e.target.closest('[data-panel]');if(nav){document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));nav.classList.add('active');document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===nav.dataset.panel));return}
+  const nav=e.target.closest('[data-panel]');if(nav){document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));nav.classList.add('active');document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===nav.dataset.panel));if(nav.dataset.panel==='export')renderExport();return}
   const clear=e.target.closest('[data-clear-media]');if(clear){clearMedia(clear.dataset.clearMedia);return}
   const copy=e.target.closest('[data-copy-path]');if(copy){const input=copy.closest('.advanced-media')?.querySelector('[data-path]');if(input){navigator.clipboard&&navigator.clipboard.writeText(input.value);copy.classList.add('copy-flash');setTimeout(()=>copy.classList.remove('copy-flash'),500);showToast('Path copied')}return}
   const toggle=e.target.closest('[data-toggle-path]');if(toggle){const path=toggle.dataset.togglePath;const next=toggle.getAttribute('aria-pressed')!=='true';setValue(path,next);toggle.classList.toggle('on',next);toggle.setAttribute('aria-pressed',next?'true':'false');toggle.querySelector('span').textContent=next?'ON':'OFF';renderStats();renderExport();return}
