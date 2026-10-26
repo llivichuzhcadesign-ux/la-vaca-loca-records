@@ -1,7 +1,12 @@
 (()=>{
  const nav=document.getElementById('teamNav');
  const list=document.getElementById('teamList');
- const create=document.getElementById('teamCreate');
+ const inviteForm=document.getElementById('teamInvite');
+ const inviteList=document.getElementById('teamInvitations');
+ const inviteLinkBox=document.getElementById('teamInviteLinkBox');
+ const inviteLink=document.getElementById('teamInviteLink');
+ const copyInvite=document.getElementById('teamCopyInvite');
+ const copyStatus=document.getElementById('teamInviteCopyStatus');
  const status=document.getElementById('teamStatus');
  const resetDialog=document.getElementById('teamResetDialog');
  const resetForm=document.getElementById('teamResetForm');
@@ -9,7 +14,7 @@
  const deleteDialog=document.getElementById('teamDeleteDialog');
  const deleteForm=document.getElementById('teamDeleteForm');
  const deleteStatus=document.getElementById('teamDeleteStatus');
- if(!nav||!list||!create||!resetDialog||!deleteDialog)return;
+ if(!nav||!list||!inviteForm||!inviteList||!resetDialog||!deleteDialog)return;
 
  const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const message=(node,value,isError=false)=>{node.textContent=value;node.classList.toggle('error',isError)};
@@ -60,6 +65,7 @@
   try{
    const {users}=await api();
    list.innerHTML=users.map(renderAccount).join('')||'<p class="team-hint">No accounts found.</p>';
+   await loadInvitations();
   }catch(error){message(status,error.message,true)}
  }
 
@@ -156,19 +162,88 @@
   }
  });
 
- create.addEventListener('submit',async event=>{
-  event.preventDefault();
-  const button=create.querySelector('[type="submit"]');
-  button.disabled=true;
+ const inviteApi=async(method='GET',payload)=>{
+  const response=await fetch('../api/admin/invitations',{
+   method,
+   headers:payload?{'content-type':'application/json'}:{},
+   body:payload?JSON.stringify(payload):undefined,
+   cache:'no-store'
+  });
+  if(!(response.headers.get('content-type')||'').includes('application/json'))
+   throw Error('Invitation service unavailable. Check the Cloudflare deployment.');
+  const data=await response.json();
+  if(!response.ok)throw Error(data.error||'Invitation request failed');
+  return data;
+ };
+
+ async function loadInvitations(){
   try{
-   message(status,'Creating account…');
-   await api('POST',Object.fromEntries(new FormData(create)));
-   create.reset();
-   message(status,'Account created successfully.');
-   await load();
+   const {invitations}=await inviteApi();
+   const now=Date.now();
+   const pending=(invitations||[]).filter(i=>!i.used_at&&!i.revoked_at&&Number(i.expires_at)>now);
+   inviteList.innerHTML=pending.length?pending.map(invite=>{
+    const date=new Date(invite.expires_at);
+    const expires=Number.isFinite(date.getTime())?date.toLocaleString():'Soon';
+    const role=invite.role==='admin'?'Administrator':invite.role==='owner'?'Owner':'Editor';
+    return `<article class="team-invite-item">
+      <div class="team-invite-info"><strong>${escape(invite.email)}</strong><span>${escape(role)} · Expires ${escape(expires)}</span></div>
+      <button type="button" class="team-button team-invite-revoke" data-revoke-invite="${escape(invite.id)}" data-invite-email="${escape(invite.email)}">Revoke</button>
+    </article>`;
+   }).join(''):'<p class="team-hint">No pending invitations.</p>';
+  }catch(error){
+   inviteList.textContent=error.message;
+  }
+ }
+
+ inviteForm.addEventListener('submit',async event=>{
+  event.preventDefault();
+  const button=inviteForm.querySelector('[type="submit"]');
+  button.disabled=true;
+  inviteLinkBox.hidden=true;
+  inviteLink.value='';
+  message(copyStatus,'');
+  try{
+   message(status,'Generating secure invitation…');
+   const {inviteUrl,email}=await inviteApi('POST',Object.fromEntries(new FormData(inviteForm)));
+   inviteLink.value=inviteUrl;
+   inviteLinkBox.hidden=false;
+   message(status,'Invitation ready for '+email+'. Copy the private link and send it directly.');
+   inviteForm.reset();
+   await loadInvitations();
   }catch(error){message(status,error.message,true)}
   finally{button.disabled=false}
  });
+
+ copyInvite.addEventListener('click',async()=>{
+  if(!inviteLink.value)return;
+  try{
+   if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(inviteLink.value);
+   else{
+    inviteLink.focus();inviteLink.select();inviteLink.setSelectionRange(0,inviteLink.value.length);
+    if(!document.execCommand('copy'))throw Error('Copy not supported');
+   }
+   message(copyStatus,'Link copied. Share it privately with the invited person.');
+  }catch(error){
+   inviteLink.focus();inviteLink.select();
+   message(copyStatus,'Select and copy the link manually.',true);
+  }
+ });
+
+ inviteList.addEventListener('click',async event=>{
+  const button=event.target.closest('[data-revoke-invite]');
+  if(!button)return;
+  if(!window.confirm('Revoke the invitation for '+button.dataset.inviteEmail+'? The link will stop working.'))return;
+  button.disabled=true;
+  try{
+   await inviteApi('DELETE',{id:button.dataset.revokeInvite});
+   message(status,'Invitation revoked.');
+   inviteLinkBox.hidden=true;
+   inviteLink.value='';
+   await loadInvitations();
+  }catch(error){message(status,error.message,true);button.disabled=false}
+ });
+
+ document.getElementById('teamRefreshInvites')?.addEventListener('click',loadInvitations);
 
  fetch('../api/auth/me',{cache:'no-store'}).then(response=>response.json()).then(user=>{
   if(!user.ok)return;
