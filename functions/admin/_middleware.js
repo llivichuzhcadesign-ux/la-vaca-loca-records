@@ -5,7 +5,7 @@ export async function onRequest(context){
   // Cloudflare Pages serves HTML with extensionless canonical URLs.
   // Both forms must be public to avoid /login.html <-> /login loops.
   const path=url.pathname.replace(/\/+$/,'')||'/';
-  if(['/admin/login','/admin/login.html','/admin/setup','/admin/setup.html','/admin/invite','/admin/invite.html'].includes(path)){
+  if(['/admin/login','/admin/login.html','/admin/setup','/admin/setup.html','/admin/invite','/admin/invite.html','/admin/forgot-password','/admin/forgot-password.html','/admin/reset-password','/admin/reset-password.html'].includes(path)){
     return context.next();
   }
 
