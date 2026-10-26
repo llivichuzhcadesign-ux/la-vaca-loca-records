@@ -8,7 +8,7 @@ export async function onRequestPost(context){
  const fingerprint=await digest((context.request.headers.get('CF-Connecting-IP')||'unknown')+':'+email);
  const attempts=await db.prepare('SELECT count,blocked_until FROM login_attempts WHERE fingerprint=?').bind(fingerprint).first();
  if(attempts?.blocked_until>Date.now())return json({ok:false,error:'Too many attempts. Try again later.'},429);
- const user=await db.prepare('SELECT id,email,password_hash,salt FROM admin_users WHERE email=?').bind(email).first();
+ const user=await db.prepare('SELECT id,email,password_hash,salt FROM admin_users WHERE email=? AND active=1').bind(email).first();
  const salt=user?.salt||'00000000-0000-0000-0000-000000000000';
  const computed=await passwordHash(password,salt);
  if(!user||computed!==user.password_hash){
