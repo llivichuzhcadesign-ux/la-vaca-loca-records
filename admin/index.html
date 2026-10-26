@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Admin — La Vaca Loca Records</title>
-<link rel="stylesheet" href="admin.css?v=invite-flow-20261026">
+<link rel="stylesheet" href="admin.css?v=password-recovery-20261026">
 </head>
 <body>
 <header class="admin-header">
@@ -133,6 +133,23 @@
     <p class="team-hint">Invitations expire after 48 hours. Generate another link using the same email to replace an old invitation.</p>
     <div id="teamInvitations" class="team-invite-list" aria-live="polite"></div>
   </section>
+  <section class="team-pending team-recovery" aria-labelledby="teamRecoveryTitle">
+    <div class="team-pending-head">
+      <div><p class="eyebrow">ACCOUNT RECOVERY</p><h3 id="teamRecoveryTitle">Password reset requests</h3></div>
+      <button class="team-button" id="teamRefreshResets" type="button">Refresh</button>
+    </div>
+    <p class="team-hint">Review requests submitted through “Forgot password?” and issue a 30-minute, one-time link. Only Owners can generate links; the primary designer account is excluded.</p>
+    <div id="teamResetRequests" class="team-invite-list" aria-live="polite"></div>
+    <section class="team-invite-link" id="teamResetLinkBox" hidden aria-labelledby="teamResetLinkTitle">
+      <p class="eyebrow" id="teamResetLinkTitle">ONE-TIME PASSWORD RESET LINK</p>
+      <p class="team-hint">Copy this private link now and send it directly to the account owner. It expires after 30 minutes and is not shown again after you leave this page.</p>
+      <div class="team-invite-copy-row">
+        <input type="text" id="teamResetLink" readonly aria-label="Generated password reset link" spellcheck="false">
+        <button class="team-submit" type="button" id="teamCopyReset">Copy link</button>
+      </div>
+      <p id="teamResetCopyStatus" class="team-status" role="status" aria-live="polite"></p>
+    </section>
+  </section>
 </section>
 <dialog id="teamResetDialog" class="team-dialog" aria-labelledby="teamResetTitle">
   <form id="teamResetForm" class="team-reset-form">
@@ -193,6 +210,6 @@ document.addEventListener('click',function(event){
 <script src="../calendar-content.js"></script>
 <script src="admin.js?v=publish-states-20261023"></script>
 <script src="gallery.js?v=gallery-only-20260929"></script>
-<script src="audio-upload.js"></script><script src="mobile.js?v=scroll-tabs-20261023"></script><script src="team.js?v=invite-flow-20261026"></script>
+<script src="audio-upload.js"></script><script src="mobile.js?v=scroll-tabs-20261023"></script><script src="team.js?v=password-recovery-20261026"></script>
 </body>
 </html>
