@@ -488,3 +488,22 @@
  .team-invite-revoke{width:100%}
  .team-pending-head{align-items:end}
 }
+
+
+/* Owner-approved password recovery: calm editorial card actions */
+.team-recovery{margin-top:36px}
+.team-recovery-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;flex:none}
+.team-recovery-actions .team-button{min-height:44px;margin:0;white-space:nowrap}
+.team-recovery .team-invite-info{flex:1 1 230px}
+.team-recovery .team-invite-item{align-items:center}
+.team-recovery .team-invite-link{margin-top:16px}
+.team-recovery .team-invite-link[hidden]{display:none!important}
+.team-recovery .team-invite-copy-row input{color:var(--paper)}
+@media(max-width:900px){
+ .team-recovery-actions{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr);width:100%}
+ .team-recovery-actions .team-button{width:100%;white-space:normal}
+ .team-recovery .team-invite-item{align-items:flex-start}
+}
+@media(max-width:390px){
+ .team-recovery-actions{grid-template-columns:1fr}
+}
