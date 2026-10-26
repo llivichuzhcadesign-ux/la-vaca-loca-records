@@ -8,6 +8,11 @@
  const copyInvite=document.getElementById('teamCopyInvite');
  const copyStatus=document.getElementById('teamInviteCopyStatus');
  const status=document.getElementById('teamStatus');
+ const resetRequests=document.getElementById('teamResetRequests');
+ const resetLinkBox=document.getElementById('teamResetLinkBox');
+ const resetLinkInput=document.getElementById('teamResetLink');
+ const resetCopy=document.getElementById('teamCopyReset');
+ const resetCopyStatus=document.getElementById('teamResetCopyStatus');
  const resetDialog=document.getElementById('teamResetDialog');
  const resetForm=document.getElementById('teamResetForm');
  const resetStatus=document.getElementById('teamResetStatus');
@@ -38,8 +43,11 @@
   const controls=primary
    ? `<div class="team-protected-role" title="This permanent account is protected by the server"><span class="team-lock-symbol" aria-hidden="true">◆</span> Owner role protected</div>`
    : `<div class="team-field"><label for="team-role-${id}">Account role</label><select id="team-role-${id}" data-role="${id}" ${own?'disabled title="You cannot change your own Owner role"':''}>${option('owner',user.role)}${option('admin',user.role)}${option('editor',user.role)}</select></div>`;
-  const canReset=!primary||own;
-  const reset=canReset?`<button type="button" class="team-button" data-reset="${id}" data-email="${email}" data-self="${own?1:0}">Reset password</button>`:'';
+  const reset=own
+   ? `<button type="button" class="team-button" data-reset="${id}" data-email="${email}" data-self="1">Change my password</button>`
+   : !primary
+   ? `<button type="button" class="team-button" data-generate-reset="${id}" data-email="${email}">Generate reset link</button>`
+   : '';
   const deactivate=!primary&&!own?`<button type="button" class="team-button ${user.active?'danger':''}" data-toggle="${id}" data-active="${user.active?1:0}">${user.active?'Deactivate':'Reactivate'}</button>`:'';
   const deleteButton=!primary&&!own?`<button type="button" class="team-button team-delete-button" data-delete="${id}" data-email="${email}">Delete account</button>`:'';
   return `<article class="team-card ${primary?'team-card-primary':''}">
@@ -66,6 +74,7 @@
    const {users}=await api();
    list.innerHTML=users.map(renderAccount).join('')||'<p class="team-hint">No accounts found.</p>';
    await loadInvitations();
+   await loadResetRequests();
   }catch(error){message(status,error.message,true)}
  }
 
@@ -86,6 +95,8 @@
    update({id:toggle.dataset.toggle,active:toggle.dataset.active!=='1'});
    return;
   }
+  const generate=event.target.closest('[data-generate-reset]');
+  if(generate){generateResetLink({action:'direct',userId:generate.dataset.generateReset},generate);return}
   const reset=event.target.closest('[data-reset]');
   if(reset){
    resetForm.reset();
@@ -242,6 +253,91 @@
    await loadInvitations();
   }catch(error){message(status,error.message,true);button.disabled=false}
  });
+
+
+ const resetApi=async(method='GET',payload)=>{
+  const response=await fetch('../api/admin/password-resets',{
+   method,headers:payload?{'content-type':'application/json'}:{},
+   body:payload?JSON.stringify(payload):undefined,cache:'no-store'
+  });
+  if(!(response.headers.get('content-type')||'').includes('application/json'))
+   throw Error('Password recovery service unavailable. Check Cloudflare deployment.');
+  const data=await response.json();
+  if(!response.ok)throw Error(data.error||'Password recovery request failed');
+  return data;
+ };
+
+ async function loadResetRequests(){
+  if(!resetRequests)return;
+  try{
+   const {requests}=await resetApi();
+   const now=Date.now();
+   resetRequests.innerHTML=requests.length?requests.map(item=>{
+    const when=new Date(item.requested_at).toLocaleString();
+    const valid=!!item.approved_at&&Number(item.expires_at)>now;
+    const expiry=valid?new Date(item.expires_at).toLocaleString():'';
+    const label=valid?'Link issued · Expires '+expiry:item.approved_at?'Previous link expired · Generate another':'Awaiting owner approval';
+    return `<article class="team-invite-item">
+      <div class="team-invite-info">
+       <strong>${escape(item.email)}</strong>
+       <span>${escape(label)} · Requested ${escape(when)}</span>
+      </div>
+      <div class="team-recovery-actions">
+       <button class="team-button" type="button" data-approve-reset="${escape(item.id)}">${item.approved_at?'New link':'Generate reset link'}</button>
+       <button class="team-button team-invite-revoke" type="button" data-revoke-reset="${escape(item.id)}">Revoke</button>
+      </div>
+     </article>`;
+   }).join(''):'<p class="team-hint">No pending password reset requests.</p>';
+  }catch(error){resetRequests.textContent=error.message}
+ }
+
+ async function generateResetLink(payload,button){
+  if(button)button.disabled=true;
+  if(resetLinkBox)resetLinkBox.hidden=true;
+  if(resetLinkInput)resetLinkInput.value='';
+  message(resetCopyStatus,'');
+  try{
+   const data=await resetApi('POST',payload);
+   resetLinkInput.value=data.resetUrl;
+   resetLinkBox.hidden=false;
+   message(status,'Password reset link created for '+data.email+'. Copy it and send it privately; it expires in 30 minutes.');
+   await loadResetRequests();
+   resetLinkBox.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }catch(error){message(status,error.message,true)}
+  finally{if(button)button.disabled=false}
+ }
+
+ resetRequests?.addEventListener('click',async event=>{
+  const approve=event.target.closest('[data-approve-reset]');
+  if(approve){await generateResetLink({action:'approve',id:approve.dataset.approveReset},approve);return}
+  const revoke=event.target.closest('[data-revoke-reset]');
+  if(!revoke)return;
+  if(!window.confirm('Revoke this password reset request and invalidate its link?'))return;
+  revoke.disabled=true;
+  try{
+   await resetApi('DELETE',{id:revoke.dataset.revokeReset});
+   resetLinkInput.value='';
+   resetLinkBox.hidden=true;
+   message(status,'Password reset request revoked.');
+   await loadResetRequests();
+  }catch(error){message(status,error.message,true);revoke.disabled=false}
+ });
+
+ resetCopy?.addEventListener('click',async()=>{
+  if(!resetLinkInput.value)return;
+  try{
+   if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(resetLinkInput.value);
+   else{
+    resetLinkInput.focus();resetLinkInput.select();resetLinkInput.setSelectionRange(0,resetLinkInput.value.length);
+    if(!document.execCommand('copy'))throw Error('Copy unavailable');
+   }
+   message(resetCopyStatus,'Link copied. Send it privately to the account holder.');
+  }catch(error){
+   resetLinkInput.focus();resetLinkInput.select();
+   message(resetCopyStatus,'Please select and copy the link manually.',true);
+  }
+ });
+ document.getElementById('teamRefreshResets')?.addEventListener('click',loadResetRequests);
 
  document.getElementById('teamRefreshInvites')?.addEventListener('click',loadInvitations);
 
