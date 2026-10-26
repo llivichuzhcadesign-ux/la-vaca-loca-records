@@ -34,21 +34,11 @@ export async function onRequestGet(context){
  }))});
 }
 
+// Accounts are created only by the holder of a valid one-time invitation.
+// The previous owner-chosen-password path is deliberately disabled.
 export async function onRequestPost(context){
- if(!sameOrigin(context.request))return json({ok:false,error:'Invalid origin.'},403);
- const access=await owner(context);if(access.error)return access.error;
- const b=await readBody(context);if(!b)return json({ok:false,error:'Invalid JSON.'},400);
- const email=String(b.email||'').trim().toLowerCase(),password=String(b.password||''),role=String(b.role||'');
- if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||password.length<14||password.length>1024||!roles.has(role))
-  return json({ok:false,error:'Valid email, role and password (14+ characters) required.'},400);
- const salt=crypto.randomUUID(),hash=await passwordHash(password,salt);
- try{
-  await context.env.DB.prepare('INSERT INTO admin_users(id,email,password_hash,salt,role,active) VALUES(?,?,?,?,?,1)')
-   .bind(crypto.randomUUID(),email,hash,salt,role).run();
- }catch{return json({ok:false,error:'This email is already registered.'},409)}
- return json({ok:true});
+ return json({ok:false,error:'Invite this person instead. New users choose their own password.'},405);
 }
-
 export async function onRequestPatch(context){
  if(!sameOrigin(context.request))return json({ok:false,error:'Invalid origin.'},403);
  const access=await owner(context);if(access.error)return access.error;
