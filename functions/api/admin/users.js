@@ -1,4 +1,5 @@
 import {json,currentSession,sameOrigin,passwordHash} from '../../_lib/auth.js';
+import {ensurePasswordResetTables} from '../../_lib/password-resets.js';
 
 const roles=new Set(['owner','admin','editor']);
 
@@ -63,6 +64,8 @@ export async function onRequestPatch(context){
   .bind(nextRole,nextActive,id).run();
  if(!nextActive||nextRole!==target.role)
   await db.prepare('DELETE FROM admin_sessions WHERE user_id=?').bind(id).run();
+ await ensurePasswordResetTables(db);
+ await db.prepare('UPDATE admin_password_resets SET revoked_at=? WHERE user_id=? AND revoked_at IS NULL AND used_at IS NULL').bind(Date.now(),id).run();
  return json({ok:true});
 }
 
@@ -74,9 +77,8 @@ export async function onRequestPut(context){
  const id=String(b.id||''),password=String(b.password||''),db=context.env.DB;
  if(!id||password.length<14||password.length>1024)
   return json({ok:false,error:'Account and new password required (14+ characters).'},400);
- const primaryId=await foundingOwnerId(db);
- if(id===primaryId&&access.session.user_id!==id)
-  return json({ok:false,error:'Only the primary designer can change the primary account password.'},403);
+ if(id!==access.session.user_id)
+  return json({ok:false,error:'You can change only your own password. Generate a private reset link for other accounts.'},403);
  const salt=crypto.randomUUID(),hash=await passwordHash(password,salt);
  const result=await db.prepare('UPDATE admin_users SET password_hash=?,salt=? WHERE id=?')
   .bind(hash,salt,id).run();
