@@ -24,7 +24,7 @@
 
 
 
-/* The natural carrizo basket stays unchanged regardless of contents. */
+/* The shopping bag silhouette stays unchanged regardless of contents. */
 body header .bag-state-image{display:block;width:34px;height:36px;object-fit:contain;filter:none}
 .ios-header body header .bag-state-image{width:30px!important;height:30px!important}
 body header #cartCount{display:none!important}

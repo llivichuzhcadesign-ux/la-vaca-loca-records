@@ -100,13 +100,13 @@ body .archive-main a{border:0;font-size:42px;margin:0}
 @media(max-width:700px){body .archive-main{padding:20px 20px 30px;gap:15px}body .archive-main h2{font-size:13vw}.memory-collage{gap:12px}.memory-group{gap:12px;padding-right:12px}.memory-photo{width:210px;height:155px}.memory-photo:nth-child(3n+2){width:145px;height:180px}.memory-photo:nth-child(3n){width:250px;height:145px}body .archive-section{padding-bottom:70px!important}}
 @media(prefers-reduced-motion:reduce){.memory-track{animation:none}.memory-collage{overflow-x:auto}.memory-photo img{transition:none}}
 
-/* Carrizo basket replaces the bag label. */
+/* One understated shopping bag in the homepage header. */
 body .site-header .cart-button{display:inline-flex;align-items:center;gap:8px;border:0;padding:3px 0 3px 8px;min-width:64px;min-height:48px}
-.carrizo-bag-icon{display:block;width:44px;height:44px;flex:none;transition:transform .2s ease}
-body .site-header .cart-button:hover .carrizo-bag-icon{transform:rotate(-5deg)}
+.bag-state-image{display:block;width:44px;height:44px;flex:none;transition:transform .2s ease}
+body .site-header .cart-button:hover .bag-state-image{transform:translateY(-2px)}
 body .site-header .cart-button span{margin-left:0;width:21px;height:21px;font-size:12px}
 body .site-header .cart-button:focus-visible{outline:2px solid var(--pink);outline-offset:5px}
-@media(max-width:520px){.carrizo-bag-icon{width:38px;height:38px}}
+@media(max-width:520px){.bag-state-image{width:38px;height:38px}}
 
 /* Homepage refinement: readable controls, tighter rhythm, and useful previews. */
 body{padding-bottom:0}
