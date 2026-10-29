@@ -16,13 +16,21 @@
    const controls=document.createElement('div');const remove=document.createElement('button');remove.type='button';remove.textContent='−';remove.setAttribute('aria-label','Quitar una copia de '+r.title);remove.onclick=()=>{ids.splice(ids.indexOf(id),1);save()};const amount=document.createElement('span');amount.textContent=qty;const add=document.createElement('button');add.type='button';add.textContent='+';add.disabled=qty>=stock(r);add.setAttribute('aria-label','Añadir una copia de '+r.title);add.onclick=()=>{ids.push(id);save()};controls.append(remove,amount,add);row.append(copy,controls);items.append(row);
   }
   if(!ids.length){const empty=document.createElement('p');empty.textContent='Tu canasta está vacía.';items.append(empty)}
-  total.textContent=money(sum);const phone=String(settings.whatsappNumber||'').replace(/\D/g,'');checkout.setAttribute('aria-disabled',String(!ids.length||!phone));
-  if(ids.length&&phone)checkout.href='https://wa.me/'+phone+'?text='+encodeURIComponent((settings.whatsappText||'Hola! Quiero hacer este pedido de La Vaca Loca Records:')+'\n\n'+lines.join('\n')+'\n\nTotal: '+money(sum));else checkout.removeAttribute('href');
-  status.textContent=!phone?'La tienda todavía no ha configurado su número de WhatsApp.':'';
+  total.textContent=money(sum);
+  // WhatsApp expects an international number with country code (8–15 digits).
+  const digits=String(settings.whatsappNumber||'').replace(/\D/g,'');
+  const phone=/^[1-9]\d{7,14}$/.test(digits)?digits:'';
+  const ready=!!ids.length&&!!phone;
+  checkout.setAttribute('aria-disabled',String(!ready));
+  checkout.tabIndex=ready?0:-1;
+  if(ready){
+   checkout.href='https://wa.me/'+phone+'?text='+encodeURIComponent((settings.whatsappText||'Hola! Quiero hacer este pedido de La Vaca Loca Records:')+'\n\n'+lines.join('\n')+'\n\nTotal: '+money(sum));
+  }else checkout.removeAttribute('href');
+  status.textContent=!phone?'Los pedidos por WhatsApp no están disponibles todavía. Configura un número con código de país.':!ids.length?'Añade discos a tu bolsa para continuar.':'';
   document.querySelectorAll('.bag-state-image').forEach(image=>{image.src='assets/brand/shopping-bag.svg'});document.querySelectorAll('#cartButton,.header-bag,.ios-basket').forEach(button=>button.setAttribute('aria-label','Abrir canasta: '+ids.length+' '+(ids.length===1?'disco':'discos')));
  }
  function refresh(){ids=read();save()}
- function open(){refresh();if(dialog.open)return;opener=document.activeElement;scrollY=window.scrollY;styles={position:document.body.style.position,top:document.body.style.top,width:document.body.style.width,overflow:document.body.style.overflow};Object.assign(document.body.style,{position:'fixed',top:-scrollY+'px',width:'100%',overflow:'hidden'});dialog.showModal()}
+ function open(){window.closeLVLPlayer?.();refresh();if(dialog.open)return;opener=document.activeElement;scrollY=window.scrollY;styles={position:document.body.style.position,top:document.body.style.top,width:document.body.style.width,overflow:document.body.style.overflow};Object.assign(document.body.style,{position:'fixed',top:-scrollY+'px',width:'100%',overflow:'hidden'});dialog.showModal()}
  dialog.querySelector('[data-bag-close]').onclick=()=>dialog.close();dialog.addEventListener('click',e=>{if(e.target===dialog){const b=dialog.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)dialog.close()}});
  dialog.addEventListener('close',()=>{if(styles)Object.assign(document.body.style,styles);const behavior=document.documentElement.style.scrollBehavior;document.documentElement.style.scrollBehavior='auto';window.scrollTo(0,scrollY);document.documentElement.style.scrollBehavior=behavior;opener?.focus({preventScroll:true})});
  function add(id){ids=read();const r=record(id);if(!r||ids.filter(v=>v===id).length>=stock(r)){open();status.textContent='Ya tienes todas las copias disponibles de este disco.';return}ids.push(id);save();open()}

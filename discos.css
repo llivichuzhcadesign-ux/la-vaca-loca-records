@@ -579,7 +579,9 @@ body[data-page="discos"] .record-facts dt{color:#bfa58a}
 .ios-player-sheet .deck-playback-timeline{position:relative;inset:auto;transform:none;width:100%}
 .ios-sheet-controls{flex-shrink:0;display:flex;justify-content:center;padding:12px 24px calc(16px + env(safe-area-inset-bottom));border-top:1px solid #eee3cf15;background:#211810}
 .ios-sheet-controls button{min-width:150px;padding:13px 24px;border:1px solid #eee3cf44;border-radius:30px;background:#eee3cf;color:#211810}
-body:has(.ios-player-sheet[open]){overflow:hidden!important}
+/* State is set by the player controller, not by an unused [open] attribute. */
+html.ios-header:has(body.ios-player-expanded){overflow:hidden!important}
+.ios-header body.ios-player-expanded{overflow:hidden!important;overscroll-behavior:none!important}
 @keyframes ios-player-rise{from{transform:translateY(35px);opacity:.6}to{transform:translateY(0);opacity:1}}
 @media(prefers-reduced-motion:reduce){.ios-player-sheet[open]{animation:none}}
 

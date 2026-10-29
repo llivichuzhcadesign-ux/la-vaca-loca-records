@@ -2,17 +2,27 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const source=fs.readFileSync(require.resolve('../discos.js'),'utf8');
 function node(){return {dataset:{},style:{setProperty(){}},classList:{remove(){},add(){}},setAttribute(k,v){this[k]=v},focus(){},querySelector(){return node()}}}
 const sheet=node(),opener=node();
-const context={window:{innerHeight:800},iosSheet:sheet,sheetPosition:'compact',document:{body:node(),querySelector:selector=>selector==='.editorial-header'?{getBoundingClientRect:()=>({height:62})}:opener},requestAnimationFrame:f=>f(),syncDeckTimeline(){},setTimeout:f=>f()};
+const lockEvents=[];
+const context={window:{innerHeight:800},iosSheet:sheet,sheetPosition:'compact',document:{body:node(),querySelector:selector=>selector==='.editorial-header'?{getBoundingClientRect:()=>({height:62})}:opener},requestAnimationFrame:f=>f(),syncDeckTimeline(){},syncIosPlayerScrollLock:open=>lockEvents.push(open),setTimeout:f=>f()};
 vm.createContext(context);vm.runInContext(source.slice(source.indexOf('function sheetHeights()'),source.indexOf("document.querySelectorAll('[data-disc-view]')",source.indexOf('function sheetHeights()'))),context);
 context.setSheetPosition('compact');assert.equal(sheet.inert,true);
-context.openIosPlayer();assert.equal(sheet.dataset.position,'expanded');assert.equal(sheet.style.height,'730px');assert.equal(sheet.inert,false);assert.equal(opener['aria-expanded'],'true');
+context.openIosPlayer();assert.equal(lockEvents.at(-1),true);assert.equal(sheet.dataset.position,'expanded');assert.equal(sheet.style.height,'730px');assert.equal(sheet.inert,false);assert.equal(opener['aria-expanded'],'true');
 assert.deepEqual(Object.keys(context.sheetHeights()),['compact','expanded']);
 const handlers={};context.wireSheetDrag({addEventListener:(name,fn,capture)=>{handlers[name+(capture?'Capture':'')]=fn},setPointerCapture(){}});
 handlers.pointerdown({button:0,clientY:100,pointerId:1});handlers.pointermove({clientY:600});assert.equal(sheet.style.height,'230px');handlers.pointerup({clientY:600});assert.equal(sheet.dataset.position,'compact');assert.equal(sheet.inert,true);
 context.setSheetPosition('expanded');handlers.pointerdown({button:0,clientY:300,pointerId:3});handlers.pointermove({clientY:450});handlers.pointercancel();assert.equal(sheet.style.height,'730px');
 context.window.innerHeight=390;context.setSheetPosition('expanded');assert.equal(sheet.style.height,'320px');
 context.window.visualViewport={height:620,offsetTop:24};context.setSheetPosition('expanded');assert.equal(sheet.style.height,'550px');assert.equal(sheet.style.top,'86px');
-context.setSheetPosition('compact');assert.equal(sheet.style.top,'636px');
+context.setSheetPosition('compact');assert.equal(lockEvents.at(-1),false);assert.equal(sheet.style.top,'636px');
+// Run the actual scroll-state helper in isolation, including restoration.
+const lockSource=source.slice(source.indexOf('let savedDocumentOverflow='),source.indexOf('function setDiscView('));
+const states=new Set(),root={style:{overflow:'scroll'}};
+const lockCtx={iosDiscView:true,document:{body:{classList:{add:key=>states.add(key),remove:key=>states.delete(key)}},documentElement:root}};
+vm.createContext(lockCtx);vm.runInContext(lockSource,lockCtx);
+lockCtx.syncIosPlayerScrollLock(true);
+assert.equal(states.has('ios-player-expanded'),true);assert.equal(root.style.overflow,'hidden');
+lockCtx.syncIosPlayerScrollLock(false);
+assert.equal(states.has('ios-player-expanded'),false);assert.equal(root.style.overflow,'scroll');
 const a={id:'a'},b={id:'b'},c={id:'c'};let mounts=0,plays=0,info=[];
 Object.assign(context,{records:[a,b,c],selected:a,pendingRecord:a,document:{baseURI:'https://example.test/'},updateSelectedInfo(r,preview){context.pendingRecord=r;info.push({r,preview})},audioUrl:r=>r===c?'':'audio.mp3',mountRecord(r){mounts++;context.selected=r;context.pendingRecord=r},togglePlayback(){plays++}});
 vm.runInContext(source.slice(source.indexOf('function browseIosRecord('),source.indexOf('function updateSelectedInfo(')),context);

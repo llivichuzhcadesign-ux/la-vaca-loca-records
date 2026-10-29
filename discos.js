@@ -223,6 +223,20 @@ let libraryPage={type:'home'},libraryTrail=history.state?.lvlLibraryTrail||[];
 let libraryShelfObserver=null;
 const miniPlayer=document.querySelector('.library-mini-player');
 let iosSheet=null,sheetTurntable=false,sheetPosition='compact',iosStartedId=null;
+let savedDocumentOverflow=null;
+function syncIosPlayerScrollLock(open){
+ if(!iosDiscView)return;
+ document.body.classList[open?'add':'remove']('ios-player-expanded');
+ const rootStyle=document.documentElement?.style;
+ if(!rootStyle)return;
+ if(open&&savedDocumentOverflow===null){
+  savedDocumentOverflow=rootStyle.overflow||'';
+  rootStyle.overflow='hidden';
+ }else if(!open&&savedDocumentOverflow!==null){
+  rootStyle.overflow=savedDocumentOverflow;
+  savedDocumentOverflow=null;
+ }
+}
 function setDiscView(view){
  if(iosDiscView){
   discView='library';document.body.classList.add('expanded-library','layered-ios-player');if(miniPlayer)miniPlayer.hidden=false;
@@ -259,6 +273,7 @@ function setSheetPosition(position){
  iosSheet.dataset.position=position;sizeIosSheet(height);iosSheet.classList.remove('is-dragging');
  iosSheet.inert=position==='compact';iosSheet.setAttribute('aria-hidden',String(position==='compact'));
  document.body.dataset.playerPosition=position;
+ syncIosPlayerScrollLock(position==='expanded');
  document.body.style.setProperty('--player-space','104px');
  const opener=document.querySelector('.mini-player-open');opener?.setAttribute('aria-expanded',String(position!=='compact'));
  requestAnimationFrame(()=>syncDeckTimeline());
@@ -276,6 +291,11 @@ function wireSheetDrag(target){
 document.querySelectorAll('[data-disc-view]').forEach(button=>button.addEventListener('click',()=>{if(button.dataset.discView==='player'&&!iosDiscView)setDiscView(discView==='player'?'library':'player');else if(button.dataset.discView==='player'&&sheetPosition==='expanded'&&sheetTurntable)setSheetPosition('compact');else setDiscView(button.dataset.discView);renderGallery()}));
 $('libraryPlayerPlay').onclick=()=>deckPlay?.click();
 if(iosDiscView){
+ // An expanded sheet blocks background swipes but preserves scrolling inside itself.
+ document.addEventListener('touchmove',event=>{
+  if(sheetPosition==='expanded'&&iosSheet&&!iosSheet.contains(event.target))event.preventDefault();
+ },{passive:false});
+ window.closeLVLPlayer=()=>setSheetPosition('compact');
  iosSheet=document.createElement('section');iosSheet.id='iosPlayerSheet';iosSheet.className='ios-player-sheet';iosSheet.setAttribute('aria-label','Reproductor');iosSheet.setAttribute('role','region');
  iosSheet.innerHTML='<div class="ios-sheet-head"><button type="button" class="ios-sheet-handle" aria-label="Cambiar tamaño del reproductor"><span></span></button><button type="button" class="ios-sheet-close" aria-label="Minimizar reproductor">'+playerControlIcon('down')+'</button></div><div class="ios-sheet-content"></div><div class="ios-sheet-controls"><button type="button" id="iosCurrentTrack" class="ios-current-track" aria-label="Ver disco en reproducción"></button><span id="iosPlaybackStatus" role="status"></span><div class="ios-transport"><button type="button" id="iosPrevious" aria-label="Ver disco anterior">'+playerControlIcon('previous')+'</button><button type="button" id="iosSheetPlay" aria-label="Reproducir">'+playerControlIcon('play')+'</button><button type="button" id="iosNext" aria-label="Ver disco siguiente">'+playerControlIcon('next')+'</button></div></div>';
  document.body.append(iosSheet);selectionPanel.querySelector('.now-playing-copy').append(selectionPanel.querySelector('.record-actions'));const head=iosSheet.querySelector('.ios-sheet-head');head.append($('iosTurntableToggle'));const content=iosSheet.querySelector('.ios-sheet-content');content.append(selectionPanel,timelineDeck);

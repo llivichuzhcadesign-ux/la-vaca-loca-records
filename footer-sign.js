@@ -26,6 +26,13 @@
    <span class="design-credit"><a href="https://www.instagram.com/semiotice/" target="_blank" rel="noopener noreferrer">Website Design by Sebastian Llivichuzhca</a></span>
   </div>
  `;
+ // Back to Top must work even when a page has no #top anchor.
+ footer.querySelector('.footer-back-top')?.addEventListener('click',event=>{
+  event.preventDefault();
+  event.stopPropagation();
+  const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({top:0,behavior:reduced?'auto':'smooth'});
+ });
  const backdrop=document.createElement('div');
  backdrop.className='footer-laser-backdrop';
  backdrop.setAttribute('aria-hidden','true');
