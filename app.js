@@ -559,31 +559,10 @@ function showSessionDetail(id){
  card.animate([{transform:'translateY(10px)',opacity:.7},{transform:'translateY(0)',opacity:1}],{duration:240,easing:'ease-out'});
 }
 function setupMobileNavigation(){
- const header=document.querySelector('.site-header');
- const nav=document.querySelector('.main-nav');
- if(!header||!nav)return;
- if(!document.querySelector('.mobile-menu-toggle')){
-  const button=document.createElement('button');
-  button.className='mobile-menu-toggle';
-  button.type='button';
-  button.setAttribute('aria-expanded','false');
-  button.setAttribute('aria-label','Abrir menú');
-  button.innerHTML='<span></span><span></span><span></span>';
-  header.insertBefore(button,nav);
- }
- const button=document.querySelector('.mobile-menu-toggle');
- button.addEventListener('click',()=>{
-  const open=!document.body.classList.contains('nav-open');
-  document.body.classList.toggle('nav-open',open);
-  button.setAttribute('aria-expanded',open?'true':'false');
-  button.setAttribute('aria-label',open?'Cerrar menú':'Abrir menú');
- });
- nav.querySelectorAll('a').forEach(link=>link.addEventListener('click',closeMobileNav));
+ // The shared header initializer installs the logo-triggered dropdown.
 }
 function closeMobileNav(){
- const button=document.querySelector('.mobile-menu-toggle');
- document.body.classList.remove('nav-open');
- if(button){button.setAttribute('aria-expanded','false');button.setAttribute('aria-label','Abrir menú')}
+ window.closeLVLHeaderMenu?.();
 }
 function setupDraftPreviewBanner(){
  if(!previewMode)return;

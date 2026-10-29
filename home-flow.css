@@ -145,13 +145,6 @@ body .memory-photo{width:250px;height:180px}
 body .memory-photo:nth-child(3n+2){width:175px;height:210px}
 body .memory-photo:nth-child(3n){width:300px;height:170px}
 @media(max-width:800px){
- html:not(.ios-header) body .site-header{display:grid!important;grid-template-columns:minmax(0,1fr) 44px 44px!important;align-items:center;height:68px!important;padding:10px 16px!important;gap:8px!important}
- html:not(.ios-header) body .site-header>.brand{grid-column:1;grid-row:1;min-width:0;width:auto}
- html:not(.ios-header) body .site-header>.brand img{width:min(100%,180px);height:auto;max-height:44px;object-fit:contain}
- html:not(.ios-header) body .site-header>.mobile-menu-toggle{grid-column:2;grid-row:1;width:44px;height:44px;border:0;color:var(--paper);display:flex}
- html:not(.ios-header) body .site-header>.cart-button{grid-column:3;grid-row:1;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;justify-content:center}
- html:not(.ios-header) body .site-header>.main-nav{top:68px;visibility:hidden;pointer-events:none;padding:0 18px;max-height:0}
- html:not(.ios-header) body.nav-open .site-header>.main-nav{visibility:visible;pointer-events:auto;max-height:calc(100dvh - 68px);padding:8px 18px 18px;overflow-y:auto}
  body .shop-section.shop-showcase{padding:48px 20px 56px}
  body .sessions-section{padding:0 20px 56px}
  body .events-section{padding:48px 20px!important}

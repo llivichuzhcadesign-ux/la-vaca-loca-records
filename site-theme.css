@@ -69,16 +69,138 @@ body[data-page="discos"] .ios-liked-row button{color:var(--lvl-pink)}
  body[data-page="eventos"] .calendar-topline{margin:24px auto}
  body[data-page="eventos"] .agenda-section{margin:48px auto}
 }
-/* Non-Apple narrow screens get the same tidy header structure and menu. */
-@media(max-width:800px){
- html:not(.ios-header) body[data-page] .editorial-header{display:grid;grid-template-columns:minmax(0,1fr) 44px 44px;gap:8px;height:68px;padding:10px 16px}
- html:not(.ios-header) body[data-page] .editorial-header .brand{grid-column:1;grid-row:1;width:min(100%,180px)}
- html:not(.ios-header) body[data-page] .editorial-header .brand img{max-height:44px}
- html:not(.ios-header) body[data-page] .editorial-header>.header-bag{position:static;grid-column:3;grid-row:1;width:44px}
- .public-menu-toggle{grid-column:2;grid-row:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;width:44px;height:44px;border:0;background:none;color:var(--lvl-paper)}
- .public-menu-toggle span{width:19px;height:1.5px;background:currentColor}
- html:not(.ios-header) body[data-page] .editorial-header>nav{display:none;position:absolute;top:68px;left:0;right:0;background:#090907;padding:16px 24px;flex-direction:column;gap:4px;border-bottom:1px solid #eee5d325}
- html:not(.ios-header) body[data-page] .editorial-header.public-menu-open>nav{display:flex}
- html:not(.ios-header) body[data-page] .editorial-header>nav a{display:flex;align-items:center;min-height:44px}
+
+/* The same logo, actions and expandable site navigation on every public page. */
+header .lvl-brand-trigger{
+ display:flex;align-items:center;justify-content:flex-start;
+ min-width:0;margin:0;padding:0;border:0;border-radius:0;
+ background:transparent;color:inherit;cursor:pointer;text-align:left;
+ -webkit-tap-highlight-color:transparent;
 }
-@media(min-width:801px){.public-menu-toggle{display:none}}
+header .lvl-brand-trigger img{
+ display:block;width:100%;max-width:270px;height:auto;max-height:52px;
+ object-fit:contain;object-position:left center;
+}
+header .lvl-brand-trigger[aria-expanded="true"]{opacity:.87}
+header .lvl-header-actions{
+ grid-column:3;grid-row:1;justify-self:end;
+ display:flex;align-items:center;justify-content:flex-end;gap:4px;min-width:44px;
+}
+header .lvl-header-actions .ios-heart{
+ display:none;align-items:center;justify-content:center;border:0;background:transparent;
+ color:inherit;cursor:pointer;padding:0;
+}
+header .lvl-header-actions .ios-heart svg{width:25px;height:25px;display:block}
+header .lvl-header-actions .ios-basket{
+ display:flex;align-items:center;justify-content:center;
+ min-width:44px;height:44px;padding:0;border:0;background:transparent;color:inherit;
+}
+header .lvl-header-actions .ios-basket img{display:block;width:32px;height:34px;object-fit:contain;filter:none}
+header .lvl-header-dropdown{
+ display:block;position:absolute;z-index:1500;
+ left:0;right:0;top:100%;margin:0;color:var(--lvl-paper);
+ background:#11110e;border-top:1px solid #eee5d31b;border-bottom:1px solid #eee5d344;
+ box-shadow:0 24px 45px #0009;
+ max-height:calc(100dvh - 68px);overflow-y:auto;overscroll-behavior:contain;
+}
+header .lvl-header-dropdown[hidden]{display:none!important}
+header .lvl-header-dropdown-inner{max-width:1500px;margin:0 auto;padding:24px clamp(18px,5vw,80px) 32px}
+header .lvl-header-dropdown-kicker{
+ margin:0 0 18px;font:700 10px/1.4 Arial,Helvetica,sans-serif;letter-spacing:.16em;color:var(--lvl-pink);
+}
+header .lvl-header-dropdown nav{
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));
+ gap:0;margin:0;padding:0;align-items:stretch;flex-wrap:nowrap;
+}
+header .lvl-header-dropdown nav a{
+ display:flex;align-items:baseline;gap:10px;min-width:0;min-height:70px;
+ padding:12px 14px 14px 0;border-top:1px solid #eee5d338;
+ background:transparent;color:var(--lvl-paper)!important;
+ text-decoration:none;font-weight:400;letter-spacing:normal;
+}
+header .lvl-header-dropdown nav a:hover,header .lvl-header-dropdown nav a:focus-visible,
+header .lvl-header-dropdown nav a[aria-current="page"]{color:var(--lvl-pink)!important}
+header .lvl-header-nav-number{font:600 10px Arial,Helvetica,sans-serif;color:#c0b29a}
+header .lvl-header-nav-title{font:400 clamp(20px,2.3vw,36px)/1.15 Georgia,serif;letter-spacing:-.045em}
+header .lvl-header-nav-arrow{margin-left:auto;font:18px/1 Arial,Helvetica,sans-serif;opacity:.55}
+header .lvl-header-dropdown nav a::after{display:none!important}
+
+/* Uniform phone layout, on iOS and every other mobile browser. */
+@media(max-width:800px){
+
+html .site-header,html .editorial-header{
+ display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+ grid-template-rows:1fr!important;align-items:center!important;
+ gap:8px!important;height:68px!important;padding:8px 14px!important;
+}
+html header>.lvl-brand-trigger{
+ display:flex!important;grid-column:1!important;grid-row:1!important;
+ justify-self:start!important;width:min(100%,210px)!important;
+ max-width:210px!important;min-width:0!important;height:100%;
+}
+html header>.lvl-brand-trigger img{
+ display:block!important;width:100%!important;height:auto!important;
+ max-width:210px!important;max-height:52px!important;object-position:left center!important;
+}
+html header>.lvl-header-actions{
+ display:flex!important;grid-column:2!important;grid-row:1!important;
+ justify-self:end!important;align-items:center;gap:3px;
+}
+html header .lvl-header-actions .ios-heart{
+ display:flex!important;width:40px;min-width:40px;height:44px;min-height:44px;
+}
+html header .lvl-header-actions .ios-basket{
+ display:flex!important;width:40px!important;min-width:40px!important;height:44px!important;min-height:44px!important;
+}
+html header .lvl-header-actions .ios-basket img{width:29px!important;height:31px!important}
+html .site-header>.main-nav,html .editorial-header>nav[aria-label="Navegación principal"]{display:none!important}
+html header>.mobile-menu-toggle,html header>.public-menu-toggle{display:none!important}
+html header .cart-button #cartCount{display:none!important}
+html header .lvl-header-dropdown nav{grid-template-columns:1fr!important}
+html header .lvl-header-dropdown-inner{padding:20px 20px max(24px,env(safe-area-inset-bottom,0px))}
+html header .lvl-header-dropdown nav a{min-height:59px;align-items:center;padding:11px 0;gap:16px}
+html header .lvl-header-nav-title{font-size:28px}
+html header .lvl-header-dropdown-kicker{margin-bottom:14px}
+html header .lvl-header-dropdown{max-height:calc(100dvh - 68px)}
+
+}
+/* iPadOS retains the compact control layout in landscape too. */
+@media(min-width:801px){
+
+html.ios-header .site-header,html.ios-header .editorial-header{
+ display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+ grid-template-rows:1fr!important;align-items:center!important;
+ gap:8px!important;height:68px!important;padding:8px 14px!important;
+}
+html.ios-header header>.lvl-brand-trigger{
+ display:flex!important;grid-column:1!important;grid-row:1!important;
+ justify-self:start!important;width:min(100%,210px)!important;
+ max-width:210px!important;min-width:0!important;height:100%;
+}
+html.ios-header header>.lvl-brand-trigger img{
+ display:block!important;width:100%!important;height:auto!important;
+ max-width:210px!important;max-height:52px!important;object-position:left center!important;
+}
+html.ios-header header>.lvl-header-actions{
+ display:flex!important;grid-column:2!important;grid-row:1!important;
+ justify-self:end!important;align-items:center;gap:3px;
+}
+html.ios-header header .lvl-header-actions .ios-heart{
+ display:flex!important;width:40px;min-width:40px;height:44px;min-height:44px;
+}
+html.ios-header header .lvl-header-actions .ios-basket{
+ display:flex!important;width:40px!important;min-width:40px!important;height:44px!important;min-height:44px!important;
+}
+html.ios-header header .lvl-header-actions .ios-basket img{width:29px!important;height:31px!important}
+html.ios-header .site-header>.main-nav,html.ios-header .editorial-header>nav[aria-label="Navegación principal"]{display:none!important}
+html.ios-header header>.mobile-menu-toggle,html.ios-header header>.public-menu-toggle{display:none!important}
+html.ios-header header .cart-button #cartCount{display:none!important}
+html.ios-header header .lvl-header-dropdown nav{grid-template-columns:1fr!important}
+html.ios-header header .lvl-header-dropdown-inner{padding:20px 20px max(24px,env(safe-area-inset-bottom,0px))}
+html.ios-header header .lvl-header-dropdown nav a{min-height:59px;align-items:center;padding:11px 0;gap:16px}
+html.ios-header header .lvl-header-nav-title{font-size:28px}
+html.ios-header header .lvl-header-dropdown-kicker{margin-bottom:14px}
+html.ios-header header .lvl-header-dropdown{max-height:calc(100dvh - 68px)}
+
+}
+@media(prefers-reduced-motion:reduce){header .lvl-header-dropdown *{scroll-behavior:auto}}

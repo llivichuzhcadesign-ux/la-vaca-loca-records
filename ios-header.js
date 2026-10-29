@@ -1,12 +1,82 @@
 (()=>{
- if(!/iPhone|iPad|iPod/.test(navigator.userAgent)&&!(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))return;
- document.documentElement.classList.add('ios-header');
- const header=document.querySelector('.site-header,.editorial-header');if(!header)return;
- const brand=header.querySelector('.brand');brand.innerHTML='<img src="assets/brand/cow-symbol.svg" alt="La Vaca Loca Records">';brand.href='index.html';
- let menu=header.querySelector('.mobile-menu-toggle');if(!menu){menu=document.createElement('button');menu.className='mobile-menu-toggle';menu.innerHTML='<span></span><span></span><span></span>';menu.setAttribute('aria-label','Abrir menú');menu.onclick=()=>{const open=header.classList.toggle('ios-menu-open');menu.setAttribute('aria-expanded',String(open))};header.prepend(menu)}
- const right=document.createElement('div');right.className='ios-header-actions';
- const heart=document.createElement('button');heart.className='ios-heart';heart.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>';heart.setAttribute('aria-label','Ver discos favoritos');right.append(heart);
- let bag=header.querySelector('#cartButton,.header-bag');if(!bag){bag=document.createElement('a');bag.href='index.html?bag=1';bag.className='ios-basket';bag.setAttribute('aria-label','Abrir canasta de compras');bag.innerHTML='<img src="assets/brand/shopping-bag.svg" alt="">'}bag.classList.add('ios-basket');if(bag.id==='cartButton'){bag.querySelector('svg')?.remove();let image=bag.querySelector('img');if(!image){image=document.createElement('img');bag.prepend(image)}image.src='assets/brand/shopping-bag.svg';image.alt=''}right.append(bag);header.append(right);
+ const header=document.querySelector('.site-header,.editorial-header');
+ if(!header)return;
+ const brand=header.querySelector(':scope > .lvl-brand-trigger');
+ if(!brand)return;
+ const appleTouch=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+ if(appleTouch)document.documentElement.classList.add('ios-header');
+
+ // The logo is the navigation trigger on every device. Desktop keeps its inline links.
+ const oldMenu=header.querySelector('.mobile-menu-toggle,.public-menu-toggle');
+ oldMenu?.remove();
+ document.body.classList.remove('nav-open');
+ header.classList.remove('ios-menu-open','public-menu-open');
+ const existingNav=header.querySelector(':scope > .main-nav,:scope > nav[aria-label="Principal"]');
+ existingNav?.setAttribute('aria-label','Navegación principal');
+
+ const pages=[
+  ['Inicio','index.html','home'],
+  ['Discos','discos.html','discos'],
+  ['Sessions','sessions.html','sessions'],
+  ['Eventos','eventos.html','eventos'],
+  ['Archivo','archivo.html','archivo']
+ ];
+ const current=document.body.dataset.page||'home';
+ const dropdown=document.createElement('div');
+ dropdown.className='lvl-header-dropdown';
+ dropdown.id='lvlHeaderDropdown';
+ dropdown.hidden=true;
+ dropdown.innerHTML='<div class="lvl-header-dropdown-inner"><p class="lvl-header-dropdown-kicker">LA VACA LOCA / EXPLORAR</p><nav aria-label="Explorar el sitio">'+pages.map(([title,url,key],i)=>'<a href="'+url+'"'+(key===current?' aria-current="page"':'')+'><span class="lvl-header-nav-number">0'+(i+1)+'</span><span class="lvl-header-nav-title">'+title+'</span><span class="lvl-header-nav-arrow" aria-hidden="true">↗</span></a>').join('')+'</nav></div>';
+ header.append(dropdown);
+ brand.setAttribute('aria-controls',dropdown.id);
+ brand.setAttribute('aria-expanded','false');
+ const closeMenu=()=>{
+  dropdown.hidden=true;
+  brand.setAttribute('aria-expanded','false');
+  brand.setAttribute('aria-label','Abrir menú de navegación');
+  header.classList.remove('lvl-menu-open');
+ };
+ const toggleMenu=()=>{
+  const open=dropdown.hidden;
+  dropdown.hidden=!open;
+  brand.setAttribute('aria-expanded',String(open));
+  brand.setAttribute('aria-label',open?'Cerrar menú de navegación':'Abrir menú de navegación');
+  header.classList.toggle('lvl-menu-open',open);
+ };
+ brand.addEventListener('click',toggleMenu);
+ dropdown.addEventListener('click',event=>{if(event.target.closest('a'))closeMenu()});
+ document.addEventListener('click',event=>{
+  if(!brand.contains(event.target)&&!dropdown.contains(event.target))closeMenu();
+ });
+ document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&!dropdown.hidden){closeMenu();brand.focus()}
+ });
+ window.closeLVLHeaderMenu=closeMenu;
+
+ // Shared favorite and shopping-bag actions, including non-Apple phones.
+ const right=document.createElement('div');
+ right.className='lvl-header-actions ios-header-actions';
+ const heart=document.createElement('button');
+ heart.type='button';
+ heart.className='ios-heart';
+ heart.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>';
+ heart.setAttribute('aria-label','Ver discos favoritos');
+ let bag=header.querySelector('#cartButton,.header-bag');
+ if(!bag){
+  bag=document.createElement('a');
+  bag.href='index.html?bag=1';
+  bag.className='header-bag';
+  bag.setAttribute('aria-label','Abrir bolsa de compras');
+  bag.innerHTML='<img src="assets/brand/shopping-bag.svg" alt="">';
+ }
+ bag.classList.add('ios-basket');
+ bag.querySelector('svg')?.remove();
+ let bagImage=bag.querySelector('img');
+ if(!bagImage){bagImage=document.createElement('img');bag.prepend(bagImage)}
+ bagImage.src='assets/brand/shopping-bag.svg';
+ bagImage.alt='';
+ right.append(heart,bag);
+ header.append(right);
  const records=(window.SITE_CONTENT?.records||window.RECORDS||[]).filter(r=>!r.hideFromPublic&&!['DRAFT','HIDDEN','PRIVATE LISTING'].includes(String(r.status||'').toUpperCase()));
  let saved;try{saved=new Set(JSON.parse(localStorage.getItem('lvl-liked-discs')||'[]'))}catch{saved=new Set()}
  const dialog=document.createElement('dialog');dialog.className='ios-liked-dialog';document.body.append(dialog);
