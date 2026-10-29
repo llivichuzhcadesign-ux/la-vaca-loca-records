@@ -273,3 +273,40 @@ header .lvl-brand-trigger img{min-width:0;flex:0 1 auto;max-width:calc(100% - 23
  html header .lvl-header-actions .ios-heart,
  html header .lvl-header-actions .ios-basket{min-width:38px!important;width:38px!important}
 }
+
+/* Phase 3 — legible editorial rhythm and touch targets on phones. */
+@media(max-width:600px){
+ body[data-page] .back-link,
+ body[data-page] .page-index a{
+  font-size:13px;line-height:1.5;
+ }
+ body[data-page] .page-intro .eyebrow,
+ body[data-page] .entry-meta{
+  font-size:12px;letter-spacing:.1em;line-height:1.5;
+ }
+ body[data-page] .page-intro h1{
+  font-size:clamp(43px,14vw,72px);
+  overflow-wrap:break-word;
+ }
+ body[data-page] .entry h2{
+  font-size:clamp(29px,8.4vw,44px);
+  line-height:1.13;
+ }
+ body[data-page] .entry p{
+  font-size:15px;line-height:1.75;
+ }
+ body[data-page] .entry summary{
+  min-height:44px;display:flex;align-items:center;cursor:pointer;
+ }
+ body[data-page="eventos"] .calendar-paper{padding-top:24px}
+ body[data-page="discos"] #recordSearch,
+ body[data-page="discos"] #genreFilter{
+  font-size:16px;min-height:44px;
+ }
+ body[data-page] header .lvl-header-dropdown nav a{
+  min-height:56px;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-page] *:focus-visible{scroll-behavior:auto}
+}

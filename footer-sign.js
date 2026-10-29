@@ -16,9 +16,9 @@
   </nav>
   <div class="footer-connect" aria-label="Conectar con La Vaca Loca">
    <span class="footer-column-label">Conectar</span>
-   <a href="https://www.instagram.com/explore/search/keyword/?q=La%20Vaca%20Loca%20Records" target="_blank" rel="noopener noreferrer" aria-label="Buscar La Vaca Loca Records en Instagram">Instagram</a>
-   <a href="https://www.youtube.com/results?search_query=La+Vaca+Loca+Records" target="_blank" rel="noopener noreferrer" aria-label="Buscar La Vaca Loca Records en YouTube">YouTube</a>
-   <a href="https://open.spotify.com/search/La%20Vaca%20Loca%20Records" target="_blank" rel="noopener noreferrer" aria-label="Buscar La Vaca Loca Records en Spotify">Spotify</a>
+   <a data-social="instagram" href="https://www.instagram.com/explore/search/keyword/?q=La%20Vaca%20Loca%20Records" target="_blank" rel="noopener noreferrer" aria-label="Buscar La Vaca Loca Records en Instagram">Instagram</a>
+   <a data-social="youtube" href="https://www.youtube.com/results?search_query=La+Vaca+Loca+Records" target="_blank" rel="noopener noreferrer" aria-label="Buscar La Vaca Loca Records en YouTube">YouTube</a>
+   <a data-social="spotify" href="https://open.spotify.com/search/La%20Vaca%20Loca%20Records" target="_blank" rel="noopener noreferrer" aria-label="Buscar La Vaca Loca Records en Spotify">Spotify</a>
   </div>
   <div class="footer-bottom">
    <span>© ${new Date().getFullYear()} La Vaca Loca Records</span>
@@ -26,6 +26,34 @@
    <span class="design-credit"><a href="https://www.instagram.com/semiotice/" target="_blank" rel="noopener noreferrer">Website Design by Sebastian Llivichuzhca</a></span>
   </div>
  `;
+ // Use official social profiles only when configured; otherwise label search destinations honestly.
+ function syncSocialLinks(){
+  const settings=window.SITE_CONTENT?.settings||{};
+  const entries=[
+   ['instagram','Instagram',settings.instagramUrl,'instagram.com'],
+   ['youtube','YouTube',settings.youtubeUrl||settings.storage?.youtubeChannelUrl,'youtube.com'],
+   ['spotify','Spotify',settings.spotifyUrl,'spotify.com']
+  ];
+  for(const [id,label,configured,domain] of entries){
+   const link=footer.querySelector('[data-social="'+id+'"]');
+   if(!link)continue;
+   let official='';
+   try{
+    const url=new URL(configured);
+    const host=url.hostname.toLowerCase();
+    if(url.protocol==='https:'&&(host===domain||host.endsWith('.'+domain)))official=url.href;
+   }catch{}
+   if(official){
+    link.href=official;link.textContent=label;
+    link.setAttribute('aria-label','Perfil oficial de La Vaca Loca Records en '+label);
+   }else{
+    link.textContent='Buscar en '+label;
+    link.setAttribute('aria-label','Buscar La Vaca Loca Records en '+label);
+   }
+  }
+ }
+ syncSocialLinks();
+ document.addEventListener('DOMContentLoaded',syncSocialLinks,{once:true});
  // Back to Top must work even when a page has no #top anchor.
  footer.querySelector('.footer-back-top')?.addEventListener('click',event=>{
   event.preventDefault();
@@ -75,6 +103,7 @@
  footer.insertBefore(touchSurface,backdrop.nextSibling);
 
  const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
+ const coarsePointer=window.matchMedia('(pointer:coarse)');
  // One arrival per page visit: motion is on the artwork, never on the navigation.
  let introComplete=motion.matches,introStarted=false,introTimer=0;
  if(!introComplete)footer.classList.add('footer-intro-pending');
@@ -189,8 +218,9 @@
   if(!fireworksContext)return;
   const rect=backdrop.getBoundingClientRect();
   if(!rect.width||!rect.height)return;
-  particleBudget=rect.width<=720?140:190;
-  const scale=Math.min(window.devicePixelRatio||1,1.25);
+  // Conserve battery and reduce dropped frames on touch hardware.
+  particleBudget=coarsePointer.matches?90:rect.width<=720?140:190;
+  const scale=coarsePointer.matches?1:Math.min(window.devicePixelRatio||1,1.25);
   const w=Math.round(rect.width*scale),h=Math.round(rect.height*scale);
   if(fireworkCanvas.width!==w||fireworkCanvas.height!==h){
    fireworkCanvas.width=w;fireworkCanvas.height=h;
@@ -280,7 +310,7 @@
   fireworkFrame=0;
   if(!fireworksContext||document.hidden||motion.matches||!isVisible){stopFireworks();return;}
   // One consistent 60 Hz ceiling, including high-refresh screens.
-  if(fireworkFrameAt&&time-fireworkFrameAt<15){
+  if(fireworkFrameAt&&time-fireworkFrameAt<(coarsePointer.matches?30:15)){
    fireworkFrame=requestAnimationFrame(drawFireworks);return;
   }
   if(!particles.length){fireworksContext.clearRect(0,0,fireworkCanvas.width,fireworkCanvas.height);return;}

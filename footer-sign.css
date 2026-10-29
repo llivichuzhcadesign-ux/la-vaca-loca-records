@@ -875,3 +875,21 @@ body .lvl-footer.illuminated-footer .footer-bottom a {
   width:calc(100% - 24px);height:calc(100% - 122px);
  }
 }
+
+/* Phase 3: footer stays editorial but its phone links are real touch targets. */
+@media(max-width:720px){
+ body .lvl-footer.illuminated-footer .footer-column-label{
+  font-size:11px;line-height:1.4;letter-spacing:.13em;
+ }
+ body .lvl-footer.illuminated-footer .footer-explore a,
+ body .lvl-footer.illuminated-footer .footer-connect a{
+  min-height:44px;display:inline-flex;align-items:center;
+  font-size:13px;line-height:1.4;
+ }
+ body .lvl-footer.illuminated-footer .footer-bottom{
+  font-size:11px;line-height:1.5;gap:10px 16px;
+ }
+ body .lvl-footer.illuminated-footer .footer-bottom a{
+  display:inline-flex;align-items:center;min-height:44px;
+ }
+}
