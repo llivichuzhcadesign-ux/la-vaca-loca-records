@@ -525,7 +525,7 @@ function enhancePublicSite(){
  }
  const archiveSection=document.querySelector('.archive-section');
  if(archiveSection&&!document.querySelector('.events-section')){
-  archiveSection.insertAdjacentHTML('beforebegin',`<section class="events-section motion-section" id="events"><div class="events-copy motion-copy"><p class="eyebrow">03 / PRÓXIMOS ENCUENTROS</p><h2>Buenas <em>noches.</em></h2><a href="eventos.html" style="display:inline-block;margin-top:24px;font-weight:900;text-underline-offset:6px">ABRIR EL CALENDARIO ↗</a></div><a href="eventos.html" aria-label="Explorar el calendario de eventos" class="home-calendar-art" style="display:block;overflow:hidden"><img data-calendar-image src="assets/images/events/calendar-pinup.jpg" alt="Pin-up vintage en una tienda de discos" loading="lazy" width="1536" height="1024" style="display:block;width:100%;height:100%;object-fit:cover"></a></section>`);
+  archiveSection.insertAdjacentHTML('beforebegin',`<section class="events-section motion-section" id="events"><div class="events-copy motion-copy"><p class="eyebrow">03 / PRÓXIMOS ENCUENTROS</p><h2>Buenas <em>noches.</em></h2><a href="eventos.html" style="display:inline-block;margin-top:24px;font-weight:900;text-underline-offset:6px">ABRIR EL CALENDARIO <span class="lvl-decorative-glyph" aria-hidden="true">↗</span></a></div><a href="eventos.html" aria-label="Explorar el calendario de eventos" class="home-calendar-art" style="display:block;overflow:hidden"><img data-calendar-image src="assets/images/events/calendar-pinup.jpg" alt="Pin-up vintage en una tienda de discos" loading="lazy" width="1536" height="1024" style="display:block;width:100%;height:100%;object-fit:cover"></a></section>`);
  }
  const upcoming=upcomingHomeEvent(EVENTS,new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()));
  const eventCopy=document.querySelector('.events-copy');
@@ -555,7 +555,7 @@ function showSessionDetail(id){
  const item=SESSIONS.find(x=>x.id===id);
  const card=document.querySelector('.sessions-photo-card');
  if(!item||!card)return;
- card.innerHTML=`<span>${item.type.toUpperCase()} / ${item.status.toUpperCase()}</span><strong>${item.title.toUpperCase()}</strong><span>${item.detail}</span><br><a class="sessions-button" href="archivo.html">VER ARCHIVO →</a>`;
+ card.innerHTML=`<span>${item.type.toUpperCase()} / ${item.status.toUpperCase()}</span><strong>${item.title.toUpperCase()}</strong><span>${item.detail}</span><br><a class="sessions-button" href="archivo.html">VER ARCHIVO <span class="lvl-decorative-glyph" aria-hidden="true">→</span></a>`;
  card.animate([{transform:'translateY(10px)',opacity:.7},{transform:'translateY(0)',opacity:1}],{duration:240,easing:'ease-out'});
 }
 function setupMobileNavigation(){

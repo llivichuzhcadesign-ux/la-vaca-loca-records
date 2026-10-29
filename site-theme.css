@@ -310,3 +310,70 @@ header .lvl-brand-trigger img{min-width:0;flex:0 1 auto;max-width:calc(100% - 23
 @media(prefers-reduced-motion:reduce){
  body[data-page] *:focus-visible{scroll-behavior:auto}
 }
+
+/* Minimal public phone navigation: the dropdown is a continuation of the dark header.
+   No numbered tiles, arrows, ornamental kickers or oversized display typography. */
+@media(max-width:950px){
+ html body header .lvl-header-dropdown{
+  background:#090907f5;color:var(--lvl-paper);
+  border-top:1px solid #eee5d327;border-bottom:1px solid #eee5d33b;
+  box-shadow:0 14px 26px #0008;
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  max-height:calc(100dvh - 68px);overscroll-behavior:contain;
+ }
+ html body header .lvl-header-dropdown-inner{
+  padding:7px clamp(18px,5vw,30px) 14px!important;
+ }
+ html body header .lvl-header-dropdown-kicker,
+ html body header .lvl-header-nav-number,
+ html body header .lvl-header-nav-arrow{display:none!important}
+ html body header .lvl-header-dropdown nav{
+  display:grid!important;grid-template-columns:1fr!important;
+  margin:0;padding:0;gap:0;
+ }
+ html body header .lvl-header-dropdown nav a{
+  min-height:49px!important;display:flex;align-items:center;
+  padding:14px 0!important;gap:0;
+  border-top:0;border-bottom:1px solid #eee5d31e;
+  color:var(--lvl-paper)!important;
+  text-decoration:none;text-transform:uppercase;
+  font:600 12px/1.4 Arial,Helvetica,sans-serif!important;
+  letter-spacing:.12em!important;
+ }
+ html body header .lvl-header-dropdown nav a:last-child{border-bottom:0}
+ html body header .lvl-header-nav-title{
+  font:600 12px/1.4 Arial,Helvetica,sans-serif!important;
+  letter-spacing:.12em!important;
+  padding:0 0 3px;
+ }
+ html body header .lvl-header-dropdown nav a:hover,
+ html body header .lvl-header-dropdown nav a:focus-visible,
+ html body header .lvl-header-dropdown nav a[aria-current="page"]{
+  color:var(--lvl-pink)!important;
+ }
+ html body header .lvl-header-dropdown nav a[aria-current="page"] .lvl-header-nav-title{
+  border-bottom:1px solid currentColor;
+ }
+ /* Editorial arrow glyphs are decoration, not phone interface controls. */
+ html body .lvl-decorative-glyph{display:none!important}
+}
+/* Favorites use the same outlined vector heart as the header, never text emoji. */
+.ios-liked-row button svg{
+ display:block;width:22px;height:22px;stroke:currentColor;
+}
+@media(prefers-reduced-motion:reduce){
+ header .lvl-header-dropdown{scroll-behavior:auto}
+}
+
+/* Vector navigation controls instead of font-dependent arrow pictographs. */
+.lvl-control-arrow{
+ display:block;width:20px;height:20px;fill:none;stroke:currentColor;
+ stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;
+}
+.lvl-mobile-link-text{display:none}
+@media(max-width:950px){
+ .lvl-mobile-link-text{display:inline!important;
+  font:600 12px/1.4 Arial,Helvetica,sans-serif;
+  letter-spacing:.11em;text-transform:uppercase;
+ }
+}

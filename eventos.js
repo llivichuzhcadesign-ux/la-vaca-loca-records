@@ -27,7 +27,7 @@ function render(){
  });
  document.getElementById('monthTitle').innerHTML=months[month]+' <span>'+year+'</span>';
  let out='<table class="month-grid" aria-label="'+months[month]+' '+year+'"><thead><tr>'+['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'].map(d=>'<th scope="col">'+d+'</th>').join('')+'</tr></thead><tbody>';
- cells.forEach((day,i)=>{if(i%7===0)out+='<tr>';out+='<td>';if(day){const matches=byDay.get(day)||[],today=day===now.getDate()&&month===now.getMonth()&&year===now.getFullYear();const tag=matches.length?'button':'span';out+='<'+tag+' class="date-cell'+(today?' today':'')+(matches.length?' has-event':'')+'"'+(matches.length?' data-day="'+day+'" aria-label="'+day+' de '+months[month]+': '+esc(matches.map(e=>e.title).join(', '))+'"':'')+(today?' aria-current="date"':'')+'><b>'+day+'</b>'+(matches.length?'<small>● '+esc(matches[0].title)+(matches.length>1?' +'+(matches.length-1):'')+'</small>':'')+'</'+tag+'>';}out+='</td>';if(i%7===6)out+='</tr>';});
+ cells.forEach((day,i)=>{if(i%7===0)out+='<tr>';out+='<td>';if(day){const matches=byDay.get(day)||[],today=day===now.getDate()&&month===now.getMonth()&&year===now.getFullYear();const tag=matches.length?'button':'span';out+='<'+tag+' class="date-cell'+(today?' today':'')+(matches.length?' has-event':'')+'"'+(matches.length?' data-day="'+day+'" aria-label="'+day+' de '+months[month]+': '+esc(matches.map(e=>e.title).join(', '))+'"':'')+(today?' aria-current="date"':'')+'><b>'+day+'</b>'+(matches.length?'<small>'+esc(matches[0].title)+(matches.length>1?' +'+(matches.length-1):'')+'</small>':'')+'</'+tag+'>';}out+='</td>';if(i%7===6)out+='</tr>';});
  grid.innerHTML=out+'</tbody></table>';
  // Keep the seven-day poster grid, but provide full-size event cards on phones.
  const monthEvents=document.getElementById('calendarMobileEvents');
@@ -35,7 +35,7 @@ function render(){
   const sorted=[...byDay.entries()].sort((a,b)=>a[0]-b[0]);
   monthEvents.innerHTML=sorted.length
    ?'<h3>Fechas de '+esc(months[month])+'</h3>'+sorted.map(([day,group])=>
-     group.map(event=>'<button type="button" class="mobile-event-card" data-event-index="'+items.indexOf(event)+'" aria-label="Ver evento: '+esc(event.title)+'"><span class="mobile-event-date"><strong>'+String(day).padStart(2,'0')+'</strong><small>'+esc(months[month].slice(0,3))+'</small></span><span class="mobile-event-copy"><strong>'+esc(event.title)+'</strong><small>'+esc([event.time,event.place].filter(Boolean).join(' · ')||'Ver información del evento')+'</small></span><span class="mobile-event-arrow" aria-hidden="true">↗</span></button>').join('')).join('')
+     group.map(event=>'<button type="button" class="mobile-event-card" data-event-index="'+items.indexOf(event)+'" aria-label="Ver evento: '+esc(event.title)+'"><span class="mobile-event-date"><strong>'+String(day).padStart(2,'0')+'</strong><small>'+esc(months[month].slice(0,3))+'</small></span><span class="mobile-event-copy"><strong>'+esc(event.title)+'</strong><small>'+esc([event.time,event.place].filter(Boolean).join(' · ')||'Ver información del evento')+'</small></span></button>').join('')).join('')
    :'';
   monthEvents.hidden=!sorted.length;
   monthEvents.querySelectorAll('[data-event-index]').forEach(button=>button.addEventListener('click',()=>{
@@ -51,7 +51,7 @@ document.getElementById('nextMonth').onclick=()=>{view=new Date(view.getFullYear
 document.getElementById('todayMonth').onclick=()=>{view=new Date(now.getFullYear(),now.getMonth(),1);render();};
 document.getElementById('closeEvent').onclick=()=>dialog.close();
 const agenda=document.getElementById('eventAgenda');
-agenda.innerHTML=events.map((e,i)=>'<button class="agenda-item" data-index="'+i+'"><span><small>'+esc(e.date)+' / '+esc(e.place)+' / '+esc(e.status)+'</small><strong>'+esc(e.title)+'</strong></span><span aria-hidden="true">↗</span></button>').join('')||'<p>Próximas fechas por anunciar.</p>';
+agenda.innerHTML=events.map((e,i)=>'<button class="agenda-item" data-index="'+i+'"><span><small>'+esc(e.date)+' / '+esc(e.place)+' / '+esc(e.status)+'</small><strong>'+esc(e.title)+'</strong></span><span class="lvl-decorative-glyph" aria-hidden="true">↗</span></button>').join('')||'<p>Próximas fechas por anunciar.</p>';
 agenda.querySelectorAll('[data-index]').forEach(b=>b.onclick=()=>{const event=events[+b.dataset.index],date=parseDate(event.date);if(date){view=new Date(date.getFullYear(),date.getMonth(),1);render();}openEvents([event]);});
 render();
 })();

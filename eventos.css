@@ -137,3 +137,21 @@ body[data-page="eventos"] #eventDialog{
 @media(prefers-reduced-motion:reduce){
  body[data-page="eventos"] .mobile-event-card{scroll-behavior:auto}
 }
+
+/* Calendar notation uses CSS shapes, not pictographic Unicode characters. */
+.calendar-legend-event::before,.calendar-legend-today::before{
+ content:"";display:inline-block;width:8px;height:8px;
+ margin-right:7px;vertical-align:1px;border-radius:50%;
+ border:1px solid currentColor;
+}
+.calendar-legend-event::before{background:currentColor}
+.calendar-legend-today::before{background:transparent}
+@media(max-width:600px){
+ body[data-page="eventos"] .mobile-event-card{
+  grid-template-columns:51px minmax(0,1fr);
+  gap:14px;
+ }
+ body[data-page="eventos"] .calendar-controls button .lvl-control-arrow{
+  width:19px;height:19px;
+ }
+}

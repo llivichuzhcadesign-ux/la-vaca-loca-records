@@ -5,7 +5,7 @@
  function read(){try{const ids=JSON.parse(localStorage.getItem(key)||'[]');const counts=new Map();return (Array.isArray(ids)?ids:[]).filter(id=>{const r=record(id),n=(counts.get(id)||0)+1;counts.set(id,n);return r&&n<=stock(r)})}catch{return []}}
  let ids=read(),opener=null,scrollY=0,styles=null;
  const dialog=document.createElement('dialog');dialog.className='shared-bag';dialog.setAttribute('aria-labelledby','sharedBagTitle');
- dialog.innerHTML='<div class="shared-bag-head"><h2 id="sharedBagTitle">Tu canasta</h2><button type="button" data-bag-close aria-label="Cerrar canasta">Cerrar ×</button></div><div class="shared-bag-items"></div><div class="shared-bag-footer"><div><span>Total</span><strong></strong></div><a target="_blank" rel="noopener noreferrer">Ordenar por WhatsApp ↗</a><p role="status" aria-live="polite"></p></div>';document.body.append(dialog);
+ dialog.innerHTML='<div class="shared-bag-head"><h2 id="sharedBagTitle">Tu canasta</h2><button type="button" data-bag-close aria-label="Cerrar canasta">Cerrar ×</button></div><div class="shared-bag-items"></div><div class="shared-bag-footer"><div><span>Total</span><strong></strong></div><a target="_blank" rel="noopener noreferrer">Ordenar por WhatsApp</a><p role="status" aria-live="polite"></p></div>';document.body.append(dialog);
  const items=dialog.querySelector('.shared-bag-items'),total=dialog.querySelector('.shared-bag-footer strong'),checkout=dialog.querySelector('.shared-bag-footer a'),status=dialog.querySelector('[role="status"]');
  const money=value=>(settings.currency||'$')+Number(value||0).toFixed(2);
  function save(){localStorage.setItem(key,JSON.stringify(ids));document.dispatchEvent(new Event('lvl-bag-change'));render()}

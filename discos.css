@@ -1136,3 +1136,19 @@ body:not(.layered-ios-player) .library-mini-player .deck-time{font-size:10px;col
   padding-bottom:calc(128px + env(safe-area-inset-bottom,0px))!important;
  }
 }
+
+/* Text pictographs replaced by lightweight vector/canvas-independent controls. */
+#libraryBack:not([hidden]){
+ display:inline-flex;align-items:center;gap:8px;
+ min-height:44px;
+}
+#libraryBack[hidden]{display:none!important}
+#libraryBack .lvl-control-arrow{width:17px;height:17px}
+.library-state .library-state-chevron{
+ display:block;width:8px;height:8px;flex:none;
+ border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+ transform:rotate(45deg);
+}
+.library-column.record-focus .library-state .library-state-chevron{
+ transform:rotate(225deg);
+}
