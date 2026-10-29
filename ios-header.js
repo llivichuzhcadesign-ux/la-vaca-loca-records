@@ -44,6 +44,13 @@
   header.classList.toggle('lvl-menu-open',open);
  };
  brand.addEventListener('click',toggleMenu);
+ // Keyboard users can enter the navigation immediately with ArrowDown.
+ brand.addEventListener('keydown',event=>{
+  if(event.key!=='ArrowDown')return;
+  event.preventDefault();
+  if(dropdown.hidden)toggleMenu();
+  dropdown.querySelector('a')?.focus();
+ });
  dropdown.addEventListener('click',event=>{if(event.target.closest('a'))closeMenu()});
  document.addEventListener('click',event=>{
   if(!brand.contains(event.target)&&!dropdown.contains(event.target))closeMenu();

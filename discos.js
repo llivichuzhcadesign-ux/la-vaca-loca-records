@@ -214,7 +214,10 @@ $('recordBag').onclick=()=>{const r=pendingRecord||selected;if(!r)return;const i
 window.addEventListener('storage',()=>{if(pendingRecord||selected)syncRecordActions(pendingRecord||selected)});
 document.addEventListener('lvl-bag-change',()=>{if(pendingRecord||selected)syncRecordActions(pendingRecord||selected)});
 
-const iosDiscView=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+// Use the same library-first player on all phone-sized screens, not only Apple devices.
+const appleTouch=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const iosDiscView=appleTouch||window.matchMedia('(max-width:950px)').matches;
+if(iosDiscView)document.documentElement.classList.add('mobile-disc-view');
 const viewStorageKey=iosDiscView?'lvl-ios-disc-view':'lvl-disc-view';
 const playbackTimeline=document.querySelector('.deck-playback-timeline');
 const timelineDeck=document.querySelector('.deck-area');
@@ -834,7 +837,7 @@ function navigateLibrary(page,push=true){
  renderGallery();
  collectionPanel.scrollTop=page.scroll||0;
  if(push)saveLibraryHistory(false);
- if(window.innerWidth<=950)collectionPanel.scrollIntoView({block:'start'});
+ if(push&&window.innerWidth<=950)collectionPanel.scrollIntoView({block:'start',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
  $('libraryPageTitle').focus({preventScroll:true});
 }
 function saveLibraryHistory(replace){

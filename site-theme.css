@@ -204,3 +204,72 @@ html.ios-header header .lvl-header-dropdown{max-height:calc(100dvh - 68px)}
 
 }
 @media(prefers-reduced-motion:reduce){header .lvl-header-dropdown *{scroll-behavior:auto}}
+
+/* Phase 2: the full logo also signals that it opens the navigation. */
+header .lvl-brand-trigger::after{
+ content:"";display:block;flex:none;width:7px;height:7px;
+ margin:0 3px 5px 8px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+ transform:rotate(45deg);transform-origin:center;
+ transition:transform .18s ease,margin .18s ease;opacity:.75;
+}
+header .lvl-brand-trigger[aria-expanded="true"]::after{
+ transform:rotate(225deg);margin-top:7px;margin-bottom:0;
+}
+header .lvl-brand-trigger img{min-width:0;flex:0 1 auto;max-width:calc(100% - 23px)!important}
+@media(prefers-reduced-motion:reduce){
+ header .lvl-brand-trigger::after{transition:none}
+}
+/* Android phones in landscape use the same compact header as portrait and iOS. */
+@media(min-width:801px) and (max-width:950px){
+ html:not(.ios-header) body .site-header,
+ html:not(.ios-header) body[data-page] .editorial-header{
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-rows:1fr!important;align-items:center!important;
+  gap:8px!important;height:68px!important;padding:8px 14px!important;
+ }
+ html:not(.ios-header) body header>.lvl-brand-trigger{
+  display:flex!important;grid-column:1!important;grid-row:1!important;
+  justify-self:start!important;width:min(100%,210px)!important;
+  max-width:210px!important;min-width:0!important;height:100%;
+ }
+ html:not(.ios-header) body header>.lvl-brand-trigger img{
+  width:calc(100% - 23px)!important;height:auto!important;
+  max-height:52px!important;object-position:left center!important;
+ }
+ html:not(.ios-header) body header>.lvl-header-actions{
+  display:flex!important;grid-column:2!important;grid-row:1!important;
+  justify-self:end!important;align-items:center;gap:3px;
+ }
+ html:not(.ios-header) body header .lvl-header-actions .ios-heart{
+  display:flex!important;width:40px;min-width:40px;height:44px;min-height:44px;
+ }
+ html:not(.ios-header) body header .lvl-header-actions .ios-basket{
+  display:flex!important;width:40px!important;min-width:40px!important;
+  height:44px!important;min-height:44px!important;
+ }
+ html:not(.ios-header) body header .lvl-header-actions .ios-basket img{
+  width:29px!important;height:31px!important;
+ }
+ html:not(.ios-header) body .site-header>.main-nav,
+ html:not(.ios-header) body .editorial-header>nav[aria-label="Navegación principal"]{
+  display:none!important;
+ }
+ html:not(.ios-header) body header .lvl-header-dropdown nav{
+  display:grid!important;grid-template-columns:1fr!important;
+ }
+ html:not(.ios-header) body header .lvl-header-dropdown-inner{
+  padding:20px 20px max(24px,env(safe-area-inset-bottom,0px));
+ }
+ html:not(.ios-header) body header .lvl-header-dropdown nav a{
+  min-height:59px;align-items:center;padding:11px 0;gap:16px;
+ }
+ html:not(.ios-header) body header .lvl-header-nav-title{font-size:28px}
+ html:not(.ios-header) body header .lvl-header-dropdown{max-height:calc(100dvh - 68px)}
+}
+/* Very narrow phones must reserve room for both 44px utility controls. */
+@media(max-width:359px){
+ html header>.lvl-brand-trigger{width:min(100%,185px)!important;max-width:185px!important}
+ html header .lvl-header-actions{gap:0!important}
+ html header .lvl-header-actions .ios-heart,
+ html header .lvl-header-actions .ios-basket{min-width:38px!important;width:38px!important}
+}
