@@ -13,7 +13,7 @@ async function setupHomepageIntro(){
  const loader=document.getElementById('lvlIntroLoader');
  if(!loader)return;
 
- const SESSION_KEY='lvl-home-intro-laser-v11';
+ const SESSION_KEY='lvl-home-intro-laser-v12';
  let seen=false;
  try{seen=sessionStorage.getItem(SESSION_KEY)==='1'}catch(error){}
  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -121,26 +121,30 @@ async function setupHomepageIntro(){
 
   if(!shapes.length)throw new Error('Intro SVG has no drawable paths');
 
-  // Both horns sit last in the source SVG. Trace them with the cow's head so
-  // their silhouettes are present while the character comes into view.
-  const horns=svg.querySelectorAll('#lvl-cow-horn,#lvl-cow-horn-far');
+  // The horn outlines are separate SVG paths, but visually one paired feature.
+  // Schedule both in the SAME interval just before the head, rather than letting
+  // the single-stroke timeline reveal one horn after the other.
+  const horns=[svg.querySelector('#lvl-cow-horn'),svg.querySelector('#lvl-cow-horn-far')];
   const head=svg.querySelector('#lvl-cow-head');
-  for(const horn of horns){
-   const hornIndex=shapes.indexOf(horn);
-   if(hornIndex>=0&&shapes.includes(head)){
-    shapes.splice(hornIndex,1);
-    shapes.splice(shapes.indexOf(head),0,horn);
-   }
+  const pairedHorns=shapes.includes(head)&&horns.every(horn=>horn&&shapes.includes(horn));
+  if(pairedHorns){
+   horns.forEach(horn=>shapes.splice(shapes.indexOf(horn),1));
+   shapes.splice(shapes.indexOf(head),0,...horns);
   }
-
+  const strokeWeight=len=>Math.max(16,Math.min(260,Math.sqrt(len)*12));
+  const pairedWeight=pairedHorns?Math.max(...horns.map(horn=>strokeWeight(horn.getTotalLength()))):0;
   const segments=[];
-  let totalWeight=0;
+  let totalWeight=0,pairedStart=0;
 
   for(const el of shapes){
    let len=0;
    try{len=Math.max(.5,el.getTotalLength())}catch(error){continue}
-   const weight=Math.max(16,Math.min(260,Math.sqrt(len)*12));
-   totalWeight+=weight;
+   const firstHorn=pairedHorns&&el===horns[0];
+   const secondHorn=pairedHorns&&el===horns[1];
+   const weight=firstHorn||secondHorn?pairedWeight:strokeWeight(len);
+   const start=secondHorn?pairedStart:totalWeight;
+   if(firstHorn)pairedStart=start;
+   if(!secondHorn)totalWeight+=weight;
 
    el.classList.add('lvl-laser-draw');
    el.style.strokeDasharray=String(len);
@@ -148,7 +152,7 @@ async function setupHomepageIntro(){
    el.style.fillOpacity='0';
    el.style.strokeOpacity='1';
 
-   segments.push({el,len,weight,start:totalWeight-weight,end:totalWeight,done:false});
+   segments.push({el,len,weight,start,end:totalWeight,done:false});
   }
 
   if(!segments.length)throw new Error('Intro SVG paths could not be measured');
@@ -158,14 +162,25 @@ async function setupHomepageIntro(){
   // with their respective laser strokes instead of popping in at the end.
   const segmentByElement=new Map(segments.map(seg=>[seg.el,seg]));
   const detailsBySegment=new Map();
+  // In the original SVG, each horn has its own raster texture directly before
+  // its outline. Bind these textures to their actual horn, not whichever shape
+  // happened to precede them in document order.
+  const hornTextureAnchors=new Map();
+  if(pairedHorns){
+   horns.forEach(horn=>{
+    const texture=horn.previousElementSibling;
+    if(texture?.localName==='use')hornTextureAnchors.set(texture,horn);
+   });
+  }
   let detailAnchor=segments[0];
   for(const el of svg.querySelectorAll(`${drawableSelector},use`)){
    if(el.closest('defs,clipPath,mask,pattern,.lvl-intro-beam,.lvl-laser-smoke'))continue;
    const seg=segmentByElement.get(el);
    if(seg){detailAnchor=seg;continue}
    if(el.localName==='use'){
-    if(!detailsBySegment.has(detailAnchor))detailsBySegment.set(detailAnchor,[]);
-    detailsBySegment.get(detailAnchor).push(el);
+    const anchor=segmentByElement.get(hornTextureAnchors.get(el))||detailAnchor;
+    if(!detailsBySegment.has(anchor))detailsBySegment.set(anchor,[]);
+    detailsBySegment.get(anchor).push(el);
    }
   }
 
@@ -271,6 +286,11 @@ async function setupHomepageIntro(){
 
     const local=Math.max(0,Math.min(1,(global-active.start)/active.weight));
     active.el.style.strokeDashoffset=String(active.len*(1-local));
+    // A single time envelope drives both horn outlines, frame for frame.
+    if(pairedHorns&&active.el===horns[0]){
+     const farHorn=segmentByElement.get(horns[1]);
+     if(farHorn&&!farHorn.done)farHorn.el.style.strokeDashoffset=String(farHorn.len*(1-local));
+    }
 
     const point=pointOn(active,local);
     if(point){
