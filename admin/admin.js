@@ -261,9 +261,11 @@ async function hydrateHeroPreviews(){
 }
 function heroSlideCard(slide,index,total){
   const published=slide.src?CalendarContent.imageUrl(slide.src,new URL('../',document.baseURI)):'';
+  const previewCrop=window.LVLCrop?.forDevice(slide,window.LVLCrop.deviceForWidth(window.innerWidth))||{x:50,y:50,zoom:1};
+  const previewStyle=`object-position:${previewCrop.x}% ${previewCrop.y}%;transform:scale(${previewCrop.zoom})`;
   const fileNote=slide.draftBlobKey?`Original draft: ${escapeText(slide.fileName||'image')} · ${humanBytes(slide.originalBytes)} · unchanged`:'Using published image/path';
   return `<article class="hero-admin-card">
-    <div class="hero-admin-preview">${published?`<img data-hero-preview-index="${index}" src="${escapeText(published)}" alt="${escapeText(slide.alt||'Hero image')}" style="object-position:${escapeText(slide.position||'center center')}">`:`<img data-hero-preview-index="${index}" alt="${escapeText(slide.alt||'Hero image')}" style="object-position:${escapeText(slide.position||'center center')}">`}</div>
+    <div class="hero-admin-preview">${published?`<img data-hero-preview-index="${index}" src="${escapeText(published)}" alt="${escapeText(slide.alt||'Hero image')}" style="${escapeText(previewStyle)}">`:`<img data-hero-preview-index="${index}" alt="${escapeText(slide.alt||'Hero image')}" style="${escapeText(previewStyle)}">`}</div>
     <div class="hero-admin-fields">
       <div class="hero-admin-top"><strong>IMAGE ${String(index+1).padStart(2,'0')}</strong><span>${fileNote}</span></div>
       <button class="admin-action secondary hero-framing-button" type="button" data-hero-crop-index="${index}">Adjust responsive crop · desktop / tablet / phone</button>
