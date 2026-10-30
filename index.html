@@ -41,7 +41,7 @@ body{background:var(--paper);color:var(--ink)}
 /* LVL landing hero */
 .lvl-hero{position:relative;width:100%;min-height:min(820px,calc(100vh - 78px));overflow:hidden;background:#090907;color:var(--paper)}
 .lvl-gallery{position:absolute;inset:0;z-index:0;background:#090907}
-.lvl-slide{position:absolute;inset:-2%;background-size:cover;background-position:center;opacity:0;transform:scale(1.045);transition:opacity 1.45s ease,transform 7s ease;will-change:opacity,transform}
+.lvl-slide{position:absolute;inset:-2%;overflow:hidden;background-size:cover;background-position:center;opacity:0;transform:scale(1.045);transition:opacity 1.45s ease,transform 7s ease;will-change:opacity,transform}
 .lvl-slide.is-active{opacity:1;transform:scale(1.015)}
 .lvl-slide-media{position:absolute;display:block;max-width:none;pointer-events:none;user-select:none;-webkit-user-drag:none}
 .lvl-hero-shade{position:absolute;z-index:1;inset:0;background:linear-gradient(90deg,rgba(9,9,7,.93) 0%,rgba(9,9,7,.78) 27%,rgba(9,9,7,.34) 54%,rgba(9,9,7,.12) 78%,rgba(9,9,7,.30) 100%),linear-gradient(0deg,rgba(9,9,7,.60),transparent 42%)}
