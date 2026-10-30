@@ -536,9 +536,9 @@
 .hero-crop-frame{position:relative;isolation:isolate;overflow:hidden;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;background:#161414;border:1px solid rgba(238,229,211,.32);box-shadow:0 10px 25px rgba(0,0,0,.25);outline-offset:3px}
 .hero-crop-frame:focus-visible{outline:2px solid var(--pink)}
 .hero-crop-frame.is-dragging{cursor:grabbing}
-.hero-crop-frame.device-desktop{width:min(100%,760px,calc(52dvh * 16 / 9));aspect-ratio:16/9}
-.hero-crop-frame.device-tablet{width:min(100%,420px,calc(52dvh * 3 / 4));aspect-ratio:3/4}
-.hero-crop-frame.device-phone{width:min(100%,270px,calc(52dvh * 390 / 844));aspect-ratio:390/844}
+.hero-crop-frame.device-desktop{width:min(100%,760px,92.44dvh);aspect-ratio:16/9}
+.hero-crop-frame.device-tablet{width:min(100%,420px,39dvh);aspect-ratio:3/4}
+.hero-crop-frame.device-phone{width:min(100%,270px,24.03dvh);aspect-ratio:390/844}
 .hero-crop-frame>img{position:absolute;display:block;max-width:none;pointer-events:none;user-select:none;-webkit-user-drag:none}
 .hero-crop-shade{position:absolute;z-index:2;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(9,9,7,.88),rgba(9,9,7,.54) 60%,rgba(9,9,7,.18)),linear-gradient(0deg,rgba(9,9,7,.45),transparent 45%)}
 .hero-crop-website-copy{position:absolute;z-index:3;left:5%;right:5%;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:flex-start;pointer-events:none;gap:10px}
@@ -581,9 +581,9 @@
  .hero-crop-controls{padding:15px}
  .hero-crop-controls h3{margin-bottom:12px}
  .hero-crop-range{margin:12px 0}
- .hero-crop-frame.device-desktop{width:min(100%,760px,calc(45dvh * 16 / 9))}
- .hero-crop-frame.device-tablet{width:min(100%,420px,calc(45dvh * 3 / 4))}
- .hero-crop-frame.device-phone{width:min(100%,270px,calc(45dvh * 390 / 844))}
+ .hero-crop-frame.device-desktop{width:min(100%,760px,80dvh)}
+ .hero-crop-frame.device-tablet{width:min(100%,420px,33.75dvh)}
+ .hero-crop-frame.device-phone{width:min(100%,270px,20.79dvh)}
  .hero-crop-viewer{padding:10px}
  .hero-crop-frame-wrap{margin:8px 0}
  .hero-crop-controls #heroCropReset{width:100%}
