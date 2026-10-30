@@ -169,9 +169,12 @@
    // Apply commits to the local draft without rebuilding form fields.
    if(!saveDraft(false)){showMessage('Could not save your crop settings. Check browser storage.');return}
   }
-  const desktop=normalized.desktop;
+  const activeCrop=normalized[crop.deviceForWidth(window.innerWidth)];
   const thumb=document.querySelector('[data-hero-preview-index="'+slideIndex+'"]');
-  if(thumb)thumb.style.objectPosition=desktop.x+'% '+desktop.y+'%';
+  if(thumb){
+   thumb.style.objectPosition=activeCrop.x+'% '+activeCrop.y+'%';
+   thumb.style.transform='scale('+activeCrop.zoom+')';
+  }
   showToast('Responsive image framing saved. Publish changes to go live.');
   closeCrop();
  });
