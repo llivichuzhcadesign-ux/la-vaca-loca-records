@@ -406,8 +406,22 @@ async function setupHomepageHero(){
  if(!slides.length)return;
  gallery.innerHTML='';
  const slideEls=slides.map((slide,index)=>{
-  const el=document.createElement('div');el.className='lvl-slide'+(index===0?' is-active':'');el.style.backgroundPosition=slide.position||'center center';
-  if(slide.src)el.style.backgroundImage=`url("${String(slide.src).replace(/"/g,'\\\"')}")`;
+  const el=document.createElement('div');el.className='lvl-slide'+(index===0?' is-active':'');
+  const source=slide.src||'';
+  if(window.LVLCrop){
+   const media=document.createElement('img');
+   media.className='lvl-slide-media';
+   media.alt='';
+   media.decoding='async';
+   if(index>0)media.loading='lazy';
+   if(source)media.src=source;
+   el.appendChild(media);
+   const cropHandle=window.LVLCrop.mount(el,media,()=>window.LVLCrop.forDevice(slide,window.LVLCrop.deviceForWidth(window.innerWidth)));
+   if(cropHandle?.update)window.addEventListener('resize',cropHandle.update,{passive:true});
+  }else{
+   el.style.backgroundPosition=slide.position||'center center';
+   if(source)el.style.backgroundImage='url('+JSON.stringify(source)+')';
+  }
   gallery.appendChild(el);return el;
  });
  const current=document.getElementById('lvlHeroCurrent');const total=document.getElementById('lvlHeroTotal');
@@ -418,7 +432,7 @@ async function setupHomepageHero(){
  if(previewMode){
   slides.forEach(async(slide,index)=>{
    if(!slide.draftBlobKey)return;
-   try{const blob=await getHeroDraftBlob(slide.draftBlobKey);if(!blob)return;const url=URL.createObjectURL(blob);heroObjectUrls.push(url);slideEls[index].style.backgroundImage=`url("${url}")`}catch(error){console.warn('Hero draft image could not load',error)}
+   try{const blob=await getHeroDraftBlob(slide.draftBlobKey);if(!blob)return;const url=URL.createObjectURL(blob);heroObjectUrls.push(url);const image=slideEls[index].querySelector('.lvl-slide-media');if(image)image.src=url;else slideEls[index].style.backgroundImage=`url("${url}")`}catch(error){console.warn('Hero draft image could not load',error)}
   });
  }
  const reduceHeroMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
