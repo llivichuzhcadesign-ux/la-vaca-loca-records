@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Admin — La Vaca Loca Records</title>
-<link rel="stylesheet" href="admin.css?v=password-recovery-20261026">
+<link rel="stylesheet" href="admin.css?v=hero-crop-20261030">
 </head>
 <body>
 <header class="admin-header">
@@ -196,6 +196,57 @@
 </section>
   </section>
 </main>
+<dialog id="heroCropDialog" class="hero-crop-dialog" aria-labelledby="heroCropTitle" aria-describedby="heroCropDescription">
+  <div class="hero-crop-shell">
+    <header class="hero-crop-heading">
+      <div>
+        <p class="eyebrow">RESPONSIVE IMAGE STUDIO</p>
+        <h2 id="heroCropTitle">Frame the image.</h2>
+        <p id="heroCropDescription">Drag to reposition. Each device keeps its own framing; the original image is unchanged.</p>
+      </div>
+      <button type="button" class="admin-action secondary" id="heroCropClose" aria-label="Close crop editor">Close</button>
+    </header>
+    <div class="hero-crop-switcher" role="group" aria-label="Preview screen size">
+      <button type="button" data-crop-device="desktop" aria-pressed="true"><span>DESKTOP</span><small>1440 × 810</small></button>
+      <button type="button" data-crop-device="tablet" aria-pressed="false"><span>TABLET</span><small>768 × 1024</small></button>
+      <button type="button" data-crop-device="phone" aria-pressed="false"><span>PHONE</span><small>390 × 844</small></button>
+    </div>
+    <div class="hero-crop-workspace">
+      <div class="hero-crop-viewer">
+        <div class="hero-crop-device-label"><span id="heroCropDeviceLabel">Desktop view</span><span id="heroCropDimensions">1440 × 810</span></div>
+        <div class="hero-crop-frame-wrap">
+          <div class="hero-crop-frame device-desktop" id="heroCropFrame" tabindex="0" role="img" aria-label="Drag the image to adjust which part of it appears. You can also use the horizontal and vertical sliders.">
+            <img id="heroCropImage" alt="" draggable="false">
+            <div class="hero-crop-shade" aria-hidden="true"></div>
+            <div class="hero-crop-website-copy" id="heroCropWebsiteCopy" aria-hidden="true">
+              <span id="heroCropKicker">LA VACA LOCA RECORDS</span>
+              <strong id="heroCropMark">LVL</strong>
+              <em id="heroCropTagline">Discos, sonido, sesiones y cultura.</em>
+            </div>
+          </div>
+        </div>
+        <p class="hero-crop-guide">Drag or swipe the image to set the visible area. This preview uses the live website's cover geometry.</p>
+      </div>
+      <aside class="hero-crop-controls">
+        <p class="eyebrow">CROP SETTINGS</p>
+        <h3 id="heroCropControlsTitle">Desktop framing</h3>
+        <div class="hero-crop-range"><label for="heroCropX">Horizontal focus <output id="heroCropXValue" for="heroCropX">50%</output></label><input type="range" id="heroCropX" min="0" max="100" step="1" value="50"></div>
+        <div class="hero-crop-range"><label for="heroCropY">Vertical focus <output id="heroCropYValue" for="heroCropY">50%</output></label><input type="range" id="heroCropY" min="0" max="100" step="1" value="50"></div>
+        <div class="hero-crop-range"><label for="heroCropZoom">Zoom <output id="heroCropZoomValue" for="heroCropZoom">100%</output></label><input type="range" id="heroCropZoom" min="100" max="250" step="5" value="100"></div>
+        <div class="hero-crop-toggles">
+          <label><input type="checkbox" id="heroCropShowText" checked> Show website text</label>
+        </div>
+        <button type="button" class="admin-action secondary" id="heroCropReset">Reset this device</button>
+        <p class="hero-crop-settings-note">Phone crops apply to screens up to 560px, tablet up to 900px, and desktop above 900px. Crop settings are saved with the site content, not by altering the source image.</p>
+        <div class="hero-crop-footer">
+          <button class="admin-action secondary" type="button" id="heroCropCancel">Cancel</button>
+          <button class="admin-action" type="button" id="heroCropApply">Apply crop to draft</button>
+        </div>
+        <p id="heroCropMessage" class="hero-crop-message" role="status" aria-live="polite"></p>
+      </aside>
+    </div>
+  </div>
+</dialog>
 <dialog id="galleryPicker" class="gallery-picker"><div class="panel-head"><h2>Choose a photo</h2><button class="admin-action secondary" id="galleryPickerClose" type="button">Close</button></div><input id="galleryPickerSearch" type="search" placeholder="Search photos" aria-label="Search gallery photos"><p id="galleryPickerStatus" role="status"></p><div class="gallery-grid" id="galleryPickerGrid"></div><button class="admin-action secondary" id="galleryPickerMore" type="button" hidden>Load more</button></dialog>
 <div class="toast" id="adminToast" role="status" aria-live="polite"></div>
 <script src="../data.js"></script>
@@ -208,7 +259,7 @@ document.addEventListener('click',function(event){
 });
 </script>
 <script src="../calendar-content.js"></script>
-<script src="admin.js?v=publish-states-20261023"></script>
+<script src="../responsive-crop.js?v=20261030-crop1"></script><script src="admin.js?v=hero-crop-20261030"></script><script src="hero-crop.js?v=20261030-crop1"></script>
 <script src="gallery.js?v=gallery-only-20260929"></script>
 <script src="audio-upload.js"></script><script src="mobile.js?v=scroll-tabs-20261023"></script><script src="team.js?v=password-recovery-20261026"></script>
 </body>
