@@ -266,10 +266,11 @@ function heroSlideCard(slide,index,total){
     <div class="hero-admin-preview">${published?`<img data-hero-preview-index="${index}" src="${escapeText(published)}" alt="${escapeText(slide.alt||'Hero image')}" style="object-position:${escapeText(slide.position||'center center')}">`:`<img data-hero-preview-index="${index}" alt="${escapeText(slide.alt||'Hero image')}" style="object-position:${escapeText(slide.position||'center center')}">`}</div>
     <div class="hero-admin-fields">
       <div class="hero-admin-top"><strong>IMAGE ${String(index+1).padStart(2,'0')}</strong><span>${fileNote}</span></div>
+      <button class="admin-action secondary hero-framing-button" type="button" data-hero-crop-index="${index}">Adjust responsive crop · desktop / tablet / phone</button>
       <button class="admin-action secondary" type="button" data-gallery-path="homepage.hero.slides.${index}.src">From gallery</button><label class="upload-button hero-upload">From files<input type="file" accept="image/*" data-hero-upload="${index}"></label>
       <div class="field-grid">
         ${field(`homepage.hero.slides.${index}.alt`,'Image description',slide.alt||'')}
-        ${field(`homepage.hero.slides.${index}.position`,'Crop position',slide.position||'center center','text','CSS object position, e.g. center 48% or 40% center.')}
+        <div class="field full hero-crop-help"><span>Device-specific framing</span><small>Use Adjust responsive crop to drag the original image and choose independent desktop, tablet, and phone compositions. No pixels are removed.</small></div>
         ${field(`homepage.hero.slides.${index}.src`,'Published path / URL',slide.src||'','text','Used by the live site after permanent storage/publishing is connected.')}
       </div>
       <div class="hero-order-actions">
