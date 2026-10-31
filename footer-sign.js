@@ -138,9 +138,11 @@
   const x=clamp((event.clientX-rect.left)/rect.width*100,0,100);
   const y=clamp((event.clientY-rect.top)/rect.height*100,0,100);
   // The drawing is the interaction surface. Preserve ordinary link hover behavior.
-  const mobile=rect.width<=720;
+  const mobile=rect.width<=720, touch=event.pointerType==='touch';
   return {x,y,clientX:event.clientX,clientY:event.clientY,
-   inside: mobile ? (y>=5&&y<=79) : (x>=12&&x<=85&&y>=6&&y<=90)};
+   // A touch on the artwork must work at every width, including iPad landscape.
+   inside: touch ? (y>=0&&y<=79) :
+    mobile ? (y>=5&&y<=79) : (x>=12&&x<=85&&y>=6&&y<=90)};
  };
  // Map the cursor to the nearest real point on the cow's vector contour.
  // Cache path samples so each discharge is cheap, even on touch screens.
@@ -557,17 +559,18 @@
  function handlePointerMove(event){
   const touchDrag=event.pointerType==='touch'&&draggingTouchId===event.pointerId;
   if(!touchDrag&&event.pointerType!=='mouse'&&event.pointerType!=='pen')return;
-  if(!touchDrag&&event.target.closest('a')){deactivate();return;}
+  if(!touchDrag&&event.target.closest('a,button,input,textarea,select')){deactivate();return;}
   const point=pointFromEvent(event);
   if(touchDrag&&touchStart&&!touchMoved){
    if(Math.hypot(event.clientX-touchStart.x,event.clientY-touchStart.y)<12)return;
    touchMoved=true;
-   if(point?.inside)activate(point,true);
-  }else if(!point||!point.inside)deactivate();
+  }
+  if(!point||!point.inside)deactivate();
   else activate(point,true);
  }
  let pointerFrame=0,pendingPointer=null;
  footer.addEventListener('pointermove',event=>{
+  if(event.pointerType==='touch'&&event.pointerId!==draggingTouchId)return;
   pendingPointer={pointerType:event.pointerType,pointerId:event.pointerId,
    clientX:event.clientX,clientY:event.clientY,target:event.target};
   if(!pointerFrame)pointerFrame=requestAnimationFrame(()=>{
@@ -580,16 +583,21 @@
   if(event.pointerType!=='touch'){pendingPointer=null;deactivate();}
  });
  footer.addEventListener('pointerdown',event=>{
-  if(event.target.closest('a')||!event.isPrimary)return;
+  if(!event.isPrimary||event.target.closest('a,button,input,textarea,select'))return;
   const point=pointFromEvent(event);
   if(!point||!point.inside)return;
   if(event.pointerType==='touch'){
-   if(event.target!==touchSurface||draggingTouchId!==null)return;
+   if(draggingTouchId!==null)return;
+   // Touch interrupts the decorative intro instead of being silently ignored.
+   if(!introComplete)finishFooterIntro();
    draggingTouchId=event.pointerId;
    touchStart={x:event.clientX,y:event.clientY,point};
    touchMoved=false;
-   try{touchSurface.setPointerCapture(event.pointerId);}catch{}
+   // Capture on the footer, not on one particular child, so all artwork hits work.
+   try{footer.setPointerCapture(event.pointerId);}catch{}
    clearTimeout(touchOff);
+   deactivate();
+   activate(point,false,false); // Immediate electric response on finger-down.
   }else{
    if(!energized)activate(point,false,false);
    else emitDischarge(point,true,false);
@@ -598,18 +606,20 @@
  },{passive:true});
  const stopTouchDrag=event=>{
   if(event.pointerId!==draggingTouchId)return;
+  // Do not dispatch a queued drag frame after the finger has been lifted.
+  if(pointerFrame){cancelAnimationFrame(pointerFrame);pointerFrame=0;}
+  pendingPointer=null;
   if(event.type==='pointerup'&&!touchMoved&&touchStart){
-   activate(touchStart.point,false,false);
-   finale(touchStart.point);
+   finale(touchStart.point); // A short tap produces the existing paired fireworks.
   }
   draggingTouchId=null;touchStart=null;touchMoved=false;
-  if(event.type!=='lostpointercapture'&&touchSurface.hasPointerCapture?.(event.pointerId)){
-   try{touchSurface.releasePointerCapture(event.pointerId);}catch{}
+  if(event.type!=='lostpointercapture'&&footer.hasPointerCapture?.(event.pointerId)){
+   try{footer.releasePointerCapture(event.pointerId);}catch{}
   }
   deactivate();
  };
  for(const eventName of ['pointerup','pointercancel','lostpointercapture'])
-  touchSurface.addEventListener(eventName,stopTouchDrag,{passive:true});
+  footer.addEventListener(eventName,stopTouchDrag,{passive:true});
  touchSurface.addEventListener('contextmenu',event=>event.preventDefault());
  // Link the footer to actual decoded frequencies from Discos. The record player's audio is never rerouted.
  let spectrum=null, spectrumReference={bass:1,mid:1};
