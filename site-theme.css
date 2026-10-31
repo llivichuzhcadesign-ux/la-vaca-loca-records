@@ -377,3 +377,99 @@ header .lvl-brand-trigger img{min-width:0;flex:0 1 auto;max-width:calc(100% - 23
   letter-spacing:.11em;text-transform:uppercase;
  }
 }
+
+
+/* Adaptive header: inline navigation wins whenever the complete row fits.
+   This state deliberately overrides the old iPad / landscape hard cutoffs. */
+html body header.lvl-nav-measuring > .main-nav,
+html body header.lvl-nav-measuring > nav[aria-label="Navegación principal"] {
+  display:flex!important;
+  position:absolute!important;
+  left:-10000px!important;
+  top:0!important;
+  width:max-content!important;
+  min-width:max-content!important;
+  max-width:none!important;
+  visibility:hidden!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:clamp(10px,1.5vw,20px)!important;
+  margin:0!important;
+  padding:0!important;
+}
+html body header.lvl-nav-measuring > .main-nav a,
+html body header.lvl-nav-measuring > nav[aria-label="Navegación principal"] a {
+  font-size:clamp(10px,1.05vw,12px)!important;
+  line-height:1.4!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+}
+html body .site-header.lvl-tabs-fit,
+html body .editorial-header.lvl-tabs-fit {
+  display:grid!important;
+  grid-template-columns:minmax(0,var(--lvl-logo-slot,210px)) minmax(0,1fr) auto!important;
+  grid-template-rows:1fr!important;
+  align-items:center!important;
+  height:clamp(68px,6vw,78px)!important;
+  padding:8px clamp(14px,3vw,48px)!important;
+  gap:clamp(10px,1.5vw,20px)!important;
+}
+html body header.lvl-tabs-fit > .lvl-brand-trigger {
+  grid-column:1!important;
+  grid-row:1!important;
+  justify-self:start!important;
+  display:flex!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  height:auto!important;
+}
+html body header.lvl-tabs-fit > .lvl-brand-trigger img {
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-width:100%!important;
+  max-height:52px!important;
+  object-fit:contain!important;
+  object-position:left center!important;
+}
+html body header.lvl-tabs-fit > .lvl-brand-trigger::after {
+  display:none!important;
+}
+html body header.lvl-tabs-fit > .main-nav,
+html body header.lvl-tabs-fit > nav[aria-label="Navegación principal"] {
+  display:flex!important;
+  position:static!important;
+  grid-column:2!important;
+  grid-row:1!important;
+  justify-self:center!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex-wrap:nowrap!important;
+  gap:clamp(10px,1.5vw,20px)!important;
+  min-width:0!important;
+  width:max-content!important;
+  max-width:100%!important;
+  margin:0!important;
+  padding:0!important;
+}
+html body header.lvl-tabs-fit > .main-nav a,
+html body header.lvl-tabs-fit > nav[aria-label="Navegación principal"] a {
+  display:inline-block!important;
+  font-size:clamp(10px,1.05vw,12px)!important;
+  font-weight:800!important;
+  line-height:1.4!important;
+  white-space:nowrap!important;
+  text-transform:uppercase!important;
+}
+html body header.lvl-tabs-fit > .lvl-header-actions {
+  display:flex!important;
+  grid-column:3!important;
+  grid-row:1!important;
+  justify-self:end!important;
+  align-items:center!important;
+}
+html body header.lvl-tabs-fit > .lvl-header-dropdown {
+  display:none!important;
+}
