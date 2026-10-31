@@ -43,10 +43,16 @@
   brand.setAttribute('aria-label',open?'Cerrar menú de navegación':'Abrir menú de navegación');
   header.classList.toggle('lvl-menu-open',open);
  };
- brand.addEventListener('click',toggleMenu);
+ brand.addEventListener('click',()=>{
+  if(header.classList.contains('lvl-tabs-fit')){
+   if(!/(?:^|\/)index\.html$/.test(location.pathname)&&location.pathname!=='/')location.href='index.html';
+   return;
+  }
+  toggleMenu();
+ });
  // Keyboard users can enter the navigation immediately with ArrowDown.
  brand.addEventListener('keydown',event=>{
-  if(event.key!=='ArrowDown')return;
+  if(event.key!=='ArrowDown'||header.classList.contains('lvl-tabs-fit'))return;
   event.preventDefault();
   if(dropdown.hidden)toggleMenu();
   dropdown.querySelector('a')?.focus();
@@ -84,6 +90,49 @@
  bagImage.alt='';
  right.append(heart,bag);
  header.append(right);
+ // Measure the actual inline links, logo and utility buttons instead of using
+ // a device-specific breakpoint. Show the dropdown only when this row will not fit.
+ function fitHeaderNavigation(){
+  if(!existingNav)return;
+  const width=header.clientWidth;
+  if(!width)return;
+  const logoSlot=Math.min(240,Math.max(160,width*.225));
+  const padding=Math.min(48,Math.max(14,width*.03));
+  const gap=Math.min(20,Math.max(10,width*.015));
+  header.classList.remove('lvl-tabs-fit');
+  header.classList.add('lvl-nav-measuring');
+  const navWidth=Math.ceil(existingNav.getBoundingClientRect().width);
+  header.classList.remove('lvl-nav-measuring');
+  const actionsWidth=Math.ceil(right.getBoundingClientRect().width);
+  const fits=width-2*padding>=logoSlot+navWidth+actionsWidth+gap*2+14;
+  header.style.setProperty('--lvl-logo-slot',Math.round(logoSlot)+'px');
+  header.classList.toggle('lvl-tabs-fit',fits);
+  if(fits){
+   closeMenu();
+   brand.setAttribute('aria-label','Ir al inicio');
+   brand.removeAttribute('aria-expanded');
+   brand.removeAttribute('aria-controls');
+   brand.title='Inicio';
+  }else{
+   closeMenu();
+   brand.setAttribute('aria-label','Abrir menú de navegación');
+   brand.setAttribute('aria-expanded','false');
+   brand.setAttribute('aria-controls',dropdown.id);
+   brand.removeAttribute('title');
+  }
+ }
+ let fitFrame=0;
+ const scheduleHeaderFit=()=>{
+  if(fitFrame)return;
+  fitFrame=requestAnimationFrame(()=>{
+   fitFrame=0;
+   fitHeaderNavigation();
+  });
+ };
+ fitHeaderNavigation();
+ window.addEventListener('resize',scheduleHeaderFit,{passive:true});
+ window.addEventListener('orientationchange',scheduleHeaderFit,{passive:true});
+ if(document.fonts?.ready)document.fonts.ready.then(scheduleHeaderFit);
  // Content scripts can be deferred on inner pages. Never freeze the initial (possibly empty) list.
  const availableRecords=()=>{
   const source=window.SITE_CONTENT?.records||window.RECORDS||[];
