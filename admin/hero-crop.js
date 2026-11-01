@@ -18,7 +18,7 @@
  const message=document.getElementById('heroCropMessage');
  const showText=document.getElementById('heroCropShowText');
  const apply=document.getElementById('heroCropApply');
- let slideIndex=-1,device='desktop',working=null,previewHandle=null,temporaryUrl=null,openNumber=0,drag=null;
+ let slideIndex=-1,device='desktop',working=null,workingFilters=null,previewHandle=null,temporaryUrl=null,openNumber=0,drag=null;
  const getSlide=()=>slideIndex>=0?getValue('homepage.hero.slides.'+slideIndex):null;
  const current=()=>working?.[device];
  const showMessage=(value)=>{message.textContent=value||''};
@@ -44,6 +44,13 @@
   outputY.textContent=Math.round(value.y)+'%';
   outputZoom.textContent=Math.round(value.zoom*100)+'%';
   document.getElementById('heroCropWebsiteCopy').hidden=!showText.checked;
+  const filter=workingFilters?.[device]||'none';
+  img.style.filter=crop.filterCSS(filter);
+  dialog.querySelectorAll('[data-crop-filter]').forEach(button=>{
+   const active=button.dataset.cropFilter===filter;
+   button.setAttribute('aria-pressed',String(active));
+   button.classList.toggle('selected',active);
+  });
   crop.layout(frame,img,value);
  }
 
@@ -82,7 +89,7 @@
   if(!devices.includes(next)||!working)return;
   device=next;render();loadDeviceImage();
  }
- async function openCrop(index){
+ async function openCrop(index,initialDevice){
   const slide=getValue('homepage.hero.slides.'+index);
   if(!slide)return;
   openNumber++;
@@ -92,7 +99,8 @@
   img.removeAttribute('src');
   slideIndex=index;
   working=Object.fromEntries(devices.map(name=>[name,crop.forDevice(slide,name)]));
-  device=window.innerWidth<=560?'phone':window.innerWidth<=900?'tablet':'desktop';
+  workingFilters=Object.fromEntries(devices.map(name=>[name,crop.filterForDevice(slide,name)]));
+  device=devices.includes(initialDevice)?initialDevice:crop.deviceForWidth(window.innerWidth);
   showText.checked=true;
   apply.disabled=false;
   showMessage('');
@@ -113,16 +121,22 @@
   if(previewHandle){previewHandle.destroy();previewHandle=null}
   img.removeAttribute('src');
   if(temporaryUrl){URL.revokeObjectURL(temporaryUrl);temporaryUrl=null}
-  slideIndex=-1;working=null;
+  slideIndex=-1;working=null;workingFilters=null;
   if(dialog.open)dialog.close();
  }
 
  document.addEventListener('click',event=>{
   const trigger=event.target.closest('[data-hero-crop-index]');
-  if(trigger)openCrop(Number(trigger.dataset.heroCropIndex));
+  if(trigger)openCrop(Number(trigger.dataset.heroCropIndex),trigger.dataset.heroCropDevice);
  });
 
  dialog.querySelectorAll('[data-crop-device]').forEach(button=>button.addEventListener('click',()=>selectDevice(button.dataset.cropDevice)));
+ dialog.querySelectorAll('[data-crop-filter]').forEach(button=>button.addEventListener('click',()=>{
+  if(!workingFilters)return;
+  workingFilters[device]=crop.filterName(button.dataset.cropFilter);
+  render();
+  showMessage('');
+ }));
  document.getElementById('heroCropClose').addEventListener('click',closeCrop);
  document.getElementById('heroCropCancel').addEventListener('click',closeCrop);
  dialog.addEventListener('cancel',event=>{event.preventDefault();closeCrop()});
@@ -140,7 +154,8 @@
  document.getElementById('heroCropReset').addEventListener('click',()=>{
   if(!working)return;
   working[device]=crop.parsePosition(getSlide()?.position);
-  render();showMessage(names[device]+' framing reset to the original position.');
+  workingFilters[device]='none';
+  render();showMessage(names[device]+' framing and filter reset to original.');
  });
 
  frame.addEventListener('pointerdown',event=>{
@@ -173,20 +188,32 @@
  frame.addEventListener('lostpointercapture',()=>{drag=null;frame.classList.remove('is-dragging')});
 
  apply.addEventListener('click',()=>{
-  const slide=getSlide();if(!slide||!working)return;
+  const slide=getSlide();if(!slide||!working||!workingFilters)return;
+  const index=slideIndex;
   const normalized=Object.fromEntries(devices.map(name=>[name,crop.normalize(working[name])]));
-  if(JSON.stringify(slide.crops||{})!==JSON.stringify(normalized)){
-   setValue('homepage.hero.slides.'+slideIndex+'.crops',normalized);
-   // Apply commits to the local draft without rebuilding form fields.
-   if(!saveDraft(false)){showMessage('Could not save your crop settings. Check browser storage.');return}
+  const filters=Object.fromEntries(devices.map(name=>[name,crop.filterName(workingFilters[name])]));
+  const cropsChanged=JSON.stringify(slide.crops||{})!==JSON.stringify(normalized);
+  const filtersChanged=JSON.stringify(slide.filters||{})!==JSON.stringify(filters);
+  if(cropsChanged||filtersChanged){
+   if(cropsChanged)setValue('homepage.hero.slides.'+index+'.crops',normalized);
+   if(filtersChanged)setValue('homepage.hero.slides.'+index+'.filters',filters);
+   // Saving only local data prevents re-rendering the gallery while the editor is open.
+   if(!saveDraft(false)){showMessage('Could not save image settings. Check browser storage.');return}
   }
-  const activeCrop=normalized[crop.deviceForWidth(window.innerWidth)];
-  const thumb=document.querySelector('[data-hero-preview-index="'+slideIndex+'"]');
+  const activeDevice=crop.deviceForWidth(window.innerWidth);
+  const activeCrop=normalized[activeDevice];
+  const activeFilter=crop.filterCSS(filters[activeDevice]);
+  const thumb=document.querySelector('[data-hero-preview-index="'+index+'"]');
   if(thumb){
    thumb.style.objectPosition=activeCrop.x+'% '+activeCrop.y+'%';
    thumb.style.transform='scale('+activeCrop.zoom+')';
+   thumb.style.filter=activeFilter;
   }
-  showToast('Responsive image framing saved. Publish changes to go live.');
+  document.querySelectorAll('[data-hero-source-index="'+index+'"]').forEach(source=>{
+   const d=source.dataset.heroSourceDevice;
+   source.style.filter=crop.filterCSS(filters[d]);
+  });
+  showToast(cropsChanged||filtersChanged?'Image adjustments saved. Publish changes to go live.':'No image adjustments changed.');
   closeCrop();
  });
 
