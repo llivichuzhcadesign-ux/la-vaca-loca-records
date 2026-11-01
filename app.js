@@ -399,8 +399,10 @@ async function setupHomepageHero(){
  const hero=content.homepage?.hero||{};
  const overlay= document.querySelector('.lvl-hero-shade');
  if(overlay)overlay.style.opacity=String((window.LVLCrop?.overlayStrength(hero)??25)/100);
+ const watermark=document.getElementById('lvlHeroWatermark');
+ if(watermark)watermark.style.setProperty('--hero-watermark-opacity',String((window.LVLCrop?.watermarkOpacity(hero)??26)/100));
  setHeroText('lvlHeroKicker',hero.kicker);
- setHeroText('lvlHeroTitle',hero.title||'LVL');
+ setHeroText('lvlHeroTitle','La Vaca Loca Records');
  setHeroText('lvlHeroTagline',hero.tagline);
  const primary=document.getElementById('lvlHeroPrimary');if(primary){if(hero.primaryLabel)primary.textContent=hero.primaryLabel;if(hero.primaryHref)primary.href=hero.primaryHref}
  const secondary=document.getElementById('lvlHeroSecondary');if(secondary){if(hero.secondaryLabel)secondary.textContent=hero.secondaryLabel;if(hero.secondaryHref)secondary.href=hero.secondaryHref}
