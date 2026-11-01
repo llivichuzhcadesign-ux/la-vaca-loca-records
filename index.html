@@ -46,8 +46,8 @@ body{background:var(--paper);color:var(--ink)}
 .lvl-slide-media{position:absolute;display:block;max-width:none;pointer-events:none;user-select:none;-webkit-user-drag:none}
 .lvl-hero-shade{position:absolute;z-index:1;inset:0;opacity:.25;pointer-events:none;transition:opacity .7s ease;background:linear-gradient(90deg,rgba(9,9,7,.93) 0%,rgba(9,9,7,.78) 27%,rgba(9,9,7,.34) 54%,rgba(9,9,7,.12) 78%,rgba(9,9,7,.30) 100%),linear-gradient(0deg,rgba(9,9,7,.60),transparent 42%)}
 .lvl-hero-content{position:relative;z-index:3;min-height:min(820px,calc(100vh - 78px));display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:8vh 4vw 9vh;max-width:min(760px,62vw)}
-.lvl-hero-watermark{position:absolute;z-index:2;top:50%;right:8vw;width:clamp(210px,28vw,390px);transform:translateY(-50%);pointer-events:none;user-select:none;opacity:var(--hero-watermark-opacity,.26);transition:opacity .5s ease}
-.lvl-hero-watermark img{display:block;width:100%;height:auto;max-width:none;filter:drop-shadow(0 7px 20px rgba(0,0,0,.09))}
+
+
 .lvl-hero-heading-sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .lvl-hero-rule{display:block;width:66px;height:2px;background:var(--pink);margin:0 0 22px}
 
@@ -61,25 +61,16 @@ body{background:var(--paper);color:var(--ink)}
 .lvl-hero-index{position:absolute;z-index:4;right:4vw;bottom:30px;display:flex;align-items:center;gap:10px;color:rgba(238,229,211,.82);font-size:9px;font-weight:900;letter-spacing:.12em}
 .lvl-hero-index i{display:block;width:64px;height:1px;background:rgba(238,229,211,.55)}
 
-@media(max-width:800px){.lvl-hero,.lvl-hero-content{min-height:calc(100vh - 68px)}.lvl-hero-content{padding:9vh 18px 10vh;max-width:75vw}.lvl-hero-watermark{width:clamp(175px,39vw,310px);right:2vw;top:39%}.lvl-hero-shade{background:linear-gradient(90deg,rgba(9,9,7,.88),rgba(9,9,7,.44) 72%,rgba(9,9,7,.34)),linear-gradient(0deg,rgba(9,9,7,.72),transparent 48%)}.lvl-hero-copy{font-size:clamp(28px,4.5vw,42px)}.lvl-hero-index{right:18px;bottom:22px}.lvl-slide-1{background-position:center 40%}}
-@media(max-width:560px){.lvl-kicker{max-width:280px;line-height:1.45}.lvl-hero-content{max-width:90vw}.lvl-hero-watermark{width:min(61vw,255px);right:-6vw;top:29%}.lvl-hero-rule{width:48px;margin-bottom:18px}.lvl-hero-copy{margin-top:0;max-width:315px;font-size:clamp(27px,7vw,35px)}.lvl-hero-actions{margin-top:24px}.lvl-primary-link,.lvl-secondary-link{padding:11px 12px;font-size:9px}.lvl-hero-index i{width:42px}}
-@media(prefers-reduced-motion:reduce){.ticker .ticker-track{animation:none}.lvl-slide{transition:none;transform:none}.lvl-slide.is-active{opacity:1}.lvl-hero-shade,.lvl-hero-watermark{transition:none}}
+@media(max-width:800px){.lvl-hero,.lvl-hero-content{min-height:calc(100vh - 68px)}.lvl-hero-content{padding:9vh 18px 10vh;max-width:75vw}.lvl-hero-shade{background:linear-gradient(90deg,rgba(9,9,7,.88),rgba(9,9,7,.44) 72%,rgba(9,9,7,.34)),linear-gradient(0deg,rgba(9,9,7,.72),transparent 48%)}.lvl-hero-copy{font-size:clamp(28px,4.5vw,42px)}.lvl-hero-index{right:18px;bottom:22px}.lvl-slide-1{background-position:center 40%}}
+@media(max-width:560px){.lvl-kicker{max-width:280px;line-height:1.45}.lvl-hero-content{max-width:90vw}.lvl-hero-rule{width:48px;margin-bottom:18px}.lvl-hero-copy{margin-top:0;max-width:315px;font-size:clamp(27px,7vw,35px)}.lvl-hero-actions{margin-top:24px}.lvl-primary-link,.lvl-secondary-link{padding:11px 12px;font-size:9px}.lvl-hero-index i{width:42px}}
+@media(prefers-reduced-motion:reduce){.ticker .ticker-track{animation:none}.lvl-slide{transition:none;transform:none}.lvl-slide.is-active{opacity:1}.lvl-hero-shade{transition:none}}
 
 /* EDITORIAL HERO — original circular seal integrated into the photograph. */
 .lvl-hero{isolation:isolate}
-.lvl-hero-watermark{
- z-index:2;top:52%;right:-6.5vw;width:clamp(345px,39vw,590px);
- transform:translateY(-50%) rotate(-5deg);mix-blend-mode:soft-light;
- opacity:var(--hero-watermark-opacity,.26);
- filter:none;will-change:opacity
-}
-.lvl-hero-watermark img{filter:none;max-width:none;width:100%;height:auto}
-.lvl-hero-watermark[data-placement="full"]{
- right:7vw;top:50%;width:clamp(235px,29vw,410px);transform:translateY(-50%);
-}
-.lvl-hero-watermark[data-placement="upper"]{
- right:2.5vw;top:29%;width:clamp(235px,30vw,440px);transform:translateY(-50%) rotate(-7deg)
-}
+
+
+
+
 .lvl-hero-content{
  max-width:min(660px,57vw);padding:8vh 5vw 9vh;
  justify-content:center;gap:0
@@ -104,9 +95,9 @@ body{background:var(--paper);color:var(--ink)}
 @media(max-width:900px){
  .lvl-hero-content{padding:8vh 5vw 10vh;max-width:64vw}
  .lvl-hero-copy{font-size:clamp(31px,4.6vw,46px);max-width:54vw}
- .lvl-hero-watermark{right:-8vw;top:43%;width:clamp(270px,45vw,445px)}
- .lvl-hero-watermark[data-placement="full"]{right:3vw;top:42%;width:clamp(205px,34vw,320px)}
- .lvl-hero-watermark[data-placement="upper"]{right:-2vw;top:26%;width:clamp(215px,34vw,330px)}
+ 
+ 
+ 
 }
 @media(max-width:560px){
  .lvl-hero-content{
@@ -123,17 +114,17 @@ body{background:var(--paper);color:var(--ink)}
  }
  .lvl-hero-actions{margin-top:23px;gap:9px}
  .lvl-primary-link,.lvl-secondary-link{min-height:41px;padding:10px 12px;font-size:9px}
- .lvl-hero-watermark{right:-13vw;top:25%;width:clamp(240px,69vw,325px);transform:translateY(-50%) rotate(-5deg)}
- .lvl-hero-watermark[data-placement="full"]{right:7vw;top:27%;width:clamp(190px,52vw,255px);transform:translateY(-50%)}
- .lvl-hero-watermark[data-placement="upper"]{right:-8vw;top:18%;width:clamp(190px,56vw,275px);transform:translateY(-50%) rotate(-7deg)}
+ 
+ 
+ 
  .lvl-hero-index{bottom:18px;right:18px}
 }
 @media(max-width:375px){
  .lvl-hero-content{padding-left:19px;padding-right:19px;padding-bottom:11vh}
  .lvl-hero-copy{font-size:clamp(25px,7.5vw,30px);max-width:295px}
- .lvl-hero-watermark{right:-19vw;width:71vw}
+ 
 }
-@media(prefers-reduced-motion:reduce){.lvl-hero-watermark{will-change:auto}}
+
 
 </style>
 <link rel="stylesheet" href="home-discos.css?v=art-viewer-20260929">
@@ -157,9 +148,6 @@ body{background:var(--paper);color:var(--ink)}
   <div class="lvl-slide" style="background-image:url('assets/images/site/hero/lvl-hero-03.webp');background-position:center 48%"></div>
 </div>
 <div class="lvl-hero-shade" aria-hidden="true"></div>
-<div class="lvl-hero-watermark" id="lvlHeroWatermark" aria-hidden="true">
-  <img src="assets/images/site/lvl-fire-watermark.svg" alt="" draggable="false" decoding="async">
-</div>
 <div class="lvl-hero-content">
   <p class="lvl-kicker" id="lvlHeroKicker">LA VACA LOCA RECORDS · GUALACEO, ECUADOR</p>
   <h1 class="lvl-hero-heading-sr" id="lvlHeroTitle">La Vaca Loca Records</h1>
@@ -211,7 +199,7 @@ body{background:var(--paper);color:var(--ink)}
 </main>
 <aside class="cart-panel" id="cartPanel" aria-hidden="true"><div class="cart-head"><h3>YOUR BAG</h3><button id="closeCart">CERRAR</button></div><div id="cartItems" class="cart-items"></div><div class="cart-footer"><div class="cart-total"><span>TOTAL</span><strong id="cartTotal">$0</strong></div><a id="whatsappCheckout" class="button primary full" href="#" target="_blank" rel="noopener">ORDENAR POR WHATSAPP</a></div></aside><div class="scrim" id="scrim"></div>
 <div class="player" id="player"><button id="playerToggle" class="play-control" aria-label="Reproducir"><span class="play-icon" aria-hidden="true"></span></button><div class="player-art" id="playerArt"><span></span></div><div class="player-meta"><span>NOW PLAYING / LA VACA LOCA</span><strong id="playerTitle">Selecciona un disco para escuchar</strong><small id="playerSub">CRATE PLAYER · GUALACEO</small></div><div class="player-line"><span id="playerProgress"></span></div></div>
-<script src="data.js"></script><script src="api/content"></script><script src="draft-preview.js"></script><script src="calendar-content.js"></script><script src="responsive-crop.js?v=20261101-editorial-seal-v2"></script><script src="app.js?v=20261101-editorial-seal-v2"></script><script src="media-runtime.js?v=flow-image-20260929"></script>
+<script src="data.js"></script><script src="api/content"></script><script src="draft-preview.js"></script><script src="calendar-content.js"></script><script src="responsive-crop.js?v=20261101-no-watermark"></script><script src="app.js?v=20261101-no-watermark"></script><script src="media-runtime.js?v=flow-image-20260929"></script>
 <script src="home-collage.js?v=20261029-phase3"></script><script src="ios-header.js?v=20261031-adaptive-tabs-v1"></script><script src="bag.js?v=20261029-clean-mobile" defer></script><script src="footer-sign.js?v=20261030-touch-repair-v1"></script><script src="site-theme.js?v=20261029-logo-menu"></script></body>
 </html>
 
