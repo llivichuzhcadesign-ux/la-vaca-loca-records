@@ -47,11 +47,6 @@
   const shade=frame.querySelector('.hero-crop-shade');
   const slide=getSlide();
   if(shade)shade.style.opacity=String((slide?crop.slideOverlayStrength(draft.homepage?.hero,slide):crop.overlayStrength(draft.homepage?.hero))/100);
-  const watermark=frame.querySelector('.hero-crop-brand-watermark');
-  if(watermark){
-   watermark.style.opacity=String(crop.watermarkOpacity(draft.homepage?.hero)/100);
-   watermark.dataset.placement=crop.watermarkPlacement(draft.homepage?.hero);
-  }
   const filter=workingFilters?.[device]||'none';
   img.style.filter=crop.filterCSS(filter);
   dialog.querySelectorAll('[data-crop-filter]').forEach(button=>{
