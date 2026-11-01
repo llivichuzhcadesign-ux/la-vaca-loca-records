@@ -65,6 +65,12 @@
  function filterCSS(value){
   return IMAGE_FILTERS[filterName(value)];
  }
+ // 0 removes the text-contrast shadow; 100 restores the original full-strength overlay.
+ function overlayStrength(hero){
+  if(hero?.overlayStrength===undefined||hero?.overlayStrength===null||hero?.overlayStrength==='')return 25;
+  const value=Number(hero.overlayStrength);
+  return Number.isFinite(value)?clamp(value,0,100):25;
+ }
  function layout(frame,img,crop){
   if(!frame||!img||!img.naturalWidth||!img.naturalHeight)return;
   const w=frame.clientWidth,h=frame.clientHeight;
@@ -97,5 +103,5 @@
    else root.removeEventListener('resize',update);
   }};
  }
- root.LVLCrop=Object.freeze({clamp,parsePosition,normalize,deviceForWidth,mediaForDevice,hasMedia,forDevice,filterName,filterForDevice,filterCSS,layout,mount});
+ root.LVLCrop=Object.freeze({clamp,parsePosition,normalize,deviceForWidth,mediaForDevice,hasMedia,forDevice,filterName,filterForDevice,filterCSS,overlayStrength,layout,mount});
 })(window);
