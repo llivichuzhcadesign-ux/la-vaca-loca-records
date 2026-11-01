@@ -54,6 +54,17 @@
  function hasMedia(slide){
   return !!(slide?.src||slide?.draftBlobKey||Object.values(slide?.deviceImages||{}).some(item=>item?.src||item?.draftBlobKey));
  }
+ // Filter choices are presentation-only; uploaded original images are never changed.
+ const IMAGE_FILTERS=Object.freeze({none:'none',grayscale:'grayscale(1)',sepia:'sepia(1)'});
+ function filterName(value){
+  return Object.prototype.hasOwnProperty.call(IMAGE_FILTERS,value)?value:'none';
+ }
+ function filterForDevice(slide,device){
+  return filterName(slide?.filters?.[device]);
+ }
+ function filterCSS(value){
+  return IMAGE_FILTERS[filterName(value)];
+ }
  function layout(frame,img,crop){
   if(!frame||!img||!img.naturalWidth||!img.naturalHeight)return;
   const w=frame.clientWidth,h=frame.clientHeight;
@@ -86,5 +97,5 @@
    else root.removeEventListener('resize',update);
   }};
  }
- root.LVLCrop=Object.freeze({clamp,parsePosition,normalize,deviceForWidth,forDevice,mediaForDevice,hasMedia,layout,mount});
+ root.LVLCrop=Object.freeze({clamp,parsePosition,normalize,deviceForWidth,mediaForDevice,hasMedia,forDevice,filterName,filterForDevice,filterCSS,layout,mount});
 })(window);
