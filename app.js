@@ -423,6 +423,8 @@ async function setupHomepageHero(){
    const ticket=++request;
    const device=window.LVLCrop?.deviceForWidth(window.innerWidth)||'desktop';
    const chosen=window.LVLCrop?.mediaForDevice(slide,device)||slide;
+   // Apply the selected visual treatment only to the photo, never to overlay text.
+   media.style.filter=window.LVLCrop?.filterCSS(window.LVLCrop.filterForDevice(slide,device))||'none';
    let source=chosen.src||'';
    if(previewMode&&chosen.draftBlobKey){
     try{
