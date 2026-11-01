@@ -25,6 +25,16 @@
   const reset=root.querySelector('[data-hero-overlay-reset="'+index+'"]');
   if(reset)reset.disabled=!custom;
  }
+ function paintWatermark(){
+  const strength=crop.watermarkOpacity(hero());
+  const input=root.querySelector('[data-hero-watermark-opacity]');
+  if(input)input.value=String(strength);
+  const output=root.querySelector('#heroWatermarkOpacityValue');
+  if(output)output.textContent=strength+'%';
+  root.querySelectorAll('.hero-overlay-preview-watermark,.hero-admin-watermark').forEach(el=>{
+   el.style.opacity=String(strength/100);
+  });
+ }
  function paintPreviewShadow(){
   const select=root.querySelector('#heroOverlayPreviewSlide');
   const previewShade=root.querySelector('#heroOverlayPreviewShade');
@@ -70,9 +80,15 @@
   const output=root.querySelector('#heroOverlayStrengthValue');
   if(output)output.textContent=strength+'%';
   (hero().slides||[]).forEach((slide,index)=>paintSlide(index));
+  paintWatermark();
   renderPreview();
  }
  root.addEventListener('input',event=>{
+  if(event.target.matches('[data-hero-watermark-opacity]')){
+   setValue('homepage.hero.watermarkOpacity',val(event.target.value));
+   paintWatermark();
+   return;
+  }
   if(event.target.matches('[data-hero-overlay-global]')){
    const value=val(event.target.value);
    setValue('homepage.hero.overlayStrength',value);
