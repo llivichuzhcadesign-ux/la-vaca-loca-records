@@ -402,39 +402,55 @@ async function setupHomepageHero(){
  setHeroText('lvlHeroTagline',hero.tagline);
  const primary=document.getElementById('lvlHeroPrimary');if(primary){if(hero.primaryLabel)primary.textContent=hero.primaryLabel;if(hero.primaryHref)primary.href=hero.primaryHref}
  const secondary=document.getElementById('lvlHeroSecondary');if(secondary){if(hero.secondaryLabel)secondary.textContent=hero.secondaryLabel;if(hero.secondaryHref)secondary.href=hero.secondaryHref}
- const slides=(Array.isArray(hero.slides)?hero.slides:[]).filter(slide=>slide&&(slide.src||slide.draftBlobKey));
+ const slides=(Array.isArray(hero.slides)?hero.slides:[]).filter(slide=>
+  slide&&(window.LVLCrop?.hasMedia(slide)||slide.src||slide.draftBlobKey));
  if(!slides.length)return;
  gallery.innerHTML='';
+ const draftUrlCache=new Map();
  const slideEls=slides.map((slide,index)=>{
-  const el=document.createElement('div');el.className='lvl-slide'+(index===0?' is-active':'');
-  const source=slide.src||'';
-  if(window.LVLCrop){
-   const media=document.createElement('img');
-   media.className='lvl-slide-media';
-   media.alt='';
-   media.decoding='async';
-   if(index>0)media.loading='lazy';
-   if(source)media.src=source;
-   el.appendChild(media);
-   const cropHandle=window.LVLCrop.mount(el,media,()=>window.LVLCrop.forDevice(slide,window.LVLCrop.deviceForWidth(window.innerWidth)));
-   if(cropHandle?.update)window.addEventListener('resize',cropHandle.update,{passive:true});
-  }else{
-   el.style.backgroundPosition=slide.position||'center center';
-   if(source)el.style.backgroundImage='url('+JSON.stringify(source)+')';
+  const el=document.createElement('div');
+  el.className='lvl-slide'+(index===0?' is-active':'');
+  const media=document.createElement('img');
+  media.className='lvl-slide-media';
+  media.alt='';
+  media.decoding='async';
+  if(index>0)media.loading='lazy';
+  el.appendChild(media);
+  gallery.appendChild(el);
+  let request=0;
+  const frameCrop=window.LVLCrop?.mount(el,media,()=>window.LVLCrop.forDevice(slide,window.LVLCrop.deviceForWidth(window.innerWidth)));
+  async function updateDevicePhoto(){
+   const ticket=++request;
+   const device=window.LVLCrop?.deviceForWidth(window.innerWidth)||'desktop';
+   const chosen=window.LVLCrop?.mediaForDevice(slide,device)||slide;
+   let source=chosen.src||'';
+   if(previewMode&&chosen.draftBlobKey){
+    try{
+     const key=chosen.draftBlobKey;
+     if(!draftUrlCache.has(key)){
+      const blob=await getHeroDraftBlob(key);
+      if(!blob)return;
+      const url=URL.createObjectURL(blob);
+      draftUrlCache.set(key,url);
+      heroObjectUrls.push(url);
+     }
+     source=draftUrlCache.get(key);
+    }catch(error){console.warn('Hero draft image could not load',error)}
+   }
+   if(ticket!==request)return;
+   if(source&&media.getAttribute('src')!==source)media.src=source;
+   else if(!source)media.removeAttribute('src');
+   frameCrop?.update?.();
   }
-  gallery.appendChild(el);return el;
+  updateDevicePhoto();
+  window.addEventListener('resize',updateDevicePhoto,{passive:true});
+  return el;
  });
  const current=document.getElementById('lvlHeroCurrent');const total=document.getElementById('lvlHeroTotal');
  if(total)total.textContent=String(slides.length).padStart(2,'0');
  let active=0;
  const show=index=>{active=index;slideEls.forEach((el,i)=>el.classList.toggle('is-active',i===active));if(current)current.textContent=String(active+1).padStart(2,'0')};
  show(0);
- if(previewMode){
-  slides.forEach(async(slide,index)=>{
-   if(!slide.draftBlobKey)return;
-   try{const blob=await getHeroDraftBlob(slide.draftBlobKey);if(!blob)return;const url=URL.createObjectURL(blob);heroObjectUrls.push(url);const image=slideEls[index].querySelector('.lvl-slide-media');if(image)image.src=url;else slideEls[index].style.backgroundImage=`url("${url}")`}catch(error){console.warn('Hero draft image could not load',error)}
-  });
- }
  const reduceHeroMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  const interval=Math.max(2,Number(hero.intervalSeconds)||6)*1000;
  if(!reduceHeroMotion&&slideEls.length>1)setInterval(()=>show((active+1)%slideEls.length),interval);
