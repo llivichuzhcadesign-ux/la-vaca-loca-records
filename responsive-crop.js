@@ -39,6 +39,21 @@
   const value=slide?.crops?.[device];
   return normalize(value,fallback);
  }
+ // Each slide can have a desktop original plus optional tablet/phone originals.
+ // An unassigned device automatically inherits the desktop photo.
+ function mediaForDevice(slide,device){
+  const desktop={src:slide?.src||'',draftBlobKey:slide?.draftBlobKey||'',fileName:slide?.fileName||'',originalBytes:slide?.originalBytes||0};
+  const tablet=slide?.deviceImages?.tablet||{};
+  const phone=slide?.deviceImages?.phone||{};
+  const candidates=device==='phone'?[['phone',phone],['desktop',desktop],['tablet',tablet]]:
+    device==='tablet'?[['tablet',tablet],['desktop',desktop],['phone',phone]]:
+    [['desktop',desktop],['tablet',tablet],['phone',phone]];
+  const match=candidates.find(([,item])=>item&&(item.src||item.draftBlobKey));
+  return match?{...match[1],device:match[0]}:{...desktop,device:'desktop'};
+ }
+ function hasMedia(slide){
+  return !!(slide?.src||slide?.draftBlobKey||Object.values(slide?.deviceImages||{}).some(item=>item?.src||item?.draftBlobKey));
+ }
  function layout(frame,img,crop){
   if(!frame||!img||!img.naturalWidth||!img.naturalHeight)return;
   const w=frame.clientWidth,h=frame.clientHeight;
@@ -71,5 +86,5 @@
    else root.removeEventListener('resize',update);
   }};
  }
- root.LVLCrop=Object.freeze({clamp,parsePosition,normalize,deviceForWidth,forDevice,layout,mount});
+ root.LVLCrop=Object.freeze({clamp,parsePosition,normalize,deviceForWidth,forDevice,mediaForDevice,hasMedia,layout,mount});
 })(window);
