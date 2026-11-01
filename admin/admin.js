@@ -341,13 +341,22 @@ function heroSlideCard(slide,index,total){
  const previewCrop=window.LVLCrop?.forDevice(slide,device)||{x:50,y:50,zoom:1};
  const style='object-position:'+previewCrop.x+'% '+previewCrop.y+'%;transform:scale('+previewCrop.zoom+');filter:'+(window.LVLCrop?.filterCSS(window.LVLCrop.filterForDevice(slide,device))||'none');
  const visibleSrc=heroBlobPreview(asset.draftBlobKey)||src;
+ const overlay=window.LVLCrop?.slideOverlayStrength(draft.homepage.hero,slide)??25;
+ const custom=slide.overlayStrength!==undefined&&slide.overlayStrength!==null&&slide.overlayStrength!=='';
  return '<article class="hero-admin-card" data-hero-slide-card="'+index+'" id="hero-slide-'+index+'">'+
   '<div class="hero-admin-preview">'+(src||asset.draftBlobKey?'<img data-hero-preview-index="'+index+'"'+(visibleSrc?' src="'+escapeText(visibleSrc)+'"':'')+' alt="'+escapeText(slide.alt||'Hero image')+'" style="'+escapeText(style)+'">':'<div class="hero-preview-empty">Choose or drop a photo below to begin.</div>')+
+   '<div class="hero-admin-shade" data-hero-overlay-shade="'+index+'" style="opacity:'+(overlay/100)+'"></div>'+
+   '<div class="hero-admin-sample-copy" aria-hidden="true"><strong>'+escapeText(draft.homepage.hero.title||'LVL')+'</strong><span>'+escapeText(draft.homepage.hero.tagline||'')+'</span></div>'+
    (src||asset.draftBlobKey?heroImageEditButton(index,device,'hero'):'')+'</div>'+
   '<div class="hero-admin-fields">'+
    '<div class="hero-admin-top"><strong>IMAGE '+String(index+1).padStart(2,'0')+'</strong><span>Different photos may be selected for every screen size.</span></div>'+
    '<div class="hero-device-grid">'+HERO_IMAGE_DEVICES.map(d=>heroDeviceSlot(slide,index,d)).join('')+'</div>'+
-
+   '<div class="hero-slide-overlay-setting">'+
+    '<div class="hero-overlay-label"><label for="heroSlideOverlay'+index+'">Text shadow on this image</label><output data-hero-overlay-value="'+index+'" for="heroSlideOverlay'+index+'">'+overlay+'%</output></div>'+
+    '<input type="range" id="heroSlideOverlay'+index+'" data-hero-overlay-index="'+index+'" min="0" max="100" step="1" value="'+overlay+'" aria-label="Text shadow strength for image '+(index+1)+'">'+
+    '<div class="hero-overlay-setting-foot"><small data-hero-overlay-mode="'+index+'">'+(custom?'Custom image setting':'Using homepage default')+'</small>'+
+    '<button class="admin-action secondary" type="button" data-hero-overlay-reset="'+index+'" '+(custom?'':'disabled')+'>Use homepage default</button></div>'+
+   '</div>'+
    '<div class="field-grid">'+field('homepage.hero.slides.'+index+'.alt','Image description',slide.alt||'')+'</div>'+
    '<div class="hero-order-actions">'+
     '<button class="admin-action secondary" type="button" data-hero-move="'+index+'" data-direction="-1" '+(index===0?'disabled':'')+'>Move up</button>'+
@@ -371,6 +380,27 @@ function renderHomepage(){
   field('homepage.hero.secondaryLabel','Secondary button',h.secondaryLabel)+
   field('homepage.hero.secondaryHref','Secondary link',h.secondaryHref)+
   '</div></div>'+
+  '<section class="hero-overlay-studio" aria-labelledby="heroOverlayTitle">'+
+   '<div class="hero-overlay-settings">'+
+    '<p class="eyebrow">HERO IMAGE / TEXT CONTRAST</p><h3 id="heroOverlayTitle">Text shadow strength</h3>'+
+    '<p>Control the dark overlay behind the homepage hero text. Reduce it to reveal the photo, or set it to 0% to remove it entirely.</p>'+
+    '<div class="hero-overlay-label"><label for="heroOverlayStrength">Default for all hero images</label><output id="heroOverlayStrengthValue" for="heroOverlayStrength">'+(window.LVLCrop?.overlayStrength(h)??25)+'%</output></div>'+
+    '<input id="heroOverlayStrength" type="range" min="0" max="100" step="1" value="'+(window.LVLCrop?.overlayStrength(h)??25)+'" data-hero-overlay-global aria-label="Default text shadow strength">'+
+    '<div class="hero-overlay-scale"><span>0% · No shadow</span><span>100% · Original strength</span></div>'+
+    '<p class="hero-overlay-note">Individual images below can override this default, so a bright photo can keep more contrast without darkening the others.</p>'+
+   '</div>'+
+   '<div class="hero-overlay-visual">'+
+    '<div class="hero-overlay-preview-tools"><label for="heroOverlayPreviewSlide">Preview image</label><select id="heroOverlayPreviewSlide" aria-label="Choose hero image to preview">'+
+    (h.slides||[]).map((slide,i)=>'<option value="'+i+'">IMAGE '+String(i+1).padStart(2,'0')+'</option>').join('')+
+    '</select><label for="heroOverlayPreviewDevice">Device</label><select id="heroOverlayPreviewDevice" aria-label="Choose preview device"><option value="desktop">Desktop</option><option value="tablet">Tablet</option><option value="phone">Phone</option></select></div>'+
+    '<div class="hero-overlay-preview" data-hero-overlay-preview-device="desktop">'+
+     '<img id="heroOverlayPreviewImage" alt="Live shadow strength preview" draggable="false">'+
+     '<div class="hero-overlay-preview-shade" id="heroOverlayPreviewShade"></div>'+
+     '<div class="hero-overlay-preview-copy" aria-hidden="true"><span>'+escapeText(h.kicker)+'</span><strong>'+escapeText(h.title)+'</strong><em>'+escapeText(h.tagline)+'</em></div>'+
+    '</div>'+
+    '<p class="hero-overlay-preview-note" id="heroOverlayPreviewNote">Changes appear in this preview immediately. Save your draft, then publish to update the website.</p>'+
+   '</div>'+
+  '</section>'+
   '<div class="hero-editor-heading" id="heroSlidesHeading"><div><p class="eyebrow">IMAGE LIBRARY / HERO SLIDES</p><h3>Hero images</h3><p>Choose photos for each device. Drag files into an image slot to replace its photo.</p></div>'+
   '<button class="admin-action" type="button" data-add-hero-slide>Add image</button></div>'+
   '<div class="hero-admin-list">'+(h.slides||[]).map((slide,index)=>heroSlideCard(slide,index,h.slides.length)).join('')+'</div>'+
