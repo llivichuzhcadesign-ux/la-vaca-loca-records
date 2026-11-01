@@ -836,3 +836,91 @@ body .hero-admin-fields{min-width:0;padding:clamp(15px,2vw,24px)}
   linear-gradient(0deg,rgba(9,9,7,.72),transparent 48%)
  }
 }
+
+
+/* La Vaca Loca original circular flame seal as an understated editorial watermark. */
+.hero-watermark-control{
+ margin-top:21px;padding-top:17px;border-top:1px solid var(--line)
+}
+.hero-watermark-control .hero-overlay-label{margin:0 0 10px}
+.hero-watermark-control input[type="range"]{
+ display:block;width:100%;min-height:37px;
+ accent-color:var(--pink);cursor:pointer;touch-action:pan-y
+}
+.hero-watermark-control input[type="range"]:focus-visible{
+ outline:2px solid var(--pink);outline-offset:2px
+}
+.hero-watermark-control p{font-size:11px;line-height:1.6;color:var(--muted);margin:12px 0 0;max-width:680px}
+.hero-admin-preview .hero-admin-watermark{
+ position:absolute;z-index:3;right:8%;top:50%;transform:translateY(-50%);
+ display:block;height:auto!important;width:min(27%,155px)!important;
+ max-width:none;max-height:83%;min-height:0!important;
+ object-fit:contain;pointer-events:none;user-select:none
+}
+.hero-admin-preview .hero-admin-sample-copy{
+ z-index:4;left:6%;right:46%;top:55%;gap:0
+}
+.hero-admin-preview .hero-admin-sample-copy span{
+ font-size:clamp(17px,2.1vw,30px);line-height:1.18
+}
+.hero-overlay-preview .hero-overlay-preview-watermark{
+ display:block;position:absolute;z-index:3;right:8%;top:50%;
+ transform:translateY(-50%);height:auto!important;
+ width:clamp(90px,27%,200px)!important;max-height:82%;
+ object-fit:contain;pointer-events:none;user-select:none
+}
+.hero-overlay-preview .hero-overlay-preview-copy{
+ left:6%;right:46%;top:54%;gap:13px;pointer-events:none;z-index:4
+}
+.hero-overlay-preview .hero-overlay-preview-copy em{
+ font-size:clamp(19px,2.8vw,33px);line-height:1.16;letter-spacing:-.025em
+}
+.hero-overlay-preview[data-hero-overlay-preview-device="tablet"] .hero-overlay-preview-watermark{
+ width:40%!important;right:1%;top:32%
+}
+.hero-overlay-preview[data-hero-overlay-preview-device="phone"] .hero-overlay-preview-watermark{
+ width:60%!important;right:-6%;top:28%
+}
+.hero-overlay-preview[data-hero-overlay-preview-device="tablet"] .hero-overlay-preview-copy,
+.hero-overlay-preview[data-hero-overlay-preview-device="phone"] .hero-overlay-preview-copy{
+ left:7%;right:22%;top:58%
+}
+.hero-overlay-preview[data-hero-overlay-preview-device="phone"] .hero-overlay-preview-copy em{
+ font-size:20px
+}
+.hero-overlay-preview[data-hero-overlay-preview-device="phone"] .hero-overlay-preview-copy span{
+ font-size:8px;line-height:1.5
+}
+.hero-crop-frame .hero-crop-brand-watermark{
+ position:absolute;z-index:3;right:8%;top:50%;
+ transform:translateY(-50%);width:28%!important;height:auto!important;
+ max-height:82%;object-fit:contain;pointer-events:none;user-select:none
+}
+.hero-crop-frame .hero-crop-website-copy{
+ left:6%;right:42%;top:55%;gap:16px;z-index:4
+}
+.hero-crop-frame .hero-crop-website-copy>em{
+ font-size:clamp(15px,2.7vw,32px);line-height:1.14
+}
+.hero-crop-frame.device-tablet .hero-crop-brand-watermark{
+ width:40%!important;right:1%;top:32%
+}
+.hero-crop-frame.device-phone .hero-crop-brand-watermark{
+ width:60%!important;right:-6%;top:28%
+}
+.hero-crop-frame.device-tablet .hero-crop-website-copy,
+.hero-crop-frame.device-phone .hero-crop-website-copy{
+ left:7%;right:20%;top:60%
+}
+.hero-crop-frame.device-phone .hero-crop-website-copy>em{font-size:18px}
+@media(max-width:900px){
+ .hero-admin-preview .hero-admin-watermark{width:min(35%,145px)!important;right:5%;top:40%}
+ .hero-admin-preview .hero-admin-sample-copy{right:39%;top:60%}
+ .hero-admin-preview .hero-admin-sample-copy span{font-size:clamp(19px,3.8vw,28px)}
+}
+@media(max-width:560px){
+ .hero-admin-preview .hero-admin-watermark{width:min(41%,130px)!important;right:2%;top:38%}
+ .hero-admin-preview .hero-admin-sample-copy{right:35%;top:57%}
+ .hero-admin-preview .hero-admin-sample-copy span{font-size:clamp(18px,5.1vw,25px)}
+ .hero-overlay-preview .hero-overlay-preview-copy em{font-size:clamp(18px,6vw,25px)}
+}
