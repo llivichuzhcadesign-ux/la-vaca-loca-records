@@ -397,6 +397,8 @@ function setHeroText(id,value){const el=document.getElementById(id);if(el&&value
 async function setupHomepageHero(){
  const gallery=document.getElementById('lvlHeroGallery');if(!gallery)return;
  const hero=content.homepage?.hero||{};
+ const overlay= document.querySelector('.lvl-hero-shade');
+ if(overlay)overlay.style.opacity=String((window.LVLCrop?.overlayStrength(hero)??25)/100);
  setHeroText('lvlHeroKicker',hero.kicker);
  setHeroText('lvlHeroTitle',hero.title||'LVL');
  setHeroText('lvlHeroTagline',hero.tagline);
