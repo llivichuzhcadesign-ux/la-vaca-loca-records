@@ -64,6 +64,77 @@ body{background:var(--paper);color:var(--ink)}
 @media(max-width:800px){.lvl-hero,.lvl-hero-content{min-height:calc(100vh - 68px)}.lvl-hero-content{padding:9vh 18px 10vh;max-width:75vw}.lvl-hero-watermark{width:clamp(175px,39vw,310px);right:2vw;top:39%}.lvl-hero-shade{background:linear-gradient(90deg,rgba(9,9,7,.88),rgba(9,9,7,.44) 72%,rgba(9,9,7,.34)),linear-gradient(0deg,rgba(9,9,7,.72),transparent 48%)}.lvl-hero-copy{font-size:clamp(28px,4.5vw,42px)}.lvl-hero-index{right:18px;bottom:22px}.lvl-slide-1{background-position:center 40%}}
 @media(max-width:560px){.lvl-kicker{max-width:280px;line-height:1.45}.lvl-hero-content{max-width:90vw}.lvl-hero-watermark{width:min(61vw,255px);right:-6vw;top:29%}.lvl-hero-rule{width:48px;margin-bottom:18px}.lvl-hero-copy{margin-top:0;max-width:315px;font-size:clamp(27px,7vw,35px)}.lvl-hero-actions{margin-top:24px}.lvl-primary-link,.lvl-secondary-link{padding:11px 12px;font-size:9px}.lvl-hero-index i{width:42px}}
 @media(prefers-reduced-motion:reduce){.ticker .ticker-track{animation:none}.lvl-slide{transition:none;transform:none}.lvl-slide.is-active{opacity:1}.lvl-hero-shade,.lvl-hero-watermark{transition:none}}
+
+/* EDITORIAL HERO — original circular seal integrated into the photograph. */
+.lvl-hero{isolation:isolate}
+.lvl-hero-watermark{
+ z-index:2;top:52%;right:-6.5vw;width:clamp(345px,39vw,590px);
+ transform:translateY(-50%) rotate(-5deg);mix-blend-mode:soft-light;
+ opacity:var(--hero-watermark-opacity,.26);
+ filter:none;will-change:opacity
+}
+.lvl-hero-watermark img{filter:none;max-width:none;width:100%;height:auto}
+.lvl-hero-watermark[data-placement="full"]{
+ right:7vw;top:50%;width:clamp(235px,29vw,410px);transform:translateY(-50%);
+}
+.lvl-hero-watermark[data-placement="upper"]{
+ right:2.5vw;top:29%;width:clamp(235px,30vw,440px);transform:translateY(-50%) rotate(-7deg)
+}
+.lvl-hero-content{
+ max-width:min(660px,57vw);padding:8vh 5vw 9vh;
+ justify-content:center;gap:0
+}
+.lvl-kicker{
+ margin:0 0 clamp(28px,4vh,43px);font-size:clamp(9px,.76vw,11px);
+ font-weight:800;letter-spacing:.22em;color:#f0e6d6;
+ text-shadow:0 1px 4px rgba(0,0,0,.24)
+}
+.lvl-hero-rule{width:48px;height:2px;margin:0 0 clamp(21px,3.5vh,31px);background:var(--pink)}
+.lvl-hero-copy{
+ margin:0;max-width:min(540px,48vw);
+ font-size:clamp(33px,4.05vw,61px);line-height:1.08;
+ font-style:normal;font-weight:400;letter-spacing:-.052em;
+ color:#f3eadd;text-wrap:balance;
+ text-shadow:0 2px 13px rgba(0,0,0,.14)
+}
+.lvl-hero-actions{margin-top:clamp(29px,4.5vh,47px);gap:13px}
+.lvl-primary-link,.lvl-secondary-link{min-height:43px;padding:12px 18px;letter-spacing:.09em}
+.lvl-secondary-link{background:rgba(9,9,7,.12)}
+.lvl-hero-index{bottom:32px}
+@media(max-width:900px){
+ .lvl-hero-content{padding:8vh 5vw 10vh;max-width:64vw}
+ .lvl-hero-copy{font-size:clamp(31px,4.6vw,46px);max-width:54vw}
+ .lvl-hero-watermark{right:-8vw;top:43%;width:clamp(270px,45vw,445px)}
+ .lvl-hero-watermark[data-placement="full"]{right:3vw;top:42%;width:clamp(205px,34vw,320px)}
+ .lvl-hero-watermark[data-placement="upper"]{right:-2vw;top:26%;width:clamp(215px,34vw,330px)}
+}
+@media(max-width:560px){
+ .lvl-hero-content{
+  max-width:none;width:100%;min-height:calc(100vh - 68px);
+  min-height:calc(100dvh - 68px);
+  padding:clamp(280px,43dvh,450px) 24px 11vh;
+  justify-content:flex-end
+ }
+ .lvl-kicker{margin:0 0 20px;max-width:320px;font-size:9px;line-height:1.5;letter-spacing:.2em}
+ .lvl-hero-rule{width:39px;height:2px;margin:0 0 19px}
+ .lvl-hero-copy{
+  max-width:335px;font-size:clamp(28px,7.6vw,39px);
+  line-height:1.1;letter-spacing:-.048em;text-wrap:balance
+ }
+ .lvl-hero-actions{margin-top:23px;gap:9px}
+ .lvl-primary-link,.lvl-secondary-link{min-height:41px;padding:10px 12px;font-size:9px}
+ .lvl-hero-watermark{right:-13vw;top:25%;width:clamp(240px,69vw,325px);transform:translateY(-50%) rotate(-5deg)}
+ .lvl-hero-watermark[data-placement="full"]{right:7vw;top:27%;width:clamp(190px,52vw,255px);transform:translateY(-50%)}
+ .lvl-hero-watermark[data-placement="upper"]{right:-8vw;top:18%;width:clamp(190px,56vw,275px);transform:translateY(-50%) rotate(-7deg)}
+ .lvl-hero-index{bottom:18px;right:18px}
+}
+@media(max-width:375px){
+ .lvl-hero-content{padding-left:19px;padding-right:19px;padding-bottom:11vh}
+ .lvl-hero-copy{font-size:clamp(25px,7.5vw,30px);max-width:295px}
+ .lvl-hero-watermark{right:-19vw;width:71vw}
+}
+@media(prefers-reduced-motion:reduce){.lvl-hero-watermark{will-change:auto}}
+
 </style>
 <link rel="stylesheet" href="home-discos.css?v=art-viewer-20260929">
 <link rel="stylesheet" href="home-flow.css?v=20261029-phase3">
@@ -140,7 +211,7 @@ body{background:var(--paper);color:var(--ink)}
 </main>
 <aside class="cart-panel" id="cartPanel" aria-hidden="true"><div class="cart-head"><h3>YOUR BAG</h3><button id="closeCart">CERRAR</button></div><div id="cartItems" class="cart-items"></div><div class="cart-footer"><div class="cart-total"><span>TOTAL</span><strong id="cartTotal">$0</strong></div><a id="whatsappCheckout" class="button primary full" href="#" target="_blank" rel="noopener">ORDENAR POR WHATSAPP</a></div></aside><div class="scrim" id="scrim"></div>
 <div class="player" id="player"><button id="playerToggle" class="play-control" aria-label="Reproducir"><span class="play-icon" aria-hidden="true"></span></button><div class="player-art" id="playerArt"><span></span></div><div class="player-meta"><span>NOW PLAYING / LA VACA LOCA</span><strong id="playerTitle">Selecciona un disco para escuchar</strong><small id="playerSub">CRATE PLAYER · GUALACEO</small></div><div class="player-line"><span id="playerProgress"></span></div></div>
-<script src="data.js"></script><script src="api/content"></script><script src="draft-preview.js"></script><script src="calendar-content.js"></script><script src="responsive-crop.js?v=20261101-watermark"></script><script src="app.js?v=20261101-watermark"></script><script src="media-runtime.js?v=flow-image-20260929"></script>
+<script src="data.js"></script><script src="api/content"></script><script src="draft-preview.js"></script><script src="calendar-content.js"></script><script src="responsive-crop.js?v=20261101-editorial-seal-v2"></script><script src="app.js?v=20261101-editorial-seal-v2"></script><script src="media-runtime.js?v=flow-image-20260929"></script>
 <script src="home-collage.js?v=20261029-phase3"></script><script src="ios-header.js?v=20261031-adaptive-tabs-v1"></script><script src="bag.js?v=20261029-clean-mobile" defer></script><script src="footer-sign.js?v=20261030-touch-repair-v1"></script><script src="site-theme.js?v=20261029-logo-menu"></script></body>
 </html>
 
