@@ -47,6 +47,8 @@
   const shade=frame.querySelector('.hero-crop-shade');
   const slide=getSlide();
   if(shade)shade.style.opacity=String((slide?crop.slideOverlayStrength(draft.homepage?.hero,slide):crop.overlayStrength(draft.homepage?.hero))/100);
+  const watermark=frame.querySelector('.hero-crop-brand-watermark');
+  if(watermark)watermark.style.opacity=String((crop.watermarkOpacity(draft.homepage?.hero))/100);
   const filter=workingFilters?.[device]||'none';
   img.style.filter=crop.filterCSS(filter);
   dialog.querySelectorAll('[data-crop-filter]').forEach(button=>{
@@ -109,7 +111,6 @@
   showMessage('');
   const hero=draft.homepage?.hero||{};
   document.getElementById('heroCropKicker').textContent=hero.kicker||'LA VACA LOCA RECORDS';
-  document.getElementById('heroCropMark').textContent=hero.title||'LVL';
   document.getElementById('heroCropTagline').textContent=hero.tagline||'Discos, sonido, sesiones y cultura.';
   dialog.showModal();
   render();
