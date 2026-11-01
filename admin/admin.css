@@ -595,3 +595,92 @@
  .hero-crop-footer{grid-template-columns:1fr 1.4fr}
 }
 @media(prefers-reduced-motion:reduce){.hero-crop-switcher button{transition:none}}
+
+
+/* Homepage image library: one photo per device and accessible drag/drop targets */
+.hero-editor-heading{
+ display:flex;align-items:flex-end;justify-content:space-between;gap:16px;
+ padding:24px 0 18px;margin-top:16px;border-top:1px solid var(--line)
+}
+.hero-editor-heading .eyebrow{margin:0 0 9px}
+.hero-editor-heading h3{font-size:clamp(29px,3vw,45px);line-height:1.05;letter-spacing:-.055em}
+.hero-editor-heading p:not(.eyebrow){font-size:13px;line-height:1.5;color:var(--muted);max-width:600px;margin:9px 0 0}
+.hero-editor-heading>.admin-action{flex:none;min-height:46px}
+body .hero-admin-card{display:block;min-width:0;width:100%;background:var(--panel);border:1px solid var(--line);overflow:visible;scroll-margin-top:145px}
+body .hero-admin-preview{min-height:0;max-height:none;height:clamp(160px,23vw,320px);aspect-ratio:auto;position:relative;overflow:hidden;border-bottom:1px solid var(--line);background:#0c0b0a}
+body .hero-admin-preview img{display:block;min-height:0;max-height:none;width:100%;height:100%;aspect-ratio:auto;object-fit:cover}
+.hero-preview-empty{height:100%;display:grid;place-items:center;padding:22px;color:var(--muted);font-size:13px;text-align:center}
+body .hero-admin-fields{min-width:0;padding:clamp(15px,2vw,24px)}
+.hero-admin-top{gap:16px;margin-bottom:18px}
+.hero-admin-top strong{font-size:24px;letter-spacing:-.04em}
+.hero-admin-top span{font-size:12px;line-height:1.5;color:var(--muted);text-align:right;max-width:300px}
+.hero-device-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:15px 0 18px}
+.hero-source-slot{
+ min-width:0;padding:13px;background:#161411;border:1px solid rgba(238,229,211,.25);
+ position:relative;display:flex;flex-direction:column;gap:10px;
+ scroll-margin-top:130px;transition:border-color .16s,box-shadow .16s,background .16s
+}
+.hero-source-slot.has-custom-image{border-color:rgba(255,90,167,.33)}
+.hero-source-slot:focus-visible{outline:2px solid var(--pink);outline-offset:3px}
+.hero-source-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:5px}
+.hero-source-heading strong{color:var(--paper);font-size:11px;font-weight:900;letter-spacing:.12em}
+.hero-source-heading small{color:var(--muted);font-size:10px;font-variant-numeric:tabular-nums}
+.hero-source-visual{
+ height:155px;min-width:0;position:relative;display:flex;align-items:center;justify-content:center;
+ background:#090908;overflow:hidden;color:var(--muted);font-size:12px;border:1px solid rgba(238,229,211,.12);
+ pointer-events:none
+}
+.hero-source-visual img{width:100%;height:100%;max-width:100%;display:block;object-fit:cover;background:#090908}
+.hero-source-slot[data-hero-drop-device="tablet"] .hero-source-visual img{width:min(72%,155px)}
+.hero-source-slot[data-hero-drop-device="phone"] .hero-source-visual img{width:min(39%,80px)}
+.hero-drop-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,90,167,.89);color:#100c0c;font-size:12px;font-weight:900;letter-spacing:.06em;opacity:0;transition:opacity .16s;pointer-events:none}
+.hero-source-slot.is-hero-dragover{border-color:var(--pink);background:rgba(255,90,167,.11);box-shadow:inset 0 0 0 1px var(--pink)}
+.hero-source-slot.is-hero-dragover .hero-drop-overlay{opacity:1}
+.hero-source-status{font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--pink);margin:0}
+.hero-source-name{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0;line-height:1.4}
+.hero-source-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:auto}
+.hero-source-actions .upload-button,.hero-source-actions .admin-action{
+ min-width:0;width:100%;min-height:44px;margin:0;padding:9px 6px;
+ font-size:10px;white-space:normal;line-height:1.3;text-align:center
+}
+.hero-source-clear{display:block;width:100%;min-height:34px;margin:0;background:transparent;border:1px solid var(--line);color:var(--muted);font-size:11px;cursor:pointer}
+.hero-source-clear:hover{color:var(--paper);border-color:var(--pink)}
+.hero-source-advanced{font-size:11px;border-top:1px solid var(--line);padding-top:9px}
+.hero-source-advanced summary{color:var(--muted);cursor:pointer;font-size:11px;min-height:28px}
+.hero-source-advanced .field{padding-top:10px;min-width:0}
+.hero-source-advanced .field label{font-size:10px}
+.hero-source-advanced .field input{min-width:0;width:100%;font-size:13px}
+.hero-drop-create{
+ margin:16px 0 22px;padding:24px 20px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:11px;
+ border:1px dashed rgba(255,90,167,.56);background:rgba(255,90,167,.045);text-align:center;
+ transition:background .16s,border-color .16s
+}
+.hero-drop-create>strong{font-size:13px;letter-spacing:.11em;font-weight:900}
+.hero-drop-create p{color:var(--muted);font-size:12px;line-height:1.5;margin:0}
+.hero-drop-create .admin-action{margin-top:5px;min-height:43px}
+.hero-drop-create.is-hero-dragover,.hero-admin-card.is-hero-dragover{
+ background:rgba(255,90,167,.14);border-color:var(--pink);box-shadow:inset 0 0 0 1px rgba(255,90,167,.45)
+}
+.hero-drop-create:focus-visible{outline:2px solid var(--pink);outline-offset:3px}
+.hero-drop-create.is-hero-dragover strong{color:var(--pink)}
+@media(max-width:900px){
+ .hero-editor-heading{align-items:flex-start;flex-wrap:wrap}
+ .hero-editor-heading .admin-action{min-width:150px}
+ .hero-device-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ body .hero-admin-preview{height:clamp(165px,38vw,270px)}
+ body .hero-admin-fields{padding:15px}
+}
+@media(max-width:620px){
+ .hero-device-grid{grid-template-columns:1fr}
+ .hero-source-slot{padding:13px}
+ .hero-source-visual{height:175px}
+ .hero-source-slot[data-hero-drop-device="tablet"] .hero-source-visual img{width:min(62%,170px)}
+ .hero-source-slot[data-hero-drop-device="phone"] .hero-source-visual img{width:min(36%,80px)}
+ .hero-editor-heading>.admin-action{width:100%;margin:3px 0 0}
+ .hero-admin-top span{max-width:none;text-align:left}
+ .hero-drop-create{padding:24px 14px}
+ body .hero-admin-card{scroll-margin-top:133px}
+}
+@media(prefers-reduced-motion:reduce){
+ .hero-source-slot,.hero-drop-overlay,.hero-drop-create{transition:none}
+}
