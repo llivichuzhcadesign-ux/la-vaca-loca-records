@@ -346,7 +346,8 @@ function heroSlideCard(slide,index,total){
  return '<article class="hero-admin-card" data-hero-slide-card="'+index+'" id="hero-slide-'+index+'">'+
   '<div class="hero-admin-preview">'+(src||asset.draftBlobKey?'<img data-hero-preview-index="'+index+'"'+(visibleSrc?' src="'+escapeText(visibleSrc)+'"':'')+' alt="'+escapeText(slide.alt||'Hero image')+'" style="'+escapeText(style)+'">':'<div class="hero-preview-empty">Choose or drop a photo below to begin.</div>')+
    '<div class="hero-admin-shade" data-hero-overlay-shade="'+index+'" style="opacity:'+(overlay/100)+'"></div>'+
-   '<div class="hero-admin-sample-copy" aria-hidden="true"><strong>'+escapeText(draft.homepage.hero.title||'LVL')+'</strong><span>'+escapeText(draft.homepage.hero.tagline||'')+'</span></div>'+
+   '<img class="hero-admin-watermark" src="../assets/images/site/lvl-fire-watermark.svg" alt="" aria-hidden="true" style="opacity:'+((window.LVLCrop?.watermarkOpacity(draft.homepage.hero)??26)/100)+'">'+
+   '<div class="hero-admin-sample-copy" aria-hidden="true"><span>'+escapeText(draft.homepage.hero.tagline||'')+'</span></div>'+
    (src||asset.draftBlobKey?heroImageEditButton(index,device,'hero'):'')+'</div>'+
   '<div class="hero-admin-fields">'+
    '<div class="hero-admin-top"><strong>IMAGE '+String(index+1).padStart(2,'0')+'</strong><span>Different photos may be selected for every screen size.</span></div>'+
@@ -372,13 +373,17 @@ function renderHomepage(){
  const root=byId('homepageHeroEditor');if(!root)return;
  root.innerHTML='<div class="form-card hero-copy-card"><h3>Hero text</h3><div class="field-grid">'+
   field('homepage.hero.kicker','Kicker',h.kicker)+
-  field('homepage.hero.title','Main mark',h.title)+
   field('homepage.hero.tagline','Tagline',h.tagline)+
   field('homepage.hero.intervalSeconds','Seconds per image',h.intervalSeconds,'number','Recommended: 5–8 seconds.')+
   field('homepage.hero.primaryLabel','Primary button',h.primaryLabel)+
   field('homepage.hero.primaryHref','Primary link',h.primaryHref)+
   field('homepage.hero.secondaryLabel','Secondary button',h.secondaryLabel)+
   field('homepage.hero.secondaryHref','Secondary link',h.secondaryHref)+
+  '</div><div class="hero-watermark-control">'+
+    '<div class="hero-overlay-label"><label for="heroWatermarkOpacity">Circular logo watermark</label><output id="heroWatermarkOpacityValue" for="heroWatermarkOpacity">'+(window.LVLCrop?.watermarkOpacity(h)??26)+'%</output></div>'+
+    '<input type="range" id="heroWatermarkOpacity" data-hero-watermark-opacity min="0" max="100" step="1" value="'+(window.LVLCrop?.watermarkOpacity(h)??26)+'" aria-label="Circular logo watermark opacity">'+
+    '<div class="hero-overlay-scale"><span>0% · Hidden</span><span>100% · Solid</span></div>'+
+    '<p>This is your original circular flame emblem, tinted warm ivory so it reads as a watermark over the photographs.</p>'+
   '</div></div>'+
   '<section class="hero-overlay-studio" aria-labelledby="heroOverlayTitle">'+
    '<div class="hero-overlay-settings">'+
@@ -396,7 +401,8 @@ function renderHomepage(){
     '<div class="hero-overlay-preview" data-hero-overlay-preview-device="desktop">'+
      '<img id="heroOverlayPreviewImage" alt="Live shadow strength preview" draggable="false">'+
      '<div class="hero-overlay-preview-shade" id="heroOverlayPreviewShade"></div>'+
-     '<div class="hero-overlay-preview-copy" aria-hidden="true"><span>'+escapeText(h.kicker)+'</span><strong>'+escapeText(h.title)+'</strong><em>'+escapeText(h.tagline)+'</em></div>'+
+     '<img id="heroOverlayPreviewWatermark" class="hero-overlay-preview-watermark" src="../assets/images/site/lvl-fire-watermark.svg" alt="" aria-hidden="true" style="opacity:'+((window.LVLCrop?.watermarkOpacity(h)??26)/100)+'">'+
+     '<div class="hero-overlay-preview-copy" aria-hidden="true"><span>'+escapeText(h.kicker)+'</span><em>'+escapeText(h.tagline)+'</em></div>'+
     '</div>'+
     '<p class="hero-overlay-preview-note" id="heroOverlayPreviewNote">Changes appear in this preview immediately. Save your draft, then publish to update the website.</p>'+
    '</div>'+
