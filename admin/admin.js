@@ -409,6 +409,7 @@ function renderHomepage(){
   '<button class="admin-action secondary" type="button" data-add-hero-slide>Add another image</button></div>'+
   '<div class="card-actions"><button class="admin-action" data-save-draft>Save draft</button><a class="admin-action secondary" href="../index.html?preview=admin-draft" target="_blank" rel="noopener">Preview homepage</a></div>';
  requestAnimationFrame(hydrateHeroPreviews);
+ requestAnimationFrame(()=>window.LVLHeroOverlay?.refresh());
 }
 async function uploadHeroFile(index,device,file){
  if(!file)return false;
