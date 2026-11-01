@@ -161,6 +161,10 @@ async function publishCloudContent(){
  if(publishBusy)return;
  if(!cloudState.authenticated||!cloudState.mediaBinding){showToast('Cloudflare is not connected. Check your session and R2 binding.');return}
  if(cloudState.role==='editor'){showToast('Editors cannot publish live content.');return}
+ // Prevent publishing invisible placeholders from unsynced browser-only image drafts.
+ const missing=(draft.homepage?.hero?.slides||[]).some(slide=>
+  [slide,slide.deviceImages?.tablet,slide.deviceImages?.phone].some(asset=>asset?.draftBlobKey&&!asset?.src));
+ if(missing){showToast('One or more hero photos are stored only in this browser. Upload to Cloudflare first.');return}
  syncMediaAliases();
  const payload=publishableDraft();
  const snapshot=contentSnapshot(payload);
@@ -389,6 +393,7 @@ async function uploadHeroFile(index,device,file){
    await putOriginalFile(key,file);
    if(!draft.homepage.hero.slides.includes(slide)){await deleteOriginalFile(key);return false}
    target.draftBlobKey=key;
+   target.src=''; // A local replacement must not publish the previous cloud image.
    target.fileName=file.name;target.mimeType=file.type;target.originalBytes=file.size;
    if(oldKey){try{await deleteOriginalFile(oldKey);disposeHeroPreview(oldKey)}catch{}}
    markDirty();saveDraft();
@@ -468,7 +473,16 @@ function renderCalendarSettings(){const c=draft.settings.calendar;byId('calendar
 function renderEvents(){const list=draft.events||[];byId('eventsList').innerHTML=list.length?list.map((ev,i)=>card('events',i,ev.title||'Untitled event',`${ev.date||'Date'} / ${ev.place||'Place'}`,ev.status,[field(`events.${i}.id`,'ID',ev.id),field(`events.${i}.title`,'Title',ev.title),field(`events.${i}.date`,'Calendar date',CalendarContent.dateInput(ev.date),'date','Leave blank if the date is not announced.'),field(`events.${i}.time`,'Time (local to venue)',ev.time||'','time'),field(`events.${i}.place`,'Place',ev.place),selectField(`events.${i}.status`,'Status',ev.status,STATUS_OPTIONS.events),toggleField(`events.${i}.featured`,'Featured',!!ev.featured),visibilityField(`events.${i}.hideFromPublic`,!!ev.hideFromPublic,'events',ev.status),mediaField(`events.${i}.posterImage`,'Event poster',mediaUrl(ev,'posterImage','poster'),'Upload a flyer or event poster from files/camera roll.'),field(`events.${i}.video`,'YouTube / video link',ev.video||ev.media?.video?.url||'','url'),field(`events.${i}.detail`,'Description',ev.detail,'textarea')].join(''),ev)).join(''):'<div class="empty">No events yet.</div>'}
 function renderArchive(){const list=draft.archiveItems||[];byId('archiveList').innerHTML=list.length?list.map((a,i)=>card('archiveItems',i,a.title||'Untitled archive item',`${a.id||'NO ID'} / ${a.category||'Category'}`,a.relatedSession||a.relatedEvent||'archive',[field(`archiveItems.${i}.id`,'ID',a.id),field(`archiveItems.${i}.title`,'Title',a.title),field(`archiveItems.${i}.category`,'Category',a.category),toggleField(`archiveItems.${i}.featured`,'Featured',!!a.featured),visibilityField(`archiveItems.${i}.hideFromPublic`,!!a.hideFromPublic,'archive',null),mediaField(`archiveItems.${i}.image`,'Archive photo',mediaUrl(a,'image','image'),'Upload a store photo, poster, culture image, or memory.'),field(`archiveItems.${i}.relatedSession`,'Related session',a.relatedSession),field(`archiveItems.${i}.relatedEvent`,'Related event',a.relatedEvent),field(`archiveItems.${i}.detail`,'Description',a.detail,'textarea')].join(''),a)).join(''):'<div class="empty">No archive items yet.</div>'}
 function renderSettings(){draft.settings=draft.settings||{};const s=draft.settings;const clean=String(s.whatsappNumber||'').replace(/\D/g,'');const preview=clean?`https://wa.me/${clean}`:'Waiting for number';byId('settingsForm').innerHTML=`<div class="settings-note"><strong>WhatsApp routing</strong><span>${preview}</span><p>Use country code and number only. Ecuador example: 593999999999. USA example: 19175551212.</p></div><div class="field-grid">${field('settings.brandName','Brand name',s.brandName)}${field('settings.location','Location',s.location)}${field('settings.currency','Currency',s.currency)}${field('settings.whatsappNumber','WhatsApp number',s.whatsappNumber,'tel','Country code + number, no plus sign needed.')}${field('settings.instagramUrl','Instagram link',s.instagramUrl,'url')}${field('settings.businessHours','Business hours',s.businessHours)}${field('settings.pickupNotes','Pickup notes',s.pickupNotes,'textarea')}${field('settings.deliveryNotes','Delivery notes',s.deliveryNotes,'textarea')}${field('settings.whatsappText','WhatsApp intro',s.whatsappText,'textarea')}${field('settings.orderFooter','Order message footer',s.orderFooter,'textarea','Customer fields added after the bag total.')}</div><div class="card-actions"><button class="admin-action" data-save-draft>Save draft</button></div>`}
-function publishableDraft(){const output=clone(draft);(output.homepage?.hero?.slides||[]).forEach(slide=>{delete slide.draftBlobKey;delete slide.fileName;delete slide.mimeType;delete slide.originalBytes});return output}
+function publishableDraft(){
+ const output=clone(draft);
+ (output.homepage?.hero?.slides||[]).forEach(slide=>{
+  for(const item of [slide,slide.deviceImages?.tablet,slide.deviceImages?.phone]){
+   if(!item)continue;
+   delete item.draftBlobKey;delete item.fileName;delete item.mimeType;delete item.originalBytes;
+  }
+ });
+ return output;
+}
 function makeDataJs(){syncMediaAliases();const output=publishableDraft();return `window.SITE_CONTENT = ${JSON.stringify(output,null,2)};\n\nwindow.RECORDS = window.SITE_CONTENT.records;\nwindow.SESSIONS = window.SITE_CONTENT.sessions;\nwindow.EVENTS = window.SITE_CONTENT.events;\nwindow.ARCHIVE_ITEMS = window.SITE_CONTENT.archiveItems;\n\n(function setupWhatsAppRouting(){\n  const settings=window.SITE_CONTENT&&window.SITE_CONTENT.settings?window.SITE_CONTENT.settings:{};\n  const cleanNumber=String(settings.whatsappNumber||'').replace(/\\D/g,'');\n  const footer=String(settings.orderFooter||'').trim();\n  function routedHref(currentHref){\n    let text='';\n    try{text=new URL(currentHref,window.location.href).searchParams.get('text')||''}catch{text=''}\n    if(footer&&text&&!text.includes(footer))text=\`${'${text}'}\\n\\n${'${footer}'}\`;\n    const base=cleanNumber?\`https://wa.me/${'${cleanNumber}'}\`:'https://wa.me/';\n    return \`${'${base}'}?text=${'${encodeURIComponent(text)}'}\`;\n  }\n  function route(){const link=document.getElementById('whatsappCheckout');if(!link||!link.href)return;link.href=routedHref(link.href)}\n  window.addEventListener('load',route);document.addEventListener('click',()=>setTimeout(route,0));setInterval(route,1000);\n})();\n`}
 function renderExport(){
  const out=byId('jsonOutput');
@@ -581,6 +595,7 @@ document.addEventListener('click',e=>{
   if(e.target.closest('[data-refresh-json]')){renderExport();showToast('data.js refreshed');return}
   if(e.target.closest('[data-add-hero-slide]')){addHeroSlide();return}
   const heroMove=e.target.closest('[data-hero-move]');if(heroMove){moveHeroSlide(Number(heroMove.dataset.heroMove),Number(heroMove.dataset.direction));return}
+  const heroDeviceClear=e.target.closest('[data-hero-clear-device]');if(heroDeviceClear){clearHeroDevice(Number(heroDeviceClear.dataset.heroClearIndex),heroDeviceClear.dataset.heroClearDevice);return}
   const heroClear=e.target.closest('[data-hero-clear-draft]');if(heroClear){clearHeroDraft(Number(heroClear.dataset.heroClearDraft));return}
   const heroRemove=e.target.closest('[data-hero-remove]');if(heroRemove){if(confirm('Remove this hero image from the draft?'))removeHeroSlide(Number(heroRemove.dataset.heroRemove));return}
   if(e.target.closest('[data-add-record]')){addItem('records');return}
