@@ -244,94 +244,207 @@ async function putOriginalFile(key,file){const db=await openMediaDb();return new
 async function getOriginalFile(key){if(!key)return null;const db=await openMediaDb();return new Promise((resolve,reject)=>{const tx=db.transaction(MEDIA_STORE,'readonly');const request=tx.objectStore(MEDIA_STORE).get(key);request.onsuccess=()=>{db.close();resolve(request.result||null)};request.onerror=()=>{db.close();reject(request.error||new Error('Could not load original image'))}})}
 async function deleteOriginalFile(key){if(!key)return;const db=await openMediaDb();return new Promise((resolve,reject)=>{const tx=db.transaction(MEDIA_STORE,'readwrite');tx.objectStore(MEDIA_STORE).delete(key);tx.oncomplete=()=>{db.close();resolve()};tx.onerror=()=>{db.close();reject(tx.error||new Error('Could not remove original image'))}})}
 function humanBytes(bytes=0){const n=Number(bytes)||0;if(n<1024)return `${n} B`;if(n<1024*1024)return `${(n/1024).toFixed(1)} KB`;return `${(n/1024/1024).toFixed(2)} MB`}
+
+const HERO_IMAGE_DEVICES=['desktop','tablet','phone'];
+function heroDeviceObject(slide,device,create=false){
+ if(device==='desktop')return slide;
+ if(create)slide.deviceImages=slide.deviceImages||{};
+ if(create)slide.deviceImages[device]=slide.deviceImages[device]||{};
+ return slide.deviceImages?.[device]||null;
+}
+function heroImageSource(slide,device){
+ return window.LVLCrop?.mediaForDevice(slide,device)||
+  {src:slide.src||'',draftBlobKey:slide.draftBlobKey||'',device:'desktop'};
+}
+function heroBlobPreview(key){
+ if(!key)return '';
+ return heroPreviewUrls.get(key)||'';
+}
+async function getHeroPreviewUrl(key){
+ if(!key)return '';
+ if(heroPreviewUrls.has(key))return heroPreviewUrls.get(key);
+ const blob=await getOriginalFile(key);
+ if(!blob)return '';
+ const url=URL.createObjectURL(blob);
+ heroPreviewUrls.set(key,url);
+ return url;
+}
+function disposeHeroPreview(key){
+ const url=heroPreviewUrls.get(key);
+ if(url){URL.revokeObjectURL(url);heroPreviewUrls.delete(key)}
+}
 async function hydrateHeroPreviews(){
-  const hero=draft.homepage?.hero;
-  if(!hero)return;
-  for(const img of document.querySelectorAll('[data-hero-preview-index]')){
-    const index=Number(img.dataset.heroPreviewIndex);
-    const slide=hero.slides?.[index];
-    if(!slide||!slide.draftBlobKey)continue;
-    try{
-      const blob=await getOriginalFile(slide.draftBlobKey);
-      if(!blob)continue;
-      const old=heroPreviewUrls.get(slide.draftBlobKey);if(old)URL.revokeObjectURL(old);
-      const url=URL.createObjectURL(blob);heroPreviewUrls.set(slide.draftBlobKey,url);img.src=url;
-    }catch(error){console.warn('Hero draft image could not load',error)}
+ const hero=draft.homepage?.hero;
+ if(!hero)return;
+ const previews=document.querySelectorAll('[data-hero-preview-index],[data-hero-source-index]');
+ for(const image of previews){
+  const index=Number(image.dataset.heroPreviewIndex??image.dataset.heroSourceIndex);
+  const slide=hero.slides?.[index];
+  if(!slide)continue;
+  const device=image.dataset.heroSourceDevice||
+   window.LVLCrop?.deviceForWidth(window.innerWidth)||'desktop';
+  const media=heroImageSource(slide,device);
+  if(media.draftBlobKey){
+   try{
+    const url=await getHeroPreviewUrl(media.draftBlobKey);
+    if(image.isConnected&&url)image.src=url;
+   }catch(error){console.warn('Hero image draft could not be loaded',error)}
   }
+ }
+}
+function heroDeviceSlot(slide,index,device){
+ const labels={desktop:'DESKTOP',tablet:'TABLET',phone:'PHONE'};
+ const dimensions={desktop:'1440 × 810',tablet:'768 × 1024',phone:'390 × 844'};
+ const own=heroDeviceObject(slide,device)||{};
+ const source=heroImageSource(slide,device);
+ const assigned=!!(own.src||own.draftBlobKey);
+ const inherited=!assigned&&!!(source.src||source.draftBlobKey);
+ const src=source.src?CalendarContent.imageUrl(source.src,new URL('../',document.baseURI)):'';
+ const path='homepage.hero.slides.'+index+(device==='desktop'?'':'.deviceImages.'+device);
+ const name=assigned?(own.fileName||'Custom image'):inherited?'Using '+source.device+' image':'No photo selected';
+ const status=assigned?'Custom image':inherited?'Inherited image':'Needs photo';
+ const summary=escapeText(name)+(own.originalBytes?' · '+humanBytes(own.originalBytes):'');
+ return '<section class="hero-source-slot'+(assigned?' has-custom-image':'')+'" tabindex="0" data-hero-drop-index="'+index+'" data-hero-drop-device="'+device+'" aria-label="'+labels[device]+' photo. Drop an image here or choose from files or gallery.">'+
+  '<div class="hero-source-heading"><strong>'+labels[device]+'</strong><small>'+dimensions[device]+'</small></div>'+
+  '<div class="hero-source-visual">'+
+   (src||source.draftBlobKey?'<img data-hero-source-index="'+index+'" data-hero-source-device="'+device+'" src="'+escapeText(heroBlobPreview(source.draftBlobKey)||src)+'" alt="'+labels[device]+' hero preview" loading="lazy">':'<span>No photo</span>')+
+   '<span class="hero-drop-overlay" aria-hidden="true">DROP TO USE PHOTO</span>'+
+  '</div>'+
+  '<p class="hero-source-status">'+status+'</p>'+
+  '<p class="hero-source-name" title="'+summary+'">'+summary+'</p>'+
+  '<div class="hero-source-actions">'+
+   '<label class="upload-button">Choose file<input type="file" accept="image/*" data-hero-upload="'+index+'" data-hero-upload-device="'+device+'"></label>'+
+   '<button type="button" class="admin-action secondary" data-gallery-path="'+escapeText(path+'.src')+'">Gallery</button>'+
+  '</div>'+
+  (assigned?'<button class="hero-source-clear" type="button" data-hero-clear-device="'+device+'" data-hero-clear-index="'+index+'">'+(device==='desktop'?'Remove desktop photo':'Use fallback photo')+'</button>':'')+
+  '<details class="hero-source-advanced"><summary>Image URL / path</summary>'+field(path+'.src','Image address',own.src||'')+'</details>'+
+ '</section>';
 }
 function heroSlideCard(slide,index,total){
-  const published=slide.src?CalendarContent.imageUrl(slide.src,new URL('../',document.baseURI)):'';
-  const previewCrop=window.LVLCrop?.forDevice(slide,window.LVLCrop.deviceForWidth(window.innerWidth))||{x:50,y:50,zoom:1};
-  const previewStyle=`object-position:${previewCrop.x}% ${previewCrop.y}%;transform:scale(${previewCrop.zoom})`;
-  const fileNote=slide.draftBlobKey?`Original draft: ${escapeText(slide.fileName||'image')} · ${humanBytes(slide.originalBytes)} · unchanged`:'Using published image/path';
-  return `<article class="hero-admin-card">
-    <div class="hero-admin-preview">${published?`<img data-hero-preview-index="${index}" src="${escapeText(published)}" alt="${escapeText(slide.alt||'Hero image')}" style="${escapeText(previewStyle)}">`:`<img data-hero-preview-index="${index}" alt="${escapeText(slide.alt||'Hero image')}" style="${escapeText(previewStyle)}">`}</div>
-    <div class="hero-admin-fields">
-      <div class="hero-admin-top"><strong>IMAGE ${String(index+1).padStart(2,'0')}</strong><span>${fileNote}</span></div>
-      <button class="admin-action secondary hero-framing-button" type="button" data-hero-crop-index="${index}">Adjust responsive crop · desktop / tablet / phone</button>
-      <button class="admin-action secondary" type="button" data-gallery-path="homepage.hero.slides.${index}.src">From gallery</button><label class="upload-button hero-upload">From files<input type="file" accept="image/*" data-hero-upload="${index}"></label>
-      <div class="field-grid">
-        ${field(`homepage.hero.slides.${index}.alt`,'Image description',slide.alt||'')}
-        <div class="field full hero-crop-help"><span>Device-specific framing</span><small>Use Adjust responsive crop to drag the original image and choose independent desktop, tablet, and phone compositions. No pixels are removed.</small></div>
-        ${field(`homepage.hero.slides.${index}.src`,'Published path / URL',slide.src||'','text','Used by the live site after permanent storage/publishing is connected.')}
-      </div>
-      <div class="hero-order-actions">
-        <button class="admin-action secondary" type="button" data-hero-move="${index}" data-direction="-1" ${index===0?'disabled':''}>Move up</button>
-        <button class="admin-action secondary" type="button" data-hero-move="${index}" data-direction="1" ${index===total-1?'disabled':''}>Move down</button>
-        ${slide.draftBlobKey?`<button class="admin-action secondary" type="button" data-hero-clear-draft="${index}">Clear draft upload</button>`:''}
-        <button class="admin-action danger" type="button" data-hero-remove="${index}">Remove slide</button>
-      </div>
-    </div>
-  </article>`;
+ const device=window.LVLCrop?.deviceForWidth(window.innerWidth)||'desktop';
+ const asset=heroImageSource(slide,device);
+ const src=asset.src?CalendarContent.imageUrl(asset.src,new URL('../',document.baseURI)):'';
+ const previewCrop=window.LVLCrop?.forDevice(slide,device)||{x:50,y:50,zoom:1};
+ const style='object-position:'+previewCrop.x+'% '+previewCrop.y+'%;transform:scale('+previewCrop.zoom+')';
+ return '<article class="hero-admin-card" data-hero-slide-card="'+index+'" id="hero-slide-'+index+'">'+
+  '<div class="hero-admin-preview">'+(src||asset.draftBlobKey?'<img data-hero-preview-index="'+index+'" src="'+escapeText(heroBlobPreview(asset.draftBlobKey)||src)+'" alt="'+escapeText(slide.alt||'Hero image')+'" style="'+escapeText(style)+'">':'<div class="hero-preview-empty">Choose or drop a photo below to begin.</div>')+'</div>'+
+  '<div class="hero-admin-fields">'+
+   '<div class="hero-admin-top"><strong>IMAGE '+String(index+1).padStart(2,'0')+'</strong><span>Different photos may be selected for every screen size.</span></div>'+
+   '<div class="hero-device-grid">'+HERO_IMAGE_DEVICES.map(d=>heroDeviceSlot(slide,index,d)).join('')+'</div>'+
+   '<button class="admin-action secondary hero-framing-button" type="button" data-hero-crop-index="'+index+'">Adjust framing & zoom for each device</button>'+
+   '<div class="field-grid">'+field('homepage.hero.slides.'+index+'.alt','Image description',slide.alt||'')+'</div>'+
+   '<div class="hero-order-actions">'+
+    '<button class="admin-action secondary" type="button" data-hero-move="'+index+'" data-direction="-1" '+(index===0?'disabled':'')+'>Move up</button>'+
+    '<button class="admin-action secondary" type="button" data-hero-move="'+index+'" data-direction="1" '+(index===total-1?'disabled':'')+'>Move down</button>'+
+    '<button class="admin-action danger" type="button" data-hero-remove="'+index+'">Remove slide</button>'+
+   '</div>'+
+  '</div>'+
+ '</article>';
 }
 function renderHomepage(){
-  homepageDefaults();
-  const h=draft.homepage.hero;
-  const root=byId('homepageHeroEditor');if(!root)return;
-  root.innerHTML=`<div class="form-card hero-copy-card"><h3>Hero text</h3><div class="field-grid">
-    ${field('homepage.hero.kicker','Kicker',h.kicker)}
-    ${field('homepage.hero.title','Main mark',h.title)}
-    ${field('homepage.hero.tagline','Tagline',h.tagline)}
-    ${field('homepage.hero.intervalSeconds','Seconds per image',h.intervalSeconds,'number','Recommended: 5–8 seconds.')}
-    ${field('homepage.hero.primaryLabel','Primary button',h.primaryLabel)}
-    ${field('homepage.hero.primaryHref','Primary link',h.primaryHref)}
-    ${field('homepage.hero.secondaryLabel','Secondary button',h.secondaryLabel)}
-    ${field('homepage.hero.secondaryHref','Secondary link',h.secondaryHref)}
-  </div></div>
-  <div class="hero-admin-list">${(h.slides||[]).map((slide,index)=>heroSlideCard(slide,index,h.slides.length)).join('')||'<div class="empty">No hero images yet. Add an image to begin.</div>'}</div>
-  <div class="card-actions"><button class="admin-action" data-save-draft>Save draft</button><a class="admin-action secondary" href="../index.html?preview=admin-draft" target="_blank" rel="noopener">Preview homepage</a></div>`;
-  requestAnimationFrame(hydrateHeroPreviews);
+ homepageDefaults();
+ const h=draft.homepage.hero;
+ const root=byId('homepageHeroEditor');if(!root)return;
+ root.innerHTML='<div class="form-card hero-copy-card"><h3>Hero text</h3><div class="field-grid">'+
+  field('homepage.hero.kicker','Kicker',h.kicker)+
+  field('homepage.hero.title','Main mark',h.title)+
+  field('homepage.hero.tagline','Tagline',h.tagline)+
+  field('homepage.hero.intervalSeconds','Seconds per image',h.intervalSeconds,'number','Recommended: 5–8 seconds.')+
+  field('homepage.hero.primaryLabel','Primary button',h.primaryLabel)+
+  field('homepage.hero.primaryHref','Primary link',h.primaryHref)+
+  field('homepage.hero.secondaryLabel','Secondary button',h.secondaryLabel)+
+  field('homepage.hero.secondaryHref','Secondary link',h.secondaryHref)+
+  '</div></div>'+
+  '<div class="hero-editor-heading" id="heroSlidesHeading"><div><p class="eyebrow">IMAGE LIBRARY / HERO SLIDES</p><h3>Hero images</h3><p>Choose photos for each device. Drag files into an image slot to replace its photo.</p></div>'+
+  '<button class="admin-action" type="button" data-add-hero-slide>Add image</button></div>'+
+  '<div class="hero-admin-list">'+(h.slides||[]).map((slide,index)=>heroSlideCard(slide,index,h.slides.length)).join('')+'</div>'+
+  '<div class="hero-drop-create" tabindex="0" data-hero-create-drop aria-label="Drop image files here to add new hero slides">'+
+  '<strong>DROP PHOTOS HERE</strong><p>Drag image files from your computer to create new slides, or add an empty slide first.</p>'+
+  '<button class="admin-action secondary" type="button" data-add-hero-slide>Add another image</button></div>'+
+  '<div class="card-actions"><button class="admin-action" data-save-draft>Save draft</button><a class="admin-action secondary" href="../index.html?preview=admin-draft" target="_blank" rel="noopener">Preview homepage</a></div>';
+ requestAnimationFrame(hydrateHeroPreviews);
+}
+async function uploadHeroFile(index,device,file){
+ if(!file)return false;
+ if(!file.type.startsWith('image/')){showToast('Choose an image file');return false}
+ homepageDefaults();
+ const slide=draft.homepage.hero.slides[index];
+ if(!slide||!HERO_IMAGE_DEVICES.includes(device))return false;
+ const target=heroDeviceObject(slide,device,true);
+ try{
+  let oldKey=target.draftBlobKey;
+  if(cloudAdminKey()){
+   showToast('Uploading '+device+' photo to Cloudflare…');
+   const uploaded=await uploadOriginalToCloudflare(file,'hero-'+device);
+   if(!draft.homepage.hero.slides.includes(slide))return false;
+   target.src=uploaded.url;
+   delete target.draftBlobKey;
+   if(oldKey){try{await deleteOriginalFile(oldKey);disposeHeroPreview(oldKey)}catch{}}
+   target.fileName=file.name;target.mimeType=file.type;target.originalBytes=file.size;
+   markDirty();saveDraft();
+   showToast('Image saved for '+device+'. Publish to go live.');
+  }else{
+   showToast('Saving '+device+' photo to this browser…');
+   const key='hero-'+device+'-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+   await putOriginalFile(key,file);
+   if(!draft.homepage.hero.slides.includes(slide)){await deleteOriginalFile(key);return false}
+   target.draftBlobKey=key;
+   target.fileName=file.name;target.mimeType=file.type;target.originalBytes=file.size;
+   if(oldKey){try{await deleteOriginalFile(oldKey);disposeHeroPreview(oldKey)}catch{}}
+   markDirty();saveDraft();
+   showToast('Original saved locally. Upload to Cloudflare before publishing.');
+  }
+  return true;
+ }catch(error){showToast(error.message||'Image upload failed');return false}
 }
 async function handleHeroUpload(input){
-  const file=input.files&&input.files[0];if(!file)return;
-  if(!file.type.startsWith('image/')){showToast('Please choose an image file');return}
-  homepageDefaults();
-  const index=Number(input.dataset.heroUpload);const slide=draft.homepage.hero.slides[index];if(!slide)return;
-  try{
-    if(cloudAdminKey()){
-      showToast('Uploading original to Cloudflare…');
-      const uploaded=await uploadOriginalToCloudflare(file,'hero');
-      if(slide.draftBlobKey){try{await deleteOriginalFile(slide.draftBlobKey)}catch{}}
-      slide.src=uploaded.url;slide.draftBlobKey='';slide.fileName=file.name;slide.mimeType=file.type;slide.originalBytes=file.size;
-      markDirty();saveDraft();showToast('Original uploaded unchanged to Cloudflare');
-      return;
-    }
-    showToast('Saving original image locally…');
-    if(slide.draftBlobKey)await deleteOriginalFile(slide.draftBlobKey);
-    const key=`hero-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    await putOriginalFile(key,file);
-    slide.draftBlobKey=key;slide.fileName=file.name;slide.mimeType=file.type;slide.originalBytes=file.size;
-    markDirty();saveDraft();showToast('Original saved locally; connect Cloudflare to publish it');
-  }catch(error){showToast(error.message||'Image upload failed')}
+ const files=Array.from(input.files||[]);
+ if(!files.length)return;
+ await uploadHeroFile(Number(input.dataset.heroUpload),input.dataset.heroUploadDevice||'desktop',files[0]);
 }
-async function clearHeroDraft(index){
-  const slide=draft.homepage?.hero?.slides?.[index];if(!slide)return;
-  if(slide.draftBlobKey){try{await deleteOriginalFile(slide.draftBlobKey)}catch{}}
-  delete slide.draftBlobKey;delete slide.fileName;delete slide.mimeType;delete slide.originalBytes;markDirty();saveDraft();showToast('Draft upload cleared');
+async function clearHeroDevice(index,device){
+ const slide=draft.homepage?.hero?.slides?.[index];if(!slide)return;
+ const own=heroDeviceObject(slide,device);
+ if(!own)return;
+ if(own.draftBlobKey){try{await deleteOriginalFile(own.draftBlobKey);disposeHeroPreview(own.draftBlobKey)}catch{}}
+ if(device==='desktop'){
+  slide.src='';delete slide.draftBlobKey;delete slide.fileName;delete slide.mimeType;delete slide.originalBytes;
+ }else if(slide.deviceImages)delete slide.deviceImages[device];
+ markDirty();saveDraft();
+ showToast(device==='desktop'?'Desktop image removed':device+' will now use the fallback photo');
 }
-function addHeroSlide(){homepageDefaults();draft.homepage.hero.slides.push({id:`hero-${Date.now()}`,src:'',alt:'',position:'center center',draftBlobKey:''});markDirty();saveDraft()}
-async function removeHeroSlide(index){homepageDefaults();const slide=draft.homepage.hero.slides[index];if(!slide)return;if(slide.draftBlobKey){try{await deleteOriginalFile(slide.draftBlobKey)}catch{}}draft.homepage.hero.slides.splice(index,1);markDirty();saveDraft()}
-function moveHeroSlide(index,direction){homepageDefaults();const next=index+direction;if(next<0||next>=draft.homepage.hero.slides.length)return;[draft.homepage.hero.slides[index],draft.homepage.hero.slides[next]]=[draft.homepage.hero.slides[next],draft.homepage.hero.slides[index]];markDirty();saveDraft()}
+async function clearHeroDraft(index){return clearHeroDevice(index,'desktop')}
+function addHeroSlide(shouldFocus=true){
+ homepageDefaults();
+ const index=draft.homepage.hero.slides.length;
+ draft.homepage.hero.slides.push({id:'hero-'+Date.now()+'-'+Math.random().toString(36).slice(2),src:'',alt:'',position:'center center',deviceImages:{}});
+ markDirty();saveDraft();
+ if(shouldFocus)focusHeroSlide(index);
+ return index;
+}
+function focusHeroSlide(index){
+ requestAnimationFrame(()=>{
+  const card=document.querySelector('[data-hero-slide-card="'+index+'"]');
+  if(!card)return;
+  card.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+  const target=card.querySelector('[data-hero-drop-device="desktop"]');
+  target?.focus({preventScroll:true});
+ });
+}
+async function removeHeroSlide(index){
+ homepageDefaults();
+ const slide=draft.homepage.hero.slides[index];if(!slide)return;
+ const keys=[slide.draftBlobKey,slide.deviceImages?.tablet?.draftBlobKey,slide.deviceImages?.phone?.draftBlobKey].filter(Boolean);
+ for(const key of new Set(keys)){try{await deleteOriginalFile(key);disposeHeroPreview(key)}catch{}}
+ draft.homepage.hero.slides.splice(index,1);markDirty();saveDraft();
+}
+function moveHeroSlide(index,direction){
+ homepageDefaults();
+ const next=index+direction;
+ if(next<0||next>=draft.homepage.hero.slides.length)return;
+ [draft.homepage.hero.slides[index],draft.homepage.hero.slides[next]]=[draft.homepage.hero.slides[next],draft.homepage.hero.slides[index]];
+ markDirty();saveDraft();
+}
 function selectField(path,label,value,options){return `<div class="field"><label>${label}</label><select data-path="${path}">${options.map(option=>`<option value="${escapeText(option)}" ${option===value?'selected':''}>${escapeText(option)}</option>`).join('')}</select></div>`}
 function visibilityField(path,hidden,collection,status){
  const blocked=collection==='records'&&['DRAFT','HIDDEN','PRIVATE LISTING'].includes(String(status||'').toUpperCase());
