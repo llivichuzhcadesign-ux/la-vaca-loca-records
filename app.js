@@ -453,7 +453,7 @@ async function setupHomepageHero(){
  const current=document.getElementById('lvlHeroCurrent');const total=document.getElementById('lvlHeroTotal');
  if(total)total.textContent=String(slides.length).padStart(2,'0');
  let active=0;
- const show=index=>{active=index;slideEls.forEach((el,i)=>el.classList.toggle('is-active',i===active));if(current)current.textContent=String(active+1).padStart(2,'0')};
+ const show=index=>{active=index;slideEls.forEach((el,i)=>el.classList.toggle('is-active',i===active));if(current)current.textContent=String(active+1).padStart(2,'0');if(overlay)overlay.style.opacity=String((window.LVLCrop?.slideOverlayStrength(hero,slides[active])??25)/100)};
  show(0);
  const reduceHeroMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  const interval=Math.max(2,Number(hero.intervalSeconds)||6)*1000;
