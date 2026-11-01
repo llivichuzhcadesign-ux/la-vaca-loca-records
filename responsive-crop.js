@@ -71,6 +71,12 @@
   const value=Number(hero.overlayStrength);
   return Number.isFinite(value)?clamp(value,0,100):25;
  }
+ // Watermark intensity, stored as a percentage. Zero hides the decorative mark.
+ function watermarkOpacity(hero){
+  if(hero?.watermarkOpacity===undefined||hero?.watermarkOpacity===null||hero?.watermarkOpacity==='')return 26;
+  const value=Number(hero.watermarkOpacity);
+  return Number.isFinite(value)?clamp(value,0,100):26;
+ }
  function slideOverlayStrength(hero,slide){
   const custom=slide?.overlayStrength;
   if(custom===undefined||custom===null||custom==='')return overlayStrength(hero);
@@ -109,5 +115,5 @@
    else root.removeEventListener('resize',update);
   }};
  }
- root.LVLCrop=Object.freeze({clamp,parsePosition,normalize,deviceForWidth,mediaForDevice,hasMedia,forDevice,filterName,filterForDevice,filterCSS,overlayStrength,slideOverlayStrength,layout,mount});
+ root.LVLCrop=Object.freeze({clamp,parsePosition,normalize,deviceForWidth,mediaForDevice,hasMedia,forDevice,filterName,filterForDevice,filterCSS,overlayStrength,slideOverlayStrength,watermarkOpacity,layout,mount});
 })(window);
