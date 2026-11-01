@@ -72,6 +72,11 @@
   return Number.isFinite(value)?clamp(value,0,100):25;
  }
  // Watermark intensity, stored as a percentage. Zero hides the decorative mark.
+ // Restricted placement presets keep the emblem legible across breakpoints.
+ function watermarkPlacement(hero){
+  const placement=hero?.watermarkPlacement;
+  return placement==='full'||placement==='upper' ? placement : 'edge';
+ }
  function watermarkOpacity(hero){
   if(hero?.watermarkOpacity===undefined||hero?.watermarkOpacity===null||hero?.watermarkOpacity==='')return 26;
   const value=Number(hero.watermarkOpacity);
@@ -115,5 +120,5 @@
    else root.removeEventListener('resize',update);
   }};
  }
- root.LVLCrop=Object.freeze({clamp,parsePosition,normalize,deviceForWidth,mediaForDevice,hasMedia,forDevice,filterName,filterForDevice,filterCSS,overlayStrength,slideOverlayStrength,watermarkOpacity,layout,mount});
+ root.LVLCrop=Object.freeze({clamp,parsePosition,normalize,deviceForWidth,mediaForDevice,hasMedia,forDevice,filterName,filterForDevice,filterCSS,overlayStrength,slideOverlayStrength,watermarkOpacity,watermarkPlacement,layout,mount});
 })(window);
