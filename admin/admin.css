@@ -729,3 +729,89 @@ body .hero-admin-fields{min-width:0;padding:clamp(15px,2vw,24px)}
 @media(prefers-reduced-motion:reduce){
  .hero-photo-edit,.hero-crop-filter-choices button{transition:none}
 }
+
+
+/* Live hero text-shadow controls. The default 25% is intentionally photographic. */
+.hero-overlay-studio{
+ display:grid;grid-template-columns:minmax(260px,.8fr) minmax(0,1.2fr);
+ gap:20px;align-items:start;padding:20px;margin:18px 0 28px;
+ background:#161411;border:1px solid rgba(238,229,211,.25)
+}
+.hero-overlay-settings{min-width:0}
+.hero-overlay-settings .eyebrow{margin:0 0 10px}
+.hero-overlay-settings h3{font-size:clamp(24px,2.8vw,37px);letter-spacing:-.045em;line-height:1.1;margin:0 0 14px}
+.hero-overlay-settings>p:not(.eyebrow){font-size:12px;line-height:1.6;color:var(--muted)}
+.hero-overlay-label{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:24px 0 10px}
+.hero-overlay-label label{font-size:12px;font-weight:900;line-height:1.4;color:var(--paper);margin:0}
+.hero-overlay-label output{font-size:17px;font-variant-numeric:tabular-nums;color:var(--pink);font-weight:900}
+.hero-overlay-studio input[type=range],.hero-slide-overlay-setting input[type=range]{
+ width:100%;display:block;min-height:36px;margin:0;accent-color:var(--pink);
+ cursor:pointer;touch-action:pan-y
+}
+.hero-overlay-studio input[type=range]:focus-visible,.hero-slide-overlay-setting input[type=range]:focus-visible{
+ outline:2px solid var(--pink);outline-offset:2px
+}
+.hero-overlay-scale{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:7px;color:var(--muted);font-size:10px}
+.hero-overlay-note{padding-top:14px;border-top:1px solid var(--line);margin-top:20px}
+.hero-overlay-visual{min-width:0}
+.hero-overlay-preview-tools{display:grid;grid-template-columns:auto minmax(0,1fr) auto minmax(90px,.75fr);align-items:center;gap:8px;margin-bottom:10px}
+.hero-overlay-preview-tools label{color:var(--muted);font-size:10px;font-weight:900;white-space:nowrap}
+.hero-overlay-preview-tools select{width:100%;min-width:0;padding:9px;color:var(--paper);font-size:12px;background:#0b0a09;border:1px solid var(--line)}
+.hero-overlay-preview{position:relative;isolation:isolate;width:100%;height:300px;overflow:hidden;background:#0c0b09;color:var(--paper);transition:width .22s,height .22s}
+.hero-overlay-preview[data-hero-overlay-preview-device="tablet"]{height:360px;width:min(100%,270px);margin:0 auto}
+.hero-overlay-preview[data-hero-overlay-preview-device="phone"]{height:390px;width:min(100%,194px);margin:0 auto}
+.hero-overlay-preview>img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;user-select:none;max-width:none}
+.hero-overlay-preview-shade,.hero-admin-shade{
+ position:absolute;inset:0;z-index:2;opacity:.25;pointer-events:none;
+ background:linear-gradient(90deg,rgba(9,9,7,.93) 0%,rgba(9,9,7,.78) 27%,rgba(9,9,7,.34) 54%,rgba(9,9,7,.12) 78%,rgba(9,9,7,.30) 100%),
+ linear-gradient(0deg,rgba(9,9,7,.60),transparent 42%)
+}
+.hero-overlay-preview[data-hero-overlay-preview-device="tablet"] .hero-overlay-preview-shade,
+.hero-overlay-preview[data-hero-overlay-preview-device="phone"] .hero-overlay-preview-shade{
+ background:linear-gradient(90deg,rgba(9,9,7,.88),rgba(9,9,7,.44) 72%,rgba(9,9,7,.34)),
+ linear-gradient(0deg,rgba(9,9,7,.72),transparent 48%)
+}
+.hero-overlay-preview-copy{position:absolute;z-index:3;left:6%;right:6%;top:48%;transform:translateY(-50%);display:flex;flex-direction:column;gap:12px;pointer-events:none}
+.hero-overlay-preview-copy span{color:#eee5d3;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.hero-overlay-preview-copy strong{font-size:clamp(70px,12vw,150px);font-weight:900;line-height:.8;letter-spacing:-.1em}
+.hero-overlay-preview-copy em{color:#f2e6d2;font-family:Georgia,serif;font-size:clamp(14px,2vw,23px);line-height:1.24}
+.hero-overlay-preview[data-hero-overlay-preview-device="tablet"] .hero-overlay-preview-copy strong{font-size:90px}
+.hero-overlay-preview[data-hero-overlay-preview-device="phone"] .hero-overlay-preview-copy strong{font-size:63px}
+.hero-overlay-preview[data-hero-overlay-preview-device="phone"] .hero-overlay-preview-copy em{font-size:15px}
+.hero-overlay-preview[data-hero-overlay-preview-device="phone"] .hero-overlay-preview-copy span{font-size:8px}
+.hero-overlay-preview-note{font-size:11px;line-height:1.5;color:var(--muted);margin:11px 0 0}
+.hero-admin-preview .hero-admin-shade{z-index:2}
+.hero-admin-sample-copy{
+ position:absolute;left:6%;right:8%;top:50%;transform:translateY(-50%);z-index:3;
+ display:flex;flex-direction:column;gap:13px;pointer-events:none;color:#eee5d3;
+ text-align:left;text-shadow:0 2px 10px rgba(0,0,0,.18)
+}
+.hero-admin-sample-copy strong{font-size:clamp(68px,10vw,140px);font-weight:900;letter-spacing:-.1em;line-height:.85}
+.hero-admin-sample-copy span{font-family:Georgia,serif;font-size:clamp(13px,1.6vw,22px);font-style:italic;line-height:1.2}
+.hero-slide-overlay-setting{padding:14px 15px;border:1px solid rgba(255,90,167,.22);background:rgba(255,90,167,.045);margin:12px 0 16px}
+.hero-slide-overlay-setting .hero-overlay-label{margin:0 0 8px}
+.hero-overlay-setting-foot{display:flex;justify-content:space-between;align-items:center;gap:9px;margin-top:10px}
+.hero-overlay-setting-foot small{font-size:11px;color:var(--muted)}
+.hero-overlay-setting-foot .admin-action{min-height:38px;padding:7px 11px;font-size:10px;white-space:normal}
+.hero-overlay-setting-foot .admin-action:disabled{opacity:.4;cursor:not-allowed}
+.hero-admin-preview .hero-photo-edit{z-index:5}
+@media(max-width:900px){
+ .hero-overlay-studio{grid-template-columns:1fr;gap:16px;padding:16px}
+ .hero-overlay-preview{height:290px}
+ .hero-overlay-preview-tools{grid-template-columns:auto minmax(0,1fr) auto minmax(80px,1fr)}
+ .hero-admin-sample-copy strong{font-size:clamp(58px,16vw,125px)}
+}
+@media(max-width:560px){
+ .hero-overlay-studio{padding:12px}
+ .hero-overlay-preview{height:260px}
+ .hero-overlay-preview-tools{grid-template-columns:1fr 1fr;gap:5px}
+ .hero-overlay-preview-tools label{font-size:10px}
+ .hero-overlay-preview-tools select{font-size:13px;padding:10px 5px}
+ .hero-overlay-preview[data-hero-overlay-preview-device="phone"]{height:360px;width:min(100%,177px)}
+ .hero-overlay-preview-copy strong{font-size:75px}
+ .hero-overlay-preview-copy em{font-size:15px}
+ .hero-overlay-setting-foot{align-items:flex-start;flex-wrap:wrap}
+ .hero-overlay-setting-foot .admin-action{width:100%}
+ .hero-admin-sample-copy strong{font-size:clamp(53px,20vw,100px)}
+}
+@media(prefers-reduced-motion:reduce){.hero-overlay-preview{transition:none}}
