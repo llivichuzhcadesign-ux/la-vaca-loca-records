@@ -346,7 +346,6 @@ function heroSlideCard(slide,index,total){
  return '<article class="hero-admin-card" data-hero-slide-card="'+index+'" id="hero-slide-'+index+'">'+
   '<div class="hero-admin-preview">'+(src||asset.draftBlobKey?'<img data-hero-preview-index="'+index+'"'+(visibleSrc?' src="'+escapeText(visibleSrc)+'"':'')+' alt="'+escapeText(slide.alt||'Hero image')+'" style="'+escapeText(style)+'">':'<div class="hero-preview-empty">Choose or drop a photo below to begin.</div>')+
    '<div class="hero-admin-shade" data-hero-overlay-shade="'+index+'" style="opacity:'+(overlay/100)+'"></div>'+
-   '<img class="hero-admin-watermark" src="../assets/images/site/lvl-fire-watermark.svg" alt="" aria-hidden="true" data-placement="'+(window.LVLCrop?.watermarkPlacement(draft.homepage.hero)||'edge')+'" style="opacity:'+((window.LVLCrop?.watermarkOpacity(draft.homepage.hero)??26)/100)+'">'+
    '<div class="hero-admin-sample-copy" aria-hidden="true"><small>'+escapeText(draft.homepage.hero.kicker||'')+'</small><i></i><span>'+escapeText(draft.homepage.hero.tagline||'')+'</span></div>'+
    (src||asset.draftBlobKey?heroImageEditButton(index,device,'hero'):'')+'</div>'+
   '<div class="hero-admin-fields">'+
@@ -379,17 +378,6 @@ function renderHomepage(){
   field('homepage.hero.primaryHref','Primary link',h.primaryHref)+
   field('homepage.hero.secondaryLabel','Secondary button',h.secondaryLabel)+
   field('homepage.hero.secondaryHref','Secondary link',h.secondaryHref)+
-  '</div><div class="hero-watermark-control">'+
-    '<div class="hero-overlay-label"><label for="heroWatermarkOpacity">Circular logo watermark</label><output id="heroWatermarkOpacityValue" for="heroWatermarkOpacity">'+(window.LVLCrop?.watermarkOpacity(h)??26)+'%</output></div>'+
-    '<input type="range" id="heroWatermarkOpacity" data-hero-watermark-opacity min="0" max="100" step="1" value="'+(window.LVLCrop?.watermarkOpacity(h)??26)+'" aria-label="Circular logo watermark opacity">'+
-    '<div class="hero-overlay-scale"><span>0% · Hidden</span><span>100% · Solid</span></div>'+
-    '<p>The original circular flame emblem is blended softly into the photograph. Its opacity and placement never change your original image.</p>'+
-    '<label class="hero-watermark-placement-label" for="heroWatermarkPlacement">Watermark placement</label>'+
-    '<select id="heroWatermarkPlacement" data-hero-watermark-placement aria-label="Watermark placement">'+
-     '<option value="edge"'+((window.LVLCrop?.watermarkPlacement(h)||'edge')==='edge'?' selected':'')+'>Off-edge imprint</option>'+
-     '<option value="full"'+((window.LVLCrop?.watermarkPlacement(h)||'edge')==='full'?' selected':'')+'>Complete seal</option>'+
-     '<option value="upper"'+((window.LVLCrop?.watermarkPlacement(h)||'edge')==='upper'?' selected':'')+'>Upper-right stamp</option>'+
-    '</select>'+
   '</div></div>'+
   '<section class="hero-overlay-studio" aria-labelledby="heroOverlayTitle">'+
    '<div class="hero-overlay-settings">'+
@@ -407,7 +395,6 @@ function renderHomepage(){
     '<div class="hero-overlay-preview" data-hero-overlay-preview-device="desktop">'+
      '<img id="heroOverlayPreviewImage" alt="Live shadow strength preview" draggable="false">'+
      '<div class="hero-overlay-preview-shade" id="heroOverlayPreviewShade"></div>'+
-     '<img id="heroOverlayPreviewWatermark" class="hero-overlay-preview-watermark" src="../assets/images/site/lvl-fire-watermark.svg" alt="" aria-hidden="true" data-placement="'+(window.LVLCrop?.watermarkPlacement(h)||'edge')+'" style="opacity:'+((window.LVLCrop?.watermarkOpacity(h)??26)/100)+'">'+
      '<div class="hero-overlay-preview-copy" aria-hidden="true"><span>'+escapeText(h.kicker)+'</span><i aria-hidden="true"></i><em>'+escapeText(h.tagline)+'</em></div>'+
     '</div>'+
     '<p class="hero-overlay-preview-note" id="heroOverlayPreviewNote">Changes appear in this preview immediately. Save your draft, then publish to update the website.</p>'+
