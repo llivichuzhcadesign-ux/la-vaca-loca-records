@@ -163,7 +163,7 @@ async function publishCloudContent(){
  if(cloudState.role==='editor'){showToast('Editors cannot publish live content.');return}
  // Prevent publishing invisible placeholders from unsynced browser-only image drafts.
  const missing=(draft.homepage?.hero?.slides||[]).some(slide=>
-  [slide,slide.deviceImages?.tablet,slide.deviceImages?.phone].some(asset=>asset?.draftBlobKey&&!asset?.src));
+  [slide,slide.deviceImages?.tablet,slide.deviceImages?.phone].some(asset=>!!asset?.draftBlobKey));
  if(missing){showToast('One or more hero photos are stored only in this browser. Upload to Cloudflare first.');return}
  syncMediaAliases();
  const payload=publishableDraft();
