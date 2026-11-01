@@ -296,6 +296,13 @@ async function hydrateHeroPreviews(){
   }
  }
 }
+function heroImageEditButton(index,device,label){
+ return '<button type="button" class="hero-photo-edit" data-hero-crop-index="'+index+'" data-hero-crop-device="'+device+'" aria-label="Edit '+label+' photo framing and filter" title="Edit framing and filter">'+
+  '<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'+
+   '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L10 16l-4 1 1-4 9.5-9.5Z"/>'+
+  '</svg>'+
+ '</button>';
+}
 function heroDeviceSlot(slide,index,device){
  const labels={desktop:'DESKTOP',tablet:'TABLET',phone:'PHONE'};
  const dimensions={desktop:'1440 × 810',tablet:'768 × 1024',phone:'390 × 844'};
@@ -305,6 +312,7 @@ function heroDeviceSlot(slide,index,device){
  const inherited=!assigned&&!!(source.src||source.draftBlobKey);
  const src=source.src?CalendarContent.imageUrl(source.src,new URL('../',document.baseURI)):'';
  const visibleSrc=heroBlobPreview(source.draftBlobKey)||src;
+ const filter=window.LVLCrop?.filterCSS(window.LVLCrop.filterForDevice(slide,device))||'none';
  const path='homepage.hero.slides.'+index+(device==='desktop'?'':'.deviceImages.'+device);
  const name=assigned?(own.fileName||'Custom image'):inherited?'Using '+source.device+' image':'No photo selected';
  const status=assigned?'Custom image':inherited?'Inherited image':'Needs photo';
@@ -312,8 +320,9 @@ function heroDeviceSlot(slide,index,device){
  return '<section class="hero-source-slot'+(assigned?' has-custom-image':'')+'" tabindex="0" data-hero-drop-index="'+index+'" data-hero-drop-device="'+device+'" aria-label="'+labels[device]+' photo. Drop an image here or choose from files or gallery.">'+
   '<div class="hero-source-heading"><strong>'+labels[device]+'</strong><small>'+dimensions[device]+'</small></div>'+
   '<div class="hero-source-visual">'+
-   (src||source.draftBlobKey?'<img data-hero-source-index="'+index+'" data-hero-source-device="'+device+'"'+(visibleSrc?' src="'+escapeText(visibleSrc)+'"':'')+' alt="'+labels[device]+' hero preview" loading="lazy">':'<span>No photo</span>')+
+   (src||source.draftBlobKey?'<img data-hero-source-index="'+index+'" data-hero-source-device="'+device+'"'+(visibleSrc?' src="'+escapeText(visibleSrc)+'"':'')+' alt="'+labels[device]+' hero preview" style="filter:'+filter+'" loading="lazy">':'<span>No photo</span>')+
    '<span class="hero-drop-overlay" aria-hidden="true">DROP TO USE PHOTO</span>'+
+   (src||source.draftBlobKey?heroImageEditButton(index,device,labels[device].toLowerCase()):'')+
   '</div>'+
   '<p class="hero-source-status">'+status+'</p>'+
   '<p class="hero-source-name" title="'+summary+'">'+summary+'</p>'+
@@ -330,14 +339,15 @@ function heroSlideCard(slide,index,total){
  const asset=heroImageSource(slide,device);
  const src=asset.src?CalendarContent.imageUrl(asset.src,new URL('../',document.baseURI)):'';
  const previewCrop=window.LVLCrop?.forDevice(slide,device)||{x:50,y:50,zoom:1};
- const style='object-position:'+previewCrop.x+'% '+previewCrop.y+'%;transform:scale('+previewCrop.zoom+')';
+ const style='object-position:'+previewCrop.x+'% '+previewCrop.y+'%;transform:scale('+previewCrop.zoom+');filter:'+(window.LVLCrop?.filterCSS(window.LVLCrop.filterForDevice(slide,device))||'none');
  const visibleSrc=heroBlobPreview(asset.draftBlobKey)||src;
  return '<article class="hero-admin-card" data-hero-slide-card="'+index+'" id="hero-slide-'+index+'">'+
-  '<div class="hero-admin-preview">'+(src||asset.draftBlobKey?'<img data-hero-preview-index="'+index+'"'+(visibleSrc?' src="'+escapeText(visibleSrc)+'"':'')+' alt="'+escapeText(slide.alt||'Hero image')+'" style="'+escapeText(style)+'">':'<div class="hero-preview-empty">Choose or drop a photo below to begin.</div>')+'</div>'+
+  '<div class="hero-admin-preview">'+(src||asset.draftBlobKey?'<img data-hero-preview-index="'+index+'"'+(visibleSrc?' src="'+escapeText(visibleSrc)+'"':'')+' alt="'+escapeText(slide.alt||'Hero image')+'" style="'+escapeText(style)+'">':'<div class="hero-preview-empty">Choose or drop a photo below to begin.</div>')+
+   (src||asset.draftBlobKey?heroImageEditButton(index,device,'hero'):'')+'</div>'+
   '<div class="hero-admin-fields">'+
    '<div class="hero-admin-top"><strong>IMAGE '+String(index+1).padStart(2,'0')+'</strong><span>Different photos may be selected for every screen size.</span></div>'+
    '<div class="hero-device-grid">'+HERO_IMAGE_DEVICES.map(d=>heroDeviceSlot(slide,index,d)).join('')+'</div>'+
-   '<button class="admin-action secondary hero-framing-button" type="button" data-hero-crop-index="'+index+'">Adjust framing & zoom for each device</button>'+
+
    '<div class="field-grid">'+field('homepage.hero.slides.'+index+'.alt','Image description',slide.alt||'')+'</div>'+
    '<div class="hero-order-actions">'+
     '<button class="admin-action secondary" type="button" data-hero-move="'+index+'" data-direction="-1" '+(index===0?'disabled':'')+'>Move up</button>'+
