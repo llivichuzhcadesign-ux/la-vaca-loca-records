@@ -304,6 +304,7 @@ function heroDeviceSlot(slide,index,device){
  const assigned=!!(own.src||own.draftBlobKey);
  const inherited=!assigned&&!!(source.src||source.draftBlobKey);
  const src=source.src?CalendarContent.imageUrl(source.src,new URL('../',document.baseURI)):'';
+ const visibleSrc=heroBlobPreview(source.draftBlobKey)||src;
  const path='homepage.hero.slides.'+index+(device==='desktop'?'':'.deviceImages.'+device);
  const name=assigned?(own.fileName||'Custom image'):inherited?'Using '+source.device+' image':'No photo selected';
  const status=assigned?'Custom image':inherited?'Inherited image':'Needs photo';
@@ -311,7 +312,7 @@ function heroDeviceSlot(slide,index,device){
  return '<section class="hero-source-slot'+(assigned?' has-custom-image':'')+'" tabindex="0" data-hero-drop-index="'+index+'" data-hero-drop-device="'+device+'" aria-label="'+labels[device]+' photo. Drop an image here or choose from files or gallery.">'+
   '<div class="hero-source-heading"><strong>'+labels[device]+'</strong><small>'+dimensions[device]+'</small></div>'+
   '<div class="hero-source-visual">'+
-   (src||source.draftBlobKey?'<img data-hero-source-index="'+index+'" data-hero-source-device="'+device+'" src="'+escapeText(heroBlobPreview(source.draftBlobKey)||src)+'" alt="'+labels[device]+' hero preview" loading="lazy">':'<span>No photo</span>')+
+   (src||source.draftBlobKey?'<img data-hero-source-index="'+index+'" data-hero-source-device="'+device+'"'+(visibleSrc?' src="'+escapeText(visibleSrc)+'"':'')+' alt="'+labels[device]+' hero preview" loading="lazy">':'<span>No photo</span>')+
    '<span class="hero-drop-overlay" aria-hidden="true">DROP TO USE PHOTO</span>'+
   '</div>'+
   '<p class="hero-source-status">'+status+'</p>'+
@@ -330,8 +331,9 @@ function heroSlideCard(slide,index,total){
  const src=asset.src?CalendarContent.imageUrl(asset.src,new URL('../',document.baseURI)):'';
  const previewCrop=window.LVLCrop?.forDevice(slide,device)||{x:50,y:50,zoom:1};
  const style='object-position:'+previewCrop.x+'% '+previewCrop.y+'%;transform:scale('+previewCrop.zoom+')';
+ const visibleSrc=heroBlobPreview(asset.draftBlobKey)||src;
  return '<article class="hero-admin-card" data-hero-slide-card="'+index+'" id="hero-slide-'+index+'">'+
-  '<div class="hero-admin-preview">'+(src||asset.draftBlobKey?'<img data-hero-preview-index="'+index+'" src="'+escapeText(heroBlobPreview(asset.draftBlobKey)||src)+'" alt="'+escapeText(slide.alt||'Hero image')+'" style="'+escapeText(style)+'">':'<div class="hero-preview-empty">Choose or drop a photo below to begin.</div>')+'</div>'+
+  '<div class="hero-admin-preview">'+(src||asset.draftBlobKey?'<img data-hero-preview-index="'+index+'"'+(visibleSrc?' src="'+escapeText(visibleSrc)+'"':'')+' alt="'+escapeText(slide.alt||'Hero image')+'" style="'+escapeText(style)+'">':'<div class="hero-preview-empty">Choose or drop a photo below to begin.</div>')+'</div>'+
   '<div class="hero-admin-fields">'+
    '<div class="hero-admin-top"><strong>IMAGE '+String(index+1).padStart(2,'0')+'</strong><span>Different photos may be selected for every screen size.</span></div>'+
    '<div class="hero-device-grid">'+HERO_IMAGE_DEVICES.map(d=>heroDeviceSlot(slide,index,d)).join('')+'</div>'+
