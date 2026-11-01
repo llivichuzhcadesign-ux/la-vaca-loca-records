@@ -47,16 +47,46 @@
   crop.layout(frame,img,value);
  }
 
+ let sourceRevision=0;
+ async function loadDeviceImage(){
+  const slide=getSlide();if(!slide||!working)return;
+  const version=++sourceRevision;
+  const media=crop.mediaForDevice(slide,device);
+  img.removeAttribute('src');
+  if(temporaryUrl){URL.revokeObjectURL(temporaryUrl);temporaryUrl=null}
+  apply.disabled=false;
+  showMessage('');
+  try{
+   let source=media.src?CalendarContent.imageUrl(media.src,new URL('../',document.baseURI)):'';
+   if(media.draftBlobKey){
+    const blob=await getOriginalFile(media.draftBlobKey);
+    if(version!==sourceRevision||!dialog.open)return;
+    if(blob){temporaryUrl=URL.createObjectURL(blob);source=temporaryUrl}
+   }
+   if(version!==sourceRevision||!dialog.open)return;
+   if(!source){
+    showMessage('Choose a photo for this device or provide a fallback image before adjusting its crop.');
+    apply.disabled=true;
+   }else{
+    img.src=source;
+    if(img.complete)previewHandle?.update?.();
+   }
+  }catch(error){
+   if(version===sourceRevision){
+    showMessage('The image could not be loaded. Check the source and try again.');
+    apply.disabled=true;
+   }
+  }
+ }
  function selectDevice(next){
   if(!devices.includes(next)||!working)return;
-  device=next;render();showMessage('');
+  device=next;render();loadDeviceImage();
  }
-
  async function openCrop(index){
   const slide=getValue('homepage.hero.slides.'+index);
   if(!slide)return;
   openNumber++;
-  const ticket=openNumber;
+  sourceRevision++;
   if(temporaryUrl){URL.revokeObjectURL(temporaryUrl);temporaryUrl=null}
   if(previewHandle){previewHandle.destroy();previewHandle=null}
   img.removeAttribute('src');
@@ -73,31 +103,12 @@
   dialog.showModal();
   render();
   previewHandle=crop.mount(frame,img,()=>current());
-  try{
-   let source=slide.src?CalendarContent.imageUrl(slide.src,new URL('../',document.baseURI)):'';
-   if(slide.draftBlobKey){
-    const blob=await getOriginalFile(slide.draftBlobKey);
-    if(ticket!==openNumber)return;
-    if(blob){temporaryUrl=URL.createObjectURL(blob);source=temporaryUrl}
-   }
-   if(ticket!==openNumber)return;
-   if(!source){
-    showMessage('Add an image from files or the gallery first, then adjust its framing.');
-    apply.disabled=true;
-   }else{
-    img.src=source;
-    if(img.complete)previewHandle?.update();
-   }
-  }catch(error){
-   if(ticket===openNumber){
-    showMessage('Image preview could not be loaded. Please check the source image.');
-    apply.disabled=true;
-   }
-  }
+  await loadDeviceImage();
  }
 
  function closeCrop(){
   openNumber++;
+  sourceRevision++;
   drag=null;
   if(previewHandle){previewHandle.destroy();previewHandle=null}
   img.removeAttribute('src');
