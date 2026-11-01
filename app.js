@@ -400,7 +400,10 @@ async function setupHomepageHero(){
  const overlay= document.querySelector('.lvl-hero-shade');
  if(overlay)overlay.style.opacity=String((window.LVLCrop?.overlayStrength(hero)??25)/100);
  const watermark=document.getElementById('lvlHeroWatermark');
- if(watermark)watermark.style.setProperty('--hero-watermark-opacity',String((window.LVLCrop?.watermarkOpacity(hero)??26)/100));
+ if(watermark){
+  watermark.style.setProperty('--hero-watermark-opacity',String((window.LVLCrop?.watermarkOpacity(hero)??26)/100));
+  watermark.dataset.placement=window.LVLCrop?.watermarkPlacement(hero)||'edge';
+ }
  setHeroText('lvlHeroKicker',hero.kicker);
  setHeroText('lvlHeroTitle','La Vaca Loca Records');
  setHeroText('lvlHeroTagline',hero.tagline);
