@@ -44,6 +44,9 @@
   outputY.textContent=Math.round(value.y)+'%';
   outputZoom.textContent=Math.round(value.zoom*100)+'%';
   document.getElementById('heroCropWebsiteCopy').hidden=!showText.checked;
+  const shade=frame.querySelector('.hero-crop-shade');
+  const slide=getSlide();
+  if(shade)shade.style.opacity=String((slide?crop.slideOverlayStrength(draft.homepage?.hero,slide):crop.overlayStrength(draft.homepage?.hero))/100);
   const filter=workingFilters?.[device]||'none';
   img.style.filter=crop.filterCSS(filter);
   dialog.querySelectorAll('[data-crop-filter]').forEach(button=>{
