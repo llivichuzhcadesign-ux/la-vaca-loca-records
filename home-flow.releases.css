@@ -1,0 +1,18 @@
+/* A compact, aligned artwork gallery for new releases. */
+body .shop-section.shop-showcase{padding:80px 6vw 100px}
+body .shop-showcase .showcase-heading{max-width:1200px;align-items:center}
+body .shop-showcase h2{font-size:clamp(48px,6vw,96px);line-height:1;white-space:normal}
+body .shop-showcase .showcase-feature{max-width:1200px;grid-template-columns:minmax(0,1fr) minmax(0,.85fr);gap:clamp(36px,6vw,90px);margin-top:44px;align-items:center}
+body .shop-showcase .showcase-open{width:100%;max-width:520px;aspect-ratio:1;justify-self:start}
+body .shop-showcase .showcase-open>.showcase-art{position:relative;top:auto;left:auto;width:100%;transform:none;box-shadow:none;border:0}
+body .shop-showcase .showcase-open:hover>.showcase-art{transform:none;box-shadow:none}
+body .shop-showcase .showcase-zoom{right:16px;bottom:16px}
+body .shop-showcase .showcase-overline{display:none}
+body .shop-showcase .showcase-info{padding:0}
+body .shop-showcase .showcase-info h3{margin:0 0 12px;font-size:clamp(38px,4.4vw,64px);line-height:1.02}
+body .shop-showcase .showcase-artist{font-size:19px;line-height:1.4}
+body .shop-showcase .showcase-facts{gap:14px;margin:24px 0;padding:0;justify-content:flex-start}
+body .shop-showcase .showcase-facts strong{margin-left:12px;font-size:18px}
+body .shop-showcase .showcase-controls{max-width:none;width:100%;margin-top:32px;padding-top:22px;border-top:1px solid #eee5d326}
+body .shop-showcase .showcase-strip{max-width:1200px;gap:24px;margin-top:40px}
+@media(max-width:800px){body .shop-section.shop-showcase{padding:60px 20px 80px}body .shop-showcase .showcase-heading{gap:20px;align-items:flex-start}body .shop-showcase h2{font-size:clamp(46px,10vw,76px)}body .shop-showcase .showcase-feature{grid-template-columns:1fr;gap:28px;margin-top:30px}body .shop-showcase .showcase-open{max-width:480px;justify-self:center}body .shop-showcase .showcase-info{width:100%;max-width:480px;margin:auto}body .shop-showcase .showcase-info h3{font-size:42px}body .shop-showcase .showcase-strip{gap:16px;margin-top:32px}}
