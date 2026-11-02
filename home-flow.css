@@ -97,8 +97,8 @@ body .archive-main a{border:0;font-size:42px;margin:0}
 .memory-photo:hover img,.memory-photo:focus-visible img{filter:none;transform:scale(1.035)}
 .memory-photo:focus-visible{outline:3px solid #63312d;outline-offset:3px}
 @keyframes memory-drift{to{transform:translateX(-50%)}}
-@media(max-width:700px){body .archive-main{padding:20px 20px 30px;gap:15px}body .archive-main h2{font-size:13vw}.memory-collage{gap:12px}.memory-group{gap:12px;padding-right:12px}.memory-photo{width:210px;height:155px}.memory-photo:nth-child(3n+2){width:145px;height:180px}.memory-photo:nth-child(3n){width:250px;height:145px}body .archive-section{padding-bottom:70px!important}}
-@media(prefers-reduced-motion:reduce){.memory-track{animation:none}.memory-collage{overflow-x:auto}.memory-photo img{transition:none}}
+@media(max-width:700px){body .archive-main{padding:20px 20px 30px;gap:15px}body .archive-main h2{font-size:13vw}.memory-group{gap:12px;padding-right:12px}.memory-photo{width:210px;height:155px}.memory-photo:nth-child(3n+2){width:145px;height:180px}.memory-photo:nth-child(3n){width:250px;height:145px}body .archive-section{padding-bottom:70px!important}}
+@media(prefers-reduced-motion:reduce){.memory-track{animation:none}.memory-photo img{transition:none}}
 
 /* One understated shopping bag in the homepage header. */
 body .site-header .cart-button{display:inline-flex;align-items:center;gap:8px;border:0;padding:3px 0 3px 8px;min-width:64px;min-height:48px}
