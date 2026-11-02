@@ -1189,7 +1189,7 @@ body .lvl-footer.illuminated-footer .footer-connect a .footer-social-name {
     left:50%;
     top:46%;
     bottom:auto;
-    width:min(53vw,calc(max(0px,var(--footer-fit-height) - var(--footer-svg-clearance)) * .8781));
+    width:min(53vw,calc(max(0px,calc(var(--footer-fit-height) - var(--footer-svg-clearance))) * .8781));
     height:min(max(0px,calc(var(--footer-fit-height) - var(--footer-svg-clearance))),calc(53vw * 1.1388));
     max-width:none;
     transform:translate(-50%,-50%);
