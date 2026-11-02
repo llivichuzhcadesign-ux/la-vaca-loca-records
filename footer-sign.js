@@ -623,6 +623,9 @@
   const point=pointFromEvent(event);
   if(!point||!point.inside)return;
   if(event.pointerType==='touch'){
+   // Do not let iOS start selecting SVG text or display an image callout.
+   // Actual links are already excluded by the guard above.
+   if(event.cancelable)event.preventDefault();
    if(draggingTouchId!==null)return;
    // Touch interrupts the decorative intro instead of being silently ignored.
    if(!introComplete)finishFooterIntro();
@@ -639,7 +642,7 @@
    else emitDischarge(point,true,false);
    finale(point);
   }
- },{passive:true});
+ },{passive:false});
  const stopTouchDrag=event=>{
   if(event.pointerId!==draggingTouchId)return;
   // Do not dispatch a queued drag frame after the finger has been lifted.
@@ -656,7 +659,20 @@
  };
  for(const eventName of ['pointerup','pointercancel','lostpointercapture'])
   footer.addEventListener(eventName,stopTouchDrag,{passive:true});
- touchSurface.addEventListener('contextmenu',event=>event.preventDefault());
+ // Native text selection and long-press callouts can be fired by Safari on
+ // any descendant of the footer, not only the transparent interaction surface.
+ // Keep anchor links and controls untouched so social and credit links work.
+ const isNonLinkFooterTarget=event=>
+  !event.target.closest('a,button,input,textarea,select,[contenteditable]');
+ footer.addEventListener('selectstart',event=>{
+  if(isNonLinkFooterTarget(event))event.preventDefault();
+ });
+ footer.addEventListener('contextmenu',event=>{
+  if(isNonLinkFooterTarget(event))event.preventDefault();
+ });
+ footer.addEventListener('dragstart',event=>{
+  if(isNonLinkFooterTarget(event))event.preventDefault();
+ });
  // Link the footer to actual decoded frequencies from Discos. The record player's audio is never rerouted.
  let spectrum=null, spectrumReference={bass:1,mid:1};
  let liveFrame=0, lastSample=0, lastCaptureAttempt=-Infinity;
