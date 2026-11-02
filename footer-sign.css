@@ -1077,14 +1077,30 @@ body .lvl-footer.illuminated-footer .footer-connect a .footer-social-name {
 @media (max-width:720px) {
   body .lvl-footer.illuminated-footer {
     grid-template-columns:minmax(0,1fr);
-    grid-template-rows:var(--lvl-footer-art-height) auto;
+    grid-template-rows:var(--lvl-footer-art-height) auto auto;
     row-gap:0;
     padding-bottom:max(22px,env(safe-area-inset-bottom,0px));
   }
-  /* There are no footer page links or credits on phones: only the cow and socials. */
-  body .lvl-footer.illuminated-footer .footer-explore,
-  body .lvl-footer.illuminated-footer .footer-bottom {
+  /* Hide only page navigation on phones. Retain social icons, copyright,
+     back-to-top and the designer credit underneath the SVG. */
+  body .lvl-footer.illuminated-footer .footer-explore {
     display:none!important;
+  }
+  body .lvl-footer.illuminated-footer .footer-bottom {
+    display:grid!important;
+    grid-column:1/-1;
+    grid-row:3;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    gap:4px 14px;
+    margin-top:18px;
+    padding:14px 0 0;
+    border-top:1px solid rgba(238,229,211,.20);
+  }
+  body .lvl-footer.illuminated-footer .footer-bottom .design-credit {
+    grid-column:1/-1;
+    grid-row:2;
+    text-align:left;
   }
   body .lvl-footer.illuminated-footer .footer-connect {
     display:flex!important;
