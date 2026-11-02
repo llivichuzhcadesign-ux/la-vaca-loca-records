@@ -1,0 +1,4 @@
+# Local development and responsive QA output
+node_modules/
+qa-results/
+.DS_Store
