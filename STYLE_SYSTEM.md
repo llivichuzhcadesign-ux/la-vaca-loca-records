@@ -63,6 +63,7 @@ El CSS modular de Discos ya tiene **32 declaraciones repetidas idénticas** meno
 
 ```bash
 node scripts/check-styles.mjs
+node scripts/check-static-media.mjs
 npm install --no-save playwright
 npx playwright install chromium
 node scripts/qa-responsive.mjs https://la-vaca-loca-records.pages.dev --screenshots
@@ -80,3 +81,7 @@ La segunda herramienta recorre las cinco páginas en diez configuraciones de vie
 3. Footer SVG táctil: confirmar que el arrastre en la obra no active selección, pero que se pueda seguir bajando a los links.
 4. 320px y zoom 200%: confirmar que el header, la búsqueda y el CTA de bolsa siguen siendo utilizables.
 5. Tras confirmar capturas, consolidar sobrescrituras de distinta propiedad/valor; no eliminarlas a ciegas.
+
+## Auditoría visual
+
+La auditoría de Fase 1 (hallazgos de código, contenido y riesgos responsive, con estado preciso de lo verificado) está en [QA_PHASE1_REPORT.md](QA_PHASE1_REPORT.md). Las capturas reales y el QA táctil de Safari siguen pendientes y **no deben darse por aprobados** hasta ejecutar la matriz y revisarla.
