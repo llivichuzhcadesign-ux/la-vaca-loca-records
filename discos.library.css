@@ -110,8 +110,8 @@ body[data-page="discos"] .cover-title,body[data-page="discos"] .fallback-type,bo
 .expanded-library.library-detail-open .library-playlists,.expanded-library.library-collection-open .library-playlists,.expanded-library.library-detail-open .library-toolbar,.expanded-library.library-detail-open .disc-gallery{display:none!important}
 .expanded-library.library-home .library-label{display:none}
 .expanded-library .sleeve-art{border-radius:7px;box-shadow:0 4px 12px #0003}
-.expanded-library .sleeve-meta strong{font-size:14px;font-weight:500;line-height:1.4}
-.expanded-library .sleeve-meta small{font-size:12px;line-height:1.4;color:#bdb29f}
+.expanded-library .sleeve-meta strong{font-weight:500;line-height:1.4}
+.expanded-library .sleeve-meta small{line-height:1.4;color:#bdb29f}
 .expanded-library .sleeve-footer{margin-top:5px}
 .expanded-library .sleeve-detail{font-size:9px;text-transform:none;letter-spacing:0}
 .expanded-library .sleeve-price{font-size:11px}
@@ -126,8 +126,8 @@ body[data-page="discos"] .cover-title,body[data-page="discos"] .fallback-type,bo
 .cover-title{font-size:clamp(24px,2.2vw,32px);line-height:1.05}
 .library-section-heading h2{font-weight:600}
 .library-disc-detail{min-width:0;padding:10px 32px 50px}
-.library-disc-hero{display:grid;grid-template-columns:minmax(180px,300px) minmax(0,1fr);gap:32px;align-items:center}
-.library-disc-copy h2{font-size:clamp(25px,3vw,42px);font-weight:650;letter-spacing:-.035em;line-height:1.08;margin:10px 0}
+.library-disc-hero{display:grid;grid-template-columns:minmax(180px,300px) minmax(0,1fr);gap:32px;}
+.library-disc-copy h2{font-size:clamp(25px,3vw,42px);font-weight:650;letter-spacing:-.035em;margin:10px 0}
 .library-disc-kind,.library-disc-label{font-size:13px;color:#b8ac97;margin:0}
 .library-disc-artist{font-size:21px;color:#cad0ad;margin:0 0 12px}
 .library-disc-buttons,.library-disc-purchase{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:22px}
@@ -138,7 +138,7 @@ body[data-page="discos"] .cover-title,body[data-page="discos"] .fallback-type,bo
 .library-disc-purchase button[aria-pressed="true"]{background:#535b3c}
 .library-disc-information{margin-top:32px;padding-top:22px;border-top:1px solid #dcccaa20;max-width:800px;font-size:14px;line-height:1.65;color:#c8bda9}
 .library-disc-information p{white-space:pre-line}
-.library-disc-information dl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.library-disc-information dl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));}
 .library-disc-information dt{font-size:11px;color:#a69982;margin-bottom:4px}
 .library-disc-information dd{margin:0;color:#eee3cf}
 @media(min-width:951px){
@@ -181,7 +181,7 @@ body[data-page="discos"] .shared-bag h2{font-family:Arial,Helvetica,sans-serif;f
 .library-detail-open .library-page-heading h1{font-size:13px;color:#c8bea9;font-weight:500;letter-spacing:0}
 .library-disc-kind{font-size:14px;color:#c8bea9}
 .library-disc-information dt{font-size:12px;color:#bdb39d}
-.expanded-library .sleeve-detail{font-size:11px;color:#bdb39d}.expanded-library .sleeve-price{font-size:12px}
+.expanded-library .sleeve-detail{font-size:11px;color:#bdb39d}.expanded-library .sleeve-price{}
 .record-shelf-row,.library-cover-row{scrollbar-width:thin;scrollbar-color:#dcccaa22 transparent}
 .library-searching .library-playlists{display:none!important}
 .expanded-library.library-home.library-searching .library-column .disc-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
