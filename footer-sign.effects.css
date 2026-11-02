@@ -4,7 +4,6 @@ body .lvl-footer.illuminated-footer {
   isolation:isolate;
   display:grid;
   grid-template-columns:minmax(0,1fr) auto;
-  grid-template-rows:minmax(0,1fr) auto;
   gap:32px 48px;
   align-items:stretch;
   min-height:clamp(580px,49vw,730px);
@@ -128,7 +127,6 @@ body .lvl-footer.illuminated-footer .footer-laser-backdrop {
 .lvl-footer.is-striking .footer-interaction-halo {opacity:1;}
 
 .lvl-footer.is-striking .footer-laser-etch .footer-hero-contour {
-  stroke-opacity:.91;
   animation:footer-sign-contact .95s ease-out 1;
 }
 @keyframes footer-sign-contact {
@@ -655,7 +653,6 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
 @media (max-width:720px) {
   body .lvl-footer.illuminated-footer {
     min-height:clamp(580px,155vw,680px);
-    grid-template-columns:minmax(0,1fr);
     grid-template-rows:minmax(180px,1fr) auto auto;
     gap:22px;
     padding:36px 22px 22px;
@@ -664,12 +661,9 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
   /* Edge-to-edge artwork, rising from the footer's bottom boundary. */
   .footer-laser-backdrop svg:not(.footer-electric-circuit) {
     width:100vw;
-    max-width:none;
     height:auto;
-    left:50%;
     top:auto;
     bottom:0;
-    transform:translateX(-50%);
   }
   .lvl-footer.footer-intro-pending .footer-laser-etch,
   .lvl-footer.footer-intro-pending .footer-sonic-ink {
