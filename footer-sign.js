@@ -4,6 +4,21 @@
  if(!footer || footer.dataset.lvlFooterReady==='true')return;
  footer.dataset.lvlFooterReady='true';
  footer.classList.add('lvl-footer','illuminated-footer','sign-revealed');
+ // The sticky site header occupies part of the viewport even when the footer
+ // reaches the bottom of the page. Measure the real rendered height, including
+ // tablet layouts, rather than assuming the desktop header is always 78px.
+ const siteHeader=document.querySelector('.site-header,.editorial-header');
+ const updateFooterHeaderHeight=()=>{
+  const height=siteHeader?siteHeader.getBoundingClientRect().height:0;
+  footer.style.setProperty('--footer-header-height',Math.ceil(Math.max(0,height))+'px');
+ };
+ updateFooterHeaderHeight();
+ if(siteHeader&&typeof ResizeObserver!=='undefined'){
+  const headerSizeObserver=new ResizeObserver(updateFooterHeaderHeight);
+  headerSizeObserver.observe(siteHeader);
+ }
+ window.addEventListener('resize',updateFooterHeaderHeight,{passive:true});
+ window.addEventListener('orientationchange',updateFooterHeaderHeight,{passive:true});
  // One canonical footer: no small logo; the laser artwork is the only large brand mark.
  footer.innerHTML=`
   <div class="footer-art-slot" aria-hidden="true"></div>
