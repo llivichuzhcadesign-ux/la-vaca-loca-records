@@ -1,0 +1,11 @@
+/* Public-site design system: the landing page is the visual source of truth. */
+:root{--lvl-ink:#090907;--lvl-paper:#eee5d3;--lvl-muted:#b8ad9d;--lvl-pink:#ef9aab;--lvl-wine:#682d3b;--lvl-olive:#535b3c;--lvl-line:#eee5d325;--lvl-gutter:clamp(20px,6vw,96px)}
+body[data-page]{--ink:var(--lvl-ink);--paper:var(--lvl-paper);--pink:var(--lvl-pink);--muted:var(--lvl-muted);font-family:Arial,Helvetica,sans-serif;background:var(--lvl-ink);color:var(--lvl-paper)}
+body .site-header,body[data-page] .editorial-header{background:#090907f5;color:var(--lvl-paper);border-bottom:1px solid #eee5d31a;box-shadow:none;--header-line:var(--lvl-pink)}
+body[data-page] .editorial-header{position:sticky;top:0;z-index:1001}
+body[data-page] .editorial-header .brand img{filter:brightness(0) saturate(100%) invert(54%) sepia(76%) saturate(2371%) hue-rotate(300deg) brightness(102%) contrast(104%)}
+body .site-header .main-nav a,body[data-page] .editorial-header>nav a{color:var(--lvl-paper);font-family:Arial,Helvetica,sans-serif;letter-spacing:.015em;text-decoration:none}
+body[data-page] .editorial-header>nav a[aria-current],body[data-page] .editorial-header>nav a:hover{color:var(--lvl-paper)}
+body[data-page] :where(button,input,select){font-family:inherit}
+body[data-page] :where(a,button,input,summary):focus-visible{outline:2px solid var(--lvl-pink);outline-offset:4px}
+@media(hover:none){body .site-header .main-nav a::after,body[data-page] .editorial-header>nav a::after{display:none}}
