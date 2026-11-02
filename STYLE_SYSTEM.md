@@ -53,4 +53,29 @@ Los estilos estables `styles.css`, `editorial.css`, `home-discos.css`, `public-h
 
 - Consolidar las declaraciones repetidas con distinta prioridad en `discos.*.css` y `site-theme.header.css` solo después de capturas comparativas.
 - Revisar reglas de layout en líneas de base antiguas que siguen siendo sobrescritas más adelante.
-- Validar rendimiento y capturas reales: esta fase preserva CSS byte a byte; no es un rediseño.
+- Validar rendimiento y capturas reales: la extracción de módulos conservó CSS byte a byte; la siguiente limpieza retiró únicamente 32 declaraciones idénticas repetidas de Discos (con el mismo selector y condición). No es un rediseño.
+
+## Fase 2 — consolidación de Discos y QA responsive
+
+El CSS modular de Discos ya tiene **32 declaraciones repetidas idénticas** menos. Se eligieron solamente coincidencias de selector exacto, propiedad, valor y contexto media/supports, donde una declaración posterior es equivalente. No se modificaron los valores finales ni el código de audio.
+
+### Comprobaciones automáticas
+
+```bash
+node scripts/check-styles.mjs
+npm install --no-save playwright
+npx playwright install chromium
+node scripts/qa-responsive.mjs https://la-vaca-loca-records.pages.dev --screenshots
+```
+
+La segunda herramienta recorre las cinco páginas en diez configuraciones de viewport y produce `qa-results/responsive-report.json`, además de capturas PNG si se usa `--screenshots`. Comprueba desplazamiento horizontal, imágenes visibles rotas, errores JavaScript, IDs duplicados, footer recortado, controles sin nombre y composición de iPad. Sus advertencias deben verificarse manualmente; algunas disposiciones podrían estar diseñadas para ese comportamiento.
+
+**Límite de pruebas:** Playwright usa Chromium. La emulación de iPad mediante user agent activa la lógica responsive específica, pero **no equivale a Safari de iPadOS**. Antes de eliminar reglas condicionales o anunciar un QA completo hay que repetir las pruebas en Safari y en dispositivos táctiles físicos.
+
+### Riesgos pendientes de validación
+
+1. `discos.js` usa la experiencia de reproducción iOS en iPad, incluso en landscape (>950px), mientras varios layouts desktop cambian en 951px; verificar estado, anchura, scroll, mini player y footer.
+2. Alturas desktop cortas de 500 y 600px, sobre todo biblioteca desplazable y controles del plato.
+3. Footer SVG táctil: confirmar que el arrastre en la obra no active selección, pero que se pueda seguir bajando a los links.
+4. 320px y zoom 200%: confirmar que el header, la búsqueda y el CTA de bolsa siguen siendo utilizables.
+5. Tras confirmar capturas, consolidar sobrescrituras de distinta propiedad/valor; no eliminarlas a ciegas.
