@@ -1,0 +1,12 @@
+/* Discos header: merge navigation into the listening-room palette */
+body[data-page="discos"] .editorial-header{
+  background:#522322;
+  border-bottom-color:#d3b5a326;
+}
+body[data-page="discos"] .editorial-header .brand img{
+  filter:brightness(0) saturate(100%) invert(93%) sepia(13%) saturate(482%) hue-rotate(337deg) brightness(100%) contrast(91%);
+}
+
+body[data-page="discos"] .editorial-header nav a:hover,
+
+
