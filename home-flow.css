@@ -85,9 +85,9 @@ body .archive-main{display:flex;align-items:center;justify-content:space-between
 body .archive-main h2{font-size:clamp(56px,7.5vw,116px);line-height:1}
 body .archive-main a{border:0;font-size:42px;margin:0}
 .memory-collage{overflow:hidden;display:grid;gap:18px;padding:8px 0;isolation:isolate}
-.memory-track{display:flex;width:max-content;animation:memory-drift 100s linear infinite;will-change:transform}
-.memory-track:nth-child(2){animation-direction:reverse;animation-duration:120s;margin-left:-140px}
-.memory-track:nth-child(3){animation-duration:110s;margin-left:-70px}
+.memory-track{display:flex;width:max-content;animation:memory-drift 68s linear infinite;will-change:transform}
+.memory-track:nth-child(2){animation-direction:reverse;animation-duration:80s;margin-left:-140px}
+.memory-track:nth-child(3){animation-duration:73s;margin-left:-70px}
 .memory-group{display:flex;align-items:center;gap:18px;padding-right:18px}
 .memory-photo{display:block;flex:none;width:280px;height:210px;overflow:hidden;background:#b6a98e}
 .memory-photo:nth-child(3n+2){width:190px;height:240px}
@@ -168,8 +168,6 @@ body .memory-photo:nth-child(3n){width:300px;height:170px}
  body .archive-main h2{font-size:clamp(42px,12vw,72px)!important;line-height:1.05!important}
  body .archive-main a{font-size:28px;min-width:44px;min-height:44px;display:inline-grid;place-items:center}
  .memory-collage{gap:12px}
- .memory-track{animation-duration:130s}
- .memory-track:nth-child(2){animation-duration:150s}
  body .sessions-copy>p:last-of-type{font-size:14px;line-height:1.6}
  body .sessions-copy>.eyebrow,body .events-copy>.eyebrow{font-size:12px}
  body .shop-showcase .showcase-facts span{font-size:12px}
@@ -181,7 +179,7 @@ body .memory-photo:nth-child(3n){width:300px;height:170px}
 
 
 /* Desktop Memoria Viva: a slightly more immersive photographic archive.
-   Mobile/tablet sizing, continuous hover movement, offscreen pause and reduced-motion remain unchanged. */
+   The faster drift timing is shared across desktop, tablet and phone. */
 @media (min-width:901px) {
   body .archive-section {
     padding-bottom:86px!important;
@@ -208,14 +206,5 @@ body .memory-photo:nth-child(3n){width:300px;height:170px}
   body .memory-photo:nth-child(3n) {
     width:330px;
     height:192px;
-  }
-  .memory-track {
-    animation-duration:68s;
-  }
-  .memory-track:nth-child(2) {
-    animation-duration:80s;
-  }
-  .memory-track:nth-child(3) {
-    animation-duration:73s;
   }
 }
