@@ -16,9 +16,11 @@ const sizes = [
   { name:'phone-320', width:320, height:700, touch:true },
   { name:'phone-375', width:375, height:812, touch:true },
   { name:'phone-430', width:430, height:932, touch:true },
-  { name:'tablet-portrait', width:768, height:1024, touch:true },
-  { name:'tablet-landscape', width:1024, height:768, touch:true },
+  { name:'phone-landscape', width:844, height:390, touch:true, platform:'ios-phone' },
+  { name:'tablet-portrait', width:768, height:1024, touch:true, platform:'ios-tablet' },
+  { name:'tablet-landscape', width:1024, height:768, touch:true, platform:'ios-tablet' },
   { name:'laptop-short', width:1280, height:600, touch:false },
+  { name:'laptop-very-short', width:1280, height:500, touch:false },
   { name:'laptop-compact', width:1366, height:768, touch:false },
   { name:'desktop', width:1440, height:900, touch:false }
 ];
@@ -28,10 +30,16 @@ const browser = await chromium.launch({ headless:true });
 const results = [];
 try {
   for (const size of sizes) {
+    const userAgent = size.platform==='ios-tablet'
+      ? 'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'
+      : size.platform==='ios-phone'
+      ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'
+      : undefined;
     const context = await browser.newContext({
       viewport:{ width:size.width, height:size.height },
-      isMobile:size.width<=430,
+      isMobile:size.width<=430 || size.platform==='ios-phone',
       hasTouch:size.touch,
+      ...(userAgent ? {userAgent} : {}),
       deviceScaleFactor:1,
       reducedMotion:'no-preference'
     });
@@ -93,7 +101,9 @@ try {
           brokenImages, duplicateIds:[...new Set(duplicateIds)],
           unnamedButtons, smallTargets,
           galleryCount:document.querySelectorAll('.sleeve').length,
-          bagCount:document.querySelectorAll('.shared-bag').length
+          bagCount:document.querySelectorAll('.shared-bag').length,
+          iosLayout:document.documentElement.classList.contains('ios-header'),
+          discView:document.documentElement.classList.contains('mobile-disc-view')
         };
       });
       let touchSelection=null;
@@ -121,6 +131,8 @@ try {
       if(audit?.brokenImages.length)failures.push('broken-visible-images');
       if(audit?.footerFit===false)failures.push('footer-taller-than-available-viewport');
       if(audit?.footerArtOverflow>5)failures.push('footer-artwork-outside-bounds');
+      if(size.platform==='ios-tablet' && pathname==='discos.html' && audit?.discView!==true)
+        failures.push('ipad-record-player-mode-mismatch');
       if(missingAssets.length)failures.push('missing-assets');
       if(errors.length)failures.push('javascript-errors');
       results.push({page:pathname,device:size.name,status,loadError,failures,errors,missingAssets,touchSelection,audit});
