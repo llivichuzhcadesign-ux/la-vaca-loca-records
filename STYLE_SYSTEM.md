@@ -57,7 +57,7 @@ Los estilos estables `styles.css`, `editorial.css`, `home-discos.css`, `public-h
 
 ## Fase 2 — consolidación de Discos y QA responsive
 
-El CSS modular de Discos ya tiene **32 declaraciones repetidas idénticas** menos. Se eligieron solamente coincidencias de selector exacto, propiedad, valor y contexto media/supports, donde una declaración posterior es equivalente. No se modificaron los valores finales ni el código de audio.
+El CSS modular de Discos ya tiene **32 declaraciones repetidas idénticas** menos. En el footer compartido se eliminaron **18 declaraciones idénticas adicionales**. Total de esta fase: **50 declaraciones redundantes**. Se eligieron solamente coincidencias de selector exacto, propiedad, valor y contexto media/supports, donde una declaración posterior es equivalente. No se modificaron los valores finales ni el código de audio.
 
 ### Comprobaciones automáticas
 
@@ -76,6 +76,7 @@ La segunda herramienta recorre las cinco páginas en diez configuraciones de vie
 
 1. `discos.js` usa la experiencia de reproducción iOS en iPad, incluso en landscape (>950px), mientras varios layouts desktop cambian en 951px; verificar estado, anchura, scroll, mini player y footer.
 2. Alturas desktop cortas de 500 y 600px, sobre todo biblioteca desplazable y controles del plato.
+   La elección de modo móvil/desktop de `discos.js` también se evalúa al iniciar la página; verificar el cambio de ancho al redimensionar entre 950px y 951px, especialmente con la biblioteca abierta.
 3. Footer SVG táctil: confirmar que el arrastre en la obra no active selección, pero que se pueda seguir bajando a los links.
 4. 320px y zoom 200%: confirmar que el header, la búsqueda y el CTA de bolsa siguen siendo utilizables.
 5. Tras confirmar capturas, consolidar sobrescrituras de distinta propiedad/valor; no eliminarlas a ciegas.
