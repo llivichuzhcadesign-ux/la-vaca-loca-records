@@ -1,0 +1,84 @@
+/* Desktop viewport-fit footer. Use the real viewport (including browser resize),
+   not a fixed minimum height. Scale the original cow SVG uniformly and keep
+   the navigation and colophon inside the frame at any standard window height. */
+@media (min-width:721px) {
+  body .lvl-footer.illuminated-footer {
+    --footer-window-height:100vh;
+    --footer-header-height:78px;
+    --footer-fit-height:max(0px,calc(var(--footer-window-height) - var(--footer-header-height)));
+    --footer-svg-clearance:clamp(70px,calc(var(--footer-fit-height) * .13),118px);
+    box-sizing:border-box;
+    height:var(--footer-fit-height);
+    min-height:0;
+    max-height:var(--footer-fit-height);
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    grid-template-rows:minmax(0,1fr) auto;
+    column-gap:clamp(20px,4vw,48px);
+    row-gap:clamp(6px,1.3vh,16px);
+    padding:clamp(12px,2.7vh,28px) clamp(22px,4vw,74px) clamp(12px,1.8vh,20px);
+  }
+  .footer-laser-backdrop svg:not(.footer-electric-circuit) {
+    left:50%;
+    top:46%;
+    bottom:auto;
+    width:min(53vw,calc(max(0px,calc(var(--footer-fit-height) - var(--footer-svg-clearance))) * .8781));
+    height:min(max(0px,calc(var(--footer-fit-height) - var(--footer-svg-clearance))),calc(53vw * 1.1388));
+    max-width:none;
+    transform:translate(-50%,-50%);
+  }
+  body .lvl-footer.illuminated-footer .footer-explore,
+  body .lvl-footer.illuminated-footer .footer-connect {
+    min-width:0;
+    margin-bottom:clamp(0px,.6vh,7px);
+  }
+  body .lvl-footer.illuminated-footer .footer-column-label {
+    margin-bottom:clamp(4px,1vh,12px);
+  }
+  body .lvl-footer.illuminated-footer .footer-explore a,
+  body .lvl-footer.illuminated-footer .footer-connect a {
+    min-height:clamp(26px,4.2vh,38px);
+    padding-block:clamp(2px,.45vh,4px);
+  }
+  body .lvl-footer.illuminated-footer .footer-bottom {
+    padding-top:clamp(8px,1.5vh,16px);
+  }
+}
+@supports (height:100dvh) {
+  @media (min-width:721px) {
+    body .lvl-footer.illuminated-footer {
+      --footer-window-height:100dvh;
+    }
+  }
+}
+/* Very shallow desktop windows retain links and credits without forcing
+   content out of the single-screen footer. */
+@media (min-width:721px) and (max-height:520px) {
+  body .lvl-footer.illuminated-footer {
+    row-gap:4px;
+    padding-block:10px;
+  }
+  body .lvl-footer.illuminated-footer .footer-explore,
+  body .lvl-footer.illuminated-footer .footer-connect {
+    margin-bottom:0;
+  }
+  body .lvl-footer.illuminated-footer .footer-column-label {
+    margin-bottom:4px;
+    font-size:9px;
+  }
+  body .lvl-footer.illuminated-footer .footer-explore a,
+  body .lvl-footer.illuminated-footer .footer-connect a {
+    min-height:24px;
+    padding-block:1px;
+    font-size:11px;
+  }
+  body .lvl-footer.illuminated-footer .footer-bottom {
+    gap:4px 12px;
+    padding-top:7px;
+    font-size:10px;
+  }
+  body .lvl-footer.illuminated-footer .footer-bottom .design-credit a {
+    padding-block:2px;
+  }
+}
+
+
