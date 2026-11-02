@@ -1,0 +1,89 @@
+/* Phase 2: one library-first responsive composition across iOS and Android. */
+@media(max-width:950px){
+ :is(.ios-header,.mobile-disc-view) body[data-page="discos"]{overflow-x:clip}
+ :is(.ios-header,.mobile-disc-view) .expanded-library #contenido,
+ :is(.ios-header,.mobile-disc-view) .expanded-library .room-layout,
+ :is(.ios-header,.mobile-disc-view) .expanded-library .collection{width:100%;max-width:100%;min-width:0}
+ :is(.ios-header,.mobile-disc-view) .expanded-library .collection,
+ :is(.ios-header,.mobile-disc-view) .expanded-library .library-page-heading{scroll-margin-top:78px}
+ :is(.ios-header,.mobile-disc-view) .expanded-library .library-page-heading{
+  padding:20px clamp(16px,5vw,32px) 12px;
+ }
+ :is(.ios-header,.mobile-disc-view) .expanded-library .library-page-heading h1{
+  font-size:clamp(25px,7vw,34px);line-height:1.15;
+ }
+ :is(.ios-header,.mobile-disc-view) .expanded-library .biblioteca-sidebar{
+  padding:12px clamp(16px,5vw,32px) 8px;
+  gap:6px;scroll-snap-type:x proximity;
+ }
+ :is(.ios-header,.mobile-disc-view) .biblioteca-sidebar>button{
+  flex:none;min-height:44px;padding:8px 12px;scroll-snap-align:start;
+ }
+ :is(.ios-header,.mobile-disc-view) .expanded-library .library-playlists{
+  padding:8px clamp(16px,5vw,32px) 12px;
+ }
+ :is(.ios-header,.mobile-disc-view) .library-cover-row{gap:12px}
+ :is(.ios-header,.mobile-disc-view) .library-cover-card{
+  flex:0 0 clamp(112px,34vw,152px);max-width:152px
+ }
+ :is(.ios-header,.mobile-disc-view) .cover-title{
+  font-size:clamp(19px,5vw,24px);line-height:1.04;
+ }
+ :is(.ios-header,.mobile-disc-view) .record-shelf-row{gap:14px}
+ :is(.ios-header,.mobile-disc-view) .record-shelf-row .sleeve{
+  flex:0 0 clamp(134px,44vw,198px);
+ }
+ :is(.ios-header,.mobile-disc-view) .expanded-library .library-toolbar{
+  padding:12px clamp(16px,5vw,32px)!important;
+ }
+ :is(.ios-header,.mobile-disc-view) .expanded-library .library-column .disc-gallery{
+  padding:12px clamp(16px,5vw,32px) 28px!important;
+ }
+ :is(.ios-header,.mobile-disc-view) .expanded-library .library-mini-player{
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-top:1px solid #eee5d327;
+ }
+ :is(.ios-header,.mobile-disc-view) .ios-player-sheet .ios-sheet-content{
+  overscroll-behavior-y:contain;
+  -webkit-overflow-scrolling:touch;
+ }
+ :is(.ios-header,.mobile-disc-view) #librarySearchClear{
+  min-width:44px;min-height:44px;
+ }
+}
+@media(max-width:359px){
+ :is(.ios-header,.mobile-disc-view) .expanded-library .disc-gallery{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px 10px
+ }
+ :is(.ios-header,.mobile-disc-view) .ios-sheet-controls{padding-inline:14px}
+}
+
+/* Fixed mini player must never cover the footer's navigation or social links. */
+@media(max-width:950px){
+ :is(.ios-header,.mobile-disc-view) body[data-page="discos"].layered-ios-player .lvl-footer.illuminated-footer{
+  padding-bottom:calc(128px + env(safe-area-inset-bottom,0px))!important;
+ }
+}
+
+/* The same footer clearance is needed on wider iPadOS with the persistent player. */
+@media(min-width:951px){
+ .ios-header body[data-page="discos"].layered-ios-player .lvl-footer.illuminated-footer{
+  padding-bottom:calc(128px + env(safe-area-inset-bottom,0px))!important;
+ }
+}
+
+/* Text pictographs replaced by lightweight vector/canvas-independent controls. */
+#libraryBack:not([hidden]){
+ display:inline-flex;align-items:center;gap:8px;
+ min-height:44px;
+}
+#libraryBack[hidden]{display:none!important}
+#libraryBack .lvl-control-arrow{width:17px;height:17px}
+.library-state .library-state-chevron{
+ display:block;width:8px;height:8px;flex:none;
+ border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+ transform:rotate(45deg);
+}
+.library-column.record-focus .library-state .library-state-chevron{
+ transform:rotate(225deg);
+}
