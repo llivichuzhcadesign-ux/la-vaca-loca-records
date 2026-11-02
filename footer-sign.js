@@ -6,6 +6,7 @@
  footer.classList.add('lvl-footer','illuminated-footer','sign-revealed');
  // One canonical footer: no small logo; the laser artwork is the only large brand mark.
  footer.innerHTML=`
+  <div class="footer-art-slot" aria-hidden="true"></div>
   <nav class="footer-explore" aria-label="Explorar La Vaca Loca">
    <span class="footer-column-label">Explorar</span>
    <a href="index.html">Inicio</a>
@@ -139,10 +140,14 @@
   const y=clamp((event.clientY-rect.top)/rect.height*100,0,100);
   // The drawing is the interaction surface. Preserve ordinary link hover behavior.
   const mobile=rect.width<=720, touch=event.pointerType==='touch';
+  const artSlot=footer.querySelector('.footer-art-slot');
+  const artRect=mobile&&artSlot?artSlot.getBoundingClientRect():null;
+  const overArtwork=artRect?event.clientY>=artRect.top&&event.clientY<=artRect.bottom:
+    (y>=0&&y<=79);
   return {x,y,clientX:event.clientX,clientY:event.clientY,
-   // A touch on the artwork must work at every width, including iPad landscape.
-   inside: touch ? (y>=0&&y<=79) :
-    mobile ? (y>=5&&y<=79) : (x>=12&&x<=85&&y>=6&&y<=90)};
+   // Phone touch / mouse responses stop before the navigation beneath the SVG.
+   inside: mobile ? overArtwork : touch ? (y>=0&&y<=79) :
+    (x>=12&&x<=85&&y>=6&&y<=90)};
  };
  // Map the cursor to the nearest real point on the cow's vector contour.
  // Cache path samples so each discharge is cheap, even on touch screens.
