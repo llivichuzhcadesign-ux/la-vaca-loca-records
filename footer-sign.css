@@ -1248,3 +1248,24 @@ body .lvl-footer.illuminated-footer .footer-connect a .footer-social-name {
     padding-block:2px;
   }
 }
+
+
+/* Touch-only selection guard. iOS can begin native text selection when a finger
+   crosses an SVG, a pseudo-overlay or an empty footer cell during fireworks.
+   Suppress that browser mode without disabling clicks on real footer links. */
+@media (any-pointer:coarse), (hover:none) {
+  body .lvl-footer.illuminated-footer,
+  body .lvl-footer.illuminated-footer * {
+    -webkit-user-select:none!important;
+    user-select:none!important;
+  }
+  body .lvl-footer.illuminated-footer .footer-laser-backdrop,
+  body .lvl-footer.illuminated-footer .footer-laser-backdrop *,
+  body .lvl-footer.illuminated-footer > .footer-touch-surface {
+    -webkit-touch-callout:none!important;
+    -webkit-tap-highlight-color:transparent;
+  }
+}
+.footer-laser-backdrop svg {
+  -webkit-user-drag:none;
+}
