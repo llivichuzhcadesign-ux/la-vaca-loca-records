@@ -921,3 +921,145 @@ body .lvl-footer.illuminated-footer > .footer-touch-surface {
     touch-action:none;
   }
 }
+
+
+/* November 2026: larger full artwork on desktop; a dedicated illustrated
+   stage above all navigation on phones. Keep the original SVG proportions. */
+body .lvl-footer.illuminated-footer > .footer-art-slot {
+  display:none;
+  pointer-events:none;
+}
+@media (min-width:721px) {
+  body .lvl-footer.illuminated-footer {
+    min-height:clamp(800px,65vw,980px);
+  }
+  .footer-laser-backdrop svg:not(.footer-electric-circuit) {
+    left:50%;
+    top:44%;
+    bottom:auto;
+    width:calc(100% - 64px);
+    height:calc(100% - 108px);
+    max-width:none;
+  }
+}
+@media (max-width:720px) {
+  body .lvl-footer.illuminated-footer {
+    --lvl-footer-art-height:clamp(342px,114vw,540px);
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    grid-template-rows:var(--lvl-footer-art-height) auto auto;
+    align-items:stretch;
+    min-height:0;
+    height:auto;
+    column-gap:clamp(16px,5vw,30px);
+    row-gap:0;
+    padding:24px clamp(18px,5vw,28px) max(22px,env(safe-area-inset-bottom,0px));
+  }
+  body .lvl-footer.illuminated-footer > .footer-art-slot {
+    display:block;
+    grid-column:1/-1;
+    grid-row:1;
+    width:100%;
+    min-height:var(--lvl-footer-art-height);
+  }
+  /* The entire emblem, including its original lettering, fits within row 1. */
+  .footer-laser-backdrop svg:not(.footer-electric-circuit) {
+    left:50%;
+    top:24px;
+    bottom:auto;
+    width:min(calc(100% - 30px),480px);
+    height:calc(var(--lvl-footer-art-height) - 8px);
+    max-width:none;
+    object-fit:contain;
+    transform:translateX(-50%);
+  }
+  /* The laser intro must have the same transform as the resting mobile SVG. */
+  .lvl-footer.footer-intro-complete .footer-laser-etch,
+  .lvl-footer.footer-intro-complete .footer-sonic-ink {
+    transform:translateX(-50%);
+  }
+  body .lvl-footer.illuminated-footer .footer-explore,
+  body .lvl-footer.illuminated-footer .footer-connect {
+    grid-row:2;
+    align-self:start;
+    align-items:flex-start;
+    flex-direction:column;
+    flex-wrap:nowrap;
+    justify-content:flex-start;
+    gap:0;
+    min-width:0;
+    width:100%;
+    margin:0;
+    padding:22px 0 10px;
+    border-top:1px solid rgba(238,229,211,.25);
+    text-align:left;
+  }
+  body .lvl-footer.illuminated-footer .footer-explore {grid-column:1;}
+  body .lvl-footer.illuminated-footer .footer-connect {grid-column:2;}
+  body .lvl-footer.illuminated-footer .footer-column-label {
+    margin:0 0 12px;
+    font-size:11px;
+    line-height:1.4;
+    letter-spacing:.14em;
+    text-align:left;
+  }
+  body .lvl-footer.illuminated-footer .footer-explore a,
+  body .lvl-footer.illuminated-footer .footer-connect a {
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    min-height:44px;
+    width:max-content;
+    max-width:100%;
+    margin:0;
+    padding:8px 0;
+    font-size:13px;
+    line-height:1.45;
+    font-weight:500;
+    white-space:normal;
+    text-align:left;
+  }
+  body .lvl-footer.illuminated-footer .footer-bottom {
+    grid-column:1/-1;
+    grid-row:3;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:start;
+    gap:8px 14px;
+    min-width:0;
+    margin-top:20px;
+    padding:16px 0 0;
+    border-top:1px solid rgba(238,229,211,.20);
+    font-size:11px;
+    line-height:1.5;
+    text-align:left;
+  }
+  body .lvl-footer.illuminated-footer .footer-back-top {
+    justify-self:end;
+    display:inline-flex;
+    align-items:center;
+    min-height:44px;
+  }
+  body .lvl-footer.illuminated-footer .footer-bottom .design-credit {
+    grid-column:1/-1;
+    grid-row:2;
+    width:100%;
+    flex-basis:auto;
+    padding:0;
+    margin:0;
+    border:0;
+    text-align:left;
+  }
+  body .lvl-footer.illuminated-footer .footer-bottom .design-credit a {
+    display:inline-flex;
+    align-items:center;
+    min-height:44px;
+    text-align:left;
+  }
+  /* Restrict the invisible drag layer to the artwork, not the links. */
+  body .lvl-footer.illuminated-footer > .footer-touch-surface {
+    top:0;
+    bottom:auto;
+    height:calc(var(--lvl-footer-art-height) + 32px);
+  }
+}
