@@ -1,0 +1,50 @@
+/* Phase 3: stop GPU layer churn when the photographic archive is offscreen. */
+.memory-collage.is-paused .memory-track{
+ animation-play-state:paused;
+ will-change:auto;
+}
+@media(max-width:700px){
+ body .archive-main{align-items:flex-start;gap:12px}
+ body .archive-main h2{font-size:clamp(42px,12vw,72px)!important;line-height:1.05!important}
+ body .archive-main a{font-size:28px;min-width:44px;min-height:44px;display:inline-grid;place-items:center}
+ .memory-collage{gap:12px}
+ body .sessions-copy>p:last-of-type{font-size:14px;line-height:1.6}
+ body .sessions-copy>.eyebrow,body .events-copy>.eyebrow{font-size:12px}
+ body .shop-showcase .showcase-facts span{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ .memory-track{animation:none!important;will-change:auto!important}
+ .memory-collage{overflow-x:auto}
+}
+
+
+/* Desktop Memoria Viva: a slightly more immersive photographic archive.
+   The faster drift timing is shared across desktop, tablet and phone. */
+@media (min-width:901px) {
+  body .archive-section {
+    padding-bottom:86px!important;
+  }
+  body .archive-main {
+    padding:32px 6vw 42px;
+  }
+  .memory-collage {
+    gap:20px;
+    padding:12px 0;
+  }
+  .memory-group {
+    gap:20px;
+    padding-right:20px;
+  }
+  body .memory-photo {
+    width:278px;
+    height:206px;
+  }
+  body .memory-photo:nth-child(3n+2) {
+    width:192px;
+    height:238px;
+  }
+  body .memory-photo:nth-child(3n) {
+    width:330px;
+    height:192px;
+  }
+}
