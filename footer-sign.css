@@ -126,8 +126,7 @@ body .lvl-footer.illuminated-footer .footer-laser-backdrop {
   transition:opacity .65s ease;
 }
 .lvl-footer.is-striking .footer-interaction-halo {opacity:1;}
-.lvl-footer.is-striking .footer-laser-etch path,
-.lvl-footer.is-striking .footer-laser-etch circle {stroke-opacity:.5;}
+
 .lvl-footer.is-striking .footer-laser-etch .footer-hero-contour {
   stroke-opacity:.91;
   animation:footer-sign-contact .95s ease-out 1;
@@ -680,10 +679,7 @@ body .lvl-footer.illuminated-footer .design-credit a:hover {
   .lvl-footer.footer-intro-active .footer-sonic-ink {
     animation:footer-cow-arrive-bottom 2.7s cubic-bezier(.21,.72,.22,1) both;
   }
-  .lvl-footer.footer-intro-complete .footer-laser-etch,
-  .lvl-footer.footer-intro-complete .footer-sonic-ink {
-    transform:translateX(-50%);
-  }
+  
   @keyframes footer-cow-arrive-bottom {
     0% {opacity:.08;transform:translateX(-50%) translateY(5%) scale(.955) rotate(-1.25deg);}
     29% {opacity:.38;transform:translateX(-50%) translateY(1%) scale(.985) rotate(-.45deg);}
