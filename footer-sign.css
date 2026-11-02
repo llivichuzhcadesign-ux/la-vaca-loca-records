@@ -1063,3 +1063,88 @@ body .lvl-footer.illuminated-footer > .footer-art-slot {
     height:calc(var(--lvl-footer-art-height) + 32px);
   }
 }
+
+
+/* Social icons are an image-only navigation row on phones. Desktop keeps the
+   established editorial Explore, Connect and credit presentation. */
+body .lvl-footer.illuminated-footer .footer-connect .footer-social-icon {
+  display:none;
+}
+body .lvl-footer.illuminated-footer .footer-connect a .footer-social-name {
+  color:inherit;
+  font-size:inherit;
+}
+@media (max-width:720px) {
+  body .lvl-footer.illuminated-footer {
+    grid-template-columns:minmax(0,1fr);
+    grid-template-rows:var(--lvl-footer-art-height) auto;
+    row-gap:0;
+    padding-bottom:max(22px,env(safe-area-inset-bottom,0px));
+  }
+  /* There are no footer page links or credits on phones: only the cow and socials. */
+  body .lvl-footer.illuminated-footer .footer-explore,
+  body .lvl-footer.illuminated-footer .footer-bottom {
+    display:none!important;
+  }
+  body .lvl-footer.illuminated-footer .footer-connect {
+    display:flex!important;
+    grid-column:1!important;
+    grid-row:2!important;
+    align-self:start;
+    align-items:center!important;
+    justify-content:center!important;
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    gap:clamp(20px,7vw,34px)!important;
+    width:100%;
+    margin:0!important;
+    padding:18px 0 0!important;
+    border-top:1px solid rgba(238,229,211,.21);
+    text-align:center;
+    pointer-events:none;
+  }
+  body .lvl-footer.illuminated-footer .footer-connect .footer-column-label,
+  body .lvl-footer.illuminated-footer .footer-connect .footer-social-name {
+    display:none!important;
+  }
+  body .lvl-footer.illuminated-footer .footer-connect a {
+    display:flex!important;
+    flex:0 0 54px;
+    align-items:center!important;
+    justify-content:center!important;
+    width:54px!important;
+    max-width:54px!important;
+    min-width:54px;
+    height:54px;
+    min-height:54px!important;
+    margin:0!important;
+    padding:0!important;
+    border:1px solid rgba(238,229,211,.24);
+    border-radius:50%;
+    background:rgba(238,229,211,.035);
+    color:#eee5d3;
+    text-decoration:none;
+    pointer-events:auto;
+    transition:border-color .2s ease,color .2s ease,background .2s ease;
+  }
+  body .lvl-footer.illuminated-footer .footer-connect .footer-social-icon {
+    display:flex!important;
+    align-items:center;
+    justify-content:center;
+    width:25px;
+    height:25px;
+    color:inherit!important;
+  }
+  body .lvl-footer.illuminated-footer .footer-social-icon svg {
+    display:block;
+    width:25px;
+    height:25px;
+    overflow:visible;
+  }
+  body .lvl-footer.illuminated-footer .footer-connect a:hover,
+  body .lvl-footer.illuminated-footer .footer-connect a:focus-visible {
+    border-color:#ef9aab;
+    background:rgba(239,154,171,.10);
+    color:#ef9aab;
+  }
+}
