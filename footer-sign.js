@@ -27,6 +27,13 @@
    <span class="design-credit"><a href="https://www.instagram.com/semiotice/" target="_blank" rel="noopener noreferrer">Website Design by Sebastian Llivichuzhca</a></span>
   </div>
  `;
+ // Lightweight vector icons keep the phone footer free of navigation text.
+ // Desktop retains the descriptive social labels and original destinations.
+ const footerSocialIcons={
+  instagram:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="2.5" y="2.5" width="19" height="19" rx="5.4"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.75" cy="6.35" r="1" fill="currentColor" stroke="none"/></svg>',
+  spotify:'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="currentColor"/><g fill="none" stroke="#090907" stroke-linecap="round"><path d="M5.4 9.1c4.8-1.3 9.5-.7 13.2 1.7" stroke-width="1.9"/><path d="M6.2 12.4c3.9-1 7.8-.5 10.9 1.4" stroke-width="1.65"/><path d="M7.2 15.6c3.3-.8 6.4-.4 9 1.2" stroke-width="1.5"/></g></svg>',
+  youtube:'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="1.7" y="4.8" width="20.6" height="14.4" rx="4.5" fill="currentColor"/><path d="m10 8.4 6.1 3.6-6.1 3.6V8.4Z" fill="#090907"/></svg>'
+ };
  // Use official social profiles only when configured; otherwise label search destinations honestly.
  function syncSocialLinks(){
   const settings=window.SITE_CONTENT?.settings||{};
@@ -44,13 +51,22 @@
     const host=url.hostname.toLowerCase();
     if(url.protocol==='https:'&&(host===domain||host.endsWith('.'+domain)))official=url.href;
    }catch{}
+   const visibleLabel=official?label:'Buscar en '+label;
    if(official){
-    link.href=official;link.textContent=label;
+    link.href=official;
     link.setAttribute('aria-label','Perfil oficial de La Vaca Loca Records en '+label);
    }else{
-    link.textContent='Buscar en '+label;
     link.setAttribute('aria-label','Buscar La Vaca Loca Records en '+label);
    }
+   const icon=document.createElement('span');
+   icon.className='footer-social-icon';
+   icon.setAttribute('aria-hidden','true');
+   icon.innerHTML=footerSocialIcons[id];
+   const name=document.createElement('span');
+   name.className='footer-social-name';
+   name.textContent=visibleLabel;
+   link.replaceChildren(icon,name);
+   link.title=link.getAttribute('aria-label');
   }
  }
  syncSocialLinks();
