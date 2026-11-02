@@ -195,10 +195,10 @@
  .library-column .library-state i{display:none}
  .library-column .listening-panel{height:auto;max-height:230px;overflow-y:auto;padding:16px 24px 20px;transition:none;border-bottom:1px solid #ead9b922;background:#361b19}
  .library-column .listening-panel:after{display:none}
- .library-column .selected-record{grid-template-columns:100px minmax(0,1fr);gap:24px}
+ .library-column .selected-record{grid-template-columns:100px minmax(0,1fr);}
  .library-column .sleeve-zone{width:100px}
  .library-column .listening-panel h2{font-size:clamp(24px,2.2vw,34px);line-height:1.05}
- .library-column #recordDescription{display:block;-webkit-line-clamp:unset;font-size:11px;line-height:1.5}
+ .library-column #recordDescription{display:block;-webkit-line-clamp:unset;line-height:1.5}
  .library-column .disc-gallery{min-height:0;overflow-y:auto;overscroll-behavior:contain;align-content:start;padding:22px 24px 38px;scrollbar-width:thin;scrollbar-color:#b59679 #211413}
 }
 
