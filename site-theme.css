@@ -2,5 +2,5 @@
    Edit the component files below; import order preserves the original cascade.
    Legacy entry point retained for older pages and admin previews. */
 @import url("site-theme.tokens.css?v=20261101-css-modules-v1");
-@import url("site-theme.editorial.css?v=20261101-css-modules-v1");
+@import url("site-theme.editorial.css?v=20261105-empty-design-v1");
 @import url("site-theme.header.css?v=20261101-css-modules-v1");
