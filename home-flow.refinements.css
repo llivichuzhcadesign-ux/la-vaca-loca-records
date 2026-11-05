@@ -48,3 +48,43 @@ body .memory-photo:nth-child(3n){width:300px;height:170px}
  body .site-footer{padding:40px 20px}
 }
 
+
+
+/* Design-preview scaffolds never rely on event posters or published sessions. */
+body .sessions-copy .home-sessions-empty{
+ display:inline-block;max-width:400px;margin:22px 0 0;padding:16px 0;
+ border-top:1px solid #eee5d366;color:#cfc4b2;
+ font:600 11px/1.6 Arial,Helvetica,sans-serif;
+ letter-spacing:.14em;
+}
+body .home-calendar-art.is-design-preview{
+ display:grid!important;place-items:stretch;min-height:360px;
+ background:#6b4938;color:#f0e5d3;
+ text-decoration:none;
+}
+body .home-calendar-placeholder{
+ position:relative;display:flex;flex-direction:column;align-items:center;
+ justify-content:space-between;gap:24px;min-height:360px;
+ width:100%;height:100%;padding:clamp(24px,4vw,60px);
+ overflow:hidden;background:linear-gradient(140deg,#a38769 0%,#633d37 53%,#2c2925 100%);
+}
+body .home-calendar-placeholder::before{
+ content:"";position:absolute;inset:6%;border:1px solid #f0e5d35c;
+}
+body .home-calendar-placeholder::after{
+ content:"";position:absolute;top:50%;left:50%;
+ width:min(55%,300px);aspect-ratio:1;border-radius:50%;
+ border:1px solid #f0e5d35c;transform:translate(-50%,-50%);
+ box-shadow:0 0 0 34px #f0e5d30a,0 0 0 84px #f0e5d307;
+}
+body .home-calendar-placeholder small{
+ position:relative;z-index:1;font:700 10px/1.5 Arial,Helvetica,sans-serif;
+ letter-spacing:.2em;text-align:center;
+}
+body .home-calendar-placeholder strong{
+ position:relative;z-index:1;font:400 clamp(60px,9vw,132px)/1 Georgia,serif;
+ letter-spacing:-.11em;
+}
+@media(max-width:800px){
+ body .home-calendar-art.is-design-preview,body .home-calendar-placeholder{min-height:280px}
+}
