@@ -405,6 +405,15 @@ async function setupHomepageHero(){
  setHeroText('lvlHeroTagline',hero.tagline);
  const primary=document.getElementById('lvlHeroPrimary');if(primary){if(hero.primaryLabel)primary.textContent=hero.primaryLabel;if(hero.primaryHref)primary.href=hero.primaryHref}
  const secondary=document.getElementById('lvlHeroSecondary');if(secondary){if(hero.secondaryLabel)secondary.textContent=hero.secondaryLabel;if(hero.secondaryHref)secondary.href=hero.secondaryHref}
+ if(uiEmptyPreview){
+  gallery.innerHTML='<div class="lvl-slide is-active lvl-slide-placeholder" aria-hidden="true"></div>';
+  const current=document.getElementById('lvlHeroCurrent'),total=document.getElementById('lvlHeroTotal');
+  if(current)current.textContent='01';
+  if(total)total.textContent='01';
+  if(primary)primary.href='discos.html?ui-preview=empty';
+  if(secondary)secondary.href='sessions.html?ui-preview=empty';
+  return;
+ }
  const slides=(Array.isArray(hero.slides)?hero.slides:[]).filter(slide=>
   slide&&(window.LVLCrop?.hasMedia(slide)||slide.src||slide.draftBlobKey));
  if(!slides.length)return;
