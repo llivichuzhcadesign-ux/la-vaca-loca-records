@@ -20,7 +20,10 @@ if(typeof document==='undefined')return;
 const $=id=>document.getElementById(id);
 const contentData=window.SITE_CONTENT||{};
 const settings=contentData.settings||{};
-const records=(contentData.records||[]).filter(visible);
+// Inspect an empty storefront without changing live inventory or admin data.
+const emptyDesign=new URLSearchParams(location.search).get('ui-preview')==='empty';
+const records=emptyDesign?[]:(contentData.records||[]).filter(visible);
+document.body.classList.toggle('catalogue-empty',records.length===0);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 const audio=$('recordAudio');
@@ -450,14 +453,16 @@ function renderGallery(){
 
   $('resultCount').textContent=results.length+(results.length===1?' disco':' discos');
   syncLibraryPage();
-  if(discView==='library'&&libraryPage.type==='home'&&!$('recordSearch').value){
+  if(records.length&&discView==='library'&&libraryPage.type==='home'&&!$('recordSearch').value){
     const shelf=(title,items,genre='')=>'<section class="record-shelf"><div class="record-shelf-heading"><h2>'+escape(title)+'</h2><button type="button" data-open-collection="'+escape(genre)+'">Ver todos <span aria-hidden="true">›</span></button></div><div class="record-shelf-row">'+libraryRecordCards(items)+'</div></section>';
     gallery.innerHTML=shelf('Discos',records);
     gallery.querySelectorAll('[data-open-collection]').forEach(button=>button.onclick=()=>openLibraryCollection('all',button.dataset.openCollection));
   }else{
     const searching=!!$('recordSearch').value.trim();
     const emptyFavorites=libraryScope==='liked'&&!storedIds('lvl-liked-discs').length;
-    gallery.innerHTML=libraryRecordCards(results)||'<div class="library-empty"><h2>'+(emptyFavorites?'Guarda tus discos favoritos':'No encontramos discos')+'</h2><p>'+(emptyFavorites?'Usa el corazón en cada disco para reunirlos aquí.':searching?'Prueba otra búsqueda dentro de esta colección.':'No hay discos disponibles en esta selección.')+'</p><button type="button" id="libraryEmptyBrowse">'+(searching&&!emptyFavorites?'Borrar búsqueda':'Explorar discos')+'</button></div>';
+    gallery.innerHTML=!records.length
+      ?'<section class="library-empty library-empty-catalogue" aria-labelledby="emptyCatalogueTitle"><div class="library-empty-vinyl" aria-hidden="true"><span>LVL</span></div><div class="library-empty-copy">'+(emptyDesign?'<p class="library-empty-preview">VISTA DE DISEÑO · SIN CONTENIDO</p>':'')+'<p class="library-empty-kicker">LA VACA LOCA / DISCOS</p><h2 id="emptyCatalogueTitle">La colección está tomando forma.</h2><p>Pronto podrás explorar nuestros discos, escuchar adelantos y conocer cada edición. Estamos preparando el catálogo.</p><a class="library-empty-link" href="index.html'+(emptyDesign?'?ui-preview=empty':'')+'">Volver al inicio <span aria-hidden="true">↗</span></a></div></section>'
+      :libraryRecordCards(results)||'<div class="library-empty"><h2>'+(emptyFavorites?'Guarda tus discos favoritos':'No encontramos discos')+'</h2><p>'+(emptyFavorites?'Usa el corazón en cada disco para reunirlos aquí.':searching?'Prueba otra búsqueda dentro de esta colección.':'No hay discos disponibles en esta selección.')+'</p><button type="button" id="libraryEmptyBrowse">'+(searching&&!emptyFavorites?'Borrar búsqueda':'Explorar discos')+'</button></div>';
     if($('libraryEmptyBrowse'))$('libraryEmptyBrowse').onclick=searching&&!emptyFavorites?clearLibrarySearch:()=>openLibraryCollection('all');
   }
   syncLibraryCardStates();
