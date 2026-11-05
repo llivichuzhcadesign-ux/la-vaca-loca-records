@@ -205,3 +205,23 @@ body[data-page="eventos"] .agenda-empty-copy a:focus-visible{outline:2px solid #
  body[data-page="eventos"] .agenda-empty-art{min-height:220px;max-width:480px;width:100%;aspect-ratio:5/3}
  body[data-page="eventos"] .agenda-empty-copy h3{font-size:clamp(36px,8vw,52px)}
 }
+
+
+/* Preview-only event illustration while final photography is being prepared. */
+body[data-page="eventos"] .calendar-art.is-design-preview{
+ isolation:isolate;overflow:hidden;
+}
+body[data-page="eventos"] .calendar-art.is-design-preview::before{
+ content:"";position:absolute;z-index:0;width:80%;aspect-ratio:1;
+ top:10%;right:-24%;border:1px solid #f5e4c866;border-radius:50%;
+ box-shadow:0 0 0 40px #f5e4c815,0 0 0 115px #f5e4c809;
+ pointer-events:none;
+}
+body[data-page="eventos"] .calendar-art.is-design-preview::after{
+ content:"";position:absolute;z-index:0;inset:5.5%;border:1px solid #f5e4c84c;
+ pointer-events:none;
+}
+body[data-page="eventos"] .calendar-art.is-design-preview .art-title,
+body[data-page="eventos"] .calendar-art.is-design-preview .art-stamp{
+ position:relative;z-index:1;
+}
