@@ -6,7 +6,8 @@ function monthCells(year,month){const offset=new Date(year,month,1).getDay(),day
 if(typeof module!=='undefined')module.exports={parseDate,monthCells};
 if(typeof document==='undefined')return;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const events=(window.SITE_CONTENT?.events||[]).filter(window.CalendarContent.visibleEvent);
+const emptyDesign=new URLSearchParams(location.search).get('ui-preview')==='empty';
+const events=emptyDesign?[]:(window.SITE_CONTENT?.events||[]).filter(window.CalendarContent.visibleEvent);
 const now=new Date();let view=new Date(now.getFullYear(),now.getMonth(),1);
 const months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const grid=document.getElementById('calendarGrid'),dialog=document.getElementById('eventDialog');
@@ -51,7 +52,11 @@ document.getElementById('nextMonth').onclick=()=>{view=new Date(view.getFullYear
 document.getElementById('todayMonth').onclick=()=>{view=new Date(now.getFullYear(),now.getMonth(),1);render();};
 document.getElementById('closeEvent').onclick=()=>dialog.close();
 const agenda=document.getElementById('eventAgenda');
-agenda.innerHTML=events.map((e,i)=>'<button class="agenda-item" data-index="'+i+'"><span><small>'+esc(e.date)+' / '+esc(e.place)+' / '+esc(e.status)+'</small><strong>'+esc(e.title)+'</strong></span><span class="lvl-decorative-glyph" aria-hidden="true">↗</span></button>').join('')||'<p>Próximas fechas por anunciar.</p>';
+const emptyAgenda='<section class="agenda-empty" aria-labelledby="emptyAgendaTitle"><div class="agenda-empty-art" aria-hidden="true"><span>LVL</span><strong>CALENDARIO</strong></div><div class="agenda-empty-copy">'+
+ (emptyDesign?'<p class="agenda-empty-preview">VISTA DE DISEÑO · SIN CONTENIDO</p>':'')+
+ '<p class="agenda-empty-kicker">PRÓXIMOS ENCUENTROS</p><h3 id="emptyAgendaTitle">Nos vemos pronto.</h3><p>Las próximas fechas se anunciarán aquí. Mientras tanto, puedes explorar el espacio de escucha de La Vaca Loca.</p>'+
+ '<a href="sessions.html'+(emptyDesign?'?ui-preview=empty':'')+'">Explorar sessions <span aria-hidden="true">↗</span></a></div></section>';
+agenda.innerHTML=events.map((e,i)=>'<button class="agenda-item" data-index="'+i+'"><span><small>'+esc(e.date)+' / '+esc(e.place)+' / '+esc(e.status)+'</small><strong>'+esc(e.title)+'</strong></span><span class="lvl-decorative-glyph" aria-hidden="true">↗</span></button>').join('')||emptyAgenda;
 agenda.querySelectorAll('[data-index]').forEach(b=>b.onclick=()=>{const event=events[+b.dataset.index],date=parseDate(event.date);if(date){view=new Date(date.getFullYear(),date.getMonth(),1);render();}openEvents([event]);});
 render();
 })();
