@@ -18,13 +18,14 @@ La vista de diseño solo se habilita con el parámetro explícito. Si la URL no 
 
 ## Cambios
 
+0. **Inicio / Hero:** en la vista de diseño se reemplazan las fotos por una composición abstracta de color y luz que conserva posiciones del título, contraste y acciones. No se introduce una marca de agua; el carousel publicado no cambia.
 1. **Inicio / Nuevos lanzamientos:** cuando no hay discos o se usa la vista de diseño, el bloque conserva su composición y presenta una portada abstracta editorial, texto claro y una acción hacia Biblioteca. No muestra precios ni discos inventados.
 2. **Inicio / Sessions:** lista de sesiones ausente en la vista de diseño y en datos vacíos; aparece un detalle informativo breve sin enlaces falsos.
 3. **Inicio / Eventos:** gráfica de calendario temporal construida con CSS en la vista de diseño, sin depender de una fotografía inexistente.
 4. **Inicio / Memoria Viva:** las filas animadas pueden previsualizarse con piezas abstractas de la misma proporción y ritmo, sin cargar fotografías. Los datos publicados siguen usando las imágenes reales.
 5. **Discos:** estado de catálogo vacío que mantiene la sala visual, pero oculta reproductor, controles de búsqueda y filtros que no funcionarían sin inventario. Navegación de retorno al inicio.
 6. **Sessions y Archivo:** composición de portada y contenido editorial, mensajes descriptivos y navegación clara cuando aún no existen entradas. Se oculta el índice vacío.
-7. **Eventos:** agenda sin eventos diseñada como pieza editorial; el calendario y sus controles siguen funcionando.
+7. **Eventos:** agenda sin eventos diseñada como pieza editorial; el calendario y sus controles siguen funcionando. La ilustración principal también tiene un tratamiento temporal sin foto en la vista de diseño.
 
 ## Reglas de diseño a preservar
 
