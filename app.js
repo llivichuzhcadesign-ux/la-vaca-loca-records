@@ -468,13 +468,23 @@ function upcomingHomeEvent(events,today){
 
 function renderRecordPreview(){
  if(!grid)return;
+ // Opt-in empty-layout preview never changes the catalog in storage.
+ const designEmpty=new URLSearchParams(location.search).get('ui-preview')==='empty';
  const publicRecords=window.RECORDS.filter(r=>!['DRAFT','PRIVATE LISTING','HIDDEN'].includes(String(r.status||'').toUpperCase()));
  const records=publicRecords.sort((a,b)=>Number(b.year||0)-Number(a.year||0)||Number(!!b.featured)-Number(!!a.featured)).slice(0,5);
  const colors=['#864833','#35493f','#827451','#493d57','#a25439','#394c5a'];
  const section=document.getElementById('shop');
  const feature=section.querySelector('.showcase-feature');
  const dialog=document.getElementById('showcaseDialog');
- if(!records.length){feature.hidden=true;grid.innerHTML='<p class="showcase-empty">Próximamente.</p>';return}
+ if(!records.length||designEmpty){
+  feature.hidden=false;
+  feature.classList.add('showcase-feature-empty');
+  feature.innerHTML='<div class="showcase-empty-art" aria-hidden="true"><span class="showcase-empty-edition">LA VACA LOCA / DISCOS</span><span class="showcase-empty-center">LVL</span><span class="showcase-empty-bottom">GUALACEO · ECUADOR</span></div>'+
+   '<div class="showcase-empty-copy"><p class="showcase-empty-kicker">EL CATÁLOGO</p><h3>Discos en preparación.</h3><p>Estamos preparando nuestra selección. Aquí podrás descubrir las portadas, escuchar previews y explorar cada edición.</p>'+
+   '<a class="showcase-empty-link" href="discos.html'+(designEmpty?'?ui-preview=empty':'')+'">Explorar la biblioteca <span aria-hidden="true">↗</span></a></div>';
+  grid.innerHTML='<p class="showcase-empty-footnote">'+(designEmpty?'VISTA DE DISEÑO · SIN CONTENIDO':'NUEVAS EDICIONES · PRÓXIMAMENTE')+'</p>';
+  return;
+ }
 
  const artMarkup='<span class="showcase-art-title"></span><span class="showcase-art-code"></span><img alt="" hidden>';
  grid.innerHTML=records.map((r,index)=>`<button class="showcase-thumb" type="button" data-showcase-index="${index}" aria-label="Ver portada de ${escapeText(r.artist)} — ${escapeText(r.title)}" aria-pressed="false"><span class="showcase-art showcase-thumb-art">${artMarkup}</span><span class="showcase-thumb-caption"><strong>${escapeText(r.title)}</strong><small>${escapeText(r.artist)}</small></span></button>`).join('');
