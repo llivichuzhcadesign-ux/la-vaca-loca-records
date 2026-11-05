@@ -11,6 +11,7 @@ catch {
 }
 const base = (process.argv.find(a => /^https?:\/\//.test(a)) || 'http://localhost:8788').replace(/\/$/, '');
 const screenshots = process.argv.includes('--screenshots');
+const emptyPreview = process.argv.includes('--empty');
 const pages = ['index.html', 'discos.html', 'sessions.html', 'eventos.html', 'archivo.html'];
 const sizes = [
   { name:'phone-320', width:320, height:700, touch:true },
@@ -54,7 +55,7 @@ try {
       });
       let status = null, loadError = null;
       try {
-        const response = await page.goto(base + '/' + pathname, { waitUntil:'domcontentloaded', timeout:30000 });
+        const response = await page.goto(base + '/' + pathname + (emptyPreview?'?ui-preview=empty':''), { waitUntil:'domcontentloaded', timeout:30000 });
         status = response?.status() ?? null;
         await page.waitForTimeout(500);
       } catch (error) { loadError = String(error); }
@@ -118,7 +119,8 @@ try {
           missingRecordCoverCount,
           bagCount:document.querySelectorAll('.shared-bag').length,
           iosLayout:document.documentElement.classList.contains('ios-header'),
-          discView:document.documentElement.classList.contains('mobile-disc-view')
+          discView:document.documentElement.classList.contains('mobile-disc-view'),
+          emptyDesignState:({ 'index.html':'.showcase-feature-empty','discos.html':'.library-empty-catalogue','sessions.html':'.editorial-empty','eventos.html':'.agenda-empty','archivo.html':'.editorial-empty' })[location.pathname.split('/').pop()]?Boolean(document.querySelector(({ 'index.html':'.showcase-feature-empty','discos.html':'.library-empty-catalogue','sessions.html':'.editorial-empty','eventos.html':'.agenda-empty','archivo.html':'.editorial-empty' })[location.pathname.split('/').pop()])):false
         };
       });
       let touchSelection=null;
@@ -142,6 +144,7 @@ try {
       const failures = [];
       if(loadError || (status && status>=400))failures.push('page-load-failed');
       if(audit?.horizontalOverflow>3)failures.push('horizontal-overflow');
+      if(emptyPreview && audit && !audit.emptyDesignState)failures.push('missing-empty-preview-state');
       if(audit?.headerOverlaps.length)failures.push('header-elements-overlap');
       if(audit?.duplicateIds.length)failures.push('duplicate-ids');
       if(audit?.brokenImages.length)failures.push('broken-visible-images');
@@ -167,11 +170,11 @@ try {
   await browser.close();
 }
 const report={
-  base, generatedAt:new Date().toISOString(),
+  base, emptyPreview, generatedAt:new Date().toISOString(),
   checks:results.length, failures:results.filter(r=>r.failures.length).length,
   results
 };
-await writeFile(resolve(output,'responsive-report.json'),JSON.stringify(report,null,2)+'\n');
-console.log('Saved qa-results/responsive-report.json');
+await writeFile(resolve(output,emptyPreview?'empty-preview-report.json':'responsive-report.json'),JSON.stringify(report,null,2)+'\n');
+console.log('Saved qa-results/'+(emptyPreview?'empty-preview-report.json':'responsive-report.json'));
 console.log('NOTE: Browser QA is a smoke test, not proof of visual equivalence. Review screenshots manually.');
 process.exitCode=report.failures?1:0;
