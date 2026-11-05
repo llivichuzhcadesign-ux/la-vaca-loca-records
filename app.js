@@ -1,5 +1,6 @@
 const ADMIN_DRAFT_KEY='lvl-admin-draft-v1';
 const previewMode=new URLSearchParams(window.location.search).get('preview')==='admin-draft';
+const uiEmptyPreview=new URLSearchParams(window.location.search).get('ui-preview')==='empty';
 if(previewMode){
  try{
   const savedDraft=JSON.parse(localStorage.getItem(ADMIN_DRAFT_KEY)||'null');
@@ -17,7 +18,7 @@ async function setupHomepageIntro(){
  let seen=false;
  try{seen=sessionStorage.getItem(SESSION_KEY)==='1'}catch(error){}
  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
- const skip=seen||reduceMotion||previewMode||document.documentElement.classList.contains('lvl-intro-skip');
+ const skip=seen||reduceMotion||previewMode||uiEmptyPreview||document.documentElement.classList.contains('lvl-intro-skip');
 
  if(skip){
   document.documentElement.classList.add('lvl-intro-skip');
@@ -469,7 +470,7 @@ function upcomingHomeEvent(events,today){
 function renderRecordPreview(){
  if(!grid)return;
  // Opt-in empty-layout preview never changes the catalog in storage.
- const designEmpty=new URLSearchParams(location.search).get('ui-preview')==='empty';
+ const designEmpty=uiEmptyPreview;
  const publicRecords=window.RECORDS.filter(r=>!['DRAFT','PRIVATE LISTING','HIDDEN'].includes(String(r.status||'').toUpperCase()));
  const records=publicRecords.sort((a,b)=>Number(b.year||0)-Number(a.year||0)||Number(!!b.featured)-Number(!!a.featured)).slice(0,5);
  const colors=['#864833','#35493f','#827451','#493d57','#a25439','#394c5a'];
@@ -585,13 +586,27 @@ function enhancePublicSite(){
  });
  const sessionsCopy=document.querySelector('.sessions-copy');
  if(sessionsCopy&&!document.querySelector('.session-cards')){
-  sessionsCopy.insertAdjacentHTML('beforeend',`<div class="session-cards">${SESSIONS.map(item=>`<a class="session-card" href="sessions.html#${encodeURIComponent(item.id)}"><small>${item.type}</small><strong>${item.title}</strong><span>${item.status}</span></a>`).join('')}</div>`);
+  const visibleSessions=uiEmptyPreview?[]:SESSIONS.filter(item=>!item.hideFromPublic);
+  if(visibleSessions.length){
+   sessionsCopy.insertAdjacentHTML('beforeend',`<div class="session-cards">${visibleSessions.map(item=>`<a class="session-card" href="sessions.html#${encodeURIComponent(item.id)}"><small>${item.type}</small><strong>${item.title}</strong><span>${item.status}</span></a>`).join('')}</div>`);
+  }else{
+   sessionsCopy.insertAdjacentHTML('beforeend','<p class="home-sessions-empty">'+(uiEmptyPreview?'VISTA DE DISEÑO · SIN CONTENIDO':'NUEVAS SESIONES · PRÓXIMAMENTE')+'</p>');
+  }
  }
  const archiveSection=document.querySelector('.archive-section');
  if(archiveSection&&!document.querySelector('.events-section')){
   archiveSection.insertAdjacentHTML('beforebegin',`<section class="events-section motion-section" id="events"><div class="events-copy motion-copy"><p class="eyebrow">03 / PRÓXIMOS ENCUENTROS</p><h2>Buenas <em>noches.</em></h2><a href="eventos.html" style="display:inline-block;margin-top:24px;font-weight:900;text-underline-offset:6px">ABRIR EL CALENDARIO <span class="lvl-decorative-glyph" aria-hidden="true">↗</span></a></div><a href="eventos.html" aria-label="Explorar el calendario de eventos" class="home-calendar-art" style="display:block;overflow:hidden"><img data-calendar-image src="assets/images/events/calendar-pinup.jpg" alt="Pin-up vintage en una tienda de discos" loading="lazy" width="1536" height="1024" style="display:block;width:100%;height:100%;object-fit:cover"></a></section>`);
  }
- const upcoming=upcomingHomeEvent(EVENTS,new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()));
+ if(uiEmptyPreview){
+  const art=document.querySelector('.home-calendar-art');
+  if(art){
+   art.classList.add('is-design-preview');
+   art.href='eventos.html?ui-preview=empty';
+   art.setAttribute('aria-label','Vista de diseño del calendario sin eventos');
+   art.innerHTML='<span class="home-calendar-placeholder"><small>LA VACA LOCA / EVENTOS</small><strong>LVL</strong><small>CALENDARIO · GUALACO</small></span>'.replace('GUALACO','GUALACEO');
+  }
+ }
+ const upcoming=uiEmptyPreview?null:upcomingHomeEvent(EVENTS,new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()));
  const eventCopy=document.querySelector('.events-copy');
  if(eventCopy&&!eventCopy.querySelector('.home-event-preview')){
   const preview=document.createElement('a');preview.className='home-event-preview';preview.href=upcoming?'eventos.html#'+encodeURIComponent(upcoming.id):'eventos.html';
