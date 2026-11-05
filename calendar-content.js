@@ -21,9 +21,10 @@
     });}}catch{console.warn('No se pudo cargar el borrador del calendario.');}
   }
   document.addEventListener('DOMContentLoaded',()=>{
-    const config=artwork(root.SITE_CONTENT?.settings),src=imageUrl(config.image,document.baseURI);
+    const emptyDesign=new URLSearchParams(location.search).get('ui-preview')==='empty';
+    const config=artwork(root.SITE_CONTENT?.settings),src=emptyDesign?'':imageUrl(config.image,document.baseURI);
     document.querySelectorAll('[data-calendar-image]').forEach(img=>{img.hidden=!src;img.style.display=src?'':'none';if(src)img.src=src;else img.removeAttribute('src');img.alt=config.alt;img.onerror=()=>{img.style.display='none';};});
     document.querySelectorAll('.art-title,.art-stamp').forEach(el=>el.hidden=!config.showTitle);
-    const art=document.querySelector('.calendar-art');if(art){art.style.minHeight='280px';art.style.background='#bd3928';}
+    const art=document.querySelector('.calendar-art');if(art){art.style.minHeight='280px';art.classList.toggle('is-design-preview',emptyDesign);art.style.background=emptyDesign?'linear-gradient(145deg,#bd9f79,#704e3c 58%,#29251f)':'#bd3928';}
   });
 })(typeof window!=='undefined'?window:globalThis);
