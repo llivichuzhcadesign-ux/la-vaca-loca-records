@@ -1,5 +1,7 @@
 (()=>{
  const host=document.getElementById('memoryCollage');if(!host)return;
+ const designEmpty=new URLSearchParams(location.search).get('ui-preview')==='empty';
+ if(designEmpty)host.setAttribute('aria-label','Vista de diseño de Memoria Viva sin fotografías');
  const fallback=['assets/images/site/hero/lvl-hero-01.webp','assets/images/site/hero/lvl-hero-02.webp','assets/images/site/hero/lvl-hero-03.webp'];
  const phoneLayout=window.matchMedia('(max-width:700px)');
  let currentUrls=fallback;
@@ -12,6 +14,14 @@
    const track=document.createElement('div');track.className='memory-track';
    const group=document.createElement('div');group.className='memory-group';
    for(let i=0;i<perRow;i++){
+    if(designEmpty){
+     const block=document.createElement('div');
+     block.className='memory-photo memory-placeholder';
+     block.setAttribute('aria-hidden','true');
+     block.innerHTML='<span class="memory-placeholder-label">MEMORIA VIVA</span><span class="memory-placeholder-mark">LVL</span><span class="memory-placeholder-foot">GUALACEO · ARCHIVO</span>';
+     group.append(block);
+     continue;
+    }
     const link=document.createElement('a');link.className='memory-photo';link.href='archivo.html';link.setAttribute('aria-label','Ver fotografía en el archivo');
     const img=document.createElement('img');img.src=urls[(i*rowCount+row)%urls.length];img.alt='';img.loading='lazy';img.decoding='async';
     img.addEventListener('error',()=>{if(!img.dataset.fallback){img.dataset.fallback='true';img.src=fallback[(i+row)%fallback.length]}});
@@ -42,5 +52,5 @@
  if(phoneLayout.addEventListener)phoneLayout.addEventListener('change',onWidthChange);
  else phoneLayout.addListener?.(onWidthChange);
  render(fallback);
- fetch('api/gallery').then(r=>r.ok?r.json():null).then(data=>{const urls=[...new Set((data?.items||[]).map(p=>p.url).filter(Boolean))];if(urls.length)render(urls)}).catch(()=>{});
+ if(!designEmpty)fetch('api/gallery').then(r=>r.ok?r.json():null).then(data=>{const urls=[...new Set((data?.items||[]).map(p=>p.url).filter(Boolean))];if(urls.length)render(urls)}).catch(()=>{});
 })();
