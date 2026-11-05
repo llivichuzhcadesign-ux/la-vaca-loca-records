@@ -603,7 +603,7 @@ function enhancePublicSite(){
    art.classList.add('is-design-preview');
    art.href='eventos.html?ui-preview=empty';
    art.setAttribute('aria-label','Vista de diseño del calendario sin eventos');
-   art.innerHTML='<span class="home-calendar-placeholder"><small>LA VACA LOCA / EVENTOS</small><strong>LVL</strong><small>CALENDARIO · GUALACO</small></span>'.replace('GUALACO','GUALACEO');
+   art.innerHTML='<span class="home-calendar-placeholder"><small>LA VACA LOCA / EVENTOS</small><strong>LVL</strong><small>CALENDARIO · GUALACEO</small></span>';
   }
  }
  const upcoming=uiEmptyPreview?null:upcomingHomeEvent(EVENTS,new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()));
