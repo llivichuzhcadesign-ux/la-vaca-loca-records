@@ -155,3 +155,53 @@ body[data-page="eventos"] #eventDialog{
   width:19px;height:19px;
  }
 }
+
+
+/* A finished-looking, truthful calendar state before event content is published. */
+body[data-page="eventos"] .agenda-empty{
+ display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+ gap:clamp(26px,5vw,70px);align-items:center;width:100%;
+ padding:clamp(24px,4vw,48px) 0;border-top:1px solid #1e1b1633;
+}
+body[data-page="eventos"] .agenda-empty-art{
+ position:relative;display:grid;place-items:center;
+ min-height:280px;aspect-ratio:5/4;overflow:hidden;
+ background:linear-gradient(138deg,#e0ccab,#a78b6c 54%,#614332);
+ color:#33241b;border:1px solid #1e1b1628;
+}
+body[data-page="eventos"] .agenda-empty-art::before{
+ content:"";position:absolute;inset:6%;border:1px solid #33241b55;
+}
+body[data-page="eventos"] .agenda-empty-art::after{
+ content:"";position:absolute;width:36%;aspect-ratio:1;border:2px solid #33241b66;
+ border-radius:50%;box-shadow:0 0 0 26px #33241b11,0 0 0 72px #33241b09;
+}
+body[data-page="eventos"] .agenda-empty-art span{
+ z-index:1;font:400 clamp(50px,7vw,96px)/1 Georgia,serif;letter-spacing:-.11em;
+}
+body[data-page="eventos"] .agenda-empty-art strong{
+ position:absolute;bottom:8%;font:700 10px/1.5 Arial,Helvetica,sans-serif;letter-spacing:.22em;
+}
+body[data-page="eventos"] .agenda-empty-copy{max-width:540px}
+body[data-page="eventos"] .agenda-empty-kicker,
+body[data-page="eventos"] .agenda-empty-preview{font-size:10px;font-weight:700;letter-spacing:.14em;color:#74695c}
+body[data-page="eventos"] .agenda-empty-preview{font-size:9px}
+body[data-page="eventos"] .agenda-empty-copy h3{
+ font:400 clamp(36px,4.4vw,60px)/1.05 Georgia,serif;letter-spacing:-.055em;
+ margin:16px 0 20px;color:#1e1b16;
+}
+body[data-page="eventos"] .agenda-empty-copy>p:not(.agenda-empty-kicker):not(.agenda-empty-preview){
+ max-width:460px;font-size:clamp(15px,1.4vw,18px);line-height:1.65;color:#62594e;
+}
+body[data-page="eventos"] .agenda-empty-copy a{
+ display:inline-flex;align-items:center;gap:20px;min-height:48px;margin-top:20px;
+ border-bottom:1px solid #1e1b1677;padding:10px 2px;
+ font:700 12px/1.4 Arial,Helvetica,sans-serif;color:#1e1b16;text-decoration:none;
+}
+body[data-page="eventos"] .agenda-empty-copy a:hover{border-color:#1e1b16}
+body[data-page="eventos"] .agenda-empty-copy a:focus-visible{outline:2px solid #682d3b;outline-offset:5px}
+@media(max-width:800px){
+ body[data-page="eventos"] .agenda-empty{grid-template-columns:1fr;gap:28px}
+ body[data-page="eventos"] .agenda-empty-art{min-height:220px;max-width:480px;width:100%;aspect-ratio:5/3}
+ body[data-page="eventos"] .agenda-empty-copy h3{font-size:clamp(36px,8vw,52px)}
+}
