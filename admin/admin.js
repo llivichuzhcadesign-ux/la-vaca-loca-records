@@ -91,13 +91,26 @@ function homepageDefaults(){
 }
 calendarDefaults();
 homepageDefaults();
+function visitDefaults(){
+ draft.settings=draft.settings||{};
+ const published=original.settings?.visitanos||{};
+ const current=draft.settings.visitanos||{};
+ draft.settings.visitanos={
+  about:'La Vaca Loca Records es un proyecto independiente en Gualaceo, Ecuador, dedicado a los discos, las sesiones y la cultura musical. Un lugar para explorar sonidos, compartir ideas y descubrir música.',
+  address:'',
+  mapsQuery:'',
+  reference:'',
+  whatsappNumber:'',
+  ...published,...current
+ };
+}
+visitDefaults();
 let dirty=false;
 let lastSavedAt=localStorage.getItem(`${STORAGE_KEY}-saved-at`)||'';
 
 const STATUS_OPTIONS={
   records:['DRAFT','IN STOCK','LAST COPY','SOLD OUT','COMING SOON','RESERVED','PRIVATE LISTING'],
-  sessions:['Draft','Próximamente','En archivo','En preparación','Live','Hidden'],
-  events:['Draft','Próximamente','Archivo','Live','Cancelled','Hidden']
+  sessions:['Draft','Próximamente','En archivo','En preparación','Live','Hidden']
 };
 
 function clone(value){return JSON.parse(JSON.stringify(value||{}))}
@@ -503,16 +516,30 @@ function card(collection,index,title,subtitle,status,fields,item={}){const state
 function visibleCount(list=[],collection=''){return list.filter(item=>!item.hideFromPublic&&(collection!=='records'||!['DRAFT','PRIVATE LISTING','HIDDEN'].includes(String(item.status||'').toUpperCase()))).length}
 function mediaUrl(item,legacyKey,mediaKey){return item?.[legacyKey]||item?.media?.[mediaKey]?.url||''}
 function counts(){
-  const records=draft.records||[],sessions=draft.sessions||[],events=draft.events||[],archive=draft.archiveItems||[];
-  const media=[...records.map(r=>mediaUrl(r,'coverImage','artwork')),...sessions.map(s=>mediaUrl(s,'heroImage','hero')),...events.map(e=>mediaUrl(e,'posterImage','poster')),...archive.map(a=>mediaUrl(a,'image','image'))].filter(Boolean).length;
-  const hidden=[...records,...sessions,...events,...archive].filter(item=>item.hideFromPublic).length;
-  return {records,sessions,events,archive,media,hidden};
+ const records=draft.records||[],sessions=draft.sessions||[],archive=draft.archiveItems||[];
+ const media=[...records.map(r=>mediaUrl(r,'coverImage','artwork')),...sessions.map(s=>mediaUrl(s,'heroImage','hero')),...archive.map(a=>mediaUrl(a,'image','image'))].filter(Boolean).length;
+ const hidden=[...records,...sessions,...archive].filter(item=>item.hideFromPublic).length;
+ return {records,sessions,archive,media,hidden};
 }
-function renderStats(){const c=counts();byId('stats').innerHTML=[['Records',`${visibleCount(c.records,'records')} / ${c.records.length}`],['Sessions',`${visibleCount(c.sessions)} / ${c.sessions.length}`],['Events',`${visibleCount(c.events)} / ${c.events.length}`],['Images used',c.media]].map(([label,value])=>`<article class="stat-card"><strong>${value}</strong><span>${label}</span></article>`).join('')}
+function renderStats(){const c=counts();byId('stats').innerHTML=[['Records',`${visibleCount(c.records,'records')} / ${c.records.length}`],['Sessions',`${visibleCount(c.sessions)} / ${c.sessions.length}`],['Archive',`${visibleCount(c.archive)} / ${c.archive.length}`],['Images used',c.media]].map(([label,value])=>`<article class="stat-card"><strong>${value}</strong><span>${label}</span></article>`).join('')}
 function renderRecords(){const list=draft.records||[];byId('recordsList').innerHTML=list.length?list.map((r,i)=>card('records',i,r.artist||'Untitled record',`${r.id||'NO ID'} / ${r.genre||'Genre'}`,r.status,[field(`records.${i}.id`,'ID',r.id),field(`records.${i}.artist`,'Artist',r.artist),field(`records.${i}.title`,'Title',r.title),field(`records.${i}.genre`,'Genre',r.genre),field(`records.${i}.price`,'Price',r.price,'number'),field(`records.${i}.stock`,'Stock',r.stock,'number'),selectField(`records.${i}.status`,'Status',r.status,STATUS_OPTIONS.records),toggleField(`records.${i}.featured`,'Featured',!!r.featured,'Use for homepage or highlighted store sections later.'),toggleField(`records.${i}.featuredInPlayer`,'Featured in player',!!r.featuredInPlayer,'Can be used for random/player recommendations.'),visibilityField(`records.${i}.hideFromPublic`,!!r.hideFromPublic,'records',r.status),field(`records.${i}.condition`,'Condition',r.condition),field(`records.${i}.label`,'Label',r.label),field(`records.${i}.year`,'Year',r.year),mediaField(`records.${i}.coverImage`,'Artwork',mediaUrl(r,'coverImage','artwork'),'Upload or replace the record cover from files/camera roll.'),field(`records.${i}.audioPreview`,'Audio preview',r.audioPreview||r.media?.audio?.url||'','text','Upload an original MP3/M4A below or paste an existing audio URL.'),field(`records.${i}.description`,'Description',r.description,'textarea')].join(''),r)).join(''):'<div class="empty">No records yet.</div>'}
 function renderSessions(){const list=draft.sessions||[];byId('sessionsList').innerHTML=list.length?list.map((s,i)=>card('sessions',i,s.title||'Untitled session',`${s.id||'NO ID'} / ${s.type||'Type'}`,s.status,[field(`sessions.${i}.id`,'ID',s.id),field(`sessions.${i}.title`,'Title',s.title),field(`sessions.${i}.type`,'Type',s.type),field(`sessions.${i}.date`,'Date',s.date),selectField(`sessions.${i}.status`,'Status',s.status,STATUS_OPTIONS.sessions),toggleField(`sessions.${i}.featured`,'Featured',!!s.featured),visibilityField(`sessions.${i}.hideFromPublic`,!!s.hideFromPublic,'sessions',s.status),mediaField(`sessions.${i}.heroImage`,'Session image',mediaUrl(s,'heroImage','hero'),'Upload the main session photo from files/camera roll.'),field(`sessions.${i}.audio`,'Session audio',s.audio||s.media?.audio?.url||'','text','Upload audio below, or use the video field for long-form YouTube sessions.'),field(`sessions.${i}.video`,'YouTube / video link',s.video||s.media?.video?.url||'','url','Paste a YouTube link for sessions, interviews, or long sets.'),field(`sessions.${i}.relatedRecords`,'Related records',Array.isArray(s.relatedRecords)?s.relatedRecords.join(', '):s.relatedRecords,'text','Comma-separated record IDs.'),field(`sessions.${i}.detail`,'Description',s.detail,'textarea')].join(''),s)).join(''):'<div class="empty">No sessions yet.</div>'}
-function renderCalendarSettings(){const c=draft.settings.calendar;byId('calendarSettings').innerHTML='<h3>Calendar artwork</h3><div class="field-grid">'+mediaField('settings.calendar.image','Featured calendar image',c.image,'Replace the pin-up with your own image. Landscape 3:2 recommended; keep the left side clear for the title. Upload is included in the data.js export.')+field('settings.calendar.imageAlt','Image description',c.imageAlt)+toggleField('settings.calendar.showTitle','Show text over artwork',c.showTitle!==false,'Turn off if your image already contains text.')+'</div><div class="card-actions"><button class="admin-action" data-save-draft>Save draft</button></div>';}
-function renderEvents(){const list=draft.events||[];byId('eventsList').innerHTML=list.length?list.map((ev,i)=>card('events',i,ev.title||'Untitled event',`${ev.date||'Date'} / ${ev.place||'Place'}`,ev.status,[field(`events.${i}.id`,'ID',ev.id),field(`events.${i}.title`,'Title',ev.title),field(`events.${i}.date`,'Calendar date',CalendarContent.dateInput(ev.date),'date','Leave blank if the date is not announced.'),field(`events.${i}.time`,'Time (local to venue)',ev.time||'','time'),field(`events.${i}.place`,'Place',ev.place),selectField(`events.${i}.status`,'Status',ev.status,STATUS_OPTIONS.events),toggleField(`events.${i}.featured`,'Featured',!!ev.featured),visibilityField(`events.${i}.hideFromPublic`,!!ev.hideFromPublic,'events',ev.status),mediaField(`events.${i}.posterImage`,'Event poster',mediaUrl(ev,'posterImage','poster'),'Upload a flyer or event poster from files/camera roll.'),field(`events.${i}.video`,'YouTube / video link',ev.video||ev.media?.video?.url||'','url'),field(`events.${i}.detail`,'Description',ev.detail,'textarea')].join(''),ev)).join(''):'<div class="empty">No events yet.</div>'}
+function renderVisitSettings(){
+ const v=draft.settings.visitanos||{};
+ const phone=String(v.whatsappNumber||draft.settings.whatsappNumber||'').replace(/\D/g,'');
+ const destination=String(v.mapsQuery||v.address||'').trim();
+ const complete=!!destination&&phone.length>=8;
+ const node=byId('visitSettings');if(!node)return;
+ node.innerHTML=
+  '<div class="settings-note"><strong>Estado de Visítanos: '+(complete?'Rutas y contacto configurados':'Configuración pendiente')+'</strong><span>'+(destination?escapeText(destination):'Falta la dirección o pin exacto')+'</span><p>El mapa y las indicaciones usan una ubicación real verificada; las solicitudes se preparan en WhatsApp y el visitante debe pulsar Enviar.</p></div>'+
+  '<div class="field-grid">'+
+   field('settings.visitanos.about','Sobre nosotros',v.about,'textarea','Texto descriptivo que aparece en la primera sección.')+
+   field('settings.visitanos.address','Dirección visible',v.address,'text','Escribe la dirección exacta que los visitantes deben ver.')+
+   field('settings.visitanos.mapsQuery','Pin para mapas (opcional)',v.mapsQuery,'text','Coordenadas latitud,longitud, Plus Code o dirección exacta. Si lo dejas vacío, los mapas usan la dirección visible.')+
+   field('settings.visitanos.reference','Indicaciones y referencias',v.reference,'textarea','Punto de referencia, entrada u otras instrucciones para llegar.')+
+   field('settings.visitanos.whatsappNumber','WhatsApp de visitas (opcional)',v.whatsappNumber,'tel','Con código del país y solo dígitos. Si queda vacío, se usa el número general de Settings.')+
+  '</div><div class="card-actions"><button class="admin-action" data-save-draft>Guardar borrador</button></div>';
+}
 function renderArchive(){const list=draft.archiveItems||[];byId('archiveList').innerHTML=list.length?list.map((a,i)=>card('archiveItems',i,a.title||'Untitled archive item',`${a.id||'NO ID'} / ${a.category||'Category'}`,a.relatedSession||a.relatedEvent||'archive',[field(`archiveItems.${i}.id`,'ID',a.id),field(`archiveItems.${i}.title`,'Title',a.title),field(`archiveItems.${i}.category`,'Category',a.category),toggleField(`archiveItems.${i}.featured`,'Featured',!!a.featured),visibilityField(`archiveItems.${i}.hideFromPublic`,!!a.hideFromPublic,'archive',null),mediaField(`archiveItems.${i}.image`,'Archive photo',mediaUrl(a,'image','image'),'Upload a store photo, poster, culture image, or memory.'),field(`archiveItems.${i}.relatedSession`,'Related session',a.relatedSession),field(`archiveItems.${i}.relatedEvent`,'Related event',a.relatedEvent),field(`archiveItems.${i}.detail`,'Description',a.detail,'textarea')].join(''),a)).join(''):'<div class="empty">No archive items yet.</div>'}
 function renderSettings(){draft.settings=draft.settings||{};const s=draft.settings;const clean=String(s.whatsappNumber||'').replace(/\D/g,'');const preview=clean?`https://wa.me/${clean}`:'Waiting for number';byId('settingsForm').innerHTML=`<div class="settings-note"><strong>WhatsApp routing</strong><span>${preview}</span><p>Use country code and number only. Ecuador example: 593999999999. USA example: 19175551212.</p></div><div class="field-grid">${field('settings.brandName','Brand name',s.brandName)}${field('settings.location','Location',s.location)}${field('settings.currency','Currency',s.currency)}${field('settings.whatsappNumber','WhatsApp number',s.whatsappNumber,'tel','Country code + number, no plus sign needed.')}${field('settings.instagramUrl','Instagram link',s.instagramUrl,'url')}${field('settings.businessHours','Business hours',s.businessHours)}${field('settings.pickupNotes','Pickup notes',s.pickupNotes,'textarea')}${field('settings.deliveryNotes','Delivery notes',s.deliveryNotes,'textarea')}${field('settings.whatsappText','WhatsApp intro',s.whatsappText,'textarea')}${field('settings.orderFooter','Order message footer',s.orderFooter,'textarea','Customer fields added after the bag total.')}</div><div class="card-actions"><button class="admin-action" data-save-draft>Save draft</button></div>`}
 function publishableDraft(){
@@ -583,7 +610,7 @@ function refreshAll(){
   const sections=Array.from(panel.querySelectorAll('details'));
   expanded.set(panel.id,sections.flatMap((element,index)=>element.open?[index]:[]));
  });
- renderStats();renderHomepage();renderRecords();renderSessions();renderCalendarSettings();renderEvents();renderArchive();renderSettings();renderExport();
+ renderStats();renderHomepage();renderRecords();renderSessions();renderVisitSettings();renderArchive();renderSettings();renderExport();
  for(const [id,indices] of expanded){
   const sections=Array.from(byId(id)?.querySelectorAll('details')||[]);
   indices.forEach(index=>{if(sections[index])sections[index].open=true});
@@ -642,7 +669,6 @@ document.addEventListener('click',e=>{
   const heroRemove=e.target.closest('[data-hero-remove]');if(heroRemove){if(confirm('Remove this hero image from the draft?'))removeHeroSlide(Number(heroRemove.dataset.heroRemove));return}
   if(e.target.closest('[data-add-record]')){addItem('records');return}
   if(e.target.closest('[data-add-session]')){addItem('sessions');return}
-  if(e.target.closest('[data-add-event]')){addItem('events');return}
   if(e.target.closest('[data-add-archive]')){addItem('archiveItems');return}
   const remove=e.target.closest('[data-remove]');if(remove){const [collection,index]=remove.dataset.remove.split('.');if(confirm('Remove this item from your draft?')){draft[collection].splice(Number(index),1);saveDraft()}}
 });
