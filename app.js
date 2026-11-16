@@ -471,11 +471,6 @@ async function setupHomepageHero(){
 }
 window.addEventListener('beforeunload',()=>heroObjectUrls.forEach(url=>URL.revokeObjectURL(url)));
 
-function upcomingHomeEvent(events,today){
- const dated=event=>{const match=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec(event.date||'');return match?match[3]+'-'+match[2]+'-'+match[1]:/^\d{4}-\d{2}-\d{2}$/.test(event.date||'')?event.date:''};
- return events.filter(event=>!event.hideFromPublic&&!/^(archivo|pasado|cancelado|cancelled|draft|hidden|private listing)$/i.test(event.status||'')&&(!dated(event)||dated(event)>=today)).sort((a,b)=>(dated(a)||'9999').localeCompare(dated(b)||'9999'))[0]||null;
-}
-
 function renderRecordPreview(){
  if(!grid)return;
  // Opt-in empty-layout preview never changes the catalog in storage.
@@ -602,27 +597,6 @@ function enhancePublicSite(){
    sessionsCopy.insertAdjacentHTML('beforeend','<p class="home-sessions-empty">'+(uiEmptyPreview?'VISTA DE DISEÑO · SIN CONTENIDO':'NUEVAS SESIONES · PRÓXIMAMENTE')+'</p>');
   }
  }
- const archiveSection=document.querySelector('.archive-section');
- if(archiveSection&&!document.querySelector('.events-section')){
-  archiveSection.insertAdjacentHTML('beforebegin',`<section class="events-section motion-section" id="events"><div class="events-copy motion-copy"><p class="eyebrow">03 / PRÓXIMOS ENCUENTROS</p><h2>Buenas <em>noches.</em></h2><a href="eventos.html" style="display:inline-block;margin-top:24px;font-weight:900;text-underline-offset:6px">ABRIR EL CALENDARIO <span class="lvl-decorative-glyph" aria-hidden="true">↗</span></a></div><a href="eventos.html" aria-label="Explorar el calendario de eventos" class="home-calendar-art" style="display:block;overflow:hidden"><img data-calendar-image src="assets/images/events/calendar-pinup.jpg" alt="Pin-up vintage en una tienda de discos" loading="lazy" width="1536" height="1024" style="display:block;width:100%;height:100%;object-fit:cover"></a></section>`);
- }
- if(uiEmptyPreview){
-  const art=document.querySelector('.home-calendar-art');
-  if(art){
-   art.classList.add('is-design-preview');
-   art.href='eventos.html?ui-preview=empty';
-   art.setAttribute('aria-label','Vista de diseño del calendario sin eventos');
-   art.innerHTML='<span class="home-calendar-placeholder"><small>LA VACA LOCA / EVENTOS</small><strong>LVL</strong><small>CALENDARIO · GUALACEO</small></span>';
-  }
- }
- const upcoming=uiEmptyPreview?null:upcomingHomeEvent(EVENTS,new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()));
- const eventCopy=document.querySelector('.events-copy');
- if(eventCopy&&!eventCopy.querySelector('.home-event-preview')){
-  const preview=document.createElement('a');preview.className='home-event-preview';preview.href=upcoming?'eventos.html#'+encodeURIComponent(upcoming.id):'eventos.html';
-  const title=document.createElement('strong');title.textContent=upcoming?.title||'La próxima fecha, pronto';
-  const meta=document.createElement('span');meta.textContent=upcoming?[upcoming.place,/^(\d{2}\.\d{2}\.\d{4}|\d{4}-\d{2}-\d{2})$/.test(upcoming.date||'')?upcoming.date:'Fecha por confirmar'].filter(Boolean).join(' · '):'Explora el calendario y los encuentros anteriores';
-  preview.append(title,meta);eventCopy.insertBefore(preview,eventCopy.querySelector('a'));
- }
  const panel=document.getElementById('cartPanel');
  if(panel&&!panel.classList.contains('bag-experience')){
   panel.classList.add('bag-experience');
@@ -634,10 +608,10 @@ function enhancePublicSite(){
   if(checkout)checkout.textContent='ENVIAR BAG POR WHATSAPP';
  }
  if(!document.querySelector('.site-footer')){
-  document.querySelector('main').insertAdjacentHTML('afterend',`<footer class="site-footer"><div><span>${settings.location||'Gualaceo, Ecuador'} · discos · sessions · cultura</span></div><nav><a href="discos.html">Discos</a><a href="sessions.html">Sessions</a><a href="eventos.html">Eventos</a><a href="archivo.html">Archivo</a></nav></footer>`);
+  document.querySelector('main').insertAdjacentHTML('afterend',`<footer class="site-footer"><div><span>${settings.location||'Gualaceo, Ecuador'} · discos · sessions · cultura</span></div><nav><a href="discos.html">Discos</a><a href="sessions.html">Sessions</a><a href="visitanos.html">Visítanos</a><a href="archivo.html">Archivo</a></nav></footer>`);
  }
  const nav=document.querySelector('.main-nav');
- if(nav&&!nav.querySelector('[href="eventos.html"]'))nav.insertAdjacentHTML('beforeend','<a href="eventos.html">EVENTOS</a>');
+ if(nav&&!nav.querySelector('[href="visitanos.html"]'))nav.insertAdjacentHTML('beforeend','<a href="visitanos.html">VISÍTANOS</a>');
 }
 function showSessionDetail(id){
  const item=SESSIONS.find(x=>x.id===id);
