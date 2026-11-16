@@ -27,7 +27,7 @@
    <a href="index.html">Inicio</a>
    <a href="discos.html">Discos</a>
    <a href="sessions.html">Sessions</a>
-   <a href="eventos.html">Eventos</a>
+   <a href="visitanos.html">Visítanos</a>
    <a href="archivo.html">Archivo</a>
   </nav>
   <div class="footer-connect" aria-label="Conectar con La Vaca Loca">
