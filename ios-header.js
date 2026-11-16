@@ -18,7 +18,7 @@
   ['Inicio','index.html','home'],
   ['Discos','discos.html','discos'],
   ['Sessions','sessions.html','sessions'],
-  ['Eventos','eventos.html','eventos'],
+  ['Visítanos','visitanos.html','visitanos'],
   ['Archivo','archivo.html','archivo']
  ];
  const current=document.body.dataset.page||'home';

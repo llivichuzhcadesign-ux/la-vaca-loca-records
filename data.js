@@ -3,6 +3,13 @@ window.SITE_CONTENT = {
     calendar: {image:'assets/images/events/calendar-pinup.jpg',imageAlt:'Ilustración pin-up vintage en una tienda de discos',showTitle:true},
     brandName: 'La Vaca Loca Records',
     location: 'Gualaceo, Ecuador',
+    visitanos: {
+      about: 'La Vaca Loca Records es un proyecto independiente en Gualaceo, Ecuador, dedicado a los discos, las sesiones y la cultura musical. Un lugar para explorar sonidos, compartir ideas y descubrir música.',
+      address: '',
+      mapsQuery: '',
+      reference: '',
+      whatsappNumber: ''
+    },
     whatsappNumber: '',
     whatsappText: 'Hola! Quiero hacer este pedido de La Vaca Loca Records:',
     orderFooter: 'Nombre:\nCiudad:\nEntrega o retiro:',
