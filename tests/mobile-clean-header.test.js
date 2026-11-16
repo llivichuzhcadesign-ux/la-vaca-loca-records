@@ -5,9 +5,9 @@ const read=path=>fs.readFileSync(require.resolve('../'+path),'utf8');
 const css=read('site-theme.css');
 const nav=read('ios-header.js');
 const home=read('index.html');
-const events=read('eventos.html');
+const visit=read('visitanos.html');
 const discs=read('discos.html');
-const eventJs=read('eventos.js');
+const visitJs=read('visitanos.js');
 const discosJs=read('discos.js');
 const bag=read('bag.js');
 
@@ -25,19 +25,18 @@ assert.match(nav,/like\.innerHTML='<svg/);
 assert.doesNotMatch(nav,/like\.textContent=saved\.has\(r\.id\)\?'♥':'♡'/);
 
 assert.equal((home.match(/class="lvl-control-arrow"/g)||[]).length,4);
-assert.equal((events.match(/class="lvl-control-arrow"/g)||[]).length,2);
+assert.match(visit,/id="visitGoogleMaps"/);assert.match(visit,/id="visitAppleMaps"/);
 assert.match(home,/class="lvl-mobile-link-text">Archivo/);
 assert.match(discs,/id="libraryBack"[^>]*><svg class="lvl-control-arrow"/);
 assert.doesNotMatch(discs,/>← Volver/);
-assert.doesNotMatch(eventJs,/●/);
-assert.doesNotMatch(eventJs,/mobile-event-arrow" aria-hidden="true">↗/);
+assert.match(visit,/id="visitForm"/);
 assert.doesNotMatch(discosJs,/Consultar este disco ↗/);
 assert.doesNotMatch(bag,/Ordenar por WhatsApp ↗/);
 
-for(const file of ['app.js','bag.js','discos.js','editorial.js','eventos.js','ios-header.js']){
+for(const file of ['app.js','bag.js','discos.js','editorial.js','visitanos.js','ios-header.js']){
  new Function(read(file));
 }
-for(const file of ['site-theme.css','discos.css','eventos.css']){
+for(const file of ['site-theme.css','discos.css','visitanos.css']){
  const source=read(file);
  assert.equal((source.match(/{/g)||[]).length,(source.match(/}/g)||[]).length,file+' balanced');
 }
