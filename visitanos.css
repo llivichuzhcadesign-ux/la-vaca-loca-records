@@ -1,0 +1,103 @@
+/* Visítanos: photographic editorial rhythm shared with the LVL landing page. */
+body[data-page="visitanos"]{--visit-paper:#eee5d3;--visit-ink:#090907;--visit-pink:#ff5aa7;--visit-line:rgba(238,229,211,.25);background:var(--visit-ink);color:var(--visit-paper)}
+body[data-page="visitanos"] main{overflow:hidden}
+body[data-page="visitanos"] .editorial-header{background:#090907}
+body[data-page="visitanos"] :is(button,input,select,textarea){font:inherit}
+body[data-page="visitanos"] :is(button,a,input,select,textarea):focus-visible{outline:2px solid var(--visit-pink);outline-offset:3px}
+.visit-intro,.visit-about,.visit-location,.visit-booking{padding:clamp(35px,5vw,74px) var(--lvl-gutter,5vw) clamp(64px,8vw,124px)}
+.visit-intro{padding-top:26px;border-bottom:1px solid var(--visit-line)}
+.visit-topline,.visit-section-meta,.visit-form-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:10px;letter-spacing:.16em;font-weight:800;text-transform:uppercase}
+.visit-topline{padding-bottom:25px;border-bottom:1px solid var(--visit-line);color:#c4b9aa}
+.visit-section-meta{padding-bottom:17px;margin-bottom:clamp(34px,5vw,76px);border-bottom:1px solid var(--visit-line);color:#c7b9a6}
+.visit-section-meta span:first-child,.visit-kicker{color:var(--visit-pink)}
+.visit-intro-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.04fr);gap:6vw;align-items:center;padding-top:clamp(36px,6vw,90px)}
+.visit-kicker{margin:0;font-weight:900;letter-spacing:.17em;font-size:10px}
+.visit-intro h1,.visit-location h2,.visit-booking h2{margin:20px 0 30px;font-size:clamp(72px,10.5vw,160px);line-height:.84;letter-spacing:-.087em;font-weight:900}
+.visit-period{color:var(--visit-pink)}
+.visit-lead{font-size:clamp(20px,2.35vw,33px);line-height:1.27;letter-spacing:-.025em;max-width:630px;margin:0;color:#e4d9c8}
+.visit-index{display:flex;flex-direction:column;gap:0;margin-top:clamp(40px,6vw,74px);max-width:480px}
+.visit-index a{display:flex;align-items:center;justify-content:space-between;padding:16px 0;color:var(--visit-paper);text-decoration:none;border-bottom:1px solid var(--visit-line);font-weight:800;font-size:12px;letter-spacing:.055em;text-transform:uppercase;transition:color .2s,padding .2s}
+.visit-index a:first-child{border-top:1px solid var(--visit-line)}
+.visit-index a:hover{color:var(--visit-pink);padding-left:8px}
+.visit-index a span{font-size:18px}
+.visit-photo{position:relative;aspect-ratio:4/4.65;min-height:420px;max-height:740px;margin:0;overflow:hidden;background:#211d19}
+.visit-photo img{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(.85) contrast(1.03)}
+.visit-photo:after{content:"";position:absolute;inset:52% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.55));pointer-events:none}
+.visit-photo figcaption{position:absolute;z-index:1;bottom:22px;left:24px;right:24px;display:flex;justify-content:space-between;gap:10px;font-size:10px;letter-spacing:.12em;font-weight:800}
+.visit-about{background:var(--visit-paper);color:var(--visit-ink)}
+.visit-about .visit-section-meta{border-color:#2c272044;color:#665e53}
+.visit-about .visit-section-meta span:first-child{color:#5a352b}
+.visit-about-grid{display:grid;grid-template-columns:1fr 1fr;gap:8vw;align-items:start}
+.visit-about h2,.visit-map-info h3{font-size:clamp(45px,6.1vw,94px);line-height:.89;letter-spacing:-.07em;margin:0;overflow-wrap:anywhere}
+.visit-about h2 em,.visit-booking h2 em{font-family:Georgia,serif;font-weight:400;letter-spacing:-.055em}
+.visit-about-grid>div{max-width:570px}
+.visit-about-grid>div>p:first-child{font-size:clamp(20px,2.6vw,34px);line-height:1.35;letter-spacing:-.035em;margin:0 0 26px;white-space:pre-line}
+.visit-small-note{font-size:14px;line-height:1.5;color:#625b51;margin:0 0 28px}
+.visit-text-link{display:inline-flex;align-items:center;gap:40px;padding:14px 0;text-decoration:none;border-bottom:2px solid var(--visit-ink);font-size:11px;font-weight:900;letter-spacing:.075em}
+.visit-text-link:hover{color:#d32b79}
+.visit-location{background:#12110f;color:var(--visit-paper)}
+.visit-location-head{display:grid;grid-template-columns:1.2fr .8fr;gap:5vw;align-items:end;margin-bottom:38px}
+.visit-location h2{font-size:clamp(55px,8.5vw,130px);margin:16px 0 0}
+.visit-address-block{border-left:2px solid var(--visit-pink);padding:12px 0 10px 22px;min-width:0}
+.visit-address-block span{display:block;color:var(--visit-pink);font-size:10px;font-weight:900;letter-spacing:.15em;margin-bottom:12px}
+.visit-address-block strong{display:block;font-size:clamp(19px,2.5vw,31px);line-height:1.22;overflow-wrap:anywhere}
+.visit-address-block p{font-size:13px;line-height:1.5;color:#b9ada0;margin-bottom:0}
+.visit-map-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(290px,.65fr);min-height:480px;border:1px solid var(--visit-line)}
+.visit-map{background:#26231d;min-height:480px}
+.visit-map iframe{display:block;border:0;width:100%;height:100%;min-height:480px;filter:grayscale(.85) contrast(.96)}
+.visit-map-info{padding:clamp(25px,3.5vw,58px);display:flex;flex-direction:column;justify-content:center;border-left:1px solid var(--visit-line)}
+.visit-map-info h3{font-size:clamp(40px,4vw,64px);margin:18px 0 23px}
+.visit-map-info>p:not(.visit-kicker){max-width:390px;line-height:1.6;color:#c3b9aa;font-size:14px}
+.visit-directions{display:grid;gap:10px;margin:22px 0 12px}
+.visit-map-link{min-height:52px;border:1px solid #bdb3a5;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;text-decoration:none;color:var(--visit-paper);font-size:11px;font-weight:900;letter-spacing:.06em;transition:background .2s,color .2s}
+.visit-map-link:hover:not(.is-unavailable){background:var(--visit-paper);color:var(--visit-ink)}
+.visit-map-link.is-unavailable{opacity:.45;cursor:not-allowed}
+.visit-map-footnote{font-size:11px!important;color:#918778!important}
+.visit-booking{background:#211c19}
+.visit-booking-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(35px,7vw,125px);align-items:start}
+.visit-booking h2{font-size:clamp(70px,9vw,140px)}
+.visit-booking-copy>p:not(.visit-kicker){font-size:clamp(17px,1.8vw,23px);line-height:1.5;color:#ded1be;max-width:510px}
+.visit-booking-copy .visit-booking-disclaimer{font-size:13px!important;color:#b2a393!important;border-top:1px solid var(--visit-line);padding-top:24px;margin-top:34px}
+.visit-form{background:var(--visit-paper);color:var(--visit-ink);padding:clamp(22px,3.7vw,56px);display:grid;gap:19px}
+.visit-form-heading{padding-bottom:20px;border-bottom:1px solid #29241c44;color:#655b4e;margin-bottom:9px}
+.visit-field{display:grid;gap:9px;min-width:0}
+.visit-field label{font-size:11px;letter-spacing:.025em;font-weight:900}
+.visit-field label span{color:#b82d6f}
+.visit-field input,.visit-field select,.visit-field textarea{appearance:none;background:transparent;border:1px solid #8b8173;border-radius:0;width:100%;padding:14px 12px;min-height:48px;font-size:16px!important;color:#15130f}
+.visit-field textarea{resize:vertical;min-height:110px}
+.visit-field input::placeholder,.visit-field textarea::placeholder{color:#6f665b}
+.visit-form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.visit-form-status{color:#9a2650;line-height:1.5;font-size:13px;margin:0;min-height:0}
+.visit-form-status:empty{display:none}
+.visit-submit{border:0;background:var(--visit-pink);color:#090907;min-height:56px;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;gap:15px;font-size:12px;font-weight:900;letter-spacing:.06em;cursor:pointer}
+.visit-submit:hover:not(:disabled){background:#f43995}
+.visit-submit:disabled{opacity:.52;cursor:not-allowed}
+.visit-privacy{font-size:11px;line-height:1.55;color:#62584d;margin:0}
+@media(max-width:900px){
+ .visit-intro-grid{gap:4vw}.visit-photo{min-height:350px}
+ .visit-map-layout{grid-template-columns:1fr}
+ .visit-map-info{border-left:0;border-top:1px solid var(--visit-line)}
+ .visit-map{min-height:420px}.visit-map iframe{min-height:420px}
+ .visit-location-head{grid-template-columns:1fr}
+ .visit-address-block{max-width:620px}
+}
+@media(max-width:700px){
+ .visit-intro,.visit-about,.visit-location,.visit-booking{padding-inline:18px;padding-bottom:72px}
+ .visit-topline{font-size:9px}
+ .visit-intro-grid,.visit-about-grid,.visit-booking-grid{grid-template-columns:1fr}
+ .visit-intro-grid{gap:40px}
+ .visit-intro h1{font-size:clamp(69px,18vw,118px);margin:17px 0 23px}
+ .visit-lead{max-width:490px}
+ .visit-index{margin-top:32px}
+ .visit-photo{min-height:0;aspect-ratio:4/3.9;max-height:none}
+ .visit-about h2{font-size:clamp(51px,12vw,83px)}
+ .visit-about-grid>div>p:first-child{font-size:23px}
+ .visit-location h2{font-size:clamp(55px,12.5vw,88px)}
+ .visit-map{min-height:340px}.visit-map iframe{min-height:340px}
+ .visit-map-info{padding:30px 23px}
+ .visit-booking h2{font-size:clamp(65px,14vw,105px)}
+ .visit-booking-grid{gap:35px}
+ .visit-form{padding:24px 19px}
+}
+@media(max-width:400px){.visit-form-row{grid-template-columns:1fr}.visit-intro h1{font-size:19vw}.visit-topline span:last-child{font-size:8px}.visit-map-info h3{font-size:44px}}
+@media(prefers-reduced-motion:reduce){.visit-index a,.visit-map-link{transition:none}}
