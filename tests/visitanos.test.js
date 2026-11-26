@@ -16,6 +16,19 @@ assert.doesNotMatch(read('admin/index.html'),/data-panel="events"/);
 assert.match(read('admin/index.html'),/data-panel="visitanos"/);
 assert.match(read('eventos.html'),/location\.replace/);
 
+const visitHtml=read('visitanos.html');
+const visitCss=read('visitanos.css');
+assert.equal((visitHtml.match(/<h1\b/g)||[]).length,1,'One main heading');
+assert.match(visitHtml,/id="visitAboutText"/,'One editable store biography');
+assert.doesNotMatch(visitHtml,/visit-index|visit-about|id="visitInterest"/,'Remove repeated sections and reason dropdown');
+assert.doesNotMatch(visitHtml,/FORMULARIO DE VISITA|Tu camino a LVL|Encuéntranos\./,'Remove secondary promotional headings');
+for(const id of ['visitMap','visitGoogleMaps','visitAppleMaps','visitForm','visitName','visitDate','visitTime','visitGuests','visitNote']){
+ assert.match(visitHtml,new RegExp('id="'+id+'"'),'Missing '+id);
+}
+assert.ok(visitCss.includes('--visit-pink:var(--lvl-pink'),'Share site accent color');
+assert.ok(visitCss.includes('@media(max-width:680px)'),'Mobile layout');
+assert.equal((visitCss.match(/\{/g)||[]).length,(visitCss.match(/\}/g)||[]).length,'Balanced CSS');
+
 const script=read('visitanos.js');
 new Function(script);
 function el(){
@@ -56,4 +69,7 @@ const empty=run({location:'Gualaceo, Ecuador',whatsappNumber:'',visitanos:{}});
 assert.equal(empty.elements.visitSubmit.disabled,true,'Must not send to unknown recipient');
 assert.equal(empty.elements.visitGoogleMaps.href,'','Must not route to approximate city center');
 assert.match(empty.elements.visitMap.src,/Gualaceo/);
+assert.doesNotMatch(message,/Motivo: /,'Streamlined form must not send a deleted field');
+assert.equal(configured.elements.visitMapNote.hidden,true,'Avoid repeated directions copy');
+assert.match(configured.elements.visitAboutText.textContent,/Espacio de música/,'Admin custom bio preserved');
 console.log('PASS: Visítanos navigation, map links, WhatsApp request and safe unconfigured state.');
