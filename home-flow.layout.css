@@ -22,7 +22,7 @@ body .sessions-section h2 em,body .archive-main h2 em,body .events-copy h2 em{fo
 body .sessions-copy>p:last-of-type{max-width:none;margin:28px auto 52px;color:#a89a89;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
 body .sessions-copy .session-cards{display:flex;justify-content:center;max-width:none;margin:0 auto 45px;gap:32px;text-align:left}
 body .session-cards .session-card{background:none;border:0;border-top:1px solid #eee5d329;padding:18px 0;flex:1;max-width:330px;transition:border-color .3s,color .3s}
-body .session-cards .session-card:hover{background:none;color:#fff;border-color:#ff5aa7}
+body .session-cards .session-card:hover{background:none;color:#fff;border-color:#d7b46a}
 body .session-cards .session-card small,body .session-cards .session-card span{color:#a89a89;font-weight:500;font-size:9px;letter-spacing:.09em}
 body .session-cards .session-card strong{font-family:Georgia,serif;font-weight:400;font-size:26px;line-height:1.12;margin:12px 0}
 body .sessions-photo{display:block;width:100%;max-width:1500px;margin:auto;min-height:0;height:clamp(380px,48vw,700px);background-position:center 45%;background-image:linear-gradient(0deg,#090907b3,transparent 70%),url('assets/images/site/hero/lvl-hero-03.webp');overflow:hidden}

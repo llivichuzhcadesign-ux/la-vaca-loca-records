@@ -22,7 +22,7 @@
    ctx.globalAlpha=played?1:.72;ctx.fillStyle=played?'#e5c89b':'#b99c77';
    if(size>.05)ctx.fillRect(x,h/2-size,width,size*2);
   }
-  ctx.globalAlpha=1;ctx.fillStyle='#ff5aa7';ctx.fillRect(w*progress/100-1,0,2,h);
+  ctx.globalAlpha=1;ctx.fillStyle='#d7b46a';ctx.fillRect(w*progress/100-1,0,2,h);
  }
  function schedule(){if(!frame)frame=requestAnimationFrame(draw)}
  root.drawVinylWaveform=value=>{progress=value;schedule()};

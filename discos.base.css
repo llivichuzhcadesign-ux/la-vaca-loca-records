@@ -7,7 +7,7 @@ body[data-page="discos"]{background:#181714;color:#eee3cf;--accent:#e7cba2;overf
 .vinyl:before{content:"";position:absolute;inset:2.8%;border-radius:50%;border:1px solid #eee3cf22;box-shadow:inset 0 0 0 1px #0007}
 .vinyl-sheen{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from -18deg,transparent 0 17%,#f8e8c40d 23%,#ffffff22 29%,#f8e8c40a 35%,transparent 42% 70%,#ffffff0d 78%,transparent 88%);mix-blend-mode:screen;pointer-events:none}
 .playing .vinyl{animation-play-state:running}
-.disc-label{position:absolute;inset:35.5%;border-radius:50%;display:grid;place-items:center;text-align:center;overflow:hidden;background:radial-gradient(circle at 48% 42%,#f6d971 0 22%,#ef9a5f 35%,#d86075 58%,#b74d78 72%,#e2b865 100%);background-position:center;background-size:cover;color:#241a18;box-shadow:0 0 0 2px #111,0 0 12px #0007}
+.disc-label{position:absolute;inset:35.5%;border-radius:50%;display:grid;place-items:center;text-align:center;overflow:hidden;background:radial-gradient(circle at 48% 42%,#f6d971 0 22%,#ef9a5f 35%,#c79640 58%,#9b692a 72%,#e2b865 100%);background-position:center;background-size:cover;color:#241a18;box-shadow:0 0 0 2px #111,0 0 12px #0007}
 .disc-label:after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 40% 35%,#ffffff2a,transparent 48%);pointer-events:none}
 .disc-label span{position:relative;z-index:1;padding:8px;font-size:clamp(7px,1vw,11px);font-weight:900;letter-spacing:.08em;max-width:100%;overflow:hidden}
 .spindle{position:absolute;width:2.5%;aspect-ratio:1;left:48.75%;top:48.75%;border-radius:50%;background:radial-gradient(circle at 36% 30%,#fff 0 11%,#b9b9b7 24%,#555 52%,#171717 70%);box-shadow:0 2px 4px #0009;transform:translateZ(22px);z-index:9}

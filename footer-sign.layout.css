@@ -122,12 +122,12 @@ body .lvl-footer.illuminated-footer .footer-bottom a {
 .footer-interaction-halo {
  inset:auto;left:50%;top:48%;width:640px;height:480px;
  transform:translate(-50%,-50%);
- background:radial-gradient(ellipse,rgba(245,139,178,.22),rgba(200,145,104,.08) 40%,transparent 72%);
+ background:radial-gradient(ellipse,rgba(218,183,107,.22),rgba(200,145,104,.08) 40%,transparent 72%);
 }
 .footer-fog-cloud i,.footer-fog-cloud .footer-haze-bloom {filter:none;}
 .footer-electric-aura {filter:none;stroke-width:9px;}
-.footer-electric-core {filter:drop-shadow(0 0 4px rgba(255,184,195,.6));}
-.footer-electric-contour {filter:drop-shadow(0 0 5px rgba(235,119,173,.6));}
+.footer-electric-core {filter:drop-shadow(0 0 4px rgba(255,214,125,.6));}
+.footer-electric-contour {filter:drop-shadow(0 0 5px rgba(198,166,97,.6));}
 .footer-electric-branch {filter:none;}
 .footer-sonic-ink path {filter:none;}
 .lvl-footer:not(.sign-visible) .footer-laser-backdrop *,
@@ -416,9 +416,9 @@ body .lvl-footer.illuminated-footer .footer-connect a .footer-social-name {
   }
   body .lvl-footer.illuminated-footer .footer-connect a:hover,
   body .lvl-footer.illuminated-footer .footer-connect a:focus-visible {
-    border-color:#ef9aab;
-    background:rgba(239,154,171,.10);
-    color:#ef9aab;
+    border-color:#d7b46a;
+    background:rgba(228,192,112,.10);
+    color:#d7b46a;
   }
 }
 
