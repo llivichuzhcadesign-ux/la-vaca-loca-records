@@ -51,7 +51,7 @@ body .site-header .cart-button:focus-visible{outline:2px solid var(--pink);outli
  box-shadow:0 0 0 16px #eeeeee08,0 0 0 40px #eeeeee05;
 }
 .memory-placeholder-mark{
- position:relative;z-index:1;font:400 clamp(22px,4vw,48px)/1 Georgia,serif;
+ position:relative;z-index:1;font:400 clamp(22px,4vw,48px)/1 var(--lvl-font-editorial,Georgia,serif);
  letter-spacing:-.1em;
 }
 .memory-placeholder-label,.memory-placeholder-foot{

@@ -12,7 +12,7 @@ header .lvl-brand-trigger img{
 header .lvl-brand-trigger[aria-expanded="true"]{opacity:.87}
 header .lvl-header-actions{
  grid-column:3;grid-row:1;justify-self:end;
- display:flex;align-items:center;justify-content:flex-end;gap:4px;min-width:44px;
+ display:flex;align-items:center;justify-content:flex-end;gap:4px;min-width:var(--lvl-target,44px);
 }
 header .lvl-header-actions .ios-heart{
  display:none;align-items:center;justify-content:center;border:0;background:transparent;
@@ -21,7 +21,7 @@ header .lvl-header-actions .ios-heart{
 header .lvl-header-actions .ios-heart svg{width:25px;height:25px;display:block}
 header .lvl-header-actions .ios-basket{
  display:flex;align-items:center;justify-content:center;
- min-width:44px;height:44px;padding:0;border:0;background:transparent;color:inherit;
+ min-width:var(--lvl-target,44px);height:44px;padding:0;border:0;background:transparent;color:inherit;
 }
 header .lvl-header-actions .ios-basket img{display:block;width:32px;height:34px;object-fit:contain;filter:none}
 header .lvl-header-dropdown{
@@ -34,7 +34,7 @@ header .lvl-header-dropdown{
 header .lvl-header-dropdown[hidden]{display:none!important}
 header .lvl-header-dropdown-inner{max-width:1500px;margin:0 auto;padding:24px clamp(18px,5vw,80px) 32px}
 header .lvl-header-dropdown-kicker{
- margin:0 0 18px;font:700 10px/1.4 Arial,Helvetica,sans-serif;letter-spacing:.16em;color:var(--lvl-pink);
+ margin:0 0 18px;font:700 var(--lvl-type-label)/1.4 var(--lvl-font-ui,Arial,Helvetica,sans-serif);letter-spacing:.16em;color:var(--lvl-pink);
 }
 header .lvl-header-dropdown nav{
  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));
@@ -48,9 +48,9 @@ header .lvl-header-dropdown nav a{
 }
 header .lvl-header-dropdown nav a:hover,header .lvl-header-dropdown nav a:focus-visible,
 header .lvl-header-dropdown nav a[aria-current="page"]{color:var(--lvl-pink)!important}
-header .lvl-header-nav-number{font:600 10px Arial,Helvetica,sans-serif;color:#c0b29a}
-header .lvl-header-nav-title{font:400 clamp(20px,2.3vw,36px)/1.15 Georgia,serif;letter-spacing:-.045em}
-header .lvl-header-nav-arrow{margin-left:auto;font:18px/1 Arial,Helvetica,sans-serif;opacity:.55}
+header .lvl-header-nav-number{font:600 var(--lvl-type-label) var(--lvl-font-ui,Arial,Helvetica,sans-serif);color:#c0b29a}
+header .lvl-header-nav-title{font:400 clamp(20px,2.3vw,36px)/1.15 var(--lvl-font-editorial,Georgia,serif);letter-spacing:-.045em}
+header .lvl-header-nav-arrow{margin-left:auto;font:18px/1 var(--lvl-font-ui,Arial,Helvetica,sans-serif);opacity:.55}
 header .lvl-header-dropdown nav a::after{display:none!important}
 
 /* Uniform phone layout, on iOS and every other mobile browser. */
@@ -75,10 +75,10 @@ html header>.lvl-header-actions{
  justify-self:end!important;align-items:center;gap:3px;
 }
 html header .lvl-header-actions .ios-heart{
- display:flex!important;width:40px;min-width:40px;height:44px;min-height:44px;
+ display:flex!important;width:40px;min-width:40px;height:44px;min-height:var(--lvl-target,44px);
 }
 html header .lvl-header-actions .ios-basket{
- display:flex!important;width:40px!important;min-width:40px!important;height:44px!important;min-height:44px!important;
+ display:flex!important;width:40px!important;min-width:40px!important;height:44px!important;min-height:var(--lvl-target,44px)!important;
 }
 html header .lvl-header-actions .ios-basket img{width:29px!important;height:31px!important}
 html .site-header>.main-nav,html .editorial-header>nav[aria-label="Navegación principal"]{display:none!important}
@@ -114,10 +114,10 @@ html.ios-header header>.lvl-header-actions{
  justify-self:end!important;align-items:center;gap:3px;
 }
 html.ios-header header .lvl-header-actions .ios-heart{
- display:flex!important;width:40px;min-width:40px;height:44px;min-height:44px;
+ display:flex!important;width:40px;min-width:40px;height:44px;min-height:var(--lvl-target,44px);
 }
 html.ios-header header .lvl-header-actions .ios-basket{
- display:flex!important;width:40px!important;min-width:40px!important;height:44px!important;min-height:44px!important;
+ display:flex!important;width:40px!important;min-width:40px!important;height:44px!important;min-height:var(--lvl-target,44px)!important;
 }
 html.ios-header header .lvl-header-actions .ios-basket img{width:29px!important;height:31px!important}
 html.ios-header .site-header>.main-nav,html.ios-header .editorial-header>nav[aria-label="Navegación principal"]{display:none!important}
@@ -169,11 +169,11 @@ header .lvl-brand-trigger img{min-width:0;flex:0 1 auto;max-width:calc(100% - 23
   justify-self:end!important;align-items:center;gap:3px;
  }
  html:not(.ios-header) body header .lvl-header-actions .ios-heart{
-  display:flex!important;width:40px;min-width:40px;height:44px;min-height:44px;
+  display:flex!important;width:40px;min-width:40px;height:44px;min-height:var(--lvl-target,44px);
  }
  html:not(.ios-header) body header .lvl-header-actions .ios-basket{
   display:flex!important;width:40px!important;min-width:40px!important;
-  height:44px!important;min-height:44px!important;
+  height:44px!important;min-height:var(--lvl-target,44px)!important;
  }
  html:not(.ios-header) body header .lvl-header-actions .ios-basket img{
   width:29px!important;height:31px!important;
@@ -206,11 +206,11 @@ header .lvl-brand-trigger img{min-width:0;flex:0 1 auto;max-width:calc(100% - 23
 @media(max-width:600px){
  body[data-page] .back-link,
  body[data-page] .page-index a{
-  font-size:13px;line-height:1.5;
+  font-size:var(--lvl-type-control);line-height:1.5;
  }
  body[data-page] .page-intro .eyebrow,
  body[data-page] .entry-meta{
-  font-size:12px;letter-spacing:.1em;line-height:1.5;
+  font-size:var(--lvl-type-label);letter-spacing:.1em;line-height:1.5;
  }
  body[data-page] .page-intro h1{
   font-size:clamp(43px,14vw,72px);
@@ -221,15 +221,15 @@ header .lvl-brand-trigger img{min-width:0;flex:0 1 auto;max-width:calc(100% - 23
   line-height:1.13;
  }
  body[data-page] .entry p{
-  font-size:15px;line-height:1.75;
+  font-size:var(--lvl-type-body);line-height:1.75;
  }
  body[data-page] .entry summary{
-  min-height:44px;display:flex;align-items:center;cursor:pointer;
+  min-height:var(--lvl-target,44px);display:flex;align-items:center;cursor:pointer;
  }
  body[data-page="eventos"] .calendar-paper{padding-top:24px}
  body[data-page="discos"] #recordSearch,
  body[data-page="discos"] #genreFilter{
-  font-size:16px;min-height:44px;
+  font-size:16px;min-height:var(--lvl-target,44px);
  }
  body[data-page] header .lvl-header-dropdown nav a{
   min-height:56px;
@@ -265,12 +265,12 @@ header .lvl-brand-trigger img{min-width:0;flex:0 1 auto;max-width:calc(100% - 23
   border-top:0;border-bottom:1px solid #eee5d31e;
   color:var(--lvl-paper)!important;
   text-decoration:none;text-transform:uppercase;
-  font:600 12px/1.4 Arial,Helvetica,sans-serif!important;
+  font:600 var(--lvl-type-control)/1.4 var(--lvl-font-ui,Arial,Helvetica,sans-serif)!important;
   letter-spacing:.12em!important;
  }
  html body header .lvl-header-dropdown nav a:last-child{border-bottom:0}
  html body header .lvl-header-nav-title{
-  font:600 12px/1.4 Arial,Helvetica,sans-serif!important;
+  font:600 var(--lvl-type-body)/1.4 var(--lvl-font-ui,Arial,Helvetica,sans-serif)!important;
   letter-spacing:.12em!important;
   padding:0 0 3px;
  }
@@ -301,7 +301,7 @@ header .lvl-brand-trigger img{min-width:0;flex:0 1 auto;max-width:calc(100% - 23
 .lvl-mobile-link-text{display:none}
 @media(max-width:950px){
  .lvl-mobile-link-text{display:inline!important;
-  font:600 12px/1.4 Arial,Helvetica,sans-serif;
+  font:600 var(--lvl-type-control)/1.4 var(--lvl-font-ui,Arial,Helvetica,sans-serif);
   letter-spacing:.11em;text-transform:uppercase;
  }
 }
@@ -328,7 +328,7 @@ html body :is(.site-header,.editorial-header).lvl-nav-measuring > nav[aria-label
 }
 html body :is(.site-header,.editorial-header).lvl-nav-measuring > .main-nav a,
 html body :is(.site-header,.editorial-header).lvl-nav-measuring > nav[aria-label="Navegación principal"] a {
-  font-size:clamp(10px,1.05vw,12px)!important;
+  font-size:var(--lvl-type-meta)!important;
   line-height:1.4!important;
   font-weight:800!important;
   white-space:nowrap!important;
@@ -385,7 +385,7 @@ html body :is(.site-header,.editorial-header).lvl-tabs-fit > nav[aria-label="Nav
 html body :is(.site-header,.editorial-header).lvl-tabs-fit > .main-nav a,
 html body :is(.site-header,.editorial-header).lvl-tabs-fit > nav[aria-label="Navegación principal"] a {
   display:inline-block!important;
-  font-size:clamp(10px,1.05vw,12px)!important;
+  font-size:var(--lvl-type-meta)!important;
   font-weight:800!important;
   line-height:1.4!important;
   white-space:nowrap!important;

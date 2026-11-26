@@ -1,11 +1,44 @@
+/* LVL typography, rhythm and interaction primitives. Public pages only. */
+:root{
+ --lvl-font-ui:Arial,Helvetica,sans-serif;
+ --lvl-font-editorial:Georgia,"Times New Roman",serif;
+ --lvl-type-label:.75rem;
+ --lvl-type-meta:.8125rem;
+ --lvl-type-control:.875rem;
+ --lvl-type-body:1rem;
+ --lvl-type-card:1.125rem;
+ --lvl-type-subhead:1.375rem;
+ --lvl-type-page:clamp(2.625rem,8vw,7rem);
+ --lvl-type-section:clamp(2rem,5.5vw,5.25rem);
+ --lvl-type-record:clamp(1.125rem,2vw,1.75rem);
+ --lvl-space-1:.25rem;
+ --lvl-space-2:.5rem;
+ --lvl-space-3:1rem;
+ --lvl-space-4:1.5rem;
+ --lvl-space-5:2rem;
+ --lvl-space-6:3rem;
+ --lvl-space-7:4rem;
+ --lvl-space-8:6rem;
+ --lvl-gutter:clamp(1.25rem,6vw,6rem);
+ --lvl-section-space:clamp(3rem,5vw,4.5rem);
+ --lvl-target:44px;
+ --lvl-icon-stroke:1.5;
+ --lvl-reading-width:65ch;
+ --lvl-line-height-body:1.6;
+}
+
 /* Public-site design system: the landing page is the visual source of truth. */
-:root{--lvl-ink:#090907;--lvl-paper:#eee5d3;--lvl-muted:#b8ad9d;--lvl-gold:#c8a56c;--lvl-gold-highlight:#f3e3ba;--lvl-gold-shadow:#a77f42;--lvl-pink:var(--lvl-gold);--lvl-wine:#682d3b;--lvl-olive:#535b3c;--lvl-line:#eee5d325;--lvl-gutter:clamp(20px,6vw,96px)}
-body[data-page]{--ink:var(--lvl-ink);--paper:var(--lvl-paper);--pink:var(--lvl-pink);--muted:var(--lvl-muted);font-family:Arial,Helvetica,sans-serif;background:var(--lvl-ink);color:var(--lvl-paper)}
+:root{--lvl-ink:#090907;--lvl-paper:#eee5d3;--lvl-muted:#b8ad9d;--lvl-gold:#c8a56c;--lvl-gold-highlight:#f3e3ba;--lvl-gold-shadow:#a77f42;--lvl-pink:var(--lvl-gold);--lvl-wine:#682d3b;--lvl-olive:#535b3c;--lvl-line:#eee5d325}
+body[data-page]{--ink:var(--lvl-ink);--paper:var(--lvl-paper);--pink:var(--lvl-pink);--muted:var(--lvl-muted);font-family:var(--lvl-font-ui,Arial,Helvetica,sans-serif);background:var(--lvl-ink);color:var(--lvl-paper)}
 body .site-header,body[data-page] .editorial-header{background:#090907f5;color:var(--lvl-paper);border-bottom:1px solid #eee5d31a;box-shadow:none;--header-line:var(--lvl-pink)}
 body[data-page] .editorial-header{position:sticky;top:0;z-index:1001}
 body[data-page] .editorial-header .brand img{filter:none}
-body .site-header .main-nav a,body[data-page] .editorial-header>nav a{color:var(--lvl-paper);font-family:Arial,Helvetica,sans-serif;letter-spacing:.015em;text-decoration:none}
+body .site-header .main-nav a,body[data-page] .editorial-header>nav a{color:var(--lvl-paper);font-family:var(--lvl-font-ui,Arial,Helvetica,sans-serif);letter-spacing:.015em;text-decoration:none}
 body[data-page] .editorial-header>nav a[aria-current],body[data-page] .editorial-header>nav a:hover{color:var(--lvl-paper)}
-body[data-page] :where(button,input,select){font-family:inherit}
-body[data-page] :where(a,button,input,summary):focus-visible{outline:2px solid var(--lvl-pink);outline-offset:4px}
 @media(hover:none){body .site-header .main-nav a::after,body[data-page] .editorial-header>nav a::after{display:none}}
+
+/* Shared public typography and focus, including the homepage. */
+body{font-family:var(--lvl-font-ui)}
+body :where(button,input,select,textarea){font-family:inherit}
+body :where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:2px solid currentColor;outline-offset:4px}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}

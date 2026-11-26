@@ -1,18 +1,18 @@
 /* Editorial pages follow the same open, centered compositions as the homepage. */
 body[data-page] .page-intro{padding:clamp(36px,5vw,72px) var(--lvl-gutter) clamp(56px,7vw,100px);border:0;background:none;text-align:center}
-body[data-page] .back-link{display:block;width:max-content;margin:0 0 48px;font-size:11px;text-decoration:none;color:var(--muted)}
-body[data-page] .page-intro .eyebrow{font-size:10px;font-weight:500;letter-spacing:.16em}
-body[data-page] .page-intro h1{font-weight:400;font-size:clamp(54px,8vw,116px);line-height:.98;letter-spacing:-.065em;margin:24px auto;max-width:1000px;overflow-wrap:normal}
-body[data-page] .page-intro h1 em{font-family:Georgia,serif;font-weight:400}
-body[data-page] .intro-copy{font-size:clamp(15px,1.5vw,19px);line-height:1.65;margin:24px auto 0;max-width:580px;color:var(--muted)}
+body[data-page] .back-link{display:block;width:max-content;margin:0 0 48px;font-size:var(--lvl-type-control);text-decoration:none;color:var(--muted)}
+body[data-page] .page-intro .eyebrow{font-size:var(--lvl-type-label);font-weight:500;letter-spacing:.16em}
+body[data-page] .page-intro h1{font-weight:400;font-size:var(--lvl-type-page);line-height:.98;letter-spacing:-.065em;margin:24px auto;max-width:1000px;overflow-wrap:normal}
+body[data-page] .page-intro h1 em{font-family:var(--lvl-font-editorial,Georgia,serif);font-weight:400}
+body[data-page] .intro-copy{font-size:var(--lvl-type-body);line-height:var(--lvl-line-height-body);margin:24px auto 0;max-width:var(--lvl-reading-width);color:var(--muted)}
 body[data-page] .page-index{justify-content:center;gap:12px 28px;margin-top:36px}
-body[data-page] .page-index a{border:0;border-bottom:1px solid currentColor;padding:12px 0;font-size:11px;font-weight:500;min-height:44px;color:inherit}
+body[data-page] .page-index a{border:0;border-bottom:1px solid currentColor;padding:12px 0;font-size:var(--lvl-type-control);font-weight:500;min-height:var(--lvl-target,44px);color:inherit}
 body[data-page] .editorial-content{max-width:1500px;margin:auto;padding:0 var(--lvl-gutter) 80px}
 body[data-page] .entry{grid-template-columns:64px minmax(0,1fr);gap:clamp(20px,4vw,64px);padding:clamp(36px,5vw,72px) 0;border-color:var(--lvl-line)}
 body[data-page] .entry-number{font-size:14px;letter-spacing:.04em;font-weight:400;color:var(--muted);padding-top:4px}
-body[data-page] .entry-meta{color:var(--muted);font-size:10px;letter-spacing:.1em;font-weight:500}
+body[data-page] .entry-meta{color:var(--muted);font-size:var(--lvl-type-label);letter-spacing:.1em;font-weight:500}
 body[data-page] .entry h2{font-size:clamp(32px,4.6vw,64px);line-height:1.05;letter-spacing:-.045em;font-weight:400}
-body[data-page] .entry p{font-size:15px;line-height:1.75}
+body[data-page] .entry p{font-size:var(--lvl-type-body);line-height:var(--lvl-line-height-body)}
 body[data-page] .entry details{padding:20px 0;border:0;border-top:1px solid var(--lvl-line)}
 body[data-page] .entry img{max-height:660px;margin-top:32px}
 body[data-page] .status{font-weight:500;letter-spacing:.04em;border-color:var(--lvl-line)}
@@ -25,7 +25,7 @@ body[data-page="eventos"]{--cream:var(--lvl-paper);--red:var(--lvl-wine)}
 body[data-page="eventos"] .calendar-topline{max-width:1320px;margin:36px auto;color:#74695c;padding:0 var(--lvl-gutter);line-height:1.6}
 body[data-page="eventos"] .wall-calendar{max-width:1200px;width:calc(100% - var(--lvl-gutter)*2);box-shadow:none}
 body[data-page="eventos"] .calendar-paper{background:var(--lvl-paper);border-top:1px solid #1e1b1633;padding-top:40px}
-body[data-page="eventos"] .calendar-controls button{min-height:44px;min-width:44px}
+body[data-page="eventos"] .calendar-controls button{min-height:var(--lvl-target,44px);min-width:var(--lvl-target,44px)}
 body[data-page="eventos"] .agenda-section{max-width:1200px;margin:80px auto;padding:0 var(--lvl-gutter);color:#1e1b16}
 body[data-page="eventos"] .agenda-section>div>p:last-child{color:#74695c}
 body[data-page="eventos"] .agenda-item{border-color:#1e1b1628}
@@ -89,27 +89,27 @@ body[data-page] .editorial-empty-art::after{
 body[data-page] .editorial-empty-art-label,
 body[data-page] .editorial-empty-art-caption{
  position:absolute;left:10%;right:10%;text-align:center;
- font-size:10px;letter-spacing:.18em;font-weight:600;
+ font-size:var(--lvl-type-label);letter-spacing:.18em;font-weight:600;
 }
 body[data-page] .editorial-empty-art-label{top:9%}
 body[data-page] .editorial-empty-art-caption{bottom:9%}
 body[data-page] .editorial-empty-symbol{
- position:relative;z-index:1;font:400 clamp(56px,9vw,124px)/1 Georgia,serif;
+ position:relative;z-index:1;font:400 clamp(56px,9vw,124px)/1 var(--lvl-font-editorial,Georgia,serif);
  letter-spacing:-.11em;color:#f2e4cb;
 }
 body[data-page] .editorial-empty-copy{max-width:520px}
 body[data-page] .editorial-empty-kicker,
 body[data-page] .editorial-empty-preview{
- font-size:11px;line-height:1.5;letter-spacing:.15em;font-weight:700;
+ font-size:var(--lvl-type-label);line-height:1.5;letter-spacing:.15em;font-weight:700;
  color:var(--lvl-muted);
 }
-body[data-page] .editorial-empty-preview{font-size:9px;opacity:.72}
+body[data-page] .editorial-empty-preview{font-size:var(--lvl-type-label);opacity:.72}
 body[data-page] .editorial-empty-copy h2{
- font:400 clamp(38px,4.6vw,72px)/1.04 Georgia,serif;
+ font:400 clamp(38px,4.6vw,72px)/1.04 var(--lvl-font-editorial,Georgia,serif);
  letter-spacing:-.055em;margin:18px 0 22px;overflow-wrap:anywhere;
 }
 body[data-page] .editorial-empty-copy>p:not(.editorial-empty-kicker):not(.editorial-empty-preview){
- font-size:clamp(15px,1.25vw,18px);line-height:1.7;max-width:450px;
+ font-size:var(--lvl-type-body);line-height:1.7;max-width:450px;
  color:var(--lvl-muted);
 }
 body[data-page] .editorial-empty-actions{
@@ -118,7 +118,7 @@ body[data-page] .editorial-empty-actions{
 body[data-page] .editorial-empty-actions a{
  display:inline-flex;align-items:center;gap:20px;min-height:48px;
  padding:10px 0;text-decoration:none;border-bottom:1px solid currentColor;
- font-size:12px;font-weight:700;letter-spacing:.05em;
+ font-size:var(--lvl-type-control);font-weight:700;letter-spacing:.05em;
 }
 body[data-page] .editorial-empty-actions a:hover{opacity:.75}
 body[data-page] .editorial-empty-actions a:focus-visible{outline:2px solid currentColor;outline-offset:5px}

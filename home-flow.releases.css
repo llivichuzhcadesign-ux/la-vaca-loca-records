@@ -42,18 +42,18 @@ body .shop-showcase .showcase-feature.showcase-feature-empty{
 .showcase-empty-edition{top:8%;left:8%;right:8%;font-size:10px;font-weight:700}
 .showcase-empty-center{top:50%;left:50%;transform:translate(-50%,-50%);display:grid;place-items:center;
  width:22%;aspect-ratio:1;border-radius:50%;border:1px solid #d3bda84d;background:#6d4c38;
- font:700 clamp(17px,3vw,32px)/1 Georgia,serif;letter-spacing:-.07em!important}
+ font:700 clamp(17px,3vw,32px)/1 var(--lvl-font-editorial,Georgia,serif);letter-spacing:-.07em!important}
 .showcase-empty-bottom{bottom:8%;left:8%;right:8%;font-size:9px}
 .showcase-empty-copy{max-width:440px}
-.showcase-empty-kicker{color:#d8c6aa;font-size:11px;font-weight:700;letter-spacing:.17em}
-body .shop-showcase .showcase-empty-copy h3{font:400 clamp(38px,4.4vw,64px)/1.06 Georgia,serif;letter-spacing:-.055em;margin:20px 0 20px}
-.showcase-empty-copy>p:not(.showcase-empty-kicker){font-size:clamp(14px,1.3vw,17px);line-height:1.75;color:#cfc4b2;max-width:380px}
+.showcase-empty-kicker{color:#d8c6aa;font-size:var(--lvl-type-label);font-weight:700;letter-spacing:.17em}
+body .shop-showcase .showcase-empty-copy h3{font:400 clamp(38px,4.4vw,64px)/1.06 var(--lvl-font-editorial,Georgia,serif);letter-spacing:-.055em;margin:20px 0 20px}
+.showcase-empty-copy>p:not(.showcase-empty-kicker){font-size:var(--lvl-type-body);line-height:1.75;color:#cfc4b2;max-width:380px}
 .showcase-empty-link{display:inline-flex;align-items:center;justify-content:space-between;gap:24px;
  min-height:48px;margin-top:22px;padding:12px 2px;border-bottom:1px solid #eee5d366;
- color:#eee5d3;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.08em}
+ color:#eee5d3;text-decoration:none;font-size:var(--lvl-type-control);font-weight:700;letter-spacing:.08em}
 .showcase-empty-link:hover{border-color:#eee5d3;color:#fff}
 .showcase-empty-link:focus-visible{outline:2px solid #eee5d3;outline-offset:5px}
-.showcase-empty-footnote{margin:0;width:100%;padding:20px 0 0;border-top:1px solid #eee5d333;color:#b8ad9d;font-size:10px;letter-spacing:.15em}
+.showcase-empty-footnote{margin:0;width:100%;padding:20px 0 0;border-top:1px solid #eee5d333;color:#b8ad9d;font-size:var(--lvl-type-label);letter-spacing:.15em}
 @media(max-width:800px){
  body .shop-showcase .showcase-feature.showcase-feature-empty{grid-template-columns:1fr;gap:28px}
  .showcase-empty-art{max-width:min(100%,480px);justify-self:center}

@@ -22,7 +22,7 @@ body .lvl-footer.illuminated-footer .footer-connect {
 }
 body .lvl-footer.illuminated-footer .footer-column-label {
  margin-bottom:13px;
- font-size:10px;
+ font-size:var(--lvl-type-label);
  font-weight:600;
  letter-spacing:.18em;
  text-transform:uppercase;
@@ -35,7 +35,7 @@ body .lvl-footer.illuminated-footer .footer-connect a {
  align-items:center;
  min-height:38px;
  padding:4px 0;
- font-size:13px;
+ font-size:var(--lvl-type-control);
  font-weight:500;
  color:#e9e1d4;
  text-decoration:none;
@@ -54,7 +54,7 @@ body .lvl-footer.illuminated-footer .footer-bottom {
  gap:8px 22px;
  border-top:1px solid rgba(238,229,211,.19);
  padding-top:16px;
- font-size:11px;
+ font-size:var(--lvl-type-label);
  color:#a99e90;
 }
 body .lvl-footer.illuminated-footer .footer-bottom .design-credit {
@@ -90,9 +90,9 @@ body .lvl-footer.illuminated-footer .footer-back-top {white-space:nowrap;}
  body .lvl-footer.illuminated-footer .footer-explore {grid-column:1;align-items:flex-start;flex-direction:column;gap:0;}
  body .lvl-footer.illuminated-footer .footer-connect {grid-column:2;align-items:flex-end;gap:0;}
  body .lvl-footer.illuminated-footer .footer-explore a,
- body .lvl-footer.illuminated-footer .footer-connect a {min-height:34px;font-size:12px;}
+ body .lvl-footer.illuminated-footer .footer-connect a {min-height:34px;font-size:var(--lvl-type-control);}
  body .lvl-footer.illuminated-footer .footer-column-label {margin-bottom:7px;}
- body .lvl-footer.illuminated-footer .footer-bottom {grid-row:2;gap:9px 14px;font-size:10px;}
+ body .lvl-footer.illuminated-footer .footer-bottom {grid-row:2;gap:9px 14px;font-size:var(--lvl-type-label);}
  body .lvl-footer.illuminated-footer .footer-bottom .design-credit {flex-basis:100%;text-align:left;}
 }
 
@@ -148,18 +148,18 @@ body .lvl-footer.illuminated-footer .footer-bottom a {
 /* Phase 3: footer stays editorial but its phone links are real touch targets. */
 @media(max-width:720px){
  body .lvl-footer.illuminated-footer .footer-column-label{
-  font-size:11px;line-height:1.4;letter-spacing:.13em;
+  font-size:var(--lvl-type-label);line-height:1.4;letter-spacing:.13em;
  }
  body .lvl-footer.illuminated-footer .footer-explore a,
  body .lvl-footer.illuminated-footer .footer-connect a{
-  min-height:44px;display:inline-flex;align-items:center;
-  font-size:13px;line-height:1.4;
+  min-height:var(--lvl-target,44px);display:inline-flex;align-items:center;
+  font-size:var(--lvl-type-control);line-height:1.4;
  }
  body .lvl-footer.illuminated-footer .footer-bottom{
-  font-size:11px;line-height:1.5;gap:10px 16px;
+  font-size:var(--lvl-type-label);line-height:1.5;gap:10px 16px;
  }
  body .lvl-footer.illuminated-footer .footer-bottom a{
-  display:inline-flex;align-items:center;min-height:44px;
+  display:inline-flex;align-items:center;min-height:var(--lvl-target,44px);
  }
 }
 
@@ -262,7 +262,7 @@ body .lvl-footer.illuminated-footer > .footer-art-slot {
   body .lvl-footer.illuminated-footer .footer-connect {grid-column:2;}
   body .lvl-footer.illuminated-footer .footer-column-label {
     margin:0 0 12px;
-    font-size:11px;
+    font-size:var(--lvl-type-label);
     line-height:1.4;
     letter-spacing:.14em;
     text-align:left;
@@ -272,12 +272,12 @@ body .lvl-footer.illuminated-footer > .footer-art-slot {
     display:flex;
     align-items:center;
     justify-content:flex-start;
-    min-height:44px;
+    min-height:var(--lvl-target,44px);
     width:max-content;
     max-width:100%;
     margin:0;
     padding:8px 0;
-    font-size:13px;
+    font-size:var(--lvl-type-control);
     line-height:1.45;
     font-weight:500;
     white-space:normal;
@@ -290,7 +290,7 @@ body .lvl-footer.illuminated-footer > .footer-art-slot {
     min-width:0;
     margin-top:20px;
     padding:16px 0 0;
-    font-size:11px;
+    font-size:var(--lvl-type-label);
     line-height:1.5;
     text-align:left;
   }
@@ -298,7 +298,7 @@ body .lvl-footer.illuminated-footer > .footer-art-slot {
     justify-self:end;
     display:inline-flex;
     align-items:center;
-    min-height:44px;
+    min-height:var(--lvl-target,44px);
   }
   body .lvl-footer.illuminated-footer .footer-bottom .design-credit {
     width:100%;
@@ -310,7 +310,7 @@ body .lvl-footer.illuminated-footer > .footer-art-slot {
   body .lvl-footer.illuminated-footer .footer-bottom .design-credit a {
     display:inline-flex;
     align-items:center;
-    min-height:44px;
+    min-height:var(--lvl-target,44px);
     text-align:left;
   }
   /* Restrict the invisible drag layer to the artwork, not the links. */
