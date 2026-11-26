@@ -1,0 +1,18 @@
+/* LVL contextual pointer — neutral ivory and charcoal, mouse only. */
+.lvl-cursor{position:fixed;top:0;left:0;width:0;height:0;z-index:2147483646;pointer-events:none!important;visibility:hidden;contain:layout style;user-select:none}
+.lvl-cursor svg{position:absolute;left:-24px;top:-24px;width:48px;height:48px;overflow:visible;pointer-events:none!important;transform:scale(1);transition:transform 150ms cubic-bezier(.2,.75,.2,1)}
+.lvl-cursor [data-glyph]{display:none}
+.lvl-cursor[data-state="orbit"] [data-glyph="orbit"],
+.lvl-cursor[data-state="link"] [data-glyph="link"],
+.lvl-cursor[data-state="record"] [data-glyph="record"],
+.lvl-cursor[data-state="drag"] [data-glyph="drag"]{display:inline}
+.lvl-cursor[data-state="record"] .lvl-cursor-grooves{transform-origin:24px 24px;animation:lvlCursorSpin 3s linear infinite}
+.lvl-cursor.is-pressed svg{transform:scale(.78)}
+@keyframes lvlCursorSpin{to{transform:rotate(360deg)}}
+@media (any-hover:hover) and (any-pointer:fine) and (prefers-reduced-motion:no-preference){
+ html.lvl-cursor-active .lvl-cursor{visibility:visible}
+ html.lvl-cursor-active,html.lvl-cursor-active body,html.lvl-cursor-active body *{cursor:none!important}
+}
+@media (prefers-reduced-motion:reduce),(forced-colors:active){
+ .lvl-cursor{display:none!important}
+}
