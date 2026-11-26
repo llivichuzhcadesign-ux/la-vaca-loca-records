@@ -10,14 +10,34 @@ const records=visible(data.records);
 
 const url=value=>{if(!value||!String(value).trim())return '';try{const parsed=new URL(value,location.href);return ['http:','https:'].includes(parsed.protocol)?parsed.href:''}catch{return ''}};
 const link=(href,label)=>'<a href="'+esc(href)+'">'+esc(label)+'</a>';
+// Accept only known YouTube hosts and valid video IDs, not arbitrary iframe URLs.
+function youtubeVideoId(value){
+ const raw=String(value||'').trim();
+ const valid=id=>/^[A-Za-z0-9_-]{11}$/.test(id||'')?id:'';
+ if(valid(raw))return raw;
+ try{
+  const parsed=new URL(raw);
+  if(!['https:','http:'].includes(parsed.protocol))return '';
+  const host=parsed.hostname.toLowerCase();
+  const parts=parsed.pathname.split('/').filter(Boolean);
+  if(host==='youtu.be'||host==='www.youtu.be')return valid(parts[0]);
+  if(!['youtube.com','www.youtube.com','m.youtube.com','music.youtube.com','youtube-nocookie.com','www.youtube-nocookie.com'].includes(host))return '';
+  if(parts[0]==='watch')return valid(parsed.searchParams.get('v'));
+  if(['embed','shorts','live','v'].includes(parts[0]))return valid(parts[1]);
+ }catch{}
+ return '';
+}
 // Only configured remote media is shown; unfinished local placeholders stay out of these pages.
 function media(item){
  const m=item.media||{};
  const audio=url(m.audio?.url||'');
  const video=url(m.video?.youtubeUrl||m.video?.url||item.youtubeUrl||'');
+ const id=[m.video?.youtubeUrl,m.video?.url,item.youtubeUrl,m.video?.youtubeId].map(youtubeVideoId).find(Boolean);
+ const player=id?'<div class="session-video"><iframe src="https://www.youtube-nocookie.com/embed/'+id+'" title="'+esc('Video: '+(item.title||'Sesión de La Vaca Loca'))+'" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen></iframe></div>':
+  video?'<p><a href="'+esc(video)+'" target="_blank" rel="noopener noreferrer">Ver video</a></p>':'';
  return (audio?'<audio controls preload="none" src="'+esc(audio)+'">Tu navegador no permite reproducir audio.</audio>':'')+
- (video?'<p><a href="'+esc(video)+'" target="_blank" rel="noopener noreferrer">Ver video</a></p>':'')+
- (!audio&&!video?'<p class="availability">La grabación todavía no está disponible.</p>':'');
+ player+
+ (!audio&&!player?'<p class="availability">La grabación todavía no está disponible.</p>':'');
 }
 function related(item){
  const selected=records.filter(record=>(item.relatedRecords||[]).includes(record.id));
