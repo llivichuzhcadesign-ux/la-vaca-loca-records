@@ -16,14 +16,14 @@ body[data-page="visitanos"] :is(a,button,input,select,textarea):focus-visible{ou
 .visit-topline{display:flex;justify-content:space-between;align-items:center;gap:14px;padding-bottom:16px;border-bottom:1px solid var(--visit-line);font-size:10px;letter-spacing:.13em;font-weight:600;color:var(--visit-muted)}
 .visit-profile-grid{display:grid;grid-template-columns:minmax(0,1.03fr) minmax(0,.87fr);gap:clamp(30px,6vw,100px);align-items:center;padding-top:37px}
 .visit-label{margin:0;color:var(--visit-pink);font-size:10px;font-weight:700;letter-spacing:.12em;line-height:1.5}
-.visit-profile-copy{min-width:0}
+.visit-profile-copy{min-width:0;grid-column:2;grid-row:1}
 .visit-profile h1{font-family:Arial,Helvetica,sans-serif;font-size:clamp(53px,7.2vw,94px);line-height:.98;letter-spacing:-.075em;font-weight:600;margin:15px 0 22px;overflow-wrap:normal}
 .visit-period{color:var(--visit-pink)}
 #visitAboutText{font-size:clamp(17px,1.7vw,21px);line-height:1.54;letter-spacing:-.012em;max-width:490px;margin:0;color:var(--visit-paper);white-space:pre-line}
 .visit-text-link{display:inline-flex;align-items:center;gap:25px;text-decoration:none;font-weight:700;font-size:11px;letter-spacing:.08em;color:var(--visit-paper);border-bottom:1px solid var(--visit-pink);min-height:44px;margin-top:27px}
 .visit-text-link span{font-size:16px;color:var(--visit-pink)}
 .visit-text-link:hover{color:var(--visit-pink)}
-.visit-photo{margin:0;position:relative;overflow:hidden;background:#211d19;aspect-ratio:1.22;max-height:390px}
+.visit-photo{grid-column:1;grid-row:1;margin:0;position:relative;overflow:hidden;background:#211d19;aspect-ratio:1.22;max-height:390px}
 .visit-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(.9) contrast(1.025)}
 .visit-photo figcaption{position:absolute;bottom:0;left:0;padding:9px 11px;background:rgba(9,9,7,.86);color:var(--visit-paper);font-weight:600;font-size:9px;letter-spacing:.12em}
 .visit-location{border-top:1px solid var(--visit-line);border-bottom:1px solid var(--visit-line);padding:32px 0}
@@ -73,6 +73,8 @@ body[data-page="visitanos"] :is(a,button,input,select,textarea):focus-visible{ou
  .visit-profile{padding:17px 0 30px}
  .visit-topline{font-size:9px;padding-bottom:13px}
  .visit-profile-grid{grid-template-columns:1fr;gap:26px;padding-top:29px}
+ .visit-profile-copy{grid-column:1;grid-row:1}
+ .visit-photo{grid-column:1;grid-row:2}
  .visit-profile h1{font-size:clamp(49px,13vw,73px);margin:11px 0 15px}
  #visitAboutText{font-size:17px;line-height:1.55}
  .visit-text-link{margin-top:14px}
