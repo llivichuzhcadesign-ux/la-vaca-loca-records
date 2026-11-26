@@ -4,7 +4,7 @@ body[data-page="discos"] .editorial-header{
   border-bottom-color:#d3b5a326;
 }
 body[data-page="discos"] .editorial-header .brand img{
-  filter:brightness(0) saturate(100%) invert(93%) sepia(13%) saturate(482%) hue-rotate(337deg) brightness(100%) contrast(91%);
+  filter:none;
 }
 
 body[data-page="discos"] .editorial-header nav a:hover,

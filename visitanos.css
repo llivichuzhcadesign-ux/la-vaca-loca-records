@@ -2,7 +2,7 @@
 body[data-page="visitanos"]{
  --visit-ink:var(--lvl-ink,#090907);
  --visit-paper:var(--lvl-paper,#eee5d3);
- --visit-pink:var(--lvl-pink,#d7b46a);
+ --visit-pink:var(--lvl-pink,#c8a56c);
  --visit-muted:var(--lvl-muted,#b8ad9d);
  --visit-line:rgba(238,229,211,.19);
  background:var(--visit-ink);color:var(--visit-paper);

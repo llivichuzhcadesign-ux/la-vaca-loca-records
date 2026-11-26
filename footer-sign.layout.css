@@ -416,9 +416,9 @@ body .lvl-footer.illuminated-footer .footer-connect a .footer-social-name {
   }
   body .lvl-footer.illuminated-footer .footer-connect a:hover,
   body .lvl-footer.illuminated-footer .footer-connect a:focus-visible {
-    border-color:#d7b46a;
+    border-color:#c8a56c;
     background:rgba(228,192,112,.10);
-    color:#d7b46a;
+    color:#c8a56c;
   }
 }
 

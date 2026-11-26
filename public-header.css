@@ -14,7 +14,7 @@
 @media(max-width:800px){html:not(.ios-header) .editorial-header>.header-bag{position:absolute;right:6vw;top:16px}}
 
 /* One underline motion for every public navigation tab. */
-.site-header{--header-line:var(--pink,#d7b46a)}
+.site-header{--header-line:var(--pink,#c8a56c)}
 .editorial-header{--header-line:currentColor}
 .site-header .main-nav a,.editorial-header>nav a{position:relative}
 .site-header .main-nav a::after,.editorial-header>nav a::after{content:"";position:absolute;left:0;right:100%;bottom:-6px;height:2px;background:var(--header-line);opacity:1;transition:right .24s ease;pointer-events:none}
