@@ -2,7 +2,10 @@
 'use strict';
 
 const visible=r=>!r.hideFromPublic&&!['DRAFT','PRIVATE LISTING','HIDDEN'].includes(String(r.status||'').toUpperCase());
-const filterRecords=(records,query,genre)=>records.filter(r=>(!genre||r.genre===genre)&&[r.title,r.artist,r.label].join(' ').toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
+const normalizeSearch=value=>String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase().trim();
+const filterRecords=(records,query,genre)=>{const terms=normalizeSearch(query).split(/\s+/).filter(Boolean);return records.filter(r=>(!genre||r.genre===genre)&&terms.every(term=>normalizeSearch([r.title,r.artist,r.label,r.genre,r.year,r.id].join(' ')).includes(term)))};
+const stockCount=r=>Math.max(0,Math.floor(Number(r?.stock)||0));
+const stockLabel=r=>stockCount(r)>0?'Disponible':'Agotado';
 function filterLibraryRecords(records,query,genre,liked=null){const result=filterRecords(records,query,genre);return liked===null?result:result.filter(r=>liked.has(r.id))}
 function audioUrl(r,base){
   const s=String(r.media?.audio?.url||r.audioPreview||r.media?.audio?.path||'').trim();
@@ -14,7 +17,7 @@ function audioUrl(r,base){
   }catch{return ''}
 }
 function time(s){return Number.isFinite(s)?Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'):'0:00'}
-if(typeof module!=='undefined')module.exports={visible,filterRecords,filterLibraryRecords,audioUrl,time};
+if(typeof module!=='undefined')module.exports={visible,filterRecords,filterLibraryRecords,audioUrl,time,stockCount,stockLabel};
 if(typeof document==='undefined')return;
 
 const $=id=>document.getElementById(id);
@@ -71,7 +74,7 @@ const price=r=>(settings.currency||'$')+Number(r.price||0).toFixed(2);
 const cover=r=>window.CalendarContent.imageUrl(r.coverImage||r.media?.artwork?.url||r.media?.artwork?.path,document.baseURI);
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
-function notice(text){$('playerNotice').textContent=text;const feedback=$('libraryPlaybackStatus');if(feedback)feedback.textContent=/no disponible|no se pudo|sin preview/i.test(text)?text:'';const status=$('iosPlaybackStatus');if(status)status.textContent=text}
+function notice(text){$('playerNotice').textContent=text;const feedback=$('libraryPlaybackStatus');if(feedback)feedback.textContent=/no disponible|no se pudo|sin adelanto/i.test(text)?text:'';const status=$('iosPlaybackStatus');if(status)status.textContent=text}
 
 function playerControlIcon(kind){
  const paths={play:'<path d="M9 5.5 19 12 9 18.5Z" fill="currentColor" stroke-linejoin="round"/>',pause:'<path d="M9 6v12M15 6v12" stroke-width="3"/>',previous:'<path d="m14.5 6-6 6 6 6M9 12h11"/>',next:'<path d="m9.5 6 6 6-6 6M15 12H4"/>',down:'<path d="m6 9 6 6 6-6"/>'};
@@ -82,8 +85,8 @@ function paintPlayerButton(button,on,label){
 }
 function playing(on){
  if(on&&selected)iosStartedId=selected.id;
- const miniPlay=$('libraryPlayerPlay');if(miniPlay){miniPlay.textContent=miniPlay.disabled?'Sin preview':on?'Pausar':'Reproducir';miniPlay.setAttribute('aria-label',on?'Pausar':'Reproducir');miniPlay.setAttribute('aria-pressed',String(on))}
-  if(miniPlay)paintPlayerButton(miniPlay,on,miniPlay.disabled?'Sin preview de audio':on?'Pausar':'Reproducir');
+ const miniPlay=$('libraryPlayerPlay');if(miniPlay){miniPlay.textContent=miniPlay.disabled?'Sin adelanto':on?'Pausar':'Reproducir';miniPlay.setAttribute('aria-label',on?'Pausar':'Reproducir');miniPlay.setAttribute('aria-pressed',String(on))}
+  if(miniPlay)paintPlayerButton(miniPlay,on,miniPlay.disabled?'Sin adelanto de audio':on?'Pausar':'Reproducir');
   if(iosDiscView&&iosSheet)syncIosJackets(pendingRecord||selected,on);
   deck.classList.toggle('playing',on);
   miniPlayer?.classList.toggle('is-playing',on);
@@ -210,10 +213,10 @@ function syncRecordActions(r){
  $('recordBag').dataset.recordId=r.id;
  const liked=storedIds('lvl-liked-discs').includes(r.id),bagged=storedIds('lvl-cart-discs').includes(r.id);
  $('recordLike').setAttribute('aria-pressed',String(liked));$('recordLike').setAttribute('aria-label',(liked?'Quitar de favoritos: ':'Guardar favorito: ')+r.title);
- $('recordBag').disabled=Number(r.stock)===0&&!bagged;$('recordBag').classList.toggle('is-added',bagged);$('recordBag').setAttribute('aria-label',bagged?'Ver canasta':'Añadir a la canasta: '+r.title);
+ $('recordBag').disabled=stockCount(r)===0&&!bagged;$('recordBag').classList.toggle('is-added',bagged);$('recordBag').setAttribute('aria-label',bagged?'Ver bolsa':'Añadir a la bolsa: '+r.title);
 }
 $('recordLike').onclick=()=>{const r=pendingRecord||selected;if(!r)return;const saved=new Set(storedIds('lvl-liked-discs'));saved.has(r.id)?saved.delete(r.id):saved.add(r.id);localStorage.setItem('lvl-liked-discs',JSON.stringify([...saved]));syncRecordActions(r);renderGallery();notice(saved.has(r.id)?'Disco guardado en favoritos.':'Disco eliminado de favoritos.')};
-$('recordBag').onclick=()=>{const r=pendingRecord||selected;if(!r)return;const ids=storedIds('lvl-cart-discs');if(ids.includes(r.id)){location.href='index.html?bag=1';return}if(Number(r.stock)===0)return;ids.push(r.id);localStorage.setItem('lvl-cart-discs',JSON.stringify(ids));syncRecordActions(r);notice('Disco añadido a la canasta.');$('recordBag').animate?.([{transform:'scale(1)'},{transform:'scale(1.18)'},{transform:'scale(1)'}],{duration:260})};
+$('recordBag').onclick=()=>{const r=pendingRecord||selected;if(!r)return;const ids=storedIds('lvl-cart-discs');if(ids.includes(r.id)){location.href='index.html?bag=1';return}if(stockCount(r)===0)return;ids.push(r.id);localStorage.setItem('lvl-cart-discs',JSON.stringify(ids));syncRecordActions(r);notice('Disco añadido a la bolsa.');$('recordBag').animate?.([{transform:'scale(1)'},{transform:'scale(1.18)'},{transform:'scale(1)'}],{duration:260})};
 window.addEventListener('storage',()=>{if(pendingRecord||selected)syncRecordActions(pendingRecord||selected)});
 document.addEventListener('lvl-bag-change',()=>{if(pendingRecord||selected)syncRecordActions(pendingRecord||selected)});
 
@@ -379,12 +382,12 @@ function syncIosJackets(r,on=!audio.paused){
  $('iosJacketRail').querySelectorAll('[data-jacket]').forEach(button=>{const item=records[Number(button.dataset.jacket)];button.setAttribute('aria-pressed',String(item===r));button.classList.toggle('is-loaded',item===selected&&iosStartedId===item.id);button.classList.toggle('is-spinning',item===selected&&on)});
  const index=records.indexOf(r);$('iosPrevious').disabled=index<=0;$('iosNext').disabled=index>=records.length-1;
  const button=$('iosSheetPlay'),available=!!audioUrl(r,document.baseURI),active=r===selected&&on;
- button.disabled=!available;paintPlayerButton(button,active,available?(active?'Pausar':'Reproducir '+r.title):'Sin preview de audio');
+ button.disabled=!available;paintPlayerButton(button,active,available?(active?'Pausar':'Reproducir '+r.title):'Sin adelanto de audio');
  iosSheet.classList.toggle('is-browsing',r!==selected);
  iosSheet.classList.toggle('is-playing',!!on);
  const current=$('iosCurrentTrack');
  if(current){current.hidden=!selected;current.textContent=selected?((on?'Reproduciendo · ':'En el plato · ')+selected.artist+' — '+selected.title):'';current.setAttribute('aria-label',selected?'Ver disco en el plato: '+selected.title:'Sin disco');current.classList.toggle('can-return',r!==selected)}
- $('iosPlaybackStatus').textContent=r!==selected?(available?'Pulsa reproducir para escuchar':'Sin preview de audio'):(available?(on?'Escuchando '+r.title:'Listo para escuchar'):'Sin preview de audio');
+ $('iosPlaybackStatus').textContent=r!==selected?(available?'Pulsa reproducir para escuchar':'Sin adelanto de audio'):(available?(on?'Escuchando '+r.title:'Listo para escuchar'):'Sin adelanto de audio');
 }
 function browseIosRecord(r,center=true){
  if(!r)return;updateSelectedInfo(r,true);
@@ -411,12 +414,12 @@ function updateSelectedInfo(r,browsing=false){
    const fallback='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="'+recordColor(r)+'"/><circle cx="56" cy="65" r="27" fill="none" stroke="#e6d1a6" stroke-opacity=".2" stroke-width="10"/><text x="8" y="23" fill="#eee3cf" font-size="13" font-family="sans-serif">LVL</text></svg>');
    miniArt.onerror=()=>{miniArt.onerror=null;miniArt.src=fallback};miniArt.src=cover(r)||fallback;miniArt.hidden=false;
   }
-  for(const id of ['libraryPlayerPlay','iosSheetPlay']){const control=$(id);if(control){control.disabled=!audioUrl(r,document.baseURI);paintPlayerButton(control,!audio.paused,control.disabled?'Sin preview de audio':(!audio.paused?'Pausar':'Reproducir'))}}
+  for(const id of ['libraryPlayerPlay','iosSheetPlay']){const control=$(id);if(control){control.disabled=!audioUrl(r,document.baseURI);paintPlayerButton(control,!audio.paused,control.disabled?'Sin adelanto de audio':(!audio.paused?'Pausar':'Reproducir'))}}
   }
   $('recordInfo').innerHTML=[['Sello',r.label],['Año',r.year],['Género',r.genre],['Estado',r.condition]].filter(([,value])=>value).map(([name,value])=>'<div><dt>'+name+'</dt><dd>'+escape(String(value))+'</dd></div>').join('');
   $('recordDescription').textContent=r.description||'';
   $('recordPrice').textContent=price(r);
-  $('recordStock').textContent=String(r.status||((Number(r.stock)||0)>0?'IN STOCK':'SOLD OUT'));
+  $('recordStock').textContent=stockLabel(r);
 
   syncRecordActions(r);
   if(iosDiscView)syncIosJackets(r);
@@ -458,7 +461,7 @@ function updateSelectedInfo(r,browsing=false){
   const phone=String(settings.whatsappNumber||'').replace(/\D/g,'');
   const link=$('recordInquiry');
   link.hidden=!phone;
-  link.textContent=Number(r.stock)===0?'Consultar disponibilidad':'Consultar este disco';
+  link.textContent=stockCount(r)===0?'Consultar disponibilidad':'Consultar este disco';
   if(phone)link.href='https://wa.me/'+phone+'?text='+encodeURIComponent('Hola! Me interesa '+r.artist+' — '+r.title+' ('+r.id+'). ¿Está disponible?');
 }
 
@@ -478,8 +481,8 @@ artworkDialog.addEventListener('close',()=>{resetArtworkZoom();$('artworkFull').
 
 function libraryRecordCards(items){return items.map((r,i)=>{
     const detail=[r.genre,r.year].filter(Boolean).join(' · ');
-    const soldOut=Number(r.stock)===0;
-    return '<button class="sleeve" data-index="'+records.indexOf(r)+'" aria-label="Abrir '+escape(r.artist+' — '+r.title)+'"><span class="sleeve-art" style="--sleeve-color:'+recordColor(r)+'"><span class="fallback-type">'+escape(r.title)+'</span><span class="fallback-code">'+escape(r.id)+' / LVL RECORDS</span>'+(cover(r)?'<img src="'+escape(cover(r))+'" alt="" loading="lazy">':'')+'<span class="sleeve-listening" aria-hidden="true"><i></i><i></i><i></i></span><span class="sleeve-saved" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg></span></span><span class="sleeve-meta"><strong>'+escape(r.title)+'</strong><small>'+escape(r.artist)+'</small><span class="sleeve-footer"><span class="sleeve-detail">'+escape(soldOut?'Agotado':detail)+'</span><span class="sleeve-price">'+escape(price(r))+'</span></span></span></button>';
+    const soldOut=stockCount(r)===0,available=!!audioUrl(r,document.baseURI),index=records.indexOf(r);
+    return '<article class="record-tile"><button type="button" class="sleeve" data-index="'+index+'" aria-label="Abrir '+escape(r.artist+' — '+r.title)+'"><span class="sleeve-art" style="--sleeve-color:'+recordColor(r)+'"><span class="fallback-type">'+escape(r.title)+'</span><span class="fallback-code">'+escape(r.id)+' / LVL RECORDS</span>'+(cover(r)?'<img src="'+escape(cover(r))+'" alt="" loading="lazy">':'')+'<span class="sleeve-listening" aria-hidden="true"><i></i><i></i><i></i></span><span class="sleeve-saved" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg></span></span><span class="sleeve-meta"><strong>'+escape(r.title)+'</strong><small>'+escape(r.artist)+'</small><span class="sleeve-footer"><span class="sleeve-detail">'+escape(detail)+'</span><span class="sleeve-price">'+escape(price(r))+'</span></span><span class="sleeve-availability'+(soldOut?' is-sold-out':'')+'">'+stockLabel(r)+(r.condition?' · '+escape(r.condition):'')+'</span></span></button><button type="button" class="sleeve-preview" data-preview-index="'+index+'" '+(available?'':'disabled')+' aria-label="'+escape((available?'Escuchar ':'Sin adelanto: ')+r.title)+'">'+playerControlIcon('play')+'<span>'+(available?'Escuchar':'Sin adelanto')+'</span></button></article>';
   }).join('');
 }
 
@@ -508,8 +511,17 @@ function renderGallery(){
   gallery.querySelectorAll('[data-index]').forEach(button=>{
     button.onclick=()=>stageFromLibrary(records[+button.dataset.index]);
   });
+  gallery.querySelectorAll('[data-preview-index]').forEach(button=>{button.onclick=()=>playRecordPreview(records[Number(button.dataset.previewIndex)],button.dataset.previewIndex)});
 }
 
+// Opening record information never interrupts playback; listening is explicit.
+function playRecordPreview(r,index=null){
+ if(!r||!audioUrl(r,document.baseURI)||isLoadingDisc)return;
+ const position=index===null?null:gallery.querySelector('.record-shelf-row')?.scrollLeft;
+ if(r!==selected)mountRecord(r);
+ togglePlayback();
+ if(index!==null){const row=gallery.querySelector('.record-shelf-row');if(row&&position!=null)row.scrollLeft=position;gallery.querySelector('[data-preview-index="'+index+'"]')?.focus({preventScroll:true})}
+}
 function stopCurrentForSwap(){
   demoPlaying=false;
   stopDemoClock();
@@ -555,7 +567,7 @@ function mountRecord(r,focusView=false,infoReady=false){
     audio.load();
     scratchSound?.prepare(false)?.catch(()=>{});
   }
-  notice(iosDiscView&&!sound?'Sin preview de audio':'Disco listo en el plato.');
+  notice(iosDiscView&&!sound?'Sin adelanto de audio':'Disco listo en el plato.');
 
   if(sleeveZone){
     sleeveZone.classList.remove('is-ejecting','is-flying','is-swapping');
@@ -774,7 +786,7 @@ async function togglePlayback(){
 
   const sound=audioUrl(selected,document.baseURI);
   if(!sound){
-    playing(false);notice('Sin preview de audio');
+    playing(false);notice('Sin adelanto de audio');
     return;
   }
 
@@ -784,13 +796,13 @@ async function togglePlayback(){
   }
 
   const version=selection;
-  notice('Cargando preview…');
+  notice('Cargando adelanto…');
   try{
     await audio.play();
     if(version===selection)notice('Escuchando '+selected.artist+' — '+selected.title);
   }catch{
     if(version===selection){
-      playing(false);notice('No se pudo cargar el preview. Intenta de nuevo.');
+      playing(false);notice('No se pudo cargar el adelanto. Intenta de nuevo.');
     }
   }
 }
@@ -822,11 +834,11 @@ audio.addEventListener('playing',()=>{
 audio.addEventListener('pause',()=>{if(!demoPlaying)playing(false)});
 audio.addEventListener('ended',()=>{
   playing(false);
-  notice('Preview terminado.');
+  notice('Adelanto terminado.');
 });
 audio.addEventListener('error',()=>{
   if(!audio.getAttribute('src')||demoPlaying)return;
-  notice('Preview no disponible.');
+  notice('Adelanto no disponible.');
 });
 
 function syncDeckTimeline(){
@@ -871,6 +883,7 @@ applyTempo(0);
 });
 
 function navigateLibrary(page,push=true){
+ if(page.type==='disc'&&typeof records!=='undefined'){const current=records.find(r=>r.id===page.record?.id);page=current?{...page,record:current}:{type:'home'};}
  if(push){saveLibraryHistory(true);}
  if(push)libraryTrail.push({...libraryPage,query:$('recordSearch').value,scroll:collectionPanel.scrollTop});
  libraryPage=page;libraryScope=page.scope||'all';
@@ -910,8 +923,8 @@ function syncLibraryPage(){
  document.body.classList.toggle('library-home',home);document.body.classList.toggle('library-searching',!!$('recordSearch').value);
  document.body.classList.toggle('library-detail-open',detail);
  document.body.classList.toggle('library-collection-open',!home&&!detail);
- $('libraryPageTitle').textContent=detail?'Biblioteca':$('recordSearch').value?'Resultados':home?'Biblioteca':libraryPage.scope==='liked'?'Discos que te gustan':libraryPage.genre||'Todos los discos';
- const searching=!!$('recordSearch').value;
+ $('libraryPageTitle').textContent=detail?'Disco':$('recordSearch').value?'Resultados':home?'Biblioteca':libraryPage.scope==='liked'?'Discos que te gustan':libraryPage.genre||'Todos los discos';
+ const searching=!!$('recordSearch').value.trim();
  $('librarySearchClear').hidden=!searching;
  const summary=$('librarySearchSummary');summary.hidden=detail||(!searching&&home);
  summary.textContent=results.length+(results.length===1?' disco':' discos')+(searching?' · '+(libraryPage.scope==='liked'?'Tus favoritos':libraryPage.genre||'Toda la biblioteca'):'');
@@ -926,23 +939,33 @@ function syncLibraryPage(){
 function renderLibraryDisc(r){
  const liked=storedIds('lvl-liked-discs').includes(r.id),bagged=storedIds('lvl-cart-discs').includes(r.id);
  const available=!!audioUrl(r,document.baseURI);
- $('libraryDiscDetail').innerHTML='<div class="library-disc-hero"><button type="button" id="libraryArtworkOpen" aria-label="Ampliar portada" '+(!cover(r)?'disabled':'')+' class="sleeve-art" style="--sleeve-color:'+recordColor(r)+'"><span class="fallback-type">'+escape(r.title)+'</span>'+(cover(r)?'<img src="'+escape(cover(r))+'" alt="Portada de '+escape(r.title)+'"><span class="artwork-expand-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></span>':'')+'</button><div class="library-disc-copy"><p class="library-disc-kind">'+escape([r.genre,r.year].filter(Boolean).join(' · '))+'</p><h2>'+escape(r.title)+'</h2><p class="library-disc-artist">'+escape(r.artist)+'</p><p class="library-disc-label">'+escape(r.label||'La Vaca Loca Records')+'</p><button type="button" id="libraryListeningContext" class="library-listening-context" hidden></button><div class="library-disc-buttons"><button id="libraryDiscPlay" type="button" '+(!available?'disabled':'')+'>'+playerControlIcon('play')+'<span>'+ (available?'Reproducir preview':'Sin preview')+'</span></button><button id="libraryDiscTurntable" type="button">'+$('iosTurntableToggle').innerHTML+'<span>Tocadiscos</span></button></div><div class="library-disc-purchase"><div class="library-disc-price"><strong>'+escape(price(r))+'</strong><span>'+ (Number(r.stock)>0?'Disponible':'Agotado')+'</span></div><button id="libraryDiscLike" type="button" aria-label="'+(liked?'Quitar de favoritos':'Guardar en favoritos')+'" aria-pressed="'+liked+'">'+'<svg viewBox="0 0 24 24" fill="'+(liked?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span>'+(liked?'Guardado':'Guardar')+'</span>'+'</button><button class="library-add-button" type="button" '+(bagged?'id="libraryDiscBag"':'data-add="'+escape(r.id)+'"')+' '+(Number(r.stock)===0&&!bagged?'disabled':'')+'><img src="assets/brand/shopping-bag.svg" alt=""><span>'+(bagged?'En tu canasta':Number(r.stock)===0?'Agotado':'Añadir a canasta')+'</span></button></div></div></div><div class="library-disc-information"><p>'+escape(r.description||'')+'</p><dl>'+[['Sello',r.label],['Catálogo',r.id],['Condición',r.condition]].filter(([,v])=>v).map(([k,v])=>'<div><dt>'+k+'</dt><dd>'+escape(v)+'</dd></div>').join('')+'</dl></div>';
+ $('libraryDiscDetail').innerHTML='<div class="library-disc-hero"><button type="button" id="libraryArtworkOpen" aria-label="Ampliar portada" '+(!cover(r)?'disabled':'')+' class="sleeve-art" style="--sleeve-color:'+recordColor(r)+'"><span class="fallback-type">'+escape(r.title)+'</span>'+(cover(r)?'<img src="'+escape(cover(r))+'" alt="Portada de '+escape(r.title)+'"><span class="artwork-expand-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></span>':'')+'</button><div class="library-disc-copy"><p class="library-disc-kind">'+escape([r.genre,r.year].filter(Boolean).join(' · '))+'</p><h2>'+escape(r.title)+'</h2><p class="library-disc-artist">'+escape(r.artist)+'</p><p class="library-disc-label">'+escape(r.label||'La Vaca Loca Records')+'</p><button type="button" id="libraryListeningContext" class="library-listening-context" hidden></button><div class="library-disc-buttons"><button id="libraryDiscPlay" type="button" '+(!available?'disabled':'')+'>'+playerControlIcon('play')+'<span>'+ (available?'Escuchar adelanto':'Sin adelanto')+'</span></button><button id="libraryDiscTurntable" type="button">'+$('iosTurntableToggle').innerHTML+'<span>Tocadiscos</span></button></div><div class="library-disc-purchase"><div class="library-disc-price"><strong>'+escape(price(r))+'</strong><span class="library-stock'+(stockCount(r)===0?' is-sold-out':'')+'">'+stockLabel(r)+'</span>'+(r.condition?'<span class="library-condition">'+escape(r.condition)+'</span>':'')+'</div><button id="libraryDiscLike" type="button" aria-label="'+(liked?'Quitar de favoritos':'Guardar en favoritos')+'" aria-pressed="'+liked+'">'+'<svg viewBox="0 0 24 24" fill="'+(liked?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span>'+(liked?'Guardado':'Guardar')+'</span>'+'</button><button class="library-add-button" type="button" '+'id="libraryDiscBag"'+' '+(stockCount(r)===0&&!bagged?'disabled':'')+'><img src="assets/brand/shopping-bag.svg" alt=""><span>'+(bagged?'Ver bolsa':stockCount(r)===0?'Agotado':'Añadir a la bolsa')+'</span></button></div></div></div><div class="library-disc-information"><p>'+escape(r.description||'')+'</p><dl>'+[['Sello',r.label],['Año',r.year],['Género',r.genre],['Catálogo',r.id],['Condición',r.condition]].filter(([,v])=>v).map(([k,v])=>'<div><dt>'+k+'</dt><dd>'+escape(v)+'</dd></div>').join('')+'</dl></div>';
  $('libraryDiscDetail').querySelectorAll('img').forEach(img=>img.onerror=()=>img.remove());
  $('libraryArtworkOpen').onclick=()=>{resetArtworkZoom();$('artworkCaption').textContent=r.artist+' — '+r.title;$('artworkFull').src=cover(r);$('artworkFull').alt='Portada de '+r.title;artworkDialog.showModal()};
  $('libraryListeningContext').onclick=()=>{if(selected)navigateLibrary({type:'disc',record:selected})};
- $('libraryDiscPlay').onclick=()=>{if(r!==selected)mountRecord(r);togglePlayback()};
+ $('libraryDiscPlay').onclick=()=>{playRecordPreview(r);$('libraryDiscPlay')?.focus({preventScroll:true})};
  $('libraryDiscTurntable').onclick=()=>{if(iosDiscView){browseIosRecord(r);setDiscView('player')}else{setDiscView('player');stageFromLibrary(r)}};
  $('libraryDiscLike').onclick=()=>{const ids=new Set(storedIds('lvl-liked-discs'));ids.has(r.id)?ids.delete(r.id):ids.add(r.id);localStorage.setItem('lvl-liked-discs',JSON.stringify([...ids]));renderGallery();if(pendingRecord||selected)syncRecordActions(pendingRecord||selected);$('libraryDiscLike').focus()};
- if($('libraryDiscBag'))$('libraryDiscBag').onclick=()=>window.openLVLBag?.();
+ syncLibraryPurchase(r);
  syncLibraryDiscPlayback();
+}
+function syncLibraryPurchase(r){
+ const button=$('libraryDiscBag');if(!button||!r)return;
+ const bagged=storedIds('lvl-cart-discs').includes(r.id);
+ button.disabled=stockCount(r)===0&&!bagged;
+ button.querySelector('span').textContent=bagged?'Ver bolsa':button.disabled?'Agotado':'Añadir a la bolsa';
+ button.classList.toggle('is-added',bagged);
+ if(bagged||button.disabled)button.removeAttribute('data-add');else button.dataset.add=r.id;
+ button.onclick=()=>{if(bagged)window.openLVLBag?.()};
 }
 function syncLibraryDiscPlayback(){
  const button=$('libraryDiscPlay');if(!button||libraryPage.type!=='disc')return;
- const on=libraryPage.record===selected&&!audio.paused;
+ const on=libraryPage.record.id===selected?.id&&!audio.paused&&!audio.ended;
  const context=$('libraryListeningContext');
  if(context){context.hidden=audio.paused||!selected;context.disabled=on;context.textContent=on?'En reproducción':selected?'Escuchando: '+selected.artist+' — '+selected.title:'';context.classList.toggle('is-current',on);context.setAttribute('aria-label',on?'Este disco está en reproducción':'Volver al disco en reproducción: '+(selected?.title||''))}
  $('libraryDiscDetail').classList.toggle('is-playing',on);
- button.innerHTML=playerControlIcon(on?'pause':'play')+'<span>'+(button.disabled?'Sin preview':on?'Pausar':'Reproducir preview')+'</span>';
+ button.setAttribute('aria-pressed',String(on));
+ button.innerHTML=playerControlIcon(on?'pause':'play')+'<span>'+(button.disabled?'Sin adelanto':on?'Pausar':'Escuchar adelanto')+'</span>';
 }
 audio.addEventListener('play',syncLibraryDiscPlayback);audio.addEventListener('pause',syncLibraryDiscPlayback);audio.addEventListener('ended',syncLibraryDiscPlayback);
 
@@ -952,8 +975,9 @@ function syncLibraryCardStates(){
   const r=records[Number(card.dataset.index)];if(!r)return;
   const on=r===selected&&!audio.paused&&!audio.ended,liked=saved.has(r.id);
   card.classList.toggle('is-listening',on);card.classList.toggle('is-saved',liked);
-  card.setAttribute('aria-label','Abrir '+r.artist+' — '+r.title+(on?' · En reproducción':'')+(liked?' · Guardado en favoritos':''));
+  card.setAttribute('aria-label','Abrir '+r.artist+' — '+r.title+' · '+price(r)+' · '+stockLabel(r)+(r.condition?' · '+r.condition:'')+(on?' · En reproducción':'')+(liked?' · Guardado en favoritos':''));
  });
+ gallery.querySelectorAll('[data-preview-index]').forEach(button=>{const r=records[Number(button.dataset.previewIndex)];if(!r)return;const on=r===selected&&!audio.paused&&!audio.ended;button.setAttribute('aria-pressed',String(on));button.setAttribute('aria-label',(button.disabled?'Sin adelanto: ':on?'Pausar ':'Escuchar ')+r.title);button.innerHTML=playerControlIcon(on?'pause':'play')+'<span>'+(button.disabled?'Sin adelanto':on?'Pausar':'Escuchar')+'</span>'});
 }
 function wireLibraryShelves(){
  if(!libraryShelfObserver&&window.ResizeObserver)libraryShelfObserver=new ResizeObserver(entries=>entries.forEach(entry=>entry.target.updateShelfControls?.()));
@@ -999,14 +1023,15 @@ $('libraryNavLiked').onclick=()=>openLibraryCollection('liked');
 $('libraryNavBag').onclick=()=>window.openLVLBag?.();
 ['',...[...new Set(records.map(r=>r.genre).filter(Boolean))].sort()].forEach(genre=>{const button=document.createElement('button');button.type='button';button.dataset.genre=genre;button.textContent=genre||'Todos los géneros';button.setAttribute('aria-pressed',String(!genre));button.onclick=()=>openLibraryCollection('all',genre);$('libraryGenres').append(button)});
 window.addEventListener('storage',()=>renderGallery());
-document.addEventListener('lvl-bag-change',()=>{if(libraryScope==='liked'||libraryPage.type==='disc')renderGallery()});
+document.addEventListener('lvl-bag-change',()=>{if(libraryPage.type==='disc')syncLibraryPurchase(libraryPage.record)});
+document.addEventListener('lvl-favorites-change',()=>{if(pendingRecord||selected)syncRecordActions(pendingRecord||selected);if(libraryScope==='liked'||libraryPage.type==='disc')renderGallery();else syncLibraryCardStates()});
 function clearLibrarySearch(){
  $('recordSearch').value='';renderGallery();saveLibraryHistory(true);$('recordSearch').focus();
 }
 $('librarySearchClear').onclick=clearLibrarySearch;
 $('recordSearch').onkeydown=e=>{if(e.key==='Escape'&&$('recordSearch').value){e.preventDefault();clearLibrarySearch()}};
-$('recordSearch').oninput=()=>{renderGallery();saveLibraryHistory(true)};
-$('genreFilter').onchange=()=>openLibraryCollection('all',$('genreFilter').value);
+$('recordSearch').oninput=()=>{if(libraryPage.type==='disc'){libraryPage={type:'collection',scope:'all',query:$('recordSearch').value};libraryScope='all';$('genreFilter').value='';}renderGallery();saveLibraryHistory(true)};
+$('genreFilter').onchange=()=>navigateLibrary({type:'collection',scope:libraryPage.type==='disc'?'all':libraryScope,genre:$('genreFilter').value,query:$('recordSearch').value});
 if(libraryToggle)libraryToggle.onclick=()=>{if(discView!=='library')focusRecordView(false)};
 window.addEventListener('resize',()=>{if(iosDiscView)focusRecordView(false)});
 

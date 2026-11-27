@@ -121,7 +121,7 @@ body[data-page="discos"] .cover-title,body[data-page="discos"] .fallback-type,bo
 .record-shelf-heading h2{font-size:var(--lvl-type-subhead);letter-spacing:-.025em;margin:0;font-weight:600}
 .record-shelf-heading button{background:none;border:0;color:#c4c9ad;font-size:var(--lvl-type-control);min-height:var(--lvl-target,44px)}
 .record-shelf-row{display:flex;gap:22px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 2px 12px;scrollbar-width:thin;scrollbar-color:#dcccaa33 transparent}
-.record-shelf-row .sleeve{flex:0 0 clamp(155px,15vw,215px);min-width:0;scroll-snap-align:start}
+.record-shelf-row .record-tile{flex:0 0 clamp(155px,15vw,215px);min-width:0;scroll-snap-align:start}
 .library-cover-card{flex-basis:clamp(160px,16vw,225px)}
 .cover-title{font-size:clamp(24px,2.2vw,32px);line-height:1.05}
 .library-section-heading h2{font-weight:600}
@@ -159,7 +159,7 @@ body[data-page="discos"] .cover-title,body[data-page="discos"] .fallback-type,bo
  .library-page-heading h1{font-size:28px}
  .expanded-library.library-home .library-toolbar{padding-top:4px!important;padding-bottom:8px!important}
  .expanded-library .library-cover-card{flex-basis:42vw;max-width:190px}
- .record-shelf-row .sleeve{flex-basis:42vw;max-width:210px}
+ .record-shelf-row .record-tile{flex-basis:42vw;max-width:210px}
  .record-shelf-row{gap:16px}
  .record-shelf{margin-bottom:24px}
  .library-disc-detail{padding:8px 6vw 110px}
@@ -302,3 +302,33 @@ body:not(.layered-ios-player) .library-mini-player .deck-time{font-size:10px;col
 .library-deck-button[aria-pressed="false"],.desktop-deck-toggle[aria-pressed="false"]{background:#54293444;border-color:#dcccaa33;color:#eee3cf}
 @media(max-width:1023px){body:not(.layered-ios-player) .library-mini-player>.deck-playback-timeline{grid-column:1/-1;grid-row:auto;flex-basis:100%}}
 
+
+/* Phase 4: separate browsing and listening, with artwork as the focal point. */
+.record-tile{min-width:0;display:flex;flex-direction:column;gap:4px}
+.record-tile>.sleeve{display:block;min-width:0;width:100%;text-align:left}
+.record-tile .sleeve-meta{display:block}
+.sleeve-availability{display:block;font-size:var(--lvl-type-meta);line-height:1.45;color:#c6cea7;margin-top:6px;overflow-wrap:anywhere}
+.sleeve-availability.is-sold-out{color:var(--lvl-muted)}
+.sleeve-preview{display:flex;align-items:center;justify-content:flex-start;gap:8px;min-height:var(--lvl-target,44px);padding:8px 0;border:0;background:transparent;color:var(--lvl-paper);font-size:var(--lvl-type-control);text-align:left}
+.sleeve-preview svg{width:21px;height:21px;flex:none}
+.sleeve-preview[aria-pressed="true"]{color:#c6cea7}
+.sleeve-preview:disabled{color:var(--lvl-muted);opacity:.8}
+.sleeve-preview:focus-visible,.record-tile>.sleeve:focus-visible{outline:2px solid var(--lvl-gold-highlight);outline-offset:3px}
+.library-disc-purchase .library-add-button{min-height:var(--lvl-target,44px);font-weight:700}
+.library-disc-purchase .library-add-button.is-added{background:transparent;border-color:var(--lvl-line)}
+.library-disc-price .library-condition{color:var(--lvl-muted);font-size:var(--lvl-type-meta);overflow-wrap:anywhere}
+.library-disc-information dl{grid-template-columns:repeat(auto-fit,minmax(100px,1fr))}
+.library-disc-information dd{overflow-wrap:anywhere}
+.library-disc-buttons #libraryDiscTurntable{color:var(--lvl-muted)}
+.expanded-library.library-detail-open:not(.catalogue-empty) .library-column .library-toolbar{display:flex!important}
+@media(max-width:1023px){
+ .expanded-library.library-detail-open:not(.catalogue-empty) .library-column .library-toolbar{display:block!important}
+}
+@media(max-width:479px){
+ .library-disc-purchase{display:grid;grid-template-columns:1fr auto;align-items:center}
+ .library-disc-purchase .library-add-button{grid-column:1/-1;justify-content:center;min-height:50px}
+ .sleeve-footer{flex-wrap:wrap}
+}
+
+.library-stock.is-sold-out{color:var(--lvl-muted)}
+@media(max-width:1023px){.expanded-library.library-detail-open .library-toolbar{padding-bottom:var(--lvl-space-4)!important}}

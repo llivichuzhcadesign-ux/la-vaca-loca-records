@@ -28,3 +28,6 @@
 body header .bag-state-image{display:block;width:34px;height:36px;object-fit:contain;filter:none}
 .ios-header body header .bag-state-image{width:30px!important;height:30px!important}
 body header #cartCount{display:none!important}
+
+.shared-bag-footer a{font-weight:700;line-height:1.4}
+.shared-bag-item strong,.shared-bag-item span{overflow-wrap:anywhere}

@@ -3,8 +3,8 @@
 <link rel="stylesheet" href="discos.header.css?v=20261126-metallic-gold-v1">
 <link rel="stylesheet" href="discos.deck.css?v=20261126-responsive-v1">
 <link rel="stylesheet" href="discos.ios-player.css?v=20261126-responsive-v1">
-<link rel="stylesheet" href="discos.library.css?v=20261126-responsive-v1">
-<link rel="stylesheet" href="discos.responsive.css?v=20261126-responsive-v1"><script src="data.js?v=20261116-visitanos-v1" defer></script><script src="api/content" defer></script><script src="draft-preview.js" defer></script><script src="calendar-content.js?v=20261105-empty-design-v1" defer></script><script src="scratch-audio.js?v=20261007-ready" defer></script><script src="waveform.js?v=20261126-metallic-gold-v1" defer></script><script src="discos.js?v=20261126-responsive-v1" defer></script><link rel="stylesheet" href="ios-header.css?v=20261126-responsive-v1"><link rel="stylesheet" href="public-header.css?v=20261126-responsive-v1"><link rel="stylesheet" href="bag.css?v=20261126-components-v1"><link rel="stylesheet" href="footer-sign.effects.css?v=20261126-metallic-gold-v1">
+<link rel="stylesheet" href="discos.library.css?v=20261126-discos-v1">
+<link rel="stylesheet" href="discos.responsive.css?v=20261126-discos-v1"><script src="data.js?v=20261116-visitanos-v1" defer></script><script src="api/content" defer></script><script src="draft-preview.js" defer></script><script src="calendar-content.js?v=20261105-empty-design-v1" defer></script><script src="scratch-audio.js?v=20261007-ready" defer></script><script src="waveform.js?v=20261126-metallic-gold-v1" defer></script><script src="discos.js?v=20261126-discos-v1" defer></script><link rel="stylesheet" href="ios-header.css?v=20261126-responsive-v1"><link rel="stylesheet" href="public-header.css?v=20261126-responsive-v1"><link rel="stylesheet" href="bag.css?v=20261126-discos-v1"><link rel="stylesheet" href="footer-sign.effects.css?v=20261126-metallic-gold-v1">
 <link rel="stylesheet" href="footer-sign.layout.css?v=20261126-foundation-v1">
 <link rel="stylesheet" href="footer-sign.viewport.css?v=20261101-css-modules-v1">
 <link rel="stylesheet" href="footer-sign.touch.css?v=20261101-css-modules-v1"><link rel="stylesheet" href="site-theme.tokens.css?v=20261126-foundation-v1">
@@ -111,7 +111,7 @@
           <div class="record-buy">
             <strong id="recordPrice"></strong>
             <span class="record-stock" id="recordStock"></span>
-            <div class="record-actions"><button id="recordLike" type="button" aria-label="Guardar favorito" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg></button><button id="recordBag" type="button" aria-label="Añadir a la canasta"><img src="assets/brand/shopping-bag.svg" alt=""></button></div>
+            <div class="record-actions"><button id="recordLike" type="button" aria-label="Guardar favorito" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg></button><button id="recordBag" type="button" aria-label="Añadir a la bolsa"><img src="assets/brand/shopping-bag.svg" alt=""></button></div>
             <a id="recordInquiry" hidden target="_blank" rel="noopener noreferrer">Consultar</a>
           </div>
         </div>
@@ -126,14 +126,14 @@
   <section class="collection" id="coleccion">
     <aside class="biblioteca-sidebar" aria-label="Navegación de biblioteca">
       <button class="library-deck-button" type="button" data-disc-view="player" aria-label="Abrir tocadiscos"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="26" height="24" rx="3"/><circle cx="13" cy="16" r="7"/><circle cx="13" cy="16" r="2"/><path d="M24 9v10l-4 4M22 9h4"/></svg><span>Tocadiscos</span></button>
-      <button id="libraryNavHome" type="button" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m3 10 9-7 9 7v11h-7v-7h-4v7H3Z"/></svg><span>Discover</span></button><span class="library-nav-caption">Tu biblioteca</span>
+      <button id="libraryNavHome" type="button" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m3 10 9-7 9 7v11h-7v-7h-4v7H3Z"/></svg><span>Explorar</span></button><span class="library-nav-caption">Tu biblioteca</span>
       <button id="libraryNavAll" type="button" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Todos los discos</span></button>
       <button id="libraryNavLiked" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span>Discos que te gustan</span></button>
-      <button id="libraryNavBag" type="button"><img src="assets/brand/shopping-bag.svg" alt=""><span>Canasta</span></button>
+      <button id="libraryNavBag" type="button"><img src="assets/brand/shopping-bag.svg" alt=""><span>Bolsa</span></button>
       <span class="library-nav-caption library-genres-caption">Géneros</span>
       <div id="libraryGenres" class="library-genres"></div>
     </aside>
-    <div class="library-page-heading"><button id="libraryBack" type="button" hidden aria-label="Volver a la biblioteca"><svg class="lvl-control-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 5 7 12 14 19"/></svg><span>Volver</span></button><h1 id="libraryPageTitle" tabindex="-1">Biblioteca</h1><p id="librarySearchSummary" class="library-search-summary" aria-live="polite" hidden></p></div><section id="libraryDiscDetail" class="library-disc-detail" hidden aria-label="Detalle del disco"></section>
+    <div class="library-page-heading"><button id="libraryBack" type="button" hidden aria-label="Volver a la biblioteca"><svg class="lvl-control-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 5 7 12 14 19"/></svg><span>Volver</span></button><h1 id="libraryPageTitle" tabindex="-1">Biblioteca</h1><p id="librarySearchSummary" class="library-search-summary" aria-live="polite" hidden></p></div>
     <section class="library-playlists" aria-labelledby="libraryPlaylistTitle"><div class="library-section-heading"><h2 id="libraryPlaylistTitle">Selecciones de La Vaca Loca</h2></div><div class="library-cover-row" id="libraryCoverRow" aria-label="Playlist, favoritos y géneros"></div></section>
     <div class="library-toolbar">
       <div class="library-view-switch" role="group" aria-label="Vista de discos"><button type="button" data-disc-view="player" aria-pressed="true">Tocadiscos</button><button type="button" data-disc-view="library" aria-pressed="false">Biblioteca</button></div>
@@ -142,12 +142,13 @@
         <span class="library-state"><span id="resultCount" aria-live="polite"></span><i class="library-state-chevron" aria-hidden="true"></i></span>
       </button>
       <div class="browse-tools">
-        <div class="library-search-field"><label for="recordSearch">Buscar</label><input id="recordSearch" type="search" placeholder="Artista, título o sello…"><button id="librarySearchClear" type="button" aria-label="Borrar búsqueda" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>
+        <div class="library-search-field"><label for="recordSearch">Buscar</label><input id="recordSearch" type="search" placeholder="Artista, título, sello o género…"><button id="librarySearchClear" type="button" aria-label="Borrar búsqueda" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>
         <label>Género<select id="genreFilter"><option value="">Todos</option></select></label>
       </div>
     </div>
+    <section id="libraryDiscDetail" class="library-disc-detail" hidden aria-label="Detalle del disco"></section>
     <div id="discGallery" class="disc-gallery"></div>
-    <noscript>Activa JavaScript para explorar la colección y escuchar los previews.</noscript>
+    <noscript>Activa JavaScript para explorar la colección y escuchar los adelantos.</noscript>
   </section>
 </div></div><div class="library-mini-player" hidden><div><strong id="libraryPlayerTitle"></strong><span id="libraryPlayerArtist"></span></div><button id="libraryPlayerPlay" type="button" aria-label="Reproducir">Reproducir</button><button type="button" data-disc-view="player">Abrir tocadiscos</button></div></section></main>
 <div class="transport-disc" id="transportDisc" aria-hidden="true"><span id="transportDiscLabel"></span></div>
@@ -156,5 +157,5 @@
   <div class="artwork-dialog-stage" id="artworkStage"><img id="artworkFull" alt=""></div>
 </dialog>
 <audio id="recordAudio" preload="auto"></audio>
-<footer class="editorial-footer" data-lvl-footer><nav aria-label="Pie de página"><a href="index.html">Inicio</a><a href="discos.html">Discos</a><a href="sessions.html">Sessions</a><a href="visitanos.html">Visítanos</a><a href="archivo.html">Archivo</a></nav></footer><script src="ios-header.js?v=20261126-components-v1"></script><script src="bag.js?v=20261126-components-v1" defer></script><script src="footer-sign.js?v=20261126-metallic-gold-v1"></script><script src="site-theme.js?v=20261029-logo-menu"></script><script src="site-cursor.js?v=20261126-components-v1" defer></script></body></html>
+<footer class="editorial-footer" data-lvl-footer><nav aria-label="Pie de página"><a href="index.html">Inicio</a><a href="discos.html">Discos</a><a href="sessions.html">Sessions</a><a href="visitanos.html">Visítanos</a><a href="archivo.html">Archivo</a></nav></footer><script src="ios-header.js?v=20261126-discos-v1"></script><script src="bag.js?v=20261126-discos-v1" defer></script><script src="footer-sign.js?v=20261126-metallic-gold-v1"></script><script src="site-theme.js?v=20261029-logo-menu"></script><script src="site-cursor.js?v=20261126-components-v1" defer></script></body></html>
 

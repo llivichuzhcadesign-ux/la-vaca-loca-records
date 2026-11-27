@@ -30,7 +30,7 @@
   font-size:clamp(19px,5vw,24px);line-height:1.04;
  }
  .mobile-disc-view .record-shelf-row{gap:14px}
- .mobile-disc-view .record-shelf-row .sleeve{
+ .mobile-disc-view .record-shelf-row .record-tile{
   flex:0 0 clamp(134px,44vw,198px);
  }
  .mobile-disc-view .expanded-library .library-toolbar{
@@ -173,7 +173,7 @@ html:not(.mobile-disc-view) body[data-page="discos"]:not(.catalogue-empty) #cont
  .mobile-disc-view .expanded-library .library-page-heading,.mobile-disc-view .expanded-library .biblioteca-sidebar,.mobile-disc-view .expanded-library .library-playlists{padding-inline:var(--lvl-gutter)}
  .mobile-disc-view .expanded-library .library-column .disc-gallery{padding-inline:var(--lvl-gutter)!important;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))!important;gap:24px}
  .mobile-disc-view .library-cover-card{flex:0 0 clamp(160px,22vw,200px);max-width:200px}
- .mobile-disc-view .record-shelf-row .sleeve{flex:0 0 clamp(170px,25vw,218px)}
+ .mobile-disc-view .record-shelf-row .record-tile{flex:0 0 clamp(170px,25vw,218px)}
  .mobile-disc-view .expanded-library .library-toolbar{padding-inline:var(--lvl-gutter)!important}
  .mobile-disc-view .ios-player-sheet{max-width:820px}
 }
@@ -185,6 +185,6 @@ html:not(.mobile-disc-view) body[data-page="discos"]:not(.catalogue-empty) #cont
  body[data-page="discos"].desktop-turntable .deck-area{min-height:0;overflow:auto}
 }
 @media(min-width:1920px){
- .expanded-library .record-shelf-row .sleeve{flex-basis:clamp(190px,12vw,240px)}
+ .expanded-library .record-shelf-row .record-tile{flex-basis:clamp(190px,12vw,240px)}
  .expanded-library .library-cover-card{flex-basis:clamp(190px,12vw,240px);max-width:240px}
 }
