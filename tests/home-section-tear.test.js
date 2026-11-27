@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const read=p=>fs.readFileSync(require.resolve('../'+p),'utf8');
+const css=read('home-flow.refinements.css'),html=read('index.html'),imports=read('home-flow.css');
+assert.match(html,/<section class="sessions-section motion-section" id="sessions"[\s\S]*?<\/section>\s*<section class="archive-section motion-section" id="archive"/);
+assert.match(css,/body #sessions\.sessions-section::after\{[\s\S]*?pointer-events:none;z-index:3/);
+assert.match(css,/padding-bottom:max\(var\(--lvl-section-space\),calc\(var\(--session-tear-height\) \+ 12px\)\)/);
+const edge=css.match(/body #sessions\.sessions-section::after\{[\s\S]*?clip-path:polygon\(([\s\S]*?)\)/)[1];
+const points=Array.from(edge.matchAll(/([\d.]+)%\s+([\d.]+)%/g),m=>[Number(m[1]),Number(m[2])]);
+assert.ok(points.length>150);assert.equal(points[0][0],0);assert.deepEqual(points.slice(-2),[[100,100],[0,100]]);
+for(let i=1;i<points.length-2;i++)assert.ok(points[i][0]>points[i-1][0]);
+assert.ok(points.slice(0,-2).every(([x,y])=>x>=0&&x<=100&&y>=0&&y<=100));
+assert.match(css,/@media\(max-width:700px\)\{body #sessions\.sessions-section\{--session-tear-height:/);
+assert.match(html,/home-flow\.refinements\.css\?v=20261126-paper-tear-v1/);
+assert.match(imports,/home-flow\.refinements\.css\?v=20261126-paper-tear-v1/);
+console.log('PASS: responsive full-width paper tear, content clearance, no pointer obstruction, cache-busted CSS');
