@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),fs=require('node:fs');
-const {justifiedRows,collectPhotos}=require('../memoria-viva.js');
+const {justifiedRows,editorialBands,collectPhotos}=require('../memoria-viva.js');
 const mixed=[1.5,.65,1,2.2,.8,1.6,3,.5,1.2];
 for(const width of [320,390,768,1024,1440,1920]){
  const viewport=width<600?680:820,rows=justifiedRows(mixed,width,viewport);
@@ -24,3 +24,31 @@ assert.match(css,/\.memory-gallery\{width:100%;max-width:none;margin:0;padding:0
 assert.match(source,/img.naturalWidth\/img.naturalHeight/);assert.match(source,/ResizeObserver/);
 assert.match(css,/memory-lightbox-stage img\{[^}]*object-fit:contain/);
 console.log('PASS: gapless justified rows, natural ratios, viewport height cap, deduplicated photos and no intro');
+
+for(const width of [320,390,768,1024,1440,1920]){
+ const viewport=width<600?680:820;
+ for(const sample of [mixed,[1.5,1.5,1.5],Array(12).fill(1.5),[3.2,.7,.8,1.2,1.7,1.6,.6,.9]]){
+  const bands=editorialBands(sample,width,viewport);
+  let end=0,seen=[];
+  for(const band of bands){
+   assert.equal(band.start,end);end=band.end;assert.ok(band.height>0&&band.height<=viewport);
+   if(band.type==='mosaic'){
+    assert.ok(band.heroWeight>=.43&&band.heroWeight<=.86);
+    assert.ok(Math.abs(band.pairWeights.reduce((a,b)=>a+b,0)-1)<1e-10);
+    seen.push(...(band.right?[...band.pair,band.hero]:[band.hero,...band.pair]));
+    assert.ok(Math.abs(band.heroWeight*width/band.naturalHeight-sample[band.hero])<1e-9);
+   }else{
+    assert.ok(Math.abs(band.weights.reduce((a,b)=>a+b,0)-1)<1e-10);
+    for(let i=band.start;i<band.end;i++)seen.push(i);
+   }
+  }
+  assert.equal(end,sample.length);assert.deepEqual(seen,sample.map((_,i)=>i));
+ }
+ const equal=editorialBands([1.5,1.5,1.5],width,viewport);
+ assert.equal(equal.length,1);assert.equal(equal[0].type,'mosaic');
+ assert.ok(Math.abs(equal[0].heroWeight-2/3)<1e-10);
+ const rhythm=editorialBands(Array(12).fill(1.5),width,viewport);
+ assert.ok(rhythm.some(b=>b.type==='mosaic'));assert.ok(rhythm.some(b=>b.type==='row'));
+}
+assert.match(css,/\.memory-gallery-stack\{display:flex;flex-direction:column;gap:0/);
+console.log('PASS: varied editorial bands, full-width mosaic and stack geometry, preserved order, six viewport widths');

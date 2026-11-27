@@ -24,6 +24,51 @@ function justifiedRows(ratios,width,viewportHeight){
  }
  return rows;
 }
+// Alternate a lead photograph with a vertical pair, then a quieter strip.
+// Use the real proportions of the images to choose the best orientation.
+function editorialBands(ratios,width,viewportHeight){
+ if(!ratios.length||width<=0)return [];
+ const aspect=ratios.map(r=>Number.isFinite(r)&&r>0?Math.max(.08,Math.min(20,r)):1.5);
+ const heightLimit=Math.max(100,viewportHeight),bands=[];
+ const strip=(start,end)=>{
+  for(const row of justifiedRows(aspect.slice(start,end),width,viewportHeight)){
+   bands.push({...row,type:'row',start:start+row.start,end:start+row.end});
+  }
+ };
+ function mosaic(start,preferRight){
+  const a=aspect.slice(start,start+3);
+  const candidate=right=>{
+   const hero=right?2:0,pair=right?[0,1]:[1,2];
+   const stackAspect=1/(1/a[pair[0]]+1/a[pair[1]]);
+   const naturalHeight=width/(a[hero]+stackAspect);
+   const heroWeight=a[hero]/(a[hero]+stackAspect);
+   const pairWeights=pair.map(i=>stackAspect/a[i]);
+   // A tall or extremely narrow photograph should never be forced into a tiny sliver.
+   const score=Math.abs(heroWeight-.66)+Math.max(0,naturalHeight/heightLimit-1)*.38+
+    (Math.min(...pairWeights)<.16?.35:0)+(right===preferRight?0:.055);
+   return {type:'mosaic',start,end:start+3,hero:start+hero,pair:pair.map(i=>start+i),right,heroWeight,pairWeights,naturalHeight,height:Math.min(naturalHeight,heightLimit),score};
+  };
+  const left=candidate(false),right=candidate(true),best=left.score<=right.score?left:right;
+  if(best.heroWeight<.43||best.heroWeight>.86||Math.min(...best.pairWeights)<.12)return false;
+  bands.push(best);return true;
+ }
+ let start=0,beat=0;
+ while(start<aspect.length){
+  const remaining=aspect.length-start;
+  if(remaining<3){strip(start,aspect.length);break}
+  // Preserve a broad panoramic image as a full-width editorial moment.
+  if(aspect[start]>=2.65&&remaining>=4){
+   bands.push({type:'row',start,end:start+1,weights:[1],naturalHeight:width/aspect[start],height:Math.min(width/aspect[start],heightLimit)});
+   start++;beat++;continue;
+  }
+  if(beat%3!==1||remaining===3){
+   if(mosaic(start,beat%2===1)){start+=3;beat++;continue}
+  }
+  const count=Math.min(remaining,width<600?2:3);
+  strip(start,start+count);start+=count;beat++;
+ }
+ return bands;
+}
 function imageUrl(value,base){
  if(!value)return '';
  try{const u=new URL(value,base);return ['http:','https:'].includes(u.protocol)?u.href:''}catch{return ''}
@@ -39,7 +84,7 @@ function collectPhotos(archive,gallery,base){
  for(const item of Array.isArray(gallery)?gallery:[])add(item?.url,{title:String(item?.title||''),alt:String(item?.alt||''),caption:String(item?.caption||''),story:'',ratio:Number(item?.width)/Number(item?.height)});
  return photos;
 }
-if(typeof module!=='undefined')module.exports={justifiedRows,collectPhotos};
+if(typeof module!=='undefined')module.exports={justifiedRows,editorialBands,collectPhotos};
 if(typeof document==='undefined')return;
 const $=id=>document.getElementById(id);
 const gallery=$('memoryGallery'),grid=$('memoryGalleryGrid');if(!gallery||!grid)return;
@@ -55,12 +100,20 @@ function layout(){
  if(!tiles.length)return;
  const width=grid.clientWidth,viewport=availableHeight();if(!width)return;
  lastWidth=width;lastViewport=viewport;
- const rows=justifiedRows(tiles.map(t=>t.ratio),width,viewport);
+ const rows=editorialBands(tiles.map(t=>t.ratio),width,viewport);
  const focused=document.activeElement;
  const fragment=document.createDocumentFragment();
  for(const row of rows){
   const wrapper=document.createElement('div');wrapper.className='memory-gallery-row';wrapper.style.height=row.height+'px';
-  row.weights.forEach((weight,k)=>{const tile=tiles[row.start+k];tile.figure.style.flex=weight+' 1 0px';wrapper.append(tile.figure)});
+  if(row.type==='mosaic'){
+   wrapper.classList.add('memory-gallery-mosaic');
+   const hero=tiles[row.hero].figure;hero.style.flex=row.heroWeight+' 1 0px';
+   const stack=document.createElement('div');stack.className='memory-gallery-stack';stack.style.flex=(1-row.heroWeight)+' 1 0px';
+   row.pair.forEach((index,k)=>{const tile=tiles[index].figure;tile.style.flex=row.pairWeights[k]+' 1 0px';stack.append(tile)});
+   if(row.right)wrapper.append(stack,hero);else wrapper.append(hero,stack);
+  }else{
+   row.weights.forEach((weight,k)=>{const tile=tiles[row.start+k];tile.figure.style.flex=weight+' 1 0px';wrapper.append(tile.figure)});
+  }
   fragment.append(wrapper);
  }
  grid.replaceChildren(fragment);

@@ -38,3 +38,8 @@ body[data-page="archivo"] #pageIndex[hidden]{display:none}
 
 @media(max-width:600px){body[data-page="archivo"] .page-intro{padding-block:12px 24px}body[data-page="archivo"] .page-intro h1{font-size:clamp(2.6rem,11vw,4.5rem)}body[data-page="archivo"] .intro-copy{font-size:var(--lvl-type-control);margin-top:10px}}
 @media(max-width:380px){.memory-lightbox-stage{gap:4px}}
+
+/* Editorial scale: a large photograph beside two smaller memories, with no seams. */
+.memory-gallery-mosaic{isolation:isolate}
+.memory-gallery-stack{display:flex;flex-direction:column;gap:0;min-width:0;min-height:0;overflow:hidden}
+.memory-gallery-stack .memory-gallery-tile{min-height:0}
