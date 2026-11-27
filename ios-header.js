@@ -32,8 +32,8 @@
  brand.setAttribute('aria-expanded','false');
  const closeMenu=()=>{
   dropdown.hidden=true;
-  brand.setAttribute('aria-expanded','false');
-  brand.setAttribute('aria-label','Abrir menú de navegación');
+  if(!header.classList.contains('lvl-tabs-fit'))brand.setAttribute('aria-expanded','false');
+  if(!header.classList.contains('lvl-tabs-fit'))brand.setAttribute('aria-label','Abrir menú de navegación');
   header.classList.remove('lvl-menu-open');
  };
  const toggleMenu=()=>{
@@ -90,6 +90,7 @@
  bagImage.alt='';
  right.append(heart,bag);
  header.append(right);
+ header.classList.add('lvl-header-ready');
  // Measure the actual inline links, logo and utility buttons instead of using
  // a device-specific breakpoint. Show the dropdown only when this row will not fit.
  function fitHeaderNavigation(){
@@ -99,6 +100,7 @@
   const logoSlot=Math.min(240,Math.max(160,width*.225));
   const padding=Math.min(48,Math.max(14,width*.03));
   const gap=Math.min(20,Math.max(10,width*.015));
+  const wasFit=header.classList.contains('lvl-tabs-fit');
   header.classList.remove('lvl-tabs-fit');
   header.classList.add('lvl-nav-measuring');
   const navWidth=Math.ceil(existingNav.getBoundingClientRect().width);
@@ -114,9 +116,9 @@
    brand.removeAttribute('aria-controls');
    brand.title='Inicio';
   }else{
-   closeMenu();
-   brand.setAttribute('aria-label','Abrir menú de navegación');
-   brand.setAttribute('aria-expanded','false');
+   if(wasFit)closeMenu();
+   brand.setAttribute('aria-label',dropdown.hidden?'Abrir menú de navegación':'Cerrar menú de navegación');
+   brand.setAttribute('aria-expanded',String(!dropdown.hidden));
    brand.setAttribute('aria-controls',dropdown.id);
    brand.removeAttribute('title');
   }
@@ -139,14 +141,15 @@
   return (Array.isArray(source)?source:[]).filter(r=>!r.hideFromPublic&&!['DRAFT','HIDDEN','PRIVATE LISTING'].includes(String(r.status||'').toUpperCase()));
  };
  let saved;try{saved=new Set(JSON.parse(localStorage.getItem('lvl-liked-discs')||'[]'))}catch{saved=new Set()}
- const dialog=document.createElement('dialog');dialog.className='ios-liked-dialog';document.body.append(dialog);
+ const dialog=document.createElement('dialog');dialog.className='ios-liked-dialog';dialog.setAttribute('aria-labelledby','lvlFavoritesTitle');document.body.append(dialog);
+ dialog.addEventListener('close',()=>heart.focus({preventScroll:true}));
  let all=false;
- function render(){dialog.replaceChildren();const head=document.createElement('div');head.className='ios-liked-head';const title=document.createElement('h2');title.textContent=all?'Discos':'Favoritos';const close=document.createElement('button');close.textContent='×';close.setAttribute('aria-label','Cerrar favoritos');close.onclick=()=>dialog.close();head.append(title,close);dialog.append(head);
- const toggle=document.createElement('button');toggle.className='ios-liked-toggle';toggle.textContent=all?'Ver mis favoritos':'Elegir discos';toggle.onclick=()=>{all=!all;render()};dialog.append(toggle);
+ function render(){dialog.replaceChildren();const head=document.createElement('div');head.className='ios-liked-head';const title=document.createElement('h2');title.id='lvlFavoritesTitle';title.textContent=all?'Discos':'Favoritos';const close=document.createElement('button');close.type='button';close.textContent='×';close.setAttribute('aria-label','Cerrar favoritos');close.onclick=()=>dialog.close();head.append(title,close);dialog.append(head);
+ const toggle=document.createElement('button');toggle.type='button';toggle.className='ios-liked-toggle';toggle.textContent=all?'Ver mis favoritos':'Elegir discos';toggle.onclick=()=>{all=!all;render();dialog.querySelector('.ios-liked-toggle')?.focus()};dialog.append(toggle);
  const list=document.createElement('div');list.className='ios-liked-list';dialog.append(list);
- const shown=availableRecords().filter(r=>all||saved.has(r.id));if(!shown.length){const empty=document.createElement('p');empty.textContent='Todavía no tienes discos favoritos.';list.append(empty)}
- shown.forEach(r=>{const row=document.createElement('div');row.className='ios-liked-row';const link=document.createElement('a');link.href='discos.html#'+encodeURIComponent(r.id);const img=document.createElement('img');const url=r.media?.cover?.url||r.coverImage; if(url){img.src=url;img.alt='';link.append(img)}const text=document.createElement('span');text.textContent=r.title+' · '+r.artist;link.append(text);const like=document.createElement('button');like.innerHTML='<svg viewBox="0 0 24 24" fill="'+(saved.has(r.id)?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>';like.setAttribute('aria-label',(saved.has(r.id)?'Quitar de favoritos: ':'Guardar favorito: ')+r.title);like.setAttribute('aria-pressed',String(saved.has(r.id)));like.onclick=()=>{saved.has(r.id)?saved.delete(r.id):saved.add(r.id);localStorage.setItem('lvl-liked-discs',JSON.stringify([...saved]));render()};row.append(link,like);list.append(row)});
+ const shown=availableRecords().filter(r=>all||saved.has(r.id));if(!shown.length){const empty=document.createElement('p');empty.textContent=all?'No hay discos disponibles.':'Todavía no tienes discos favoritos.';list.append(empty)}
+ shown.forEach(r=>{const row=document.createElement('div');row.className='ios-liked-row';const link=document.createElement('a');link.href='discos.html#'+encodeURIComponent(r.id);const img=document.createElement('img');const url=r.media?.cover?.url||r.coverImage; if(url){img.src=url;img.alt='';link.append(img)}const text=document.createElement('span');text.textContent=r.title+' · '+r.artist;link.append(text);const like=document.createElement('button');like.type='button';like.dataset.favoriteId=r.id;like.innerHTML='<svg viewBox="0 0 24 24" fill="'+(saved.has(r.id)?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>';like.setAttribute('aria-label',(saved.has(r.id)?'Quitar de favoritos: ':'Guardar favorito: ')+r.title);like.setAttribute('aria-pressed',String(saved.has(r.id)));like.onclick=()=>{saved.has(r.id)?saved.delete(r.id):saved.add(r.id);try{localStorage.setItem('lvl-liked-discs',JSON.stringify([...saved]))}catch{}render();const next=[...dialog.querySelectorAll('[data-favorite-id]')].find(button=>button.dataset.favoriteId===String(r.id));(next||dialog.querySelector('.ios-liked-toggle'))?.focus()};row.append(link,like);list.append(row)});
  }
- heart.onclick=()=>{try{saved=new Set(JSON.parse(localStorage.getItem('lvl-liked-discs')||'[]'))}catch{saved=new Set()}all=false;render();dialog.showModal()};dialog.onclick=e=>{if(e.target===dialog)dialog.close()};
+ heart.onclick=()=>{try{saved=new Set(JSON.parse(localStorage.getItem('lvl-liked-discs')||'[]'))}catch{saved=new Set()}all=false;render();if(!dialog.open)dialog.showModal()};dialog.onclick=e=>{if(e.target!==dialog)return;const b=dialog.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)dialog.close()};
  if(new URLSearchParams(location.search).has('bag'))document.getElementById('cartButton')?.click();
 })();

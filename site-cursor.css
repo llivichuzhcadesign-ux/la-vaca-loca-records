@@ -11,7 +11,7 @@
 @keyframes lvlCursorSpin{to{transform:rotate(360deg)}}
 @media (any-hover:hover) and (any-pointer:fine) and (prefers-reduced-motion:no-preference){
  html.lvl-cursor-active .lvl-cursor{visibility:visible}
- html.lvl-cursor-active,html.lvl-cursor-active body,html.lvl-cursor-active body *{cursor:none!important}
+ html.lvl-cursor-active .lvl-cursor-target,html.lvl-cursor-active .lvl-cursor-target *{cursor:none!important}
 }
 @media (prefers-reduced-motion:reduce),(forced-colors:active){
  .lvl-cursor{display:none!important}

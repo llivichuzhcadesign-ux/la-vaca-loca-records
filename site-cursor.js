@@ -28,8 +28,9 @@
  const recordSelector='.sleeve,.ios-jacket,.record-card,.showcase-record-link,.sleeve-zone.is-ready';
  const interactiveSelector='a[href],button,summary,[role="button"],[role="link"],[data-listen],[data-detail]';
  const textSelector='p,h1,h2,h3,h4,h5,h6,blockquote,pre,code,li,dt,dd,span,strong,small,em,b,i';
- let pressed=false, drag=false;
- const hide=()=>{root.classList.remove('lvl-cursor-active');cursor.classList.remove('is-pressed');pressed=false;drag=false;};
+ let pressed=false, drag=false, cursorTarget=null;
+ const clearTarget=()=>{cursorTarget?.classList.remove('lvl-cursor-target');cursorTarget=null;};
+ const hide=()=>{clearTarget();root.classList.remove('lvl-cursor-active');cursor.classList.remove('is-pressed');pressed=false;drag=false;};
  function stateFor(target){
   if(!(target instanceof Element)||target.closest(nativeSelector))return null;
   if(document.fullscreenElement||document.querySelector('dialog[open]'))return null;
@@ -43,12 +44,13 @@
   if(target.closest('.deck-stage'))return 'drag';
   const text=target.closest(textSelector);
   if(text&&text.textContent.trim()&&getComputedStyle(text).userSelect!=='none')return null;
-  return 'orbit';
+  return null;
  }
  function position(e){
   if(e.pointerType!=='mouse'||!enabled()){hide();return;}
   const state=drag?'drag':stateFor(e.target);
-  if(!state){hide();return;}
+  if(!state||!(e.target instanceof Element)){hide();return;}
+  if(cursorTarget!==e.target){clearTarget();cursorTarget=e.target;cursorTarget.classList.add('lvl-cursor-target');}
   cursor.dataset.state=state;
   cursor.style.transform='translate3d('+e.clientX+'px,'+e.clientY+'px,0)';
   cursor.classList.toggle('is-pressed',pressed);

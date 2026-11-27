@@ -75,10 +75,10 @@ html header>.lvl-header-actions{
  justify-self:end!important;align-items:center;gap:3px;
 }
 html header .lvl-header-actions .ios-heart{
- display:flex!important;width:40px;min-width:40px;height:44px;min-height:var(--lvl-target,44px);
+ display:flex!important;width:var(--lvl-target,44px);min-width:var(--lvl-target,44px);height:44px;min-height:var(--lvl-target,44px);
 }
 html header .lvl-header-actions .ios-basket{
- display:flex!important;width:40px!important;min-width:40px!important;height:44px!important;min-height:var(--lvl-target,44px)!important;
+ display:flex!important;width:var(--lvl-target,44px)!important;min-width:var(--lvl-target,44px)!important;height:44px!important;min-height:var(--lvl-target,44px)!important;
 }
 html header .lvl-header-actions .ios-basket img{width:29px!important;height:31px!important}
 html .site-header>.main-nav,html .editorial-header>nav[aria-label="Navegación principal"]{display:none!important}
@@ -114,10 +114,10 @@ html.ios-header header>.lvl-header-actions{
  justify-self:end!important;align-items:center;gap:3px;
 }
 html.ios-header header .lvl-header-actions .ios-heart{
- display:flex!important;width:40px;min-width:40px;height:44px;min-height:var(--lvl-target,44px);
+ display:flex!important;width:var(--lvl-target,44px);min-width:var(--lvl-target,44px);height:44px;min-height:var(--lvl-target,44px);
 }
 html.ios-header header .lvl-header-actions .ios-basket{
- display:flex!important;width:40px!important;min-width:40px!important;height:44px!important;min-height:var(--lvl-target,44px)!important;
+ display:flex!important;width:var(--lvl-target,44px)!important;min-width:var(--lvl-target,44px)!important;height:44px!important;min-height:var(--lvl-target,44px)!important;
 }
 html.ios-header header .lvl-header-actions .ios-basket img{width:29px!important;height:31px!important}
 html.ios-header .site-header>.main-nav,html.ios-header .editorial-header>nav[aria-label="Navegación principal"]{display:none!important}
@@ -169,10 +169,10 @@ header .lvl-brand-trigger img{min-width:0;flex:0 1 auto;max-width:calc(100% - 23
   justify-self:end!important;align-items:center;gap:3px;
  }
  html:not(.ios-header) body header .lvl-header-actions .ios-heart{
-  display:flex!important;width:40px;min-width:40px;height:44px;min-height:var(--lvl-target,44px);
+  display:flex!important;width:var(--lvl-target,44px);min-width:var(--lvl-target,44px);height:44px;min-height:var(--lvl-target,44px);
  }
  html:not(.ios-header) body header .lvl-header-actions .ios-basket{
-  display:flex!important;width:40px!important;min-width:40px!important;
+  display:flex!important;width:var(--lvl-target,44px)!important;min-width:var(--lvl-target,44px)!important;
   height:44px!important;min-height:var(--lvl-target,44px)!important;
  }
  html:not(.ios-header) body header .lvl-header-actions .ios-basket img{
@@ -199,7 +199,7 @@ header .lvl-brand-trigger img{min-width:0;flex:0 1 auto;max-width:calc(100% - 23
  html header>.lvl-brand-trigger{width:min(100%,185px)!important;max-width:185px!important}
  html header .lvl-header-actions{gap:0!important}
  html header .lvl-header-actions .ios-heart,
- html header .lvl-header-actions .ios-basket{min-width:38px!important;width:38px!important}
+ html header .lvl-header-actions .ios-basket{min-width:var(--lvl-target,44px)!important;width:var(--lvl-target,44px)!important}
 }
 
 /* Phase 3 — legible editorial rhythm and touch targets on phones. */
@@ -401,3 +401,17 @@ html body :is(.site-header,.editorial-header).lvl-tabs-fit > .lvl-header-actions
 html body :is(.site-header,.editorial-header).lvl-tabs-fit > .lvl-header-dropdown {
   display:none!important;
 }
+
+/* Phase 2: shared controls and a capability-independent compact fallback.
+   The measured navigation state, not the operating system, owns the header. */
+html body header.lvl-header-ready .lvl-header-actions :is(.ios-heart,.ios-basket){display:flex!important;align-items:center;justify-content:center;flex:0 0 var(--lvl-target,44px);width:var(--lvl-target,44px)!important;min-width:var(--lvl-target,44px)!important;height:var(--lvl-target,44px)!important;min-height:var(--lvl-target,44px)!important}
+html body header.lvl-header-ready .lvl-header-actions .ios-heart svg{width:24px;height:24px;stroke-width:var(--lvl-icon-stroke,1.5)}
+html body :is(.site-header,.editorial-header).lvl-header-ready:not(.lvl-tabs-fit){display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:1fr!important;align-items:center!important;gap:var(--lvl-space-2,8px)!important;height:68px!important;padding:8px clamp(14px,3vw,48px)!important}
+html body header.lvl-header-ready:not(.lvl-tabs-fit)>.lvl-brand-trigger{grid-column:1!important;grid-row:1!important;justify-self:start!important;width:min(100%,210px)!important;max-width:210px!important;min-height:var(--lvl-target,44px)}
+html body header.lvl-header-ready:not(.lvl-tabs-fit)>.lvl-header-actions{grid-column:2!important;grid-row:1!important;justify-self:end!important}
+html body header.lvl-header-ready:not(.lvl-tabs-fit):not(.lvl-nav-measuring)>:is(.main-nav,nav[aria-label="Navegación principal"]){display:none!important}
+html body header.lvl-header-ready:not(.lvl-tabs-fit) .lvl-header-dropdown nav{grid-template-columns:1fr!important}
+html body header.lvl-header-ready:not(.lvl-tabs-fit) .lvl-header-dropdown :is(.lvl-header-dropdown-kicker,.lvl-header-nav-number,.lvl-header-nav-arrow){display:none!important}
+html body header.lvl-header-ready:not(.lvl-tabs-fit) .lvl-header-dropdown nav a{align-items:center;min-height:var(--lvl-target,44px);padding:var(--lvl-space-3,16px) 0!important;gap:0;border-top:0;border-bottom:1px solid var(--lvl-line);font:600 var(--lvl-type-body)/1.4 var(--lvl-font-ui)!important;letter-spacing:.08em;text-transform:uppercase}
+html body header.lvl-header-ready:not(.lvl-tabs-fit) .lvl-header-nav-title{font:inherit!important;letter-spacing:inherit!important}
+html body header.lvl-header-ready .lvl-header-actions :focus-visible,html body header.lvl-header-ready .lvl-brand-trigger:focus-visible{outline:2px solid var(--lvl-gold-highlight);outline-offset:2px}

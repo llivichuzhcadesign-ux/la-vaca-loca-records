@@ -5,7 +5,7 @@
  function read(){try{const ids=JSON.parse(localStorage.getItem(key)||'[]');const counts=new Map();return (Array.isArray(ids)?ids:[]).filter(id=>{const r=record(id),n=(counts.get(id)||0)+1;counts.set(id,n);return r&&n<=stock(r)})}catch{return []}}
  let ids=read(),opener=null,scrollY=0,styles=null;
  const dialog=document.createElement('dialog');dialog.className='shared-bag';dialog.setAttribute('aria-labelledby','sharedBagTitle');
- dialog.innerHTML='<div class="shared-bag-head"><h2 id="sharedBagTitle">Tu canasta</h2><button type="button" data-bag-close aria-label="Cerrar canasta">Cerrar ×</button></div><div class="shared-bag-items"></div><div class="shared-bag-footer"><div><span>Total</span><strong></strong></div><a target="_blank" rel="noopener noreferrer">Ordenar por WhatsApp</a><p role="status" aria-live="polite"></p></div>';document.body.append(dialog);
+ dialog.innerHTML='<div class="shared-bag-head"><h2 id="sharedBagTitle">Tu bolsa</h2><button type="button" data-bag-close aria-label="Cerrar bolsa">Cerrar ×</button></div><div class="shared-bag-items"></div><div class="shared-bag-footer"><div><span>Total</span><strong></strong></div><a target="_blank" rel="noopener noreferrer">Ordenar por WhatsApp</a><p role="status" aria-live="polite"></p></div>';document.body.append(dialog);
  const items=dialog.querySelector('.shared-bag-items'),total=dialog.querySelector('.shared-bag-footer strong'),checkout=dialog.querySelector('.shared-bag-footer a'),status=dialog.querySelector('[role="status"]');
  const money=value=>(settings.currency||'$')+Number(value||0).toFixed(2);
  function save(){localStorage.setItem(key,JSON.stringify(ids));document.dispatchEvent(new Event('lvl-bag-change'));render()}
@@ -15,7 +15,7 @@
    const row=document.createElement('div');row.className='shared-bag-item';const copy=document.createElement('div'),title=document.createElement('strong'),artist=document.createElement('span'),price=document.createElement('span');title.textContent=r.title;artist.textContent=r.artist;price.textContent=qty+' × '+money(r.price);copy.append(title,artist,price);
    const controls=document.createElement('div');const remove=document.createElement('button');remove.type='button';remove.textContent='−';remove.setAttribute('aria-label','Quitar una copia de '+r.title);remove.onclick=()=>{ids.splice(ids.indexOf(id),1);save()};const amount=document.createElement('span');amount.textContent=qty;const add=document.createElement('button');add.type='button';add.textContent='+';add.disabled=qty>=stock(r);add.setAttribute('aria-label','Añadir una copia de '+r.title);add.onclick=()=>{ids.push(id);save()};controls.append(remove,amount,add);row.append(copy,controls);items.append(row);
   }
-  if(!ids.length){const empty=document.createElement('p');empty.textContent='Tu canasta está vacía.';items.append(empty)}
+  if(!ids.length){const empty=document.createElement('p');empty.textContent='Tu bolsa está vacía.';items.append(empty)}
   total.textContent=money(sum);
   // WhatsApp expects an international number with country code (8–15 digits).
   const digits=String(settings.whatsappNumber||'').replace(/\D/g,'');
@@ -27,7 +27,7 @@
    checkout.href='https://wa.me/'+phone+'?text='+encodeURIComponent((settings.whatsappText||'Hola! Quiero hacer este pedido de La Vaca Loca Records:')+'\n\n'+lines.join('\n')+'\n\nTotal: '+money(sum));
   }else checkout.removeAttribute('href');
   status.textContent=!phone?'Los pedidos por WhatsApp no están disponibles todavía. Configura un número con código de país.':!ids.length?'Añade discos a tu bolsa para continuar.':'';
-  document.querySelectorAll('.bag-state-image').forEach(image=>{image.src='assets/brand/shopping-bag.svg'});document.querySelectorAll('#cartButton,.header-bag,.ios-basket').forEach(button=>button.setAttribute('aria-label','Abrir canasta: '+ids.length+' '+(ids.length===1?'disco':'discos')));
+  document.querySelectorAll('.bag-state-image').forEach(image=>{image.src='assets/brand/shopping-bag.svg'});document.querySelectorAll('#cartButton,.header-bag,.ios-basket').forEach(button=>button.setAttribute('aria-label','Abrir bolsa: '+ids.length+' '+(ids.length===1?'disco':'discos')));
  }
  function refresh(){ids=read();save()}
  function open(){window.closeLVLPlayer?.();refresh();if(dialog.open)return;opener=document.activeElement;scrollY=window.scrollY;styles={position:document.body.style.position,top:document.body.style.top,width:document.body.style.width,overflow:document.body.style.overflow};Object.assign(document.body.style,{position:'fixed',top:-scrollY+'px',width:'100%',overflow:'hidden'});dialog.showModal()}

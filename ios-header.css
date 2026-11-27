@@ -4,3 +4,13 @@
 .ios-header body[data-page="discos"] .ios-liked-row button{color:#ddb777}
 .ios-header body[data-page="discos"] #contenido{height:calc(100dvh - 68px)}
 @media(max-width:950px){.ios-header body[data-page="discos"] #contenido{height:auto}}
+
+/* Favorites share the store palette, readable type and generous controls. */
+.ios-liked-dialog,.ios-header body[data-page="discos"] .ios-liked-dialog{box-sizing:border-box;width:min(520px,calc(100% - 24px));max-height:min(80dvh,calc(100% - 24px));padding:var(--lvl-space-4,24px);background:var(--lvl-ink);color:var(--lvl-paper);border:1px solid var(--lvl-line);overflow:auto;overscroll-behavior:contain}
+.ios-liked-head h2{font-family:var(--lvl-font-editorial);font-size:clamp(1.625rem,3vw,2rem);margin:0}
+.ios-liked-dialog button{min-width:var(--lvl-target,44px);min-height:var(--lvl-target,44px)}
+.ios-liked-toggle{font-size:var(--lvl-type-control)}
+.ios-liked-row a{min-height:var(--lvl-target,44px);min-width:0;font-size:var(--lvl-type-body);overflow-wrap:anywhere;color:inherit}
+.ios-liked-row img{flex:none}
+.ios-liked-row button{flex:none;display:grid;place-items:center}
+.ios-liked-dialog :focus-visible{outline:2px solid var(--lvl-gold-highlight);outline-offset:2px}
