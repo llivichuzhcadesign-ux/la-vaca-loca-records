@@ -510,9 +510,10 @@ function renderRecordPreview(){
  const enter=document.getElementById('homeRecordEnter');
  const allHref='discos.html?collection=all'+(uiEmptyPreview?'&ui-preview=empty':'');
  enter.href=allHref;
+ document.getElementById('homeRecordHeadingLink').href=allHref;
  document.querySelector('#shopShowcaseTitle a').href=allHref;
  grid.classList.toggle('is-empty',!records.length);
- for(const columns of [2,3,6])grid.style.setProperty('--home-record-cols-'+columns,Math.max(1,Math.min(columns,records.length)));
+ for(const columns of [2,3])grid.style.setProperty('--home-record-cols-'+columns,Math.max(1,Math.min(columns,records.length)));
  if(!records.length){
   grid.innerHTML='<p class="home-record-empty">'+(uiEmptyPreview?'Vista de diseño · sin contenido':'Nuestra selección estará disponible próximamente.')+'</p>';
   return;

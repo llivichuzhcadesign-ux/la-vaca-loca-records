@@ -12,7 +12,11 @@ assert.match(html,/id="shopShowcaseTitle"><a href="discos.html\?collection=all"/
 assert.doesNotMatch(html,/showcaseDialog|data-showcase-prev|showcaseOpenArt/);
 assert.match(app,/class="home-record-card" href="/);
 assert.match(discos,/requestedId=new URL\(location.href\).searchParams.get\('disc'\)/);
-assert.match(css,/repeat\(var\(--home-record-cols-6,6\),minmax\(0,1fr\)\)/);
+assert.doesNotMatch(css,/home-record-cols-6/);
+assert.match(css,/@media\(min-width:1024px\)/);
+assert.match(html,/id="homeRecordHeadingLink" href="discos.html\?collection=all"/);
+assert.match(app,/getElementById\('homeRecordHeadingLink'\).href=allHref/);
+assert.match(css,/row-gap:clamp\(28px,3vw,48px\)/);
 assert.match(css,/repeat\(var\(--home-record-cols-3,3\),minmax\(0,1fr\)\)/);
 assert.match(css,/repeat\(var\(--home-record-cols-2,2\),minmax\(0,1fr\)\)/);
 assert.match(css,/aspect-ratio:1/);assert.match(css,/prefers-reduced-motion/);
