@@ -10,12 +10,14 @@
 <script src="api/content" defer></script>
 <script src="draft-preview.js" defer></script>
 <script src="editorial.js?v=20261126-editorial-v1" defer></script>
+<script src="memoria-viva.js?v=20261126-timeflight-v1" defer></script>
 <link rel="stylesheet" href="ios-header.css?v=20261126-responsive-v1"><link rel="stylesheet" href="public-header.css?v=20261126-responsive-v1"><link rel="stylesheet" href="bag.css?v=20261126-discos-v1"><link rel="stylesheet" href="footer-sign.effects.css?v=20261126-metallic-gold-v1">
 <link rel="stylesheet" href="footer-sign.layout.css?v=20261126-foundation-v1">
 <link rel="stylesheet" href="footer-sign.viewport.css?v=20261101-css-modules-v1">
 <link rel="stylesheet" href="footer-sign.touch.css?v=20261101-css-modules-v1"><link rel="stylesheet" href="site-theme.tokens.css?v=20261126-foundation-v1">
 <link rel="stylesheet" href="site-theme.editorial.css?v=20261126-editorial-v1">
 <link rel="stylesheet" href="site-theme.header.css?v=20261126-components-v1"><link rel="stylesheet" href="site-cursor.css?v=20261126-components-v1">
+<link rel="stylesheet" href="memoria-viva.css?v=20261126-timeflight-v1">
 </head>
 <body data-page="archivo">
 <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -29,11 +31,30 @@
 <p class="eyebrow">LA VACA LOCA / GUALACEO</p>
 <h1>Memoria <em>viva.</em></h1>
 <p class="intro-copy">La casa, las sesiones y los posters que construyen la memoria de La Vaca Loca.</p>
-<nav class="page-index" aria-label="Explorar ARCHIVO CULTURAL" id="pageIndex" hidden></nav>
+
 </section>
+<section class="memory-gallery" id="memoryGallery" aria-labelledby="memoryGalleryTitle" hidden>
+  <div class="memory-gallery-bar">
+    <div><h2 id="memoryGalleryTitle">Galería</h2><p id="memoryGalleryCount" aria-live="polite"></p></div>
+    <button type="button" class="memory-replay" id="memoryReplay" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 11a8 8 0 1 1 2.4 5.7M4 5v6h6"/></svg> Volver a viajar</button>
+  </div>
+  <p class="memory-preview-note" id="memoryPreviewNote" hidden>Vista de diseño · fotografías de referencia del sitio</p>
+  <div class="memory-gallery-grid" id="memoryGalleryGrid"></div>
+</section>
+<nav class="page-index" aria-label="Explorar ARCHIVO CULTURAL" id="pageIndex" hidden></nav>
 <div class="editorial-content" id="pageContent"><p role="status">Cargando contenido…</p></div>
 <noscript><p>Activa JavaScript para ver las entradas. <a href="index.html">Volver al inicio</a>.</p></noscript>
 </main>
+<div class="memory-flight" id="memoryFlight" hidden>
+  <canvas id="memoryFlightCanvas" aria-hidden="true"></canvas>
+  <button type="button" class="memory-flight-skip" id="memoryFlightSkip">Saltar introducción <span aria-hidden="true">↗</span></button>
+  <div class="memory-flight-caption" aria-hidden="true"><span>LA VACA LOCA / ARCHIVO</span><strong>Memoria <em>viva.</em></strong><span class="memory-flight-meter"><i id="memoryFlightProgress"></i></span></div>
+</div>
+<dialog class="memory-lightbox" id="memoryLightbox" aria-labelledby="memoryLightboxTitle">
+  <div class="memory-lightbox-top"><span id="memoryLightboxPosition"></span><button type="button" id="memoryLightboxClose" aria-label="Cerrar fotografía">Cerrar ×</button></div>
+  <div class="memory-lightbox-stage"><button type="button" id="memoryLightboxPrev" aria-label="Fotografía anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m14 5-7 7 7 7"/></svg></button><img id="memoryLightboxImage" alt=""><button type="button" id="memoryLightboxNext" aria-label="Fotografía siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m10 5 7 7-7 7"/></svg></button></div>
+  <div class="memory-lightbox-copy"><h2 id="memoryLightboxTitle"></h2><p id="memoryLightboxCaption"></p><a id="memoryLightboxStory" hidden>Ver historia ↗</a></div>
+</dialog>
 <footer class="editorial-footer" data-lvl-footer><nav aria-label="Pie de página"><a href="index.html">Inicio</a><a href="discos.html">Discos</a><a href="sessions.html">Sessions</a><a href="visitanos.html">Visítanos</a><a href="archivo.html">Archivo</a></nav></footer>
 <script src="ios-header.js?v=20261126-discos-v1"></script><script src="bag.js?v=20261126-discos-v1" defer></script><script src="footer-sign.js?v=20261126-qa-v1"></script><script src="site-theme.js?v=20261029-logo-menu"></script><script src="site-cursor.js?v=20261126-qa-v1" defer></script></body>
 </html>
