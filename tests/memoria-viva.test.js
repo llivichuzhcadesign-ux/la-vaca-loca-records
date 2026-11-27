@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),fs=require('node:fs');
-const {justifiedRows,editorialBands,collectPhotos}=require('../memoria-viva.js');
+const {justifiedRows,editorialBands,collectPhotos,availableTiles,nextReadyIndex}=require('../memoria-viva.js');
 const mixed=[1.5,.65,1,2.2,.8,1.6,3,.5,1.2];
 for(const width of [320,390,768,1024,1440,1920]){
  const viewport=width<600?680:820,rows=justifiedRows(mixed,width,viewport);
@@ -21,7 +21,7 @@ assert.equal(photos.length,2);assert.equal(photos[0].ratio,4/3);assert.equal(pho
 const html=fs.readFileSync(require.resolve('../archivo.html'),'utf8'),source=fs.readFileSync(require.resolve('../memoria-viva.js'),'utf8'),css=fs.readFileSync(require.resolve('../memoria-viva.css'),'utf8');
 assert.doesNotMatch(html,/memoryFlight|memoryReplay/);assert.doesNotMatch(source,/startFlight|canvas|flightProgress/);
 assert.match(css,/\.memory-gallery\{width:100%;max-width:none;margin:0;padding:0/);assert.match(css,/\.memory-gallery-row\{display:flex;width:100%;gap:0/);
-assert.match(source,/img.naturalWidth\/img.naturalHeight/);assert.match(source,/ResizeObserver/);
+assert.match(source,/tile.img.naturalWidth\/tile.img.naturalHeight/);assert.match(source,/ResizeObserver/);
 assert.match(css,/memory-lightbox-stage img\{[^}]*object-fit:contain/);
 console.log('PASS: gapless justified rows, natural ratios, viewport height cap, deduplicated photos and no intro');
 
@@ -57,3 +57,11 @@ assert.match(html,/<section class="page-intro memory-heading">[\s\S]*?<\/section
 assert.match(css,/#contenido>\.memory-heading\{[^}]*min-height:0[^}]*padding:4px/);
 assert.match(css,/\.memory-heading-title h1\{[^}]*margin:0/);
 assert.match(css,/\.memory-heading\+\.memory-gallery\{margin:0;padding:0\}/);
+
+const attempts=[{index:0,state:'failed'},{index:1,state:'queued'},{index:2,state:'ready',ratio:1.5},{index:3,state:'failed'},{index:4,state:'ready',ratio:.8}];
+assert.deepEqual(availableTiles(attempts).map(t=>t.index),[2,4]);
+assert.equal(nextReadyIndex(attempts,2,1),4);assert.equal(nextReadyIndex(attempts,4,1),2);assert.equal(nextReadyIndex(attempts,2,-1),4);
+assert.equal(nextReadyIndex([{index:0,state:'failed'}],0,1),-1);
+assert.match(source,/editorialBands\(ready.map/);assert.match(source,/tile.state=ok\?'ready':'failed'/);assert.match(source,/inFlight<batchLimit/);
+assert.doesNotMatch(css,/Imagen no disponible/);assert.match(html,/id="memoryGalleryMore"/);
+console.log('PASS: failed and pending images excluded from the mosaic, viewer skips missing files, bounded progressive loading');
