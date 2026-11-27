@@ -25,7 +25,7 @@ assert.equal(nodes.calendarMobileEvents.hidden,true);
 nodes.previousMonth.onclick();
 assert.equal(nodes.calendarMobileEvents.hidden,false);
 
-const calCss=read('eventos.css'),homeCss=read('home-flow.css'),footerCss=read('footer-sign.css'),theme=read('site-theme.css');
+const calCss=read('eventos.css'),homeCss=read('home-flow.motion.css'),footerCss=read('footer-sign.effects.css')+read('footer-sign.layout.css'),theme=read('site-theme.header.css');
 const collage=read('home-collage.js'),footer=read('footer-sign.js');
 for(const css of [calCss,homeCss,footerCss,theme])assert.equal((css.match(/{/g)||[]).length,(css.match(/}/g)||[]).length);
 assert.match(calCss,/\.calendar-mobile-events:not\(\[hidden\]\)/);
@@ -39,6 +39,6 @@ assert.match(footer,/coarsePointer\.matches\?90:/);
 assert.match(footer,/coarsePointer\.matches\?30:15/);
 assert.match(footer,/syncSocialLinks\(\)/);
 assert.match(footer,/DOMContentLoaded',syncSocialLinks/);
-assert.match(footerCss,/min-height:44px/);
-assert.match(theme,/font-size:16px;min-height:44px/);
+assert.match(footerCss,/min-height:var\(--lvl-target,44px\)/);
+assert.match(theme,/var\(--lvl-target,44px\)/);
 console.log('PASS: mobile event cards, month navigation, typography, offscreen image pause, coarse-pointer effects and footer links');

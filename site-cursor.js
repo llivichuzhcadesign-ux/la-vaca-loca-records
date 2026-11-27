@@ -28,9 +28,9 @@
  const recordSelector='.sleeve,.ios-jacket,.record-card,.showcase-record-link,.sleeve-zone.is-ready';
  const interactiveSelector='a[href],button,summary,[role="button"],[role="link"],[data-listen],[data-detail]';
  const textSelector='p,h1,h2,h3,h4,h5,h6,blockquote,pre,code,li,dt,dd,span,strong,small,em,b,i';
- let pressed=false, drag=false, cursorTarget=null;
+ let pressed=false, drag=false, cursorTarget=null,moveFrame=0,pendingMove=null;
  const clearTarget=()=>{cursorTarget?.classList.remove('lvl-cursor-target');cursorTarget=null;};
- const hide=()=>{clearTarget();root.classList.remove('lvl-cursor-active');cursor.classList.remove('is-pressed');pressed=false;drag=false;};
+ const hide=()=>{if(moveFrame){cancelAnimationFrame(moveFrame);moveFrame=0}pendingMove=null;clearTarget();root.classList.remove('lvl-cursor-active');cursor.classList.remove('is-pressed');pressed=false;drag=false;};
  function stateFor(target){
   if(!(target instanceof Element)||target.closest(nativeSelector))return null;
   if(document.fullscreenElement||document.querySelector('dialog[open]'))return null;
@@ -56,7 +56,7 @@
   cursor.classList.toggle('is-pressed',pressed);
   root.classList.add('lvl-cursor-active');
  }
- window.addEventListener('pointermove',position,{passive:true});
+ window.addEventListener('pointermove',event=>{pendingMove=event;if(!moveFrame)moveFrame=requestAnimationFrame(()=>{moveFrame=0;const latest=pendingMove;pendingMove=null;if(latest)position(latest)})},{passive:true});
  window.addEventListener('pointerdown',e=>{
   if(e.pointerType!=='mouse'||!enabled()){hide();return;}
   if(e.button!==0)return;

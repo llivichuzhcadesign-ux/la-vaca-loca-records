@@ -30,7 +30,12 @@ async function setupHomepageIntro(){
  const wrap=document.getElementById('lvlIntroSvgWrap');
  const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
+ const controller=new AbortController();let dismissed=false;
+ const dismiss=()=>{dismissed=true;controller.abort()};
+ document.addEventListener('lvl-intro-dismiss',dismiss,{once:true});
  function finishIntro(markSeen=true){
+  document.removeEventListener('lvl-intro-dismiss',dismiss);
+  if(dismissed||!loader.isConnected)return;
   loader.classList.add('is-exiting');
   document.body.classList.remove('intro-active');
   if(markSeen)try{sessionStorage.setItem(SESSION_KEY,'1')}catch(error){}
@@ -38,9 +43,10 @@ async function setupHomepageIntro(){
  }
 
  try{
-  const response=await fetch('assets/brand/lvl-laser-logo.svg?v=full-art-20260927',{cache:'force-cache'});
+  const response=await fetch('assets/brand/lvl-laser-logo.svg?v=full-art-20260927',{cache:'force-cache',signal:controller.signal});
   if(!response.ok)throw new Error('Intro SVG could not load');
   const svgText=await response.text();
+  if(dismissed||!loader.isConnected)return;
   wrap.innerHTML=svgText;
 
   const svg=wrap.querySelector('svg');
@@ -263,6 +269,7 @@ async function setupHomepageIntro(){
 
   await new Promise(resolve=>{
    function frame(now){
+    if(dismissed||!loader.isConnected){resolve();return}
     if(previousFrameTime!==null){
      traceTime=Math.min(TRACE_DURATION,traceTime+Math.min(80,Math.max(0,now-previousFrameTime)));
     }
@@ -328,8 +335,10 @@ async function setupHomepageIntro(){
    requestAnimationFrame(frame);
   });
 
+  if(dismissed||!loader.isConnected)return;
   if(!eyeSequence)eyeSequence=revealEyes();
   await eyeSequence;
+  if(dismissed||!loader.isConnected)return;
 
   // Restore the artwork's original vector strokes once the laser has completed them.
   await delay(260);
@@ -343,6 +352,7 @@ async function setupHomepageIntro(){
   await delay(2200);
   finishIntro();
  }catch(error){
+  if(dismissed||!loader.isConnected)return;
   console.warn('LVL laser intro could not run',error);
   // Keep a visible mark if an older Safari build cannot trace SVG geometry.
   wrap.querySelectorAll('.lvl-laser-draw').forEach(el=>{
@@ -458,7 +468,8 @@ async function setupHomepageHero(){
    frameCrop?.update?.();
   }
   updateDevicePhoto();
-  window.addEventListener('resize',updateDevicePhoto,{passive:true});
+  let cropFrame=0;
+  window.addEventListener('resize',()=>{if(!cropFrame)cropFrame=requestAnimationFrame(()=>{cropFrame=0;updateDevicePhoto()})},{passive:true});
   return el;
  });
  const current=document.getElementById('lvlHeroCurrent');const total=document.getElementById('lvlHeroTotal');
@@ -682,16 +693,20 @@ document.getElementById('cartButton').addEventListener('click',openCart);documen
 playerToggle.addEventListener('click',()=>{if(!state.current){selectRecord(randomRecord(),true);return}state.playing=!state.playing;updatePlayerControl()});
 
 const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-if(!reduceMotion){
+if(!reduceMotion&&'IntersectionObserver' in window){
  const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('in-view');observer.unobserve(entry.target)}})},{threshold:.18,rootMargin:'0px 0px -8%'});
  document.querySelectorAll('.motion-section').forEach(section=>observer.observe(section));
  let ticking=false;
+ const sections=[...document.querySelectorAll('.motion-section')];
  const updateScrollMotion=()=>{
+  if(document.hidden){ticking=false;return}
   const y=window.scrollY;
   const vh=window.innerHeight;
   document.documentElement.style.setProperty('--scrollY',`${y}px`);
-  document.querySelectorAll('.motion-section.in-view').forEach(section=>{
+  sections.forEach(section=>{
+   if(!section.classList.contains('in-view'))return;
    const rect=section.getBoundingClientRect();
+   if(rect.bottom<0||rect.top>vh)return;
    const progress=Math.max(-1,Math.min(1,(vh*.5-(rect.top+rect.height*.5))/vh));
    section.style.setProperty('--section-progress',progress.toFixed(3));
   });

@@ -320,7 +320,8 @@ const transport=document.createElement('div');transport.className='mini-transpor
 miniPlayer.append(transport);desktopToggle.innerHTML=turntableToggle.innerHTML;desktopToggle.classList.add('desktop-deck-toggle');
 const miniPlay=$('libraryPlayerPlay');
 wireSheetDrag(iosSheet.querySelector('.ios-sheet-handle'));
-const resizeSheet=()=>{if(iosDiscView)setSheetPosition(sheetPosition)};
+let sheetResizeFrame=0;
+const resizeSheet=()=>{if(iosDiscView&&!sheetResizeFrame)sheetResizeFrame=requestAnimationFrame(()=>{sheetResizeFrame=0;if(iosDiscView)setSheetPosition(sheetPosition)})};
 window.visualViewport?.addEventListener('resize',resizeSheet);window.visualViewport?.addEventListener('scroll',resizeSheet);
 window.addEventListener('resize',resizeSheet);
 const fitDeck=()=>{if(!sheetTurntable||sheetPosition==='compact')return;const stage=$('deckStage'),box=timelineDeck.getBoundingClientRect();const width=Math.max(0,Math.min(box.width-24,(box.height-12)*1.15,480));stage.style.width=width+'px';stage.style.height=(width/1.15)+'px'};
@@ -1033,7 +1034,7 @@ $('recordSearch').onkeydown=e=>{if(e.key==='Escape'&&$('recordSearch').value){e.
 $('recordSearch').oninput=()=>{if(libraryPage.type==='disc'){libraryPage={type:'collection',scope:'all',query:$('recordSearch').value};libraryScope='all';$('genreFilter').value='';}renderGallery();saveLibraryHistory(true)};
 $('genreFilter').onchange=()=>navigateLibrary({type:'collection',scope:libraryPage.type==='disc'?'all':libraryScope,genre:$('genreFilter').value,query:$('recordSearch').value});
 if(libraryToggle)libraryToggle.onclick=()=>{if(discView!=='library')focusRecordView(false)};
-window.addEventListener('resize',()=>{if(iosDiscView)focusRecordView(false)});
+// Responsive transitions are handled by the media-query listener; resizing alone must not change the active view.
 
 function angle(){
   deck.style.setProperty('--rx',rx+'deg');

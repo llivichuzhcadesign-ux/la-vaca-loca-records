@@ -5,6 +5,8 @@
  const fallback=['assets/images/site/hero/lvl-hero-01.webp','assets/images/site/hero/lvl-hero-02.webp','assets/images/site/hero/lvl-hero-03.webp'];
  const phoneLayout=window.matchMedia('(max-width:700px)');
  let currentUrls=fallback;
+ const motion=window.matchMedia('(prefers-reduced-motion: reduce)'),toggle=document.getElementById('memoryMotionToggle');
+ let userPaused=motion.matches;
  function render(urls){
   currentUrls=urls;
   host.replaceChildren();
@@ -22,7 +24,7 @@
      group.append(block);
      continue;
     }
-    const link=document.createElement('a');link.className='memory-photo';link.href='archivo.html';link.setAttribute('aria-label','Ver fotografía en el archivo');
+    const link=document.createElement('a');link.className='memory-photo';link.href='archivo.html';link.setAttribute('aria-label','Ver fotografía en el archivo');link.tabIndex=-1;
     const img=document.createElement('img');img.src=urls[(i*rowCount+row)%urls.length];img.alt='';img.loading='lazy';img.decoding='async';
     img.addEventListener('error',()=>{if(!img.dataset.fallback){img.dataset.fallback='true';img.src=fallback[(i+row)%fallback.length]}});
     link.append(img);group.append(link);
@@ -38,7 +40,8 @@
  // Pause drifting images while the section is offscreen or the tab is hidden.
  let onScreen=true;
  function syncMotion(){
-  host.classList.toggle('is-paused',document.hidden||!onScreen);
+  host.classList.toggle('is-paused',document.hidden||!onScreen||userPaused||motion.matches);
+  if(toggle){toggle.disabled=motion.matches;toggle.setAttribute('aria-pressed',String(userPaused||motion.matches));toggle.textContent=userPaused||motion.matches?'Reanudar galería':'Pausar galería'}
  }
  if('IntersectionObserver' in window){
   onScreen=false;syncMotion();
@@ -48,6 +51,9 @@
   },{rootMargin:'120px 0px 120px 0px',threshold:0}).observe(host);
  }
  document.addEventListener('visibilitychange',syncMotion);
+ if(toggle)toggle.onclick=()=>{userPaused=!userPaused;syncMotion()};
+ motion.addEventListener?.('change',event=>{userPaused=event.matches;syncMotion()});
+ syncMotion();
  const onWidthChange=()=>render(currentUrls);
  if(phoneLayout.addEventListener)phoneLayout.addEventListener('change',onWidthChange);
  else phoneLayout.addListener?.(onWidthChange);

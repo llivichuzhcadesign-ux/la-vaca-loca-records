@@ -174,7 +174,7 @@
     if(target&&target.matches('[data-listen]')){
       setTimeout(()=>loadRecordAudio(byId(records,lastRecordId),true),35);
     }
-    setTimeout(()=>{decorateAll();if(lastRecordId)decorateModalImage(lastRecordId);const current=byId(records,lastRecordId);if(current)decoratePlayer(current)},30);
+    if(target)setTimeout(()=>{decorateAll();if(lastRecordId)decorateModalImage(lastRecordId);const current=byId(records,lastRecordId);if(current)decoratePlayer(current)},30);
   },true);
   document.addEventListener('click',event=>{
     if(event.target.closest('#playerToggle'))setTimeout(toggleAudioForCurrent,20);
@@ -182,8 +182,9 @@
   document.addEventListener('keydown',event=>{const card=event.target.closest&&event.target.closest('.record-card[data-id]');if(card&&(event.key==='Enter'||event.key===' ')){lastRecordId=card.dataset.id;setTimeout(()=>decorateModalImage(lastRecordId),30)}});
 
   const grid=document.getElementById('recordGrid');
-  if(grid){
-    const observer=new MutationObserver(()=>decorateRecordImages());
+  if(grid&&'MutationObserver' in window){
+    let pending=0;
+    const observer=new MutationObserver(()=>{if(!pending)pending=requestAnimationFrame(()=>{pending=0;decorateRecordImages()})});
     observer.observe(grid,{childList:true,subtree:true});
   }
 

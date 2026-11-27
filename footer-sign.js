@@ -258,7 +258,7 @@
   if(!rect.width||!rect.height)return;
   // Conserve battery and reduce dropped frames on touch hardware.
   particleBudget=coarsePointer.matches?90:rect.width<=720?140:190;
-  const scale=coarsePointer.matches?1:Math.min(window.devicePixelRatio||1,1.25);
+  const scale=Math.min(coarsePointer.matches?1:Math.min(window.devicePixelRatio||1,1.25),Math.sqrt(2000000/(rect.width*rect.height)));
   const w=Math.round(rect.width*scale),h=Math.round(rect.height*scale);
   if(fireworkCanvas.width!==w||fireworkCanvas.height!==h){
    fireworkCanvas.width=w;fireworkCanvas.height=h;
@@ -811,7 +811,7 @@
  document.addEventListener('visibilitychange',()=>{
   footer.classList.toggle('footer-motion-paused',document.hidden);
   if(document.hidden){stopSound();clearSparks();}
-  else startSound();
+  else {startSound();if(isVisible&&!introComplete)startFooterIntro()}
  });
  const clearSparks=()=>{
   stopFireworks();

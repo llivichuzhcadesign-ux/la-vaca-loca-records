@@ -13,6 +13,6 @@ assert.match(cursorCss,/\.lvl-cursor-active \.lvl-cursor-target/);
 assert.doesNotMatch(cursorCss,/\.lvl-cursor-active body \*/);
 assert.match(read('bag.js'),/Tu bolsa/);
 assert.match(read('visitanos.css'),/min-height:max\(46px,var\(--lvl-target,44px\)\)/);
-for(const page of ['index.html','discos.html','sessions.html','archivo.html','visitanos.html']){const html=read(page);assert.match(html,/site-theme\.header\.css\?v=20261126-components-v1/);assert.match(html,/site-cursor\.js\?v=20261126-components-v1/);}
+for(const page of ['index.html','discos.html','sessions.html','archivo.html','visitanos.html']){const html=read(page);assert.match(html,/site-theme\.header\.css\?v=20261126-components-v1/);assert.match(html,/site-cursor\.js\?v=20261126-qa-v1/);}
 for(const js of ['ios-header.js','site-cursor.js','bag.js'])new Function(read(js));
 console.log('PASS: adaptive shared header, favorites accessibility, scoped cursor and consistent public controls');

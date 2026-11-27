@@ -18,7 +18,7 @@ state.SITE_CONTENT={records:[
 assert.deepEqual(available().map(record=>record.id),['available']);
 
 // Touch artwork must leave ordinary vertical scrolling intact.
-const footerCss=read('footer-sign.css');
+const footerCss=read('footer-sign.effects.css');
 const surface=footerCss.slice(footerCss.indexOf('.footer-touch-surface {'),footerCss.indexOf('@media (pointer:coarse)'));
 assert.match(surface,/touch-action:pan-y/);
 assert.doesNotMatch(surface,/touch-action:none/);
@@ -29,7 +29,7 @@ assert.match(footer,/footer\.querySelector\('\.footer-back-top'\)\?\.addEventLis
 assert.match(footer,/window\.scrollTo\(\{top:0,/);
 
 // The player must use its explicit expanded state, not an unused [open] attribute.
-const playerCss=read('discos.css');
+const playerCss=read('discos.ios-player.css');
 const player=read('discos.js');
 assert.match(playerCss,/body\.ios-player-expanded\{overflow:hidden/);
 assert.doesNotMatch(playerCss,/body:has\(\.ios-player-sheet\[open\]\)/);

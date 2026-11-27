@@ -12,7 +12,7 @@ try{
   }
 }catch(error){}
 </script>
-<link rel="stylesheet" href="styles.css?v=20261126-foundation-v1">
+<link rel="stylesheet" href="styles.css?v=20261126-qa-v1">
 <style>
 :root{--ink:#090907;--soft:#15130f;--paper:#eee5d3;--paper2:#d7cab5;--pink:#c8a56c;--wood:#6d4027;--wood2:#9a6038;--wood-dark:#321d13;--forest:#172218;--olive:#465036;--orange:#e5532e}
 body{background:var(--paper);color:var(--ink)}
@@ -132,7 +132,7 @@ body{background:var(--paper);color:var(--ink)}
 <link rel="stylesheet" href="home-flow.releases.css?v=20261126-foundation-v1">
 <link rel="stylesheet" href="home-flow.archive.css?v=20261126-foundation-v1">
 <link rel="stylesheet" href="home-flow.refinements.css?v=20261126-editorial-v1">
-<link rel="stylesheet" href="home-flow.motion.css?v=20261101-css-modules-v1">
+<link rel="stylesheet" href="home-flow.motion.css?v=20261126-qa-v1">
 <link rel="stylesheet" href="ios-header.css?v=20261126-responsive-v1"><link rel="stylesheet" href="public-header.css?v=20261126-responsive-v1"><link rel="stylesheet" href="bag.css?v=20261126-discos-v1"><link rel="stylesheet" href="footer-sign.effects.css?v=20261126-metallic-gold-v1">
 <link rel="stylesheet" href="footer-sign.layout.css?v=20261126-foundation-v1">
 <link rel="stylesheet" href="footer-sign.viewport.css?v=20261101-css-modules-v1">
@@ -141,14 +141,28 @@ body{background:var(--paper);color:var(--ink)}
 <link rel="stylesheet" href="site-theme.header.css?v=20261126-components-v1"><link rel="stylesheet" href="site-cursor.css?v=20261126-components-v1">
 </head>
 <body class="intro-active">
-<div class="lvl-intro-loader" id="lvlIntroLoader" aria-hidden="true">
-  <div class="lvl-intro-ambient"></div>
-  <div class="lvl-intro-orbit"></div>
-  <div class="lvl-intro-stage">
+<div class="lvl-intro-loader" id="lvlIntroLoader" role="region" aria-label="Introducción animada">
+  <button type="button" id="lvlIntroSkip" class="lvl-intro-skip-button">Saltar introducción</button>
+  <div class="lvl-intro-ambient" aria-hidden="true"></div>
+  <div class="lvl-intro-orbit" aria-hidden="true"></div>
+  <div class="lvl-intro-stage" aria-hidden="true">
     <div class="lvl-intro-mark-wrap" id="lvlIntroSvgWrap"></div>
     <span class="lvl-intro-line"></span>
   </div>
 </div>
+<script>
+(function(){
+ const loader=document.getElementById('lvlIntroLoader');
+ const skip=document.getElementById('lvlIntroSkip');
+ const dismiss=()=>{if(!loader.isConnected)return;document.documentElement.classList.add('lvl-intro-skip');document.body.classList.remove('intro-active');document.dispatchEvent(new Event('lvl-intro-dismiss'));loader.remove();try{sessionStorage.setItem('lvl-home-intro-laser-v12','1')}catch{}};
+ const skipToSite=()=>{dismiss();document.querySelector('.site-header .brand')?.focus()};
+ skip.addEventListener('click',skipToSite);
+ document.addEventListener('keydown',event=>{if(!loader.isConnected||loader.classList.contains('is-exiting'))return;if(event.key==='Escape'){event.preventDefault();skipToSite()}else if(event.key==='Tab'){event.preventDefault();skip.focus()}});
+ // Fails open even if the content or animation script cannot finish loading.
+ setTimeout(dismiss,12000);
+})();
+</script>
+<noscript><style>.lvl-intro-loader{display:none!important}body.intro-active{overflow:auto!important}.motion-section *{opacity:1!important;transform:none!important;filter:none!important}</style></noscript>
 <header class="site-header"><button class="brand lvl-brand-trigger" type="button" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="lvlHeaderDropdown"><img src="assets/brand/horizontal-logo-gold.svg" alt="La Vaca Loca Records"></button><nav class="main-nav"><a href="discos.html">DISCOS</a><a href="sessions.html">SESSIONS</a><a href="visitanos.html">VISÍTANOS</a><a href="archivo.html">ARCHIVO</a></nav><button class="cart-button" id="cartButton" aria-label="Abrir bolsa de compras"><img class="bag-state-image" src="assets/brand/shopping-bag.svg" alt="" aria-hidden="true"><span id="cartCount">0</span></button></header>
 <main id="top">
 <section class="hero motion-section"><div class="lvl-hero">
@@ -209,13 +223,13 @@ body{background:var(--paper);color:var(--ink)}
 </section>
 <section class="archive-section motion-section" id="archive" aria-labelledby="homeArchiveTitle">
   <div class="archive-main motion-copy"><h2 id="homeArchiveTitle">Memoria <em>viva.</em></h2><a class="archive-text-link" href="archivo.html">Explorar el archivo <span class="lvl-decorative-glyph" aria-hidden="true">↗</span></a></div>
-  <div class="memory-collage" id="memoryCollage" aria-label="Galería de Memoria viva"></div>
+  <div class="memory-collage-controls"><button type="button" id="memoryMotionToggle" aria-controls="memoryCollage" aria-pressed="false">Pausar galería</button></div><div class="memory-collage" id="memoryCollage" aria-label="Galería de Memoria viva"></div>
 </section>
 <section class="home-visit-strip" aria-labelledby="homeVisitTitle"><div class="home-visit-inner"><div><p class="home-visit-kicker">GUALACEO / ECUADOR</p><h2 id="homeVisitTitle">Visítanos<span>.</span></h2></div><a href="visitanos.html">Conoce el espacio y coordina tu visita <span aria-hidden="true">↗</span></a></div></section>
 </main>
 <aside class="cart-panel" id="cartPanel" aria-hidden="true"><div class="cart-head"><h3>YOUR BAG</h3><button id="closeCart">CERRAR</button></div><div id="cartItems" class="cart-items"></div><div class="cart-footer"><div class="cart-total"><span>TOTAL</span><strong id="cartTotal">$0</strong></div><a id="whatsappCheckout" class="button primary full" href="#" target="_blank" rel="noopener">ORDENAR POR WHATSAPP</a></div></aside><div class="scrim" id="scrim"></div>
 <div class="player" id="player"><button id="playerToggle" class="play-control" aria-label="Reproducir"><span class="play-icon" aria-hidden="true"></span></button><div class="player-art" id="playerArt"><span></span></div><div class="player-meta"><span>NOW PLAYING / LA VACA LOCA</span><strong id="playerTitle">Selecciona un disco para escuchar</strong><small id="playerSub">CRATE PLAYER · GUALACEO</small></div><div class="player-line"><span id="playerProgress"></span></div></div>
-<script src="data.js?v=20261116-visitanos-v1"></script><script src="api/content"></script><script src="draft-preview.js"></script><script src="calendar-content.js?v=20261105-empty-design-v1"></script><script src="responsive-crop.js?v=20261101-no-watermark"></script><script src="app.js?v=20261126-editorial-v1"></script><script src="media-runtime.js?v=flow-image-20260929"></script>
-<script src="home-collage.js?v=20261105-empty-design-v2"></script><script src="ios-header.js?v=20261126-discos-v1"></script><script src="bag.js?v=20261126-discos-v1" defer></script><script src="footer-sign.js?v=20261126-metallic-gold-v1"></script><script src="site-theme.js?v=20261029-logo-menu"></script><script src="site-cursor.js?v=20261126-components-v1" defer></script></body>
+<script src="data.js?v=20261116-visitanos-v1"></script><script src="api/content"></script><script src="draft-preview.js"></script><script src="calendar-content.js?v=20261105-empty-design-v1"></script><script src="responsive-crop.js?v=20261101-no-watermark"></script><script src="app.js?v=20261126-qa-v1"></script><script src="media-runtime.js?v=20261126-qa-v1"></script>
+<script src="home-collage.js?v=20261126-qa-v1"></script><script src="ios-header.js?v=20261126-discos-v1"></script><script src="bag.js?v=20261126-discos-v1" defer></script><script src="footer-sign.js?v=20261126-qa-v1"></script><script src="site-theme.js?v=20261029-logo-menu"></script><script src="site-cursor.js?v=20261126-qa-v1" defer></script></body>
 </html>
 

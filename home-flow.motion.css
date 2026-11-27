@@ -48,3 +48,6 @@
     height:192px;
   }
 }
+
+.memory-collage-controls{display:flex;justify-content:flex-end;padding:0 var(--lvl-gutter) 8px}.memory-collage-controls button{min-height:44px;padding:8px 0;border:0;background:none;color:#51483c;font-size:var(--lvl-type-control);text-decoration:underline;text-underline-offset:4px;cursor:pointer}.memory-collage-controls button:disabled{opacity:.65;cursor:default}
+@media(prefers-reduced-motion:reduce){.memory-collage-controls{display:none}}
