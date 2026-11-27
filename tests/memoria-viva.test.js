@@ -65,3 +65,10 @@ assert.equal(nextReadyIndex([{index:0,state:'failed'}],0,1),-1);
 assert.match(source,/editorialBands\(ready.map/);assert.match(source,/tile.state=ok\?'ready':'failed'/);assert.match(source,/inFlight<batchLimit/);
 assert.doesNotMatch(css,/Imagen no disponible/);assert.match(html,/id="memoryGalleryMore"/);
 console.log('PASS: failed and pending images excluded from the mosaic, viewer skips missing files, bounded progressive loading');
+
+assert.match(css,/--memory-photo-crop:3%;--memory-photo-zoom:1\.065/);
+assert.match(css,/\.memory-gallery-tile img\{[^}]*transform:scale\(var\(--memory-photo-zoom\)\)/);
+assert.match(css,/\.memory-gallery-tile button\{[^}]*overflow:hidden/);
+assert.match(css,/\.memory-lightbox-stage img\{[^}]*width:auto;height:auto[^}]*clip-path:inset\(var\(--memory-photo-crop\)\)/);
+assert.match(html,/memoria-viva\.css\?v=20261126-photo-trim-v1/);
+console.log('PASS: nondestructive scan-border crop in wall and viewer');
