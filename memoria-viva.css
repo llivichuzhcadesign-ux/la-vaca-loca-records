@@ -1,9 +1,14 @@
 /* Memoria Viva — full-bleed photographic contact sheet, no gutters or fixed crops. */
 body[data-page="archivo"] #contenido{background:var(--lvl-paper)}
-body[data-page="archivo"] .page-intro{padding:clamp(20px,3vw,44px) var(--lvl-gutter) clamp(24px,3vw,40px)}
-body[data-page="archivo"] .page-intro .back-link{margin-bottom:0}
-body[data-page="archivo"] .page-intro h1{font-size:clamp(3rem,8vw,7rem);margin-block:var(--lvl-space-3)}
-body[data-page="archivo"] .intro-copy{margin-top:var(--lvl-space-3)}
+/* Keep the title block in normal flow and eliminate inherited editorial hero spacing. */
+body[data-page="archivo"] #contenido>.memory-heading{display:block;width:100%;max-width:none;height:auto;min-height:0;margin:0;padding:4px var(--lvl-gutter) 14px;text-align:left;border:0}
+body[data-page="archivo"] .memory-heading-meta{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px}
+body[data-page="archivo"] .memory-heading-meta .back-link{display:inline-flex;align-items:center;min-height:44px;margin:0;padding:0;font-size:var(--lvl-type-control)}
+body[data-page="archivo"] .memory-heading-meta .eyebrow{margin:0;text-align:right;line-height:1.3}
+body[data-page="archivo"] .memory-heading-title{display:flex;align-items:baseline;justify-content:space-between;gap:clamp(16px,3vw,48px)}
+body[data-page="archivo"] .memory-heading-title h1{font-size:clamp(2.8rem,6.5vw,6rem);line-height:1;margin:0;max-width:none;flex:none}
+body[data-page="archivo"] .memory-heading-title .intro-copy{font-size:var(--lvl-type-control);line-height:1.5;max-width:44ch;margin:0;color:#74695c}
+body[data-page="archivo"] #contenido>.memory-heading+.memory-gallery{margin:0;padding:0}
 .memory-gallery[hidden],.memory-preview-note[hidden],#memoryLightboxStory[hidden],#pageContent[hidden]{display:none!important}
 .memory-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 .memory-gallery{width:100%;max-width:none;margin:0;padding:0;scroll-margin-top:100px}
@@ -36,7 +41,13 @@ body[data-page="archivo"] #pageIndex[hidden]{display:none}
 .memory-lightbox-copy p:empty{display:none}
 .memory-lightbox-copy a{display:inline-flex;min-height:44px;align-items:center;justify-content:center}
 
-@media(max-width:600px){body[data-page="archivo"] .page-intro{padding-block:12px 24px}body[data-page="archivo"] .page-intro h1{font-size:clamp(2.6rem,11vw,4.5rem)}body[data-page="archivo"] .intro-copy{font-size:var(--lvl-type-control);margin-top:10px}}
+@media(max-width:760px){
+ body[data-page="archivo"] #contenido>.memory-heading{padding:0 var(--lvl-gutter) 12px}
+ body[data-page="archivo"] .memory-heading-title{display:block}
+ body[data-page="archivo"] .memory-heading-title h1{font-size:clamp(2.5rem,10vw,4.5rem);margin:0}
+ body[data-page="archivo"] .memory-heading-title .intro-copy{margin:6px 0 0;max-width:48ch}
+ body[data-page="archivo"] .memory-heading-meta .eyebrow{font-size:var(--lvl-type-label);letter-spacing:.06em}
+}
 @media(max-width:380px){.memory-lightbox-stage{gap:4px}}
 
 /* Editorial scale: a large photograph beside two smaller memories, with no seams. */

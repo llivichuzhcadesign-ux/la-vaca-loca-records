@@ -52,3 +52,8 @@ for(const width of [320,390,768,1024,1440,1920]){
 }
 assert.match(css,/\.memory-gallery-stack\{display:flex;flex-direction:column;gap:0/);
 console.log('PASS: varied editorial bands, full-width mosaic and stack geometry, preserved order, six viewport widths');
+
+assert.match(html,/<section class="page-intro memory-heading">[\s\S]*?<\/section>\s*<section class="memory-gallery"/);
+assert.match(css,/#contenido>\.memory-heading\{[^}]*min-height:0[^}]*padding:4px/);
+assert.match(css,/\.memory-heading-title h1\{[^}]*margin:0/);
+assert.match(css,/\.memory-heading\+\.memory-gallery\{margin:0;padding:0\}/);
