@@ -48,7 +48,7 @@ body[data-page="discos"] .library-section-heading h2,body[data-page="discos"] .r
 body[data-page="discos"] .library-search-field input{background:#eee5d308;border-color:#eee5d333;color:var(--lvl-paper)}
 body[data-page="discos"] .ios-liked-dialog{background:#11110e;color:var(--lvl-paper);border-color:#eee5d333}
 body[data-page="discos"] .ios-liked-row button{color:var(--lvl-pink)}
-@media(max-width:950px){body[data-page="discos"] .biblioteca-sidebar{background:transparent}body[data-page="discos"] .library-page-heading h1{font-size:30px}}
+@media(max-width:1023px){body[data-page="discos"] .biblioteca-sidebar{background:transparent}body[data-page="discos"] .library-page-heading h1{font-size:30px}}
 @media(max-width:600px){
  body[data-page] .page-intro{padding-top:28px;padding-bottom:44px}
  body[data-page] .back-link{margin-bottom:36px}

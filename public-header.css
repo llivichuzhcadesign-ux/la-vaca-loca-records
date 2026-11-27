@@ -9,7 +9,6 @@
  html:not(.ios-header) .site-header>.main-nav a,html:not(.ios-header) .editorial-header>nav a{font-size:12px;font-weight:800;line-height:1.4;text-transform:uppercase;white-space:nowrap;text-decoration:none}
  html:not(.ios-header) header>.cart-button,html:not(.ios-header) header>.header-bag{grid-column:3;grid-row:1;justify-self:end}
  html:not(.ios-header) .site-header>.mobile-menu-toggle{display:none}
- html:not(.ios-header) body[data-page="discos"] #contenido{height:calc(100vh - 78px)}
 }
 @media(max-width:800px){html:not(.ios-header) .editorial-header>.header-bag{position:absolute;right:6vw;top:16px}}
 

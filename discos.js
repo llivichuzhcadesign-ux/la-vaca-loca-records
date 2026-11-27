@@ -81,7 +81,7 @@ function paintPlayerButton(button,on,label){
  button.innerHTML=playerControlIcon(on?'pause':'play');button.setAttribute('aria-label',label);button.setAttribute('aria-pressed',String(on));button.title=label;
 }
 function playing(on){
- if(on&&iosDiscView&&selected)iosStartedId=selected.id;
+ if(on&&selected)iosStartedId=selected.id;
  const miniPlay=$('libraryPlayerPlay');if(miniPlay){miniPlay.textContent=miniPlay.disabled?'Sin preview':on?'Pausar':'Reproducir';miniPlay.setAttribute('aria-label',on?'Pausar':'Reproducir');miniPlay.setAttribute('aria-pressed',String(on))}
   if(miniPlay)paintPlayerButton(miniPlay,on,miniPlay.disabled?'Sin preview de audio':on?'Pausar':'Reproducir');
   if(iosDiscView&&iosSheet)syncIosJackets(pendingRecord||selected,on);
@@ -161,17 +161,17 @@ function focusRecordView(){
 }
 
 // Desktop keeps selection details and the scrollable collection in one library.
-const desktopLibrary=window.matchMedia?.('(min-width:951px)');
+const desktopLibrary=window.matchMedia('(min-width:1024px)');
 const selectionPanel=document.querySelector('.listening-panel');
 const collectionPanel=document.querySelector('.collection');
 function arrangeLibrary(){
-  if(!selectionPanel||!collectionPanel||!libraryColumn||document.getElementById('iosPlayerSheet'))return;
+  if(!selectionPanel||!collectionPanel||!libraryColumn||document.documentElement.classList.contains('mobile-disc-view'))return;
   if(desktopLibrary?.matches){collectionPanel.insertBefore(selectionPanel,gallery)}
   else{libraryColumn.insertBefore(selectionPanel,collectionPanel)}
   focusRecordView();
 }
 arrangeLibrary();
-desktopLibrary?.addEventListener('change',arrangeLibrary);
+
 
 function recordColor(r){
   return colors[Math.max(0,records.indexOf(r))%colors.length];
@@ -218,10 +218,8 @@ window.addEventListener('storage',()=>{if(pendingRecord||selected)syncRecordActi
 document.addEventListener('lvl-bag-change',()=>{if(pendingRecord||selected)syncRecordActions(pendingRecord||selected)});
 
 // Use the same library-first player on all phone-sized screens, not only Apple devices.
-const appleTouch=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-const iosDiscView=appleTouch||window.matchMedia('(max-width:950px)').matches;
-if(iosDiscView)document.documentElement.classList.add('mobile-disc-view');
-const viewStorageKey=iosDiscView?'lvl-ios-disc-view':'lvl-disc-view';
+let iosDiscView=!desktopLibrary.matches;
+const viewStorageKey='lvl-disc-view';
 const playbackTimeline=document.querySelector('.deck-playback-timeline');
 const timelineDeck=document.querySelector('.deck-area');
 let discView='player',libraryScope='all';
@@ -287,7 +285,7 @@ function setSheetPosition(position){
 function openIosPlayer(){setSheetPosition('expanded');iosSheet.querySelector('.ios-sheet-handle').focus({preventScroll:true})}
 function wireSheetDrag(target){
  let drag=null,suppressClick=false;
- target.addEventListener('pointerdown',e=>{if(e.button!==0)return;drag={y:e.clientY,height:sheetHeights()[sheetPosition],moved:false};target.setPointerCapture(e.pointerId)});
+ target.addEventListener('pointerdown',e=>{if(e.button!==0||target.classList?.contains('mini-player-open')&&!iosDiscView)return;drag={y:e.clientY,height:sheetHeights()[sheetPosition],moved:false};target.setPointerCapture(e.pointerId)});
  target.addEventListener('pointermove',e=>{if(!drag)return;const delta=drag.y-e.clientY;if(Math.abs(delta)>6)drag.moved=true;if(!drag.moved)return;iosSheet.classList.add('is-dragging');iosSheet.inert=false;iosSheet.setAttribute('aria-hidden','false');sizeIosSheet(Math.max(0,Math.min(sheetHeights().expanded,drag.height+delta)))});
  const finish=e=>{if(!drag)return;const moved=drag.moved;const height=drag.height+drag.y-e.clientY;drag=null;if(moved){suppressClick=true;const heights=sheetHeights();const next=Object.keys(heights).reduce((a,b)=>Math.abs(heights[a]-height)<Math.abs(heights[b]-height)?a:b);setSheetPosition(next);setTimeout(()=>{suppressClick=false},0)}};
  target.addEventListener('pointerup',finish);
@@ -296,35 +294,74 @@ function wireSheetDrag(target){
 }
 document.querySelectorAll('[data-disc-view]').forEach(button=>button.addEventListener('click',()=>{if(button.dataset.discView==='player'&&!iosDiscView)setDiscView(discView==='player'?'library':'player');else if(button.dataset.discView==='player'&&sheetPosition==='expanded'&&sheetTurntable)setSheetPosition('compact');else setDiscView(button.dataset.discView);renderGallery()}));
 $('libraryPlayerPlay').onclick=()=>deckPlay?.click();
-if(iosDiscView){
- // An expanded sheet blocks background swipes but preserves scrolling inside itself.
- document.addEventListener('touchmove',event=>{
-  if(sheetPosition==='expanded'&&iosSheet&&!iosSheet.contains(event.target))event.preventDefault();
- },{passive:false});
- window.closeLVLPlayer=()=>setSheetPosition('compact');
- iosSheet=document.createElement('section');iosSheet.id='iosPlayerSheet';iosSheet.className='ios-player-sheet';iosSheet.setAttribute('aria-label','Reproductor');iosSheet.setAttribute('role','region');
+// Keep a single playback engine and move the same DOM controls between layouts.
+const deckAnchor=document.createComment('deck-home');timelineDeck.before(deckAnchor);
+const actions=selectionPanel.querySelector('.record-actions'),actionsAnchor=document.createComment('actions-home');actions.before(actionsAnchor);
+const turntableToggle=$('iosTurntableToggle'),toggleAnchor=document.createComment('toggle-home');turntableToggle.before(toggleAnchor);
+const desktopToggle=miniPlayer.querySelector('[data-disc-view]');
+document.addEventListener('touchmove',event=>{if(iosDiscView&&sheetPosition==='expanded'&&iosSheet&&!iosSheet.contains(event.target))event.preventDefault()},{passive:false});
+window.closeLVLPlayer=()=>{if(iosDiscView)setSheetPosition('compact')};
+iosSheet=document.createElement('section');iosSheet.id='iosPlayerSheet';iosSheet.className='ios-player-sheet';iosSheet.setAttribute('aria-label','Reproductor');iosSheet.setAttribute('role','region');
  iosSheet.innerHTML='<div class="ios-sheet-head"><button type="button" class="ios-sheet-handle" aria-label="Cambiar tamaño del reproductor"><span></span></button><button type="button" class="ios-sheet-close" aria-label="Minimizar reproductor">'+playerControlIcon('down')+'</button></div><div class="ios-sheet-content"></div><div class="ios-sheet-controls"><button type="button" id="iosCurrentTrack" class="ios-current-track" aria-label="Ver disco en reproducción"></button><span id="iosPlaybackStatus" role="status"></span><div class="ios-transport"><button type="button" id="iosPrevious" aria-label="Ver disco anterior">'+playerControlIcon('previous')+'</button><button type="button" id="iosSheetPlay" aria-label="Reproducir">'+playerControlIcon('play')+'</button><button type="button" id="iosNext" aria-label="Ver disco siguiente">'+playerControlIcon('next')+'</button></div></div>';
- document.body.append(iosSheet);selectionPanel.querySelector('.now-playing-copy').append(selectionPanel.querySelector('.record-actions'));const head=iosSheet.querySelector('.ios-sheet-head');head.append($('iosTurntableToggle'));const content=iosSheet.querySelector('.ios-sheet-content');content.append(selectionPanel,timelineDeck);
- const close=()=>{setSheetPosition('compact');document.querySelector('.mini-player-open').focus({preventScroll:true})};iosSheet.querySelector('.ios-sheet-close').onclick=close;iosSheet.querySelector('.ios-sheet-handle').onclick=close;iosSheet.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close()}});
+document.body.append(iosSheet);
+const close=()=>{setSheetPosition('compact');document.querySelector('.mini-player-open').focus({preventScroll:true})};iosSheet.querySelector('.ios-sheet-close').onclick=close;iosSheet.querySelector('.ios-sheet-handle').onclick=close;iosSheet.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close()}});
  $('iosCurrentTrack').onclick=()=>{if(selected)browseIosRecord(selected)};$('iosSheetPlay').onclick=playBrowsedRecord;$('iosPrevious').onclick=()=>stepIosJacket(-1);$('iosNext').onclick=()=>stepIosJacket(1);$('iosTurntableToggle').onclick=()=>setSheetMode(!sheetTurntable);
- const openButton=document.createElement('button');openButton.type='button';openButton.className='mini-player-open';openButton.setAttribute('aria-label','Expandir reproductor');openButton.setAttribute('aria-controls','iosPlayerSheet');const artwork=document.createElement('img');artwork.id='miniPlayerArtwork';artwork.alt='';artwork.hidden=true;openButton.append(artwork,miniPlayer.querySelector('div'));miniPlayer.prepend(openButton);wireSheetDrag(openButton);openButton.onclick=openIosPlayer;
- miniPlayer.querySelector('[data-disc-view]').remove();const miniSeek=document.createElement('input');miniSeek.type='range';miniSeek.id='miniPlayerSeek';miniSeek.min=0;miniSeek.max=100;miniSeek.step=.1;miniSeek.disabled=true;miniSeek.setAttribute('aria-label','Posición del audio');miniSeek.oninput=()=>{$('seek').value=miniSeek.value;$('seek').dispatchEvent(new Event('input',{bubbles:true}))};miniPlayer.append(miniSeek);
- wireSheetDrag(iosSheet.querySelector('.ios-sheet-handle'));window.visualViewport?.addEventListener('resize',()=>setSheetPosition(sheetPosition));
- window.visualViewport?.addEventListener('scroll',()=>setSheetPosition(sheetPosition));
- window.addEventListener('resize',()=>setSheetPosition(sheetPosition));
- const fitDeck=()=>{if(!sheetTurntable||sheetPosition==='compact')return;const stage=$('deckStage'),box=timelineDeck.getBoundingClientRect();const width=Math.max(0,Math.min(box.width-24,(box.height-12)*1.15,480));stage.style.width=width+'px';stage.style.height=(width/1.15)+'px'};
+const openButton=document.createElement('button');openButton.type='button';openButton.className='mini-player-open';
+const artwork=document.createElement('img');artwork.id='miniPlayerArtwork';artwork.alt='';artwork.hidden=true;
+openButton.append(artwork,miniPlayer.querySelector('div'));miniPlayer.prepend(openButton);
+wireSheetDrag(openButton);
+openButton.onclick=()=>{if(iosDiscView)openIosPlayer();else if(selected)navigateLibrary({type:'disc',record:selected})};
+const miniSeek=document.createElement('input');miniSeek.type='range';miniSeek.id='miniPlayerSeek';miniSeek.min=0;miniSeek.max=100;miniSeek.step=.1;miniSeek.disabled=true;miniSeek.setAttribute('aria-label','Posición del audio');miniSeek.oninput=()=>{$('seek').value=miniSeek.value;$('seek').dispatchEvent(new Event('input',{bubbles:true}))};miniPlayer.append(miniSeek);
+const transport=document.createElement('div');transport.className='mini-transport';
+ [-1,1].forEach(direction=>{const b=document.createElement('button');b.type='button';b.id=direction<0?'miniPrevious':'miniNext';b.setAttribute('aria-label',direction<0?'Reproducir disco anterior':'Reproducir disco siguiente');b.innerHTML=playerControlIcon(direction<0?'previous':'next');b.onclick=()=>{const queue=records.filter(r=>audioUrl(r,document.baseURI)),index=queue.indexOf(selected),r=queue[index+direction];if(r){mountRecord(r);togglePlayback()}};transport.append(b)});
+miniPlayer.append(transport);desktopToggle.innerHTML=turntableToggle.innerHTML;desktopToggle.classList.add('desktop-deck-toggle');
+const miniPlay=$('libraryPlayerPlay');
+wireSheetDrag(iosSheet.querySelector('.ios-sheet-handle'));
+const resizeSheet=()=>{if(iosDiscView)setSheetPosition(sheetPosition)};
+window.visualViewport?.addEventListener('resize',resizeSheet);window.visualViewport?.addEventListener('scroll',resizeSheet);
+window.addEventListener('resize',resizeSheet);
+const fitDeck=()=>{if(!sheetTurntable||sheetPosition==='compact')return;const stage=$('deckStage'),box=timelineDeck.getBoundingClientRect();const width=Math.max(0,Math.min(box.width-24,(box.height-12)*1.15,480));stage.style.width=width+'px';stage.style.height=(width/1.15)+'px'};
  if(window.ResizeObserver)new ResizeObserver(fitDeck).observe(timelineDeck);
  iosSheet.addEventListener('transitionend',fitDeck);
- setSheetPosition('compact');
- setSheetMode(false);setDiscView('library');buildIosJackets();
-}else{
- const openButton=document.createElement('button');openButton.type='button';openButton.className='mini-player-open';openButton.setAttribute('aria-label','Abrir disco en reproducción');
- const artwork=document.createElement('img');artwork.id='miniPlayerArtwork';artwork.alt='';openButton.append(artwork,miniPlayer.querySelector('div'));miniPlayer.prepend(openButton);openButton.onclick=()=>{if(selected)navigateLibrary({type:'disc',record:selected})};
- const transport=document.createElement('div');transport.className='mini-transport';
- [-1,1].forEach(direction=>{const b=document.createElement('button');b.type='button';b.id=direction<0?'miniPrevious':'miniNext';b.setAttribute('aria-label',direction<0?'Reproducir disco anterior':'Reproducir disco siguiente');b.innerHTML=playerControlIcon(direction<0?'previous':'next');b.onclick=()=>{const queue=records.filter(r=>audioUrl(r,document.baseURI)),index=queue.indexOf(selected),r=queue[index+direction];if(r){mountRecord(r);togglePlayback()}};transport.append(b)});
- transport.insertBefore($('libraryPlayerPlay'),transport.lastChild);miniPlayer.append(transport);
- miniPlayer.append(playbackTimeline);
- const opener=miniPlayer.querySelector('[data-disc-view]');opener.innerHTML=$('iosTurntableToggle').innerHTML;opener.classList.add('desktop-deck-toggle');opener.setAttribute('aria-label','Abrir tocadiscos');setDiscView('library')}
+buildIosJackets();
+function applyResponsiveLayout(compact,initial=false){
+ if(!initial&&compact===iosDiscView)return;
+ const active=document.activeElement,focusInSheet=iosSheet.contains(active);
+ if(!compact&&iosDiscView)setSheetPosition('compact');
+ iosDiscView=compact;
+ document.documentElement.classList.toggle('mobile-disc-view',compact);
+ document.body.classList.toggle('layered-ios-player',compact);
+ document.body.classList.remove('desktop-turntable');
+ iosSheet.hidden=!compact;transport.hidden=compact;miniSeek.hidden=!compact;desktopToggle.hidden=compact;
+ if(compact){
+  selectionPanel.querySelector('.now-playing-copy').append(actions);
+  iosSheet.querySelector('.ios-sheet-head').append(turntableToggle);
+  iosSheet.querySelector('.ios-sheet-content').append(selectionPanel,timelineDeck);
+  miniPlayer.insertBefore(miniPlay,desktopToggle);
+  openButton.setAttribute('aria-label','Expandir reproductor');openButton.setAttribute('aria-controls','iosPlayerSheet');
+  setSheetPosition('compact');setSheetMode(false);
+ }else{
+  actionsAnchor.after(actions);toggleAnchor.after(turntableToggle);deckAnchor.after(timelineDeck);
+  const stage=$('deckStage');stage.style.removeProperty('width');stage.style.removeProperty('height');
+  transport.insertBefore(miniPlay,transport.lastChild);miniPlayer.append(playbackTimeline);
+  openButton.setAttribute('aria-label','Abrir disco en reproducción');openButton.removeAttribute('aria-controls');openButton.removeAttribute('aria-expanded');
+  delete document.body.dataset.playerPosition;document.body.style.removeProperty('--player-space');
+  arrangeLibrary();
+ }
+ setDiscView('library');
+ const rail=document.querySelector('.biblioteca-sidebar');if(rail)collectionPanel.prepend(rail);
+ if(!initial){
+  if(compact&&pendingRecord)syncIosJackets(pendingRecord,!audio.paused);
+  if(focusInSheet||active===desktopToggle&&compact||transport.contains(active)&&compact)openButton.focus({preventScroll:true});
+  renderGallery();requestAnimationFrame(syncDeckTimeline);
+ }
+}
+applyResponsiveLayout(iosDiscView,true);
+desktopLibrary.addEventListener('change',event=>applyResponsiveLayout(!event.matches));
+const publicHeader=document.querySelector('.editorial-header');
+const syncHeaderHeight=()=>{if(publicHeader)document.documentElement.style.setProperty('--lvl-disc-header-height',publicHeader.getBoundingClientRect().height+'px')};
+syncHeaderHeight();if(window.ResizeObserver&&publicHeader)new ResizeObserver(syncHeaderHeight).observe(publicHeader);
+window.addEventListener('resize',syncHeaderHeight,{passive:true});
 
 const feedback=document.createElement('span');feedback.id='libraryPlaybackStatus';feedback.setAttribute('role','status');miniPlayer.append(feedback);
 
@@ -842,7 +879,7 @@ function navigateLibrary(page,push=true){
  renderGallery();
  collectionPanel.scrollTop=page.scroll||0;
  if(push)saveLibraryHistory(false);
- if(push&&window.innerWidth<=950)collectionPanel.scrollIntoView({block:'start',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+ if(push&&iosDiscView)collectionPanel.scrollIntoView({block:'start',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
  $('libraryPageTitle').focus({preventScroll:true});
 }
 function saveLibraryHistory(replace){
@@ -971,7 +1008,7 @@ $('recordSearch').onkeydown=e=>{if(e.key==='Escape'&&$('recordSearch').value){e.
 $('recordSearch').oninput=()=>{renderGallery();saveLibraryHistory(true)};
 $('genreFilter').onchange=()=>openLibraryCollection('all',$('genreFilter').value);
 if(libraryToggle)libraryToggle.onclick=()=>{if(discView!=='library')focusRecordView(false)};
-window.addEventListener('resize',()=>{if(window.innerWidth<=950)focusRecordView(false)});
+window.addEventListener('resize',()=>{if(iosDiscView)focusRecordView(false)});
 
 function angle(){
   deck.style.setProperty('--rx',rx+'deg');

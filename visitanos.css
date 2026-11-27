@@ -97,3 +97,14 @@ body[data-page="visitanos"] :is(a,button,input,select,textarea):focus-visible{ou
  .visit-topline{letter-spacing:.05em}
 }
 @media(prefers-reduced-motion:reduce){.visit-submit{transition:none}}
+
+@media(min-width:681px) and (max-width:1023px){
+ .visit-profile-grid,.visit-location-grid{gap:var(--lvl-space-5)}
+ .visit-profile h1{font-size:clamp(2.625rem,6vw,4.5rem)}
+ .visit-map{height:clamp(220px,32vw,300px)}
+ .visit-booking-grid{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:var(--lvl-space-5)}
+}
+@media(max-width:479px){
+ .visit-form-row{grid-template-columns:1fr;gap:var(--lvl-space-3)}
+ .visit-topline{flex-wrap:wrap}
+}

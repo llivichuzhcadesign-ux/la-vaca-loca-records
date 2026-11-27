@@ -88,3 +88,14 @@ body .home-calendar-placeholder strong{
 @media(max-width:800px){
  body .home-calendar-art.is-design-preview,body .home-calendar-placeholder{min-height:280px}
 }
+
+/* Phase 3: intentional intermediate and wide compositions. */
+@media(min-width:768px) and (max-width:1023px){
+ body .shop-showcase .showcase-feature{gap:var(--lvl-space-5);margin-top:var(--lvl-space-5)}
+ body .sessions-photo{height:clamp(340px,46vw,480px)}
+ body .sessions-copy .session-cards{gap:var(--lvl-space-4)}
+}
+@media(min-width:1920px){
+ body .shop-section.shop-showcase,body .sessions-section{padding-inline:max(var(--lvl-gutter),calc((100% - 1500px)/2))}
+ body .archive-main{max-width:1500px;margin-inline:auto}
+}
