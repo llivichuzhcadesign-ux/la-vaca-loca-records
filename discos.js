@@ -1124,7 +1124,7 @@ stage.addEventListener('keydown',e=>{
 
 if(records.length){
   let requestedId='';
-  try{requestedId=decodeURIComponent(location.hash.slice(1))}catch(error){}
+  try{requestedId=new URL(location.href).searchParams.get('disc')||decodeURIComponent(location.hash.slice(1))}catch(error){}
   const initialRecord=records.find(record=>record.id===requestedId)||records[0];
   updateSelectedInfo(initialRecord);
   mountRecord(initialRecord,false,true);

@@ -25,7 +25,8 @@ assert.match(nav,/event\.key==='Escape'/);
 assert.match(nav,/like\.innerHTML='<svg/);
 assert.doesNotMatch(nav,/like\.textContent=saved\.has\(r\.id\)\?'♥':'♡'/);
 
-assert.equal((home.match(/class="lvl-control-arrow"/g)||[]).length,4);
+assert.match(home,/class="home-record-enter"[^>]*href="discos.html\?collection=all"/);
+assert.doesNotMatch(home,/data-showcase-prev|data-showcase-next/);
 assert.match(visit,/id="visitGoogleMaps"/);assert.match(visit,/id="visitAppleMaps"/);
 assert.match(home,/class="archive-text-link" href="archivo.html">Explorar el archivo/);
 assert.match(discs,/id="libraryBack"[^>]*><svg class="lvl-control-arrow"/);
