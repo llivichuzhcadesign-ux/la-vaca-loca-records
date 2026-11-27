@@ -569,6 +569,53 @@ function openRecordModal(record){
 }
 function closeRecordModal(){recordModal.classList.remove('open');recordModal.setAttribute('aria-hidden','true');document.body.classList.remove('modal-open')}
 
+function youtubeVideoId(value){
+ const raw=String(value||'').trim();
+ const valid=id=>/^[A-Za-z0-9_-]{11}$/.test(id||'')?id:'';
+ if(valid(raw))return raw;
+ try{
+  const parsed=new URL(raw);
+  if(!['https:','http:'].includes(parsed.protocol))return '';
+  const host=parsed.hostname.toLowerCase();
+  const parts=parsed.pathname.split('/').filter(Boolean);
+  if(host==='youtu.be'||host==='www.youtu.be')return valid(parts[0]);
+  if(!['youtube.com','www.youtube.com','m.youtube.com','music.youtube.com','youtube-nocookie.com','www.youtube-nocookie.com'].includes(host))return '';
+  if(parts[0]==='watch')return valid(parsed.searchParams.get('v'));
+  if(['embed','shorts','live','v'].includes(parts[0]))return valid(parts[1]);
+ }catch{}
+ return '';
+}
+// Match the first public session with a configured YouTube video, in published list order.
+function homeSessionThumbnail(sessions){
+ for(const session of visibleItems(sessions)){
+  const video=session.media?.video||{};
+  const id=[video.youtubeUrl,video.url,session.youtubeUrl,video.youtubeId,session.video].map(youtubeVideoId).find(Boolean);
+  if(id)return {session,id};
+ }
+ return null;
+}
+function setupSessionThumbnail(){
+ const photo=document.querySelector('.sessions-photo');
+ if(!photo||uiEmptyPreview)return;
+ const selection=homeSessionThumbnail(SESSIONS);if(!selection)return;
+ const sources=['maxresdefault','sddefault','hqdefault','mqdefault'];
+ let index=0;
+ function tryNext(){
+  if(index>=sources.length)return;
+  const source='https://i.ytimg.com/vi/'+selection.id+'/'+sources[index++]+'.jpg';
+  const img=new Image();
+  img.onload=()=>{
+   // YouTube sometimes returns a small placeholder for a missing high-res thumbnail.
+   if(img.naturalWidth<300||img.naturalHeight<160){tryNext();return}
+   photo.style.setProperty('--home-session-thumbnail','url("'+source+'")');
+   photo.classList.add('has-session-thumbnail');
+  };
+  img.onerror=tryNext;
+  img.src=source;
+ }
+ tryNext();
+}
+
 function enhancePublicSite(){
  document.querySelectorAll('#how,.how-section,.buying-section').forEach(section=>section.remove());
  document.querySelectorAll('.main-nav a,.site-footer a').forEach(link=>{
@@ -693,6 +740,7 @@ injectInteractionStyles();
 setupDraftPreviewBanner();
 setupHomepageHero();
 enhancePublicSite();
+setupSessionThumbnail();
 setupMobileNavigation();
 renderRecordPreview();renderCart();
 

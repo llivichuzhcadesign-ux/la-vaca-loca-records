@@ -129,3 +129,6 @@ body .archive-main .archive-text-link .lvl-decorative-glyph{font-size:var(--lvl-
 @media(max-height:450px) and (min-width:600px){
  body .lvl-hero-content{padding-bottom:76px}
 }
+
+/* Actual YouTube artwork for the first public session; keep the existing store photo as fallback. */
+body .sessions-photo.has-session-thumbnail{background-image:linear-gradient(0deg,rgba(9,9,7,.72),transparent 72%),var(--home-session-thumbnail);background-position:center center}
