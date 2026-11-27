@@ -363,7 +363,7 @@ async function setupHomepageIntro(){
 setupHomepageIntro();
 
 const content=window.SITE_CONTENT||{};
-const visibleItems=list=>(list||[]).filter(item=>!item.hideFromPublic);
+const visibleItems=list=>(Array.isArray(list)?list:[]).filter(item=>item&&!item.hideFromPublic&&!['DRAFT','HIDDEN','PRIVATE LISTING'].includes(String(item.status||'').trim().toUpperCase()));
 const recordsSource=visibleItems(content.records||window.RECORDS||[]);
 let savedCart=[];try{const ids=JSON.parse(localStorage.getItem('lvl-cart-discs')||'[]');if(Array.isArray(ids))savedCart=ids.map(id=>recordsSource.find(r=>r.id===id)).filter(r=>r&&!r.hideFromPublic&&Number(r.stock)!==0)}catch{}
 const state={cart:savedCart,current:null,playing:false};
@@ -397,6 +397,7 @@ async function getHeroDraftBlob(key){if(!key)return null;const db=await openHero
 function setHeroText(id,value){const el=document.getElementById(id);if(el&&value!==undefined&&value!==null)el.textContent=String(value)}
 async function setupHomepageHero(){
  const gallery=document.getElementById('lvlHeroGallery');if(!gallery)return;
+ const controls=document.getElementById('lvlHeroControls');if(controls)controls.hidden=true;
  const hero=content.homepage?.hero||{};
  const overlay= document.querySelector('.lvl-hero-shade');
  if(overlay)overlay.style.opacity=String((window.LVLCrop?.overlayStrength(hero)??25)/100);
@@ -465,9 +466,22 @@ async function setupHomepageHero(){
  let active=0;
  const show=index=>{active=index;slideEls.forEach((el,i)=>el.classList.toggle('is-active',i===active));if(current)current.textContent=String(active+1).padStart(2,'0');if(overlay)overlay.style.opacity=String((window.LVLCrop?.slideOverlayStrength(hero,slides[active])??25)/100)};
  show(0);
- const reduceHeroMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
  const interval=Math.max(2,Number(hero.intervalSeconds)||6)*1000;
- if(!reduceHeroMotion&&slideEls.length>1)setInterval(()=>show((active+1)%slideEls.length),interval);
+ const previous=document.getElementById('lvlHeroPrevious'),next=document.getElementById('lvlHeroNext'),pause=document.getElementById('lvlHeroPause');
+ let paused=reducedMotion.matches,timer=null;
+ function syncHeroTimer(){
+  if(timer!==null){clearInterval(timer);timer=null}
+  if(pause){pause.setAttribute('aria-pressed',String(paused));pause.setAttribute('aria-label',paused?'Reanudar fotografías':'Pausar fotografías');pause.querySelector('path')?.setAttribute('d',paused?'m9 6 10 6-10 6Z':'M9 6v12M15 6v12')}
+  if(!paused&&!document.hidden&&slideEls.length>1)timer=setInterval(()=>show((active+1)%slideEls.length),interval);
+ }
+ if(controls)controls.hidden=slideEls.length<2;
+ if(previous)previous.onclick=()=>{show((active-1+slideEls.length)%slideEls.length);syncHeroTimer()};
+ if(next)next.onclick=()=>{show((active+1)%slideEls.length);syncHeroTimer()};
+ if(pause)pause.onclick=()=>{paused=!paused;syncHeroTimer()};
+ document.addEventListener('visibilitychange',syncHeroTimer);
+ reducedMotion.addEventListener?.('change',event=>{paused=event.matches;syncHeroTimer()});
+ syncHeroTimer();
 }
 window.addEventListener('beforeunload',()=>heroObjectUrls.forEach(url=>URL.revokeObjectURL(url)));
 
@@ -485,7 +499,7 @@ function renderRecordPreview(){
   feature.hidden=false;
   feature.classList.add('showcase-feature-empty');
   feature.innerHTML='<div class="showcase-empty-art" aria-hidden="true"><span class="showcase-empty-edition">LA VACA LOCA / DISCOS</span><span class="showcase-empty-center">LVL</span><span class="showcase-empty-bottom">GUALACEO · ECUADOR</span></div>'+
-   '<div class="showcase-empty-copy"><p class="showcase-empty-kicker">EL CATÁLOGO</p><h3>Discos en preparación.</h3><p>Estamos preparando nuestra selección. Aquí podrás descubrir las portadas, escuchar previews y explorar cada edición.</p>'+
+   '<div class="showcase-empty-copy"><p class="showcase-empty-kicker">EL CATÁLOGO</p><h3>Discos en preparación.</h3><p>Estamos preparando nuestra selección. Aquí podrás descubrir las portadas, escuchar adelantos y explorar cada edición.</p>'+
    '<a class="showcase-empty-link" href="discos.html'+(designEmpty?'?ui-preview=empty':'')+'">Explorar la biblioteca <span aria-hidden="true">↗</span></a></div>';
   grid.innerHTML='<p class="showcase-empty-footnote">'+(designEmpty?'VISTA DE DISEÑO · SIN CONTENIDO':'NUEVAS EDICIONES · PRÓXIMAMENTE')+'</p>';
   return;
@@ -590,9 +604,9 @@ function enhancePublicSite(){
  });
  const sessionsCopy=document.querySelector('.sessions-copy');
  if(sessionsCopy&&!document.querySelector('.session-cards')){
-  const visibleSessions=uiEmptyPreview?[]:SESSIONS.filter(item=>!item.hideFromPublic);
+  const visibleSessions=uiEmptyPreview?[]:SESSIONS.slice(0,3);
   if(visibleSessions.length){
-   sessionsCopy.insertAdjacentHTML('beforeend',`<div class="session-cards">${visibleSessions.map(item=>`<a class="session-card" href="sessions.html#${encodeURIComponent(item.id)}"><small>${item.type}</small><strong>${item.title}</strong><span>${item.status}</span></a>`).join('')}</div>`);
+   sessionsCopy.insertAdjacentHTML('beforeend',`<div class="session-cards">${visibleSessions.map(item=>`<a class="session-card" href="sessions.html#${encodeURIComponent(item.id)}"><small>${escapeText(item.type||"")}</small><strong>${escapeText(item.title||"")}</strong><span>${escapeText(item.date||item.status||"")}</span></a>`).join('')}</div>`);
   }else{
    sessionsCopy.insertAdjacentHTML('beforeend','<p class="home-sessions-empty">'+(uiEmptyPreview?'VISTA DE DISEÑO · SIN CONTENIDO':'NUEVAS SESIONES · PRÓXIMAMENTE')+'</p>');
   }

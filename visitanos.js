@@ -77,7 +77,7 @@
    '',
    'Nombre: '+value(fields.get('name')),
    'Fecha preferida: '+formatDate(preferredDate),
-   'Horario preferido: '+value(fields.get('time')),
+   'Horario preferido (Ecuador): '+value(fields.get('time')),
    'Personas: '+value(fields.get('guests'))
   ];
   const note=value(fields.get('note'));

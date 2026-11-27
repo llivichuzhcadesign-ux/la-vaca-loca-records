@@ -3,7 +3,23 @@
 const data=window.SITE_CONTENT||{};
 const page=document.body.dataset.page;
 const esc=value=>String(value||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const visible=items=>(items||[]).filter(item=>!item.hideFromPublic);
+const visible=items=>(Array.isArray(items)?items:[]).filter(item=>item&&!item.hideFromPublic&&!['DRAFT','HIDDEN','PRIVATE LISTING'].includes(String(item.status||'').trim().toUpperCase()));
+// Dates are optional: preserve the published order of undated archive entries.
+function dateKey(value){
+ const text=String(value||'').trim();
+ const iso=/^(\d{4})-(\d{2})-(\d{2})$/.exec(text),local=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec(text);
+ if(!iso&&!local)return null;
+ const [year,month,day]=iso?iso.slice(1).map(Number):[Number(local[3]),Number(local[2]),Number(local[1])];
+ const d=new Date(Date.UTC(year,month-1,day));
+ return d.getUTCFullYear()===year&&d.getUTCMonth()===month-1&&d.getUTCDate()===day?d.getTime():null;
+}
+function chronological(items){
+ return items.map((item,index)=>({item,index,key:dateKey(item.date)})).sort((a,b)=>{
+  if(a.key!==null&&b.key!==null)return b.key-a.key||a.index-b.index;
+  if(a.key!==null)return -1;if(b.key!==null)return 1;return a.index-b.index;
+ }).map(x=>x.item);
+}
+function dateLabel(value){const key=dateKey(value);return key===null?String(value||'').trim():new Intl.DateTimeFormat('es-EC',{dateStyle:'long',timeZone:'UTC'}).format(new Date(key));}
 const sessions=visible(data.sessions);
 const archive=visible(data.archiveItems);
 const records=visible(data.records);
@@ -27,39 +43,48 @@ function youtubeVideoId(value){
  }catch{}
  return '';
 }
-// Only configured remote media is shown; unfinished local placeholders stay out of these pages.
-function media(item){
+// Use the admin's published media URLs, never local demo placeholders.
+function photoMarkup(item,kind){
+ const image=item.media?.[kind]||{},source=url(image.url);
+ if(!source)return '';
+ const caption=String(image.caption||'').trim();
+ const alt=String(image.alt||item.title||'').trim();
+ return '<figure class="editorial-photo"><img src="'+esc(source)+'" alt="'+esc(alt)+'" loading="lazy" decoding="async">'+(caption?'<figcaption>'+esc(caption)+'</figcaption>':'')+'</figure>';
+}
+function sessionMedia(item){
  const m=item.media||{};
  const audio=url(m.audio?.url||'');
  const video=url(m.video?.youtubeUrl||m.video?.url||item.youtubeUrl||'');
  const id=[m.video?.youtubeUrl,m.video?.url,item.youtubeUrl,m.video?.youtubeId].map(youtubeVideoId).find(Boolean);
- const player=id?'<div class="session-video"><iframe src="https://www.youtube-nocookie.com/embed/'+id+'" title="'+esc('Video: '+(item.title||'Sesión de La Vaca Loca'))+'" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen></iframe></div>':
-  video?'<p><a href="'+esc(video)+'" target="_blank" rel="noopener noreferrer">Ver video</a></p>':'';
- return (audio?'<audio controls preload="none" src="'+esc(audio)+'">Tu navegador no permite reproducir audio.</audio>':'')+
- player+
- (!audio&&!player?'<p class="availability">La grabación todavía no está disponible.</p>':'');
+ const player=id?'<div class="session-video"><iframe src="https://www.youtube-nocookie.com/embed/'+id+'" title="'+esc('Video: '+(item.title||'Sesión de La Vaca Loca'))+'" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen></iframe></div>':'';
+ const photo=player?'':photoMarkup(item,'hero');
+ const audioPlayer=audio?'<div class="session-audio"><span>Escuchar sesión</span><audio controls preload="none" src="'+esc(audio)+'">Tu navegador no permite reproducir audio.</audio></div>':'';
+ const external=!id&&video?'<a class="editorial-action" href="'+esc(video)+'" target="_blank" rel="noopener noreferrer">Ver video</a>':'';
+ const fallback=!player&&!audio&&!external?'<p class="availability">La grabación todavía no está disponible.</p>':'';
+ return {markup:player+photo+audioPlayer,notes:external+fallback};
 }
 function related(item){
- const selected=records.filter(record=>(item.relatedRecords||[]).includes(record.id));
- return selected.length?'<p>Discos relacionados: '+selected.map(r=>esc(r.artist+' — '+r.title)).join(' · ')+'</p><p>'+link('index.html#shop','Explorar discos')+'</p>':'';
+ const ids=Array.isArray(item.relatedRecords)?item.relatedRecords:[];
+ const selected=records.filter(record=>ids.includes(record.id));
+ return selected.length?'<aside class="editorial-related" aria-label="Discos relacionados"><h3>Discos relacionados</h3><ul>'+selected.map(r=>'<li>'+link('discos.html?disc='+encodeURIComponent(r.id),[r.artist,r.title].filter(Boolean).join(' — '))+'</li>').join('')+'</ul></aside>':'';
 }
 const designEmpty=new URLSearchParams(location.search).get('ui-preview')==='empty';
-const entries=designEmpty?[]:(page==='sessions'?sessions:archive);
+const entries=designEmpty?[]:chronological(page==='sessions'?sessions:archive);
 const index=document.getElementById('pageIndex');
 index.innerHTML=entries.map(item=>link('#'+encodeURIComponent(item.id),item.title)).join('');
-index.hidden=!entries.length;
+index.hidden=entries.length<2;
 document.getElementById('pageContent').innerHTML=entries.length?entries.map((item,index)=>{
  const isSession=page==='sessions';
- const photo=url(item.media?.image?.url||'');
+ const date=dateLabel(item.date),type=String(isSession?item.type||'':item.category||'').trim();
+ const meta=[type,isSession?item.artist:'',date].filter(Boolean).map(esc).join(' · ');
+ const status=isSession&&item.status&&item.status!==item.date?'<span class="entry-status">'+esc(item.status)+'</span>':'';
+ const description=item.detail?'<p class="entry-description">'+esc(item.detail)+'</p>':'';
  const associatedSession=sessions.find(s=>s.id===item.relatedSession);
-
- const details=isSession?
-  '<details><summary>Sobre esta sesión</summary><p>'+esc(item.detail)+'</p>'+related(item)+'</details>'+media(item):
-  '<p>'+esc(item.detail)+'</p>'+
-  (photo?'<img src="'+esc(photo)+'" alt="'+esc(item.media?.image?.alt||item.title)+'" loading="lazy">':'<p class="availability">La colección de fotos y posters se publicará aquí.</p>')+
-  (associatedSession?'<p>'+link('sessions.html#'+encodeURIComponent(associatedSession.id),'Ver sesión: '+associatedSession.title)+'</p>':'')+
-  '';
- return '<article class="entry" id="'+esc(item.id)+'"><div class="entry-number">'+String(index+1).padStart(2,'0')+'</div><div><p class="entry-meta">'+esc(isSession?item.type:item.category)+(isSession?'<span class="status">'+esc(item.status)+'</span>':'')+'</p><h2>'+esc(item.title)+'</h2>'+details+'</div></article>';
+ const session=isSession?sessionMedia(item):null;
+ const visual=isSession?session.markup:photoMarkup(item,'image');
+ const extras=isSession?session.notes+related(item):associatedSession?'<p class="entry-associated">'+link('sessions.html#'+encodeURIComponent(associatedSession.id),'Ver sesión: '+associatedSession.title)+'</p>':'';
+ const title='<header class="entry-heading"><p class="entry-meta">'+meta+status+'</p><h2>'+esc(item.title)+'</h2></header>';
+ return '<article class="entry '+(isSession?'session-entry':'archive-entry')+(visual?' has-editorial-media':'')+'" id="'+esc(item.id)+'"><div class="entry-number" aria-hidden="true">'+String(index+1).padStart(2,'0')+'</div><div class="entry-body">'+title+(visual?'<div class="entry-visual">'+visual+'</div>':'')+'<div class="entry-story">'+description+extras+'</div></div></article>';
 }).join(''):(()=>{
  const isSession=page==='sessions';
  const heading=isSession?'Las próximas sesiones están tomando forma.':'El archivo está en construcción.';
@@ -75,5 +100,5 @@ document.getElementById('pageContent').innerHTML=entries.length?entries.map((ite
   '<div class="editorial-empty-copy">'+previewNote+'<p class="editorial-empty-kicker">PRÓXIMAMENTE</p><h2 id="editorialEmptyTitle">'+heading+'</h2><p>'+summary+'</p>'+
   '<div class="editorial-empty-actions"><a href="'+nextUrl+(designEmpty?'?ui-preview=empty':'')+'">'+next+' <span aria-hidden="true">↗</span></a><a href="index.html'+(designEmpty?'?ui-preview=empty':'')+'">Volver al inicio</a></div></div></section>';
 })();
-if(location.hash){const item=document.getElementById(decodeURIComponent(location.hash.slice(1)));if(item)item.scrollIntoView();}
+if(location.hash){try{const item=document.getElementById(decodeURIComponent(location.hash.slice(1)));if(item)item.scrollIntoView()}catch{}}
 })();

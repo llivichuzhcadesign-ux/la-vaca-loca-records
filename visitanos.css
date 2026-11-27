@@ -108,3 +108,21 @@ body[data-page="visitanos"] :is(a,button,input,select,textarea):focus-visible{ou
  .visit-form-row{grid-template-columns:1fr;gap:var(--lvl-space-3)}
  .visit-topline{flex-wrap:wrap}
 }
+
+/* A compact profile, followed by directions and a single purposeful form. */
+.visit-profile{padding-block:var(--lvl-space-4) var(--lvl-section-space)}
+.visit-topline{line-height:1.5}
+.visit-photo{margin:0;max-height:none;aspect-ratio:4/3}
+.visit-photo figcaption{position:static;background:transparent;padding:var(--lvl-space-2) 0;color:var(--visit-muted);letter-spacing:.08em}
+.visit-photo{display:flex;flex-direction:column;aspect-ratio:auto;background:transparent}
+.visit-photo img{aspect-ratio:4/3;height:auto;max-height:420px;object-fit:cover}
+.visit-location{padding-block:var(--lvl-space-5)}
+.visit-booking{padding-block:var(--lvl-section-space)}
+.visit-form-status{max-width:55ch}
+.visit-map-link[aria-disabled="true"]{opacity:.68}
+@media(max-width:680px){
+ .visit-photo img{aspect-ratio:16/10;max-height:285px}
+ .visit-photo{max-height:none}
+ .visit-location{padding-block:var(--lvl-space-4)}
+ .visit-booking{padding-block:var(--lvl-space-5) var(--lvl-section-space)}
+}
